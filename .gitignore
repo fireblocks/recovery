@@ -161,5 +161,4 @@ cython_debug/
 
 
 # Git
-.git/
-/.git
+.git
