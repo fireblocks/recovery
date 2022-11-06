@@ -37,7 +37,7 @@ paths:
             schema:
               $ref: '#/components/schemas/RecoverKeysRequest'
         required: true
-  
+
       responses:
         '200':
           description: Successful operation
@@ -49,7 +49,7 @@ paths:
           description: Test
         '405':
           description: Test
-          
+
   /show-extended-private-keys:
     get:
       tags:
@@ -57,7 +57,7 @@ paths:
       summary: Retrieve full extended keys to show
       description: Retrieves full info of XPRV, FPRV
       operationId: showFullPrv
-  
+
       responses:
         '200':
           description: Successful operation
@@ -69,7 +69,7 @@ paths:
           description: Test
         '405':
           description: Test
-          
+
   /derive-addresses:
     get:
       tags:
@@ -80,31 +80,55 @@ paths:
       parameters:
         - name: asset
           in: query
+          required: true
           description: The symbol of the asset (BTC, ETH, SOL and so on).
           schema:
             type: string
-            default: 
+            default:
         - name: account
           in: query
+          required: true
           description: The vault ID.
           schema:
             type: integer
         - name: index_start
           in: query
+          required: true
           description: The starting index of derivation.
           schema:
             type: integer
         - name: index_end
           in: query
+          required: true
           description: The ending index of derivation.
           schema:
             type: integer
         - name: change
           in: query
+          required: true
           description: The change according to BIP-44.
           schema:
             type: integer
             default: 0
+        - name: xpub
+          in: query
+          required: true
+          description: Derive addresses only from the xpub
+          schema:
+            type: boolean
+            default: false
+        - name: legacy
+          in: query
+          description: Get the legacy format of this asset if applies.
+          schema:
+            type: boolean
+            default: false
+        - name: checksum
+          in: query
+          description: Get the checksumed format of this asset if applies.
+          schema:
+            type: boolean
+            default: true
       responses:
         '200':
           description: Successful operation
@@ -130,7 +154,7 @@ paths:
           description: The symbol of the asset (BTC, ETH, SOL and so on).
           schema:
             type: string
-            default: 
+            default:
       responses:
         '200':
           description: Successful operation
@@ -146,8 +170,8 @@ paths:
 components:
   schemas:
     RecoverKeysRequest:
-      properties: 
-        zip: 
+      properties:
+        zip:
           type: string
         passphrase:
           type: string
@@ -184,10 +208,9 @@ components:
             properties:
               address:
                 type: string
-              path: 
+              path:
                 type: string
     ShowKeyResponse:
       properties:
         prv:
           type: string
-    
