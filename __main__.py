@@ -11,7 +11,7 @@ serve = get_dep("waitress").serve
 app = Flask(__name__)
 
 
-def get_parameter(k, default = None):
+def get_parameter(k, default=None):
     try:
         return request.args.get(k)
     except KeyError as e:
@@ -34,6 +34,22 @@ def derive_keys():
         )
 
     return res
+
+
+@app.route("/recover-keys", methods=['GET'])
+def recover_keys():
+    data = request.form
+    try:
+        res = recover_keys_impl()
+        xprv, fprv, xpub, fpub = res['xprv'], res['fprv'], res['xpub'], res['fpub']
+        return xprv, fprv, xpub, fpub
+    except Exception as e:
+        res = app.response_class(
+            response=json.dumps({
+                "reason": e
+            }),
+            status=500
+        )
 
 
 def derive_keys_impl():
@@ -63,9 +79,25 @@ def derive_keys_impl():
     res = []
     for index in range(index_start, index_end):
         helper = helper_class(key_to_use,
-                             account,
-                             change,
-                             index)
+                              account,
+                              change,
+                              index)
+
+
+def recover_keys_impl(zip_file: str, passphrase: str, rsa_key: str, rsa_key_passphrase: str):
+    """
+    Retrieves XPRV, FPRV, XPUB, FPUB.
+    :param zip_file: Base64 encoded string representation of the zip file.
+    :param passphrase: Base64 encoded string representation of the passphrase.
+    :param rsa_key: Base64 encoded string representation of the RSA key file.
+    :param rsa_key_passphrase: Base64 encoded string representation of the RSA key passphrase.
+    :return:
+    """
+    # TODO - copy existing recovery code from Github (Fireblocks Recovery) and use it in here.
+    return {"xprv": "",
+            "fprv": "",
+            "xpub": "",
+            "fpub": ""}
 
 
 if __name__ == '__main__':
