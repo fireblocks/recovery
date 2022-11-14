@@ -36,7 +36,7 @@ def derive_keys():
     return res
 
 
-@app.route("/recover-keys", methods=['GET'])
+@app.route("/recover-keys", methods=['POST'])
 def recover_keys():
     data = request.form
     try:
