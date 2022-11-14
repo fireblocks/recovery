@@ -36,11 +36,11 @@ def derive_keys():
     return res
 
 
-@app.route("/recover-keys", methods=['GET'])
+@app.route("/recover-keys", methods=['POST'])
 def recover_keys():
     data = request.form
     try:
-        res = recover_keys_impl()
+        res = recover_keys_impl(data['zip'], data['passphrase'], data['rsa-key'], data['rsa-key-passphrase'])
         xprv, fprv, xpub, fpub = res['xprv'], res['fprv'], res['xpub'], res['fpub']
         return xprv, fprv, xpub, fpub
     except Exception as e:
@@ -94,7 +94,8 @@ def recover_keys_impl(zip_file: str, passphrase: str, rsa_key: str, rsa_key_pass
     :return:
     """
     # TODO - copy existing recovery code from Github (Fireblocks Recovery) and use it in here.
-    return {"xprv": "",
+    # TODO - use set_data to global state after recovering keys.
+	return {"xprv": "",
             "fprv": "",
             "xpub": "",
             "fpub": ""}
