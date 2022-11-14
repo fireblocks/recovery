@@ -6,9 +6,38 @@ from com.fireblocks.drs.infra.global_state import setup_global_state, get_data, 
 
 Flask = get_dep("flask").Flask
 request = get_dep("flask").request
+current_app = get_dep("flask").current_app
 serve = get_dep("waitress").serve
+wraps = get_dep("functools").wraps
+jwt = get_dep("jwt")
+
+
+JWT_ALGORITHM = "HS256"
 
 app = Flask(__name__)
+
+unauthorized_error = {"error": "Unauthorized", "data": None}, 401
+
+def jwt_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if current_app.config["SECRET_KEY"]:
+            token = None
+            if "Authorization" in request.headers:
+                token = request.headers["Authorization"].split(" ")[1]
+            if not token:
+                return unauthorized_error
+            try:
+                jwt.decode(
+                    token, current_app.config["SECRET_KEY"], algorithms=[
+                        JWT_ALGORITHM]
+                )
+            except Exception:
+                return unauthorized_error
+
+        return f(*args, **kwargs)
+
+    return decorated
 
 
 def get_parameter(k, default=None):
@@ -37,6 +66,7 @@ def derive_keys():
 
 
 @app.route("/recover-keys", methods=['POST'])
+@jwt_required
 def recover_keys():
     data = request.form
     try:
@@ -95,7 +125,7 @@ def recover_keys_impl(zip_file: str, passphrase: str, rsa_key: str, rsa_key_pass
     """
     # TODO - copy existing recovery code from Github (Fireblocks Recovery) and use it in here.
     # TODO - use set_data to global state after recovering keys.
-	return {"xprv": "",
+    return {"xprv": "",
             "fprv": "",
             "xpub": "",
             "fpub": ""}

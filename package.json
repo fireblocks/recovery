@@ -1,0 +1,31 @@
+{
+  "name": "fireblocks-recovery-utility",
+  "description": "Fireblocks workspace recovery utility",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "homepage": "https://www.fireblocks.com",
+  "engines": {
+    "node": ">=16.15.0",
+    "yarn": ">=1.22.0",
+    "npm": "please-use-yarn"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "prepare": "is-ci || husky install",
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "format": "turbo run format"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.25.2",
+    "turbo": "latest"
+  },
+  "dependencies": {
+    "is-ci": "^3.0.1"
+  },
+  "packageManager": "yarn@1.22.19"
+}
