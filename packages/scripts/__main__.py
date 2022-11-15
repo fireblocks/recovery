@@ -1,5 +1,5 @@
 import json
-
+from functools import wraps
 from com.fireblocks.drs.infra.dynamic_loader import get_dep
 from com.fireblocks.drs.infra.global_state import setup_global_state, get_data, ASSET_TYPE, ASSET_TYPE_ECDSA, \
     ASSET_TYPE_EDDSA, ASSET_HELPER
@@ -8,8 +8,7 @@ Flask = get_dep("flask").Flask
 request = get_dep("flask").request
 current_app = get_dep("flask").current_app
 serve = get_dep("waitress").serve
-wraps = get_dep("functools").wraps
-jwt = get_dep("jwt")
+# jwt = get_dep("jwt")
 
 
 JWT_ALGORITHM = "HS256"
@@ -18,27 +17,26 @@ app = Flask(__name__)
 
 unauthorized_error = {"error": "Unauthorized", "data": None}, 401
 
-def jwt_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if current_app.config["SECRET_KEY"]:
-            token = None
-            if "Authorization" in request.headers:
-                token = request.headers["Authorization"].split(" ")[1]
-            if not token:
-                return unauthorized_error
-            try:
-                jwt.decode(
-                    token, current_app.config["SECRET_KEY"], algorithms=[
-                        JWT_ALGORITHM]
-                )
-            except Exception:
-                return unauthorized_error
-
-        return f(*args, **kwargs)
-
-    return decorated
-
+# def jwt_required(f):
+#     @wraps(f)
+#     def decorated(*args, **kwargs):
+#         if current_app.config["SECRET_KEY"]:
+#             token = None
+#             if "Authorization" in request.headers:
+#                 token = request.headers["Authorization"].split(" ")[1]
+#             if not token:
+#                 return unauthorized_error
+#             try:
+#                 jwt.decode(
+#                     token, current_app.config["SECRET_KEY"], algorithms=[
+#                         JWT_ALGORITHM]
+#                 )
+#             except Exception:
+#                 return unauthorized_error
+#
+#         return f(*args, **kwargs)
+#
+#     return decorated
 
 def get_parameter(k, default=None):
     try:
@@ -48,7 +46,6 @@ def get_parameter(k, default=None):
             raise Exception(f"No parameter named {k} in request")
         else:
             return default
-
 
 @app.route("/derive-keys", methods=['GET'])
 def derive_keys():
@@ -64,9 +61,8 @@ def derive_keys():
 
     return res
 
-
 @app.route("/recover-keys", methods=['POST'])
-@jwt_required
+#@jwt_required
 def recover_keys():
     data = request.form
     try:
@@ -81,6 +77,19 @@ def recover_keys():
             status=500
         )
 
+@app.route("/show-extended-private-keys", methods=['GET'])
+def show_extended_private_keys():
+  try:
+    res = show_extended_private_keys_impl()
+  except Exception as e:
+    res = app.response_class(
+            response=json.dumps({
+                "reason": e
+            }),
+            status=500
+        )
+
+  return res
 
 def derive_keys_impl():
     asset = get_parameter("asset")
@@ -113,7 +122,6 @@ def derive_keys_impl():
                               change,
                               index)
 
-
 def recover_keys_impl(zip_file: str, passphrase: str, rsa_key: str, rsa_key_passphrase: str):
     """
     Retrieves XPRV, FPRV, XPUB, FPUB.
@@ -129,6 +137,20 @@ def recover_keys_impl(zip_file: str, passphrase: str, rsa_key: str, rsa_key_pass
             "fprv": "",
             "xpub": "",
             "fpub": ""}
+
+def show_extended_private_keys_impl():
+  data_key = "xprv"
+  xprv = get_data(data_key)
+
+  data_key = "fprv"
+  fprv = get_data(data_key)
+
+  if xprv and fprv:
+    return {"xprv": xprv,
+            "fprv": fprv
+          }
+
+  raise Exception(f"No entry for either xprv or fprv. Make sure to recover the addresses first.")
 
 
 if __name__ == '__main__':
