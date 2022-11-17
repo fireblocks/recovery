@@ -1,5 +1,4 @@
 import json
-from functools import wraps
 from com.fireblocks.drs.infra.dynamic_loader import get_dep
 from com.fireblocks.drs.infra.global_state import setup_global_state, get_data, ASSET_TYPE, ASSET_TYPE_ECDSA, \
     ASSET_TYPE_EDDSA, ASSET_HELPER
@@ -16,6 +15,7 @@ JWT_ALGORITHM = "HS256"
 app = Flask(__name__)
 
 unauthorized_error = {"error": "Unauthorized", "data": None}, 401
+
 
 # def jwt_required(f):
 #     @wraps(f)
@@ -47,6 +47,9 @@ def get_parameter(k, default=None):
         else:
             return default
 
+
+# ======================================= Derive Keys API
+
 @app.route("/derive-keys", methods=['GET'])
 def derive_keys():
     try:
@@ -54,42 +57,13 @@ def derive_keys():
     except Exception as e:
         res = app.response_class(
             response=json.dumps({
-                "reason": e
+                "reason": str(e)
             }),
             status=500
         )
 
     return res
 
-@app.route("/recover-keys", methods=['POST'])
-#@jwt_required
-def recover_keys():
-    data = request.form
-    try:
-        res = recover_keys_impl(data['zip'], data['passphrase'], data['rsa-key'], data['rsa-key-passphrase'])
-        xprv, fprv, xpub, fpub = res['xprv'], res['fprv'], res['xpub'], res['fpub']
-        return xprv, fprv, xpub, fpub
-    except Exception as e:
-        res = app.response_class(
-            response=json.dumps({
-                "reason": e
-            }),
-            status=500
-        )
-
-@app.route("/show-extended-private-keys", methods=['GET'])
-def show_extended_private_keys():
-  try:
-    res = show_extended_private_keys_impl()
-  except Exception as e:
-    res = app.response_class(
-            response=json.dumps({
-                "reason": e
-            }),
-            status=500
-        )
-
-  return res
 
 def derive_keys_impl():
     asset = get_parameter("asset")
@@ -122,6 +96,26 @@ def derive_keys_impl():
                               change,
                               index)
 
+
+# ======================================= Recover keys API
+
+@app.route("/recover-keys", methods=['POST'])
+# @jwt_required
+def recover_keys():
+    data = request.form
+    try:
+        res = recover_keys_impl(data['zip'], data['passphrase'], data['rsa-key'], data['rsa-key-passphrase'])
+        xprv, fprv, xpub, fpub = res['xprv'], res['fprv'], res['xpub'], res['fpub']
+        return xprv, fprv, xpub, fpub
+    except Exception as e:
+        res = app.response_class(
+            response=json.dumps({
+                "reason": str(e)
+            }),
+            status=500
+        )
+
+
 def recover_keys_impl(zip_file: str, passphrase: str, rsa_key: str, rsa_key_passphrase: str):
     """
     Retrieves XPRV, FPRV, XPUB, FPUB.
@@ -138,19 +132,37 @@ def recover_keys_impl(zip_file: str, passphrase: str, rsa_key: str, rsa_key_pass
             "xpub": "",
             "fpub": ""}
 
+
+# ======================================= Show Extended Private Keys API
+
+@app.route("/show-extended-private-keys", methods=['GET'])
+def show_extended_private_keys():
+    try:
+        res = show_extended_private_keys_impl()
+    except Exception as e:
+        res = app.response_class(
+            response=json.dumps({
+                "reason": str(e)
+            }),
+            status=500
+        )
+
+    return res
+
+
 def show_extended_private_keys_impl():
-  data_key = "xprv"
-  xprv = get_data(data_key)
+    data_key = "xprv"
+    xprv = get_data(data_key)
 
-  data_key = "fprv"
-  fprv = get_data(data_key)
+    data_key = "fprv"
+    fprv = get_data(data_key)
 
-  if xprv and fprv:
-    return {"xprv": xprv,
-            "fprv": fprv
-          }
+    if xprv and fprv:
+        return {"xprv": xprv,
+                "fprv": fprv
+                }
 
-  raise Exception(f"No entry for either xprv or fprv. Make sure to recover the addresses first.")
+    raise Exception(f"No entry for either xprv or fprv. Make sure to recover the addresses first.")
 
 
 if __name__ == '__main__':
