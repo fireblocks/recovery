@@ -196,20 +196,18 @@ components:
         fprv:
           type: string
     DeriveAddressesResponse:
-      properties:
-        prv:
-          type: string
-        pub:
-          type: string
-        addressList:
-          type: array
-          items:
-            type: object
-            properties:
-              address:
-                type: string
-              path:
-                type: string
+      type: array
+      items:
+        type: object
+        properties:
+          prv:
+            type: string
+          pub:
+            type: string
+          address:
+            type: string
+          path:
+              type: string
     ShowKeyResponse:
       properties:
         prv:

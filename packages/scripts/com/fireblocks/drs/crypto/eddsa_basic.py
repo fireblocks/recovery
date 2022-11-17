@@ -28,11 +28,15 @@ class EdDSARecovery(BaseRecovery):
         :param change: (optional)
         :param address_index: (optional)
         """
+        self.account = account
+        self.coin_id = coin_type.value
+        self.change = change
+        self.address_index = address_index
         self.private_key, self.pub_hex = eddsa_derive(fprv,
                                                       f"44/{coin_type.value}/{account}/{change}/{address_index}")
-
-        self.prv_hex = hex(self.private_key)
+        self.prv_hex = hex(self.private_key)[2:]
         self.public_key = int.from_bytes(self.pub_hex, byteorder="little")
+        self.pub_hex = self.pub_hex.hex()
 
     def to_import_format(self) -> str:
         raise UnsupportedException("Import format is not supported for EdDSA keys.")
