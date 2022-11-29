@@ -189,3 +189,6 @@ cython_debug/
 .idea/
 
 server/res/dependencies
+packages/scripts/.idea
+packages/scripts/venv
+packages/scripts/res/dependencies

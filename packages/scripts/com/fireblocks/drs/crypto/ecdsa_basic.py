@@ -30,6 +30,10 @@ class EcDSARecovery(BaseRecovery):
         :param change: (optional)
         :param address_index: (optional)
         """
+        self.account = account
+        self.coin_id = coin_type.value
+        self.change = change
+        self.address_index = address_index
         self.private_key = int.from_bytes(BIP32.from_xpriv(xprv).get_extended_privkey_from_path([
             DERIVATION_PURPOSE,
             coin_type.value,

@@ -1,5 +1,9 @@
 import json
+import sys
+import traceback
+from pprint import pprint
 
+from com.fireblocks.drs.crypto.basic import DerivationDetails
 from com.fireblocks.drs.infra.dynamic_loader import get_dep
 from com.fireblocks.drs.infra.global_state import setup_global_state, get_data, ASSET_TYPE, ASSET_TYPE_ECDSA, \
     ASSET_TYPE_EDDSA, ASSET_HELPER
@@ -11,6 +15,7 @@ serve = get_dep("waitress").serve
 wraps = get_dep("functools").wraps
 jwt = get_dep("jwt")
 argparse = get_dep("argparse")
+# jwt = get_dep("jwt")
 
 
 JWT_ALGORITHM = "HS256"
@@ -19,46 +24,48 @@ app = Flask(__name__)
 
 unauthorized_error = {"error": "Unauthorized", "data": None}, 401
 
-def jwt_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if current_app.config["SECRET_KEY"]:
-            token = None
-            if "Authorization" in request.headers:
-                token = request.headers["Authorization"].split(" ")[1]
-            if not token:
-                return unauthorized_error
-            try:
-                jwt.decode(
-                    token, current_app.config["SECRET_KEY"], algorithms=[
-                        JWT_ALGORITHM]
-                )
-            except Exception:
-                return unauthorized_error
 
-        return f(*args, **kwargs)
-
-    return decorated
-
+# def jwt_required(f):
+#     @wraps(f)
+#     def decorated(*args, **kwargs):
+#         if current_app.config["SECRET_KEY"]:
+#             token = None
+#             if "Authorization" in request.headers:
+#                 token = request.headers["Authorization"].split(" ")[1]
+#             if not token:
+#                 return unauthorized_error
+#             try:
+#                 jwt.decode(
+#                     token, current_app.config["SECRET_KEY"], algorithms=[
+#                         JWT_ALGORITHM]
+#                 )
+#             except Exception:
+#                 return unauthorized_error
+#
+#         return f(*args, **kwargs)
+#
+#     return decorated
 
 def get_parameter(k, default=None):
-    try:
-        return request.args.get(k)
-    except KeyError as e:
-        if default is None:
-            raise Exception(f"No parameter named {k} in request")
-        else:
-            return default
+    param = request.args.get(k)
+    if not param and default is None:
+        raise Exception(f"No parameter named {k} in request")
+    elif not param and default:
+        return default
+    return param
 
+
+# ======================================= Derive Keys API
 
 @app.route("/derive-keys", methods=['GET'])
 def derive_keys():
     try:
         res = derive_keys_impl()
     except Exception as e:
+        traceback.print_exc()
         res = app.response_class(
             response=json.dumps({
-                "reason": e
+                "reason": str(e)
             }),
             status=500
         )
@@ -66,8 +73,69 @@ def derive_keys():
     return res
 
 
+def derive_keys_impl():
+    asset = get_parameter("asset")
+    account = int(get_parameter("account"))
+    change = int(get_parameter("change"))
+    index_start = int(get_parameter("index_start"))
+    index_end = int(get_parameter("index_end"))
+    use_xpub = get_parameter("xpub", "False") in ["True", "true"]
+    legacy = get_parameter("legacy", "False") in ["True", "true"]
+    checksum = get_parameter("checksum", "True") in ["True", "true"]
+    testnet = get_parameter("testnet", "False") in ["True", "true"]
+
+    if account < 0:
+        raise Exception(f"Invalid account: {account}")
+    if change < 0:
+        raise Exception(f"Invalid change: {change}")
+    if index_start < 0 or index_start > index_end:
+        raise Exception(f"Invalid index range: {index_start} -> {index_end}")
+    if index_end < 0:
+        raise Exception(f"Invalid end index: {index_end}")
+
+    # Obtain the asset information
+    asset_info = get_data(asset)
+    if asset_info is None:
+        raise Exception(f"Unknown asset: {asset}")
+    asset_type = asset_info[ASSET_TYPE]
+    if asset_type == ASSET_TYPE_ECDSA:
+        data_key = "xpub" if use_xpub else "xprv"
+    elif asset_type == ASSET_TYPE_EDDSA:
+        data_key = "fpub" if use_xpub else "fprv"
+    else:
+        raise KeyError(f"Unknown key type - {asset_type}.")
+
+    key_to_use = get_data(data_key)
+    if key_to_use is None:
+        raise KeyError(f"Missing the {data_key} - make sure you finished setup")
+
+    helper_class = asset_info[ASSET_HELPER]
+    kwargs = {"legacy": legacy, "testnet": testnet, "checksum": checksum}
+    res = []
+    for index in range(index_start, index_end+1):
+        if use_xpub:
+            pub_hex, address = helper_class.public_key_verification(key_to_use,
+                                                                    account,
+                                                                    change,
+                                                                    index,
+                                                                    **kwargs)
+            res.append(DerivationDetails("", pub_hex, address,
+                                         f"44,{helper_class.get_coin_id() if not testnet else '1'},{account},{change},{index}"))
+        else:
+            helper = helper_class(key_to_use,
+                                  account,
+                                  change,
+                                  index)
+            res.append(helper.get_derivation_details(**kwargs))
+
+    pprint(res)
+    return res
+
+
+# ======================================= Recover keys API
+
 @app.route("/recover-keys", methods=['POST'])
-@jwt_required
+# @jwt_required
 def recover_keys():
     data = request.form
     try:
@@ -77,42 +145,10 @@ def recover_keys():
     except Exception as e:
         res = app.response_class(
             response=json.dumps({
-                "reason": e
+                "reason": str(e)
             }),
             status=500
         )
-
-
-def derive_keys_impl():
-    asset = get_parameter("asset")
-    account = int(get_parameter("account"))
-    change = int(get_parameter("change"))
-    index_start = int(get_parameter("index_start"))
-    index_end = int(get_parameter("index_end"))
-    use_xpub = bool(get_parameter("xpub", False))
-    legacy = bool(get_parameter("legacy", False))
-    checksum = bool(get_parameter("checksum", True))
-
-    asset_info = get_data(asset)
-    asset_type = asset_info[ASSET_TYPE]
-    if asset_type == ASSET_TYPE_ECDSA:
-        data_key = "xpub" if use_xpub else "xprv"
-    elif asset_type == ASSET_TYPE_EDDSA:
-        data_key = "fprv" if use_xpub else "fprv"
-    else:
-        raise KeyError("Unknown key type")
-
-    key_to_use = get_data(data_key)
-    if key_to_use is None:
-        raise KeyError(f"Missing the {data_key} - make sure you finished setup")
-
-    helper_class = asset_info[ASSET_HELPER]
-    res = []
-    for index in range(index_start, index_end):
-        helper = helper_class(key_to_use,
-                              account,
-                              change,
-                              index)
 
 
 def recover_keys_impl(zip_file: str, passphrase: str, rsa_key: str, rsa_key_passphrase: str):
@@ -130,6 +166,38 @@ def recover_keys_impl(zip_file: str, passphrase: str, rsa_key: str, rsa_key_pass
             "fprv": "",
             "xpub": "",
             "fpub": ""}
+
+
+# ======================================= Show Extended Private Keys API
+
+@app.route("/show-extended-private-keys", methods=['GET'])
+def show_extended_private_keys():
+    try:
+        res = show_extended_private_keys_impl()
+    except Exception as e:
+        res = app.response_class(
+            response=json.dumps({
+                "reason": str(e)
+            }),
+            status=500
+        )
+
+    return res
+
+
+def show_extended_private_keys_impl():
+    data_key = "xprv"
+    xprv = get_data(data_key)
+
+    data_key = "fprv"
+    fprv = get_data(data_key)
+
+    if xprv and fprv:
+        return {"xprv": xprv,
+                "fprv": fprv
+                }
+
+    raise Exception(f"No entry for either xprv or fprv. Make sure to recover the addresses first.")
 
 
 if __name__ == '__main__':
