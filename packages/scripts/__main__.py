@@ -10,6 +10,7 @@ current_app = get_dep("flask").current_app
 serve = get_dep("waitress").serve
 wraps = get_dep("functools").wraps
 jwt = get_dep("jwt")
+argparse = get_dep("argparse")
 
 
 JWT_ALGORITHM = "HS256"
@@ -132,6 +133,19 @@ def recover_keys_impl(zip_file: str, passphrase: str, rsa_key: str, rsa_key_pass
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        prog="Recovery Utility", description="Fireblocks workspace recovery utility"
+    )
+    parser.add_argument(
+        "-p", "--port", help="HTTP server port", type=int, default=5000)
+    parser.add_argument("-s", "--secret", type=str, help="JWT secret")
+    parser.add_argument("-d", "--debug", help="debug mode",
+                        action="store_true")
+    args = parser.parse_args()
+
+    if args.secret:
+        app.config["SECRET_KEY"] = args.secret
+
     setup_global_state()
     print("Server started")
     serve(app, host="localhost", port=8080)
