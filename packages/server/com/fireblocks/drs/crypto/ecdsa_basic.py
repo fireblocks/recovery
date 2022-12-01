@@ -1,12 +1,15 @@
 import binascii
 import hashlib
+from abc import ABC
+
 import base58
 from bip32 import BIP32
+
 from com.fireblocks.drs.crypto.basic import BaseRecovery, DERIVATION_PURPOSE
 from com.fireblocks.drs.crypto.derivation import Derivation
 
 
-class EcDSARecovery(BaseRecovery):
+class EcDSARecovery(BaseRecovery, ABC):
     def __init__(
         self,
         xprv: str,
@@ -14,6 +17,7 @@ class EcDSARecovery(BaseRecovery):
         account: int = 0,
         change: int = 0,
         address_index: int = 0,
+        testnet: bool = False,
     ):
         """
         See https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki for more details.
@@ -30,18 +34,18 @@ class EcDSARecovery(BaseRecovery):
         :param address_index: (optional)
         """
         self.account = account
-        self.coin_id = coin_type.value
+        self.coin_id = coin_type.value if not testnet else Derivation.Testnet.value
         self.change = change
         self.address_index = address_index
         self.private_key = int.from_bytes(
             BIP32.from_xpriv(xprv).get_extended_privkey_from_path(
-                [DERIVATION_PURPOSE, coin_type.value, account, change, address_index]
+                [DERIVATION_PURPOSE, self.coin_id, account, change, address_index]
             )[1],
             byteorder="big",
         )
         self.public_key = int.from_bytes(
             BIP32.from_xpriv(xprv).get_extended_pubkey_from_path(
-                [DERIVATION_PURPOSE, coin_type.value, account, change, address_index]
+                [DERIVATION_PURPOSE, self.coin_id, account, change, address_index]
             )[1],
             byteorder="big",
         )

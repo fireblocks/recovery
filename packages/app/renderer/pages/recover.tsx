@@ -34,6 +34,7 @@ const Recover: NextPageWithLayout = () => {
 
     try {
       const encodedFormData = new FormData();
+      encodedFormData.append("recover-prv", "true");
       encodedFormData.append("zip", "");
       encodedFormData.append("passphrase", "");
       encodedFormData.append("rsa-key", "");

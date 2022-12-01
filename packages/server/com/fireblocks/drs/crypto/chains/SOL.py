@@ -1,13 +1,20 @@
 import base58
+
 from com.fireblocks.drs.crypto.basic import DerivationDetails
 from com.fireblocks.drs.crypto.derivation import Derivation
 from com.fireblocks.drs.crypto.eddsa_basic import EdDSARecovery
 from com.fireblocks.drs.crypto.eddsa_sign import eddsa_derive
+from com.fireblocks.drs.crypto.tx import TxRequest, TxResponse
 
 
 class SolanaRecovery(EdDSARecovery):
     def __init__(
-        self, fprv: str, account: int = 0, change: int = 0, address_index: int = 0
+        self,
+        fprv: str,
+        account: int = 0,
+        change: int = 0,
+        address_index: int = 0,
+        testnet: bool = False,
     ):
         super().__init__(
             fprv=fprv,
@@ -15,6 +22,7 @@ class SolanaRecovery(EdDSARecovery):
             account=account,
             change=change,
             address_index=address_index,
+            testnet=testnet,
         )
 
     def to_address(self):
@@ -27,6 +35,9 @@ class SolanaRecovery(EdDSARecovery):
             str(self.to_address()),
             f"44,{self.coin_id},{self.account},{self.change},{self.address_index}",
         )
+
+    def create_tx(self, txRequest: TxRequest, **kwargs) -> TxResponse:
+        pass
 
     @staticmethod
     def public_key_verification(

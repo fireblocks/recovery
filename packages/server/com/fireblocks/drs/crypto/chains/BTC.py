@@ -1,22 +1,21 @@
-import bitcoinutils.setup as btcutils_setup
-import bitcoinutils.keys as btcutils_keys
 from bip32 import BIP32
+from bitcoinutils.keys import PublicKey
+from bitcoinutils.setup import setup
+
 from com.fireblocks.drs.crypto.basic import DERIVATION_PURPOSE, DerivationDetails
 from com.fireblocks.drs.crypto.derivation import Derivation
 from com.fireblocks.drs.crypto.ecdsa_basic import EcDSARecovery
-
-
-setup = btcutils_setup.setup
-P2wpkhAddress = btcutils_keys.P2wpkhAddress
-P2wshAddress = btcutils_keys.P2wshAddress
-P2shAddress = btcutils_keys.P2shAddress
-PrivateKey = btcutils_keys.PrivateKey
-PublicKey = btcutils_keys.PublicKey
+from com.fireblocks.drs.crypto.tx import TxRequest, TxResponse
 
 
 class BitcoinRecovery(EcDSARecovery):
     def __init__(
-        self, xprv: str, account: int = 0, change: int = 0, address_index: int = 0
+        self,
+        xprv: str,
+        account: int = 0,
+        change: int = 0,
+        address_index: int = 0,
+        testnet: bool = False,
     ):
         super().__init__(
             xprv=xprv,
@@ -24,6 +23,7 @@ class BitcoinRecovery(EcDSARecovery):
             account=account,
             change=change,
             address_index=address_index,
+            testnet=testnet,
         )
         self.address = self.to_address()
         self.legacy_address = self.to_address(legacy=True)
@@ -52,6 +52,9 @@ class BitcoinRecovery(EcDSARecovery):
             self.to_address(testnet, legacy),
             f"44,{self.coin_id},{self.account},{self.change},{self.address_index}",
         )
+
+    def create_tx(self, txRequest: TxRequest, **kwargs) -> TxResponse:
+        pass
 
     @staticmethod
     def public_key_verification(

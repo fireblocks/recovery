@@ -27,7 +27,7 @@ def _derive_next_key_level(pubkey, privkey, chaincode, child_num):
     tmp_point = ed25519.scalarmult(ed25519.B, exp)
     derived_pubkey = ed25519.edwards(pubkey, tmp_point)
     derived_privkey = (privkey + exp) % ed25519.l
-    return (derived_pubkey, derived_privkey, derived_chaincode)
+    return derived_pubkey, derived_privkey, derived_chaincode
 
 
 def eddsa_sign(private_key, message):
@@ -82,7 +82,7 @@ def eddsa_derive(fkey, derivation_path):
         )
     if not is_private:
         priv = None
-    return (priv, _ed25519_serialize(pub))
+    return priv, _ed25519_serialize(pub)
 
 
 def fprv_eddsa_sig(fprv, derivation_path, message):
