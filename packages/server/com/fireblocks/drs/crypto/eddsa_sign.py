@@ -1,25 +1,24 @@
 import hashlib
 import hmac
-
+import base58
+import Crypto.Random as Random
 from com.fireblocks.drs.crypto import ed25519
-from com.fireblocks.drs.infra.dynamic_loader import get_dep
-
-base58 = get_dep("base58")
-Random = get_dep("Crypto.Random")
 
 
 def _ed25519_serialize(p):
-    if (p[0] & 1):
+    if p[0] & 1:
         return (p[1] + 2**255).to_bytes(32, byteorder="little")
     else:
         return (p[1]).to_bytes(32, byteorder="little")
 
+
 def _hash_for_derive(pubkey, chaincode, child_num):
-    ctx = hmac.new(chaincode, digestmod = hashlib.sha512)
+    ctx = hmac.new(chaincode, digestmod=hashlib.sha512)
     ctx.update(_ed25519_serialize(pubkey))
-    ctx.update(b'\0')
+    ctx.update(b"\0")
     ctx.update(child_num.to_bytes(4, byteorder="big"))
     return ctx.digest()
+
 
 def _derive_next_key_level(pubkey, privkey, chaincode, child_num):
     hash = _hash_for_derive(pubkey, chaincode, child_num)
@@ -30,12 +29,13 @@ def _derive_next_key_level(pubkey, privkey, chaincode, child_num):
     derived_privkey = (privkey + exp) % ed25519.l
     return (derived_pubkey, derived_privkey, derived_chaincode)
 
+
 def eddsa_sign(private_key, message):
     if type(message) == str:
-        message = message.encode('utf-8')
+        message = message.encode("utf-8")
     privkey = private_key
     if type(private_key) != int:
-        privkey = int.from_bytes(private_key, byteorder='big')
+        privkey = int.from_bytes(private_key, byteorder="big")
     seed = Random.get_random_bytes(32)
     sha = hashlib.sha512()
     sha.update(seed)
@@ -48,45 +48,53 @@ def eddsa_sign(private_key, message):
     sha.update(_ed25519_serialize(R))
     sha.update(_ed25519_serialize(A))
     sha.update(message)
-    hram = int.from_bytes(sha.digest(), byteorder='little') % ed25519.l
+    hram = int.from_bytes(sha.digest(), byteorder="little") % ed25519.l
     s = (hram * privkey + nonce) % ed25519.l
     return _ed25519_serialize(R) + s.to_bytes(32, byteorder="little")
 
+
 def eddsa_derive(fkey, derivation_path):
-    path = derivation_path.split('/')
-    if len(path) != 5 or path[0] != '44':
+    path = derivation_path.split("/")
+    if len(path) != 5 or path[0] != "44":
         raise Exception(derivation_path + " is not valid bip44 path")
     decoded_key = base58.b58decode_check(fkey)
     if len(decoded_key) != 78:
         raise Exception(fkey + " is not valid Fireblocks-formatted key")
-    prefix = int.from_bytes(decoded_key[:4], byteorder='big')
+    prefix = int.from_bytes(decoded_key[:4], byteorder="big")
     is_private = False
-    if prefix == 0x03273a10:
+    if prefix == 0x03273A10:
         is_private = True
-    elif prefix == 0x03273e4b:
+    elif prefix == 0x03273E4B:
         is_private = False
     else:
         raise Exception(fkey + " is not valid FPRV nor FPUB")
     chaincode = decoded_key[13:45]
-    priv = int.from_bytes(decoded_key[46:], byteorder='big')
+    priv = int.from_bytes(decoded_key[46:], byteorder="big")
     if is_private:
         pub = ed25519.scalarmult(ed25519.B, priv)
     else:
-        pub = ed25519.decodepoint(priv.to_bytes(32, 'big'))
+        pub = ed25519.decodepoint(priv.to_bytes(32, "big"))
         priv = 0
 
     for index in path:
-        (pub, priv, chaincode) = _derive_next_key_level(pub, priv, chaincode, int(index))
+        (pub, priv, chaincode) = _derive_next_key_level(
+            pub, priv, chaincode, int(index)
+        )
     if not is_private:
         priv = None
     return (priv, _ed25519_serialize(pub))
 
+
 def fprv_eddsa_sig(fprv, derivation_path, message):
     fprv_decoded = base58.b58decode_check(fprv)
-    if len(fprv_decoded) != 78 or int.from_bytes(fprv_decoded[:4], byteorder='big') != 0x03273a10:
+    if (
+        len(fprv_decoded) != 78
+        or int.from_bytes(fprv_decoded[:4], byteorder="big") != 0x03273A10
+    ):
         raise Exception(fprv + " is not valid FPRV")
     (priv, pub) = eddsa_derive(fprv, derivation_path)
     return eddsa_sign(priv, message)
+
 
 def private_key_to_public_key(private_key):
     return _ed25519_serialize(ed25519.scalarmult(ed25519.B, private_key))

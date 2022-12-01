@@ -7,13 +7,14 @@ from com.fireblocks.drs.infra.exceptions import UnsupportedException
 
 
 class EdDSARecovery(BaseRecovery):
-
-    def __init__(self,
-                 fprv: str,
-                 coin_type: Derivation,
-                 account: int = 0,
-                 change: int = 0,
-                 address_index: int = 0):
+    def __init__(
+        self,
+        fprv: str,
+        coin_type: Derivation,
+        account: int = 0,
+        change: int = 0,
+        address_index: int = 0,
+    ):
         """
         See https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki for more details.
         See https://github.com/satoshilabs/slips/blob/master/slip-0044.md for derivations.
@@ -32,8 +33,9 @@ class EdDSARecovery(BaseRecovery):
         self.coin_id = coin_type.value
         self.change = change
         self.address_index = address_index
-        self.private_key, self.pub_hex = eddsa_derive(fprv,
-                                                      f"44/{coin_type.value}/{account}/{change}/{address_index}")
+        self.private_key, self.pub_hex = eddsa_derive(
+            fprv, f"44/{coin_type.value}/{account}/{change}/{address_index}"
+        )
         self.prv_hex = hex(self.private_key)[2:]
         self.public_key = int.from_bytes(self.pub_hex, byteorder="little")
         self.pub_hex = self.pub_hex.hex()

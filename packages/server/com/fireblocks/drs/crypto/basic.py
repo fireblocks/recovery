@@ -8,6 +8,7 @@ class DerivationDetails:
     """
     The private key in hex
     """
+
     prv: str
 
     """
@@ -56,12 +57,14 @@ class BaseRecovery:
         raise NotImplementedError("Not implemented on base class")
 
     @staticmethod
-    def public_key_verification(extended_pub: str,
-                                account: int = 0,
-                                change: int = 0,
-                                address_index: int = 0,
-                                testnet: bool = False,
-                                **kwargs) -> (str, str):
+    def public_key_verification(
+        extended_pub: str,
+        account: int = 0,
+        change: int = 0,
+        address_index: int = 0,
+        testnet: bool = False,
+        **kwargs
+    ) -> (str, str):
         """
         Given an extended public key and information for the derivation path, compute the specific recovery's public
         key and address.

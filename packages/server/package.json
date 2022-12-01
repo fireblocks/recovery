@@ -1,0 +1,11 @@
+{
+  "name": "server",
+  "version": "0.0.0",
+  "private": true,
+  "main": "__init__.py",
+  "scripts": {
+    "build": "pyinstaller --onefile __init__.py",
+    "lint": "pylint .",
+    "format": "python -m black ."
+  }
+}

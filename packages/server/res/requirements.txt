@@ -8,3 +8,8 @@ stellar_base==1.1.2.0
 gql==3.4.0
 cbor2==5.4.3
 bech32==1.2.0
+bip32==3.3
+bitcoin-utils==0.5.8
+eth-keys==0.4.0
+flask==2.2.2
+PyJWT==2.6.0

@@ -1,50 +1,24 @@
+"""Recovery Utility Server"""
+
 import json
-import sys
 import traceback
+import argparse
 from pprint import pprint
-
+from waitress import serve
+from flask import Flask, request
 from com.fireblocks.drs.crypto.basic import DerivationDetails
-from com.fireblocks.drs.infra.dynamic_loader import get_dep
-from com.fireblocks.drs.infra.global_state import setup_global_state, get_data, ASSET_TYPE, ASSET_TYPE_ECDSA, \
-    ASSET_TYPE_EDDSA, ASSET_HELPER
+from com.fireblocks.drs.infra.global_state import (
+    setup_global_state,
+    get_data,
+    ASSET_TYPE,
+    ASSET_TYPE_ECDSA,
+    ASSET_TYPE_EDDSA,
+    ASSET_HELPER,
+)
 
-Flask = get_dep("flask").Flask
-request = get_dep("flask").request
-current_app = get_dep("flask").current_app
-serve = get_dep("waitress").serve
-wraps = get_dep("functools").wraps
-jwt = get_dep("jwt")
-argparse = get_dep("argparse")
-# jwt = get_dep("jwt")
-
-
-JWT_ALGORITHM = "HS256"
 
 app = Flask(__name__)
 
-unauthorized_error = {"error": "Unauthorized", "data": None}, 401
-
-
-# def jwt_required(f):
-#     @wraps(f)
-#     def decorated(*args, **kwargs):
-#         if current_app.config["SECRET_KEY"]:
-#             token = None
-#             if "Authorization" in request.headers:
-#                 token = request.headers["Authorization"].split(" ")[1]
-#             if not token:
-#                 return unauthorized_error
-#             try:
-#                 jwt.decode(
-#                     token, current_app.config["SECRET_KEY"], algorithms=[
-#                         JWT_ALGORITHM]
-#                 )
-#             except Exception:
-#                 return unauthorized_error
-#
-#         return f(*args, **kwargs)
-#
-#     return decorated
 
 def get_parameter(k, default=None):
     param = request.args.get(k)
@@ -57,18 +31,13 @@ def get_parameter(k, default=None):
 
 # ======================================= Derive Keys API
 
-@app.route("/derive-keys", methods=['GET'])
+@app.route("/derive-keys", methods=["GET"])
 def derive_keys():
     try:
         res = derive_keys_impl()
     except Exception as e:
         traceback.print_exc()
-        res = app.response_class(
-            response=json.dumps({
-                "reason": str(e)
-            }),
-            status=500
-        )
+        res = app.response_class(response=json.dumps({"reason": str(e)}), status=500)
 
     return res
 
@@ -112,20 +81,21 @@ def derive_keys_impl():
     helper_class = asset_info[ASSET_HELPER]
     kwargs = {"legacy": legacy, "testnet": testnet, "checksum": checksum}
     res = []
-    for index in range(index_start, index_end+1):
+    for index in range(index_start, index_end + 1):
         if use_xpub:
-            pub_hex, address = helper_class.public_key_verification(key_to_use,
-                                                                    account,
-                                                                    change,
-                                                                    index,
-                                                                    **kwargs)
-            res.append(DerivationDetails("", pub_hex, address,
-                                         f"44,{helper_class.get_coin_id() if not testnet else '1'},{account},{change},{index}"))
+            pub_hex, address = helper_class.public_key_verification(
+                key_to_use, account, change, index, **kwargs
+            )
+            res.append(
+                DerivationDetails(
+                    "",
+                    pub_hex,
+                    address,
+                    f"44,{helper_class.get_coin_id() if not testnet else '1'},{account},{change},{index}",
+                )
+            )
         else:
-            helper = helper_class(key_to_use,
-                                  account,
-                                  change,
-                                  index)
+            helper = helper_class(key_to_use, account, change, index)
             res.append(helper.get_derivation_details(**kwargs))
 
     pprint(res)
@@ -134,24 +104,22 @@ def derive_keys_impl():
 
 # ======================================= Recover keys API
 
-@app.route("/recover-keys", methods=['POST'])
-# @jwt_required
+
+@app.route("/recover-keys", methods=["POST"])
 def recover_keys():
     data = request.form
     try:
-        res = recover_keys_impl(data['zip'], data['passphrase'], data['rsa-key'], data['rsa-key-passphrase'])
-        xprv, fprv, xpub, fpub = res['xprv'], res['fprv'], res['xpub'], res['fpub']
-        return xprv, fprv, xpub, fpub
-    except Exception as e:
-        res = app.response_class(
-            response=json.dumps({
-                "reason": str(e)
-            }),
-            status=500
+        res = recover_keys_impl(
+            data["zip"], data["passphrase"], data["rsa-key"], data["rsa-key-passphrase"]
         )
+        return res
+    except Exception as e:
+        res = app.response_class(response=json.dumps({"reason": str(e)}), status=500)
 
 
-def recover_keys_impl(zip_file: str, passphrase: str, rsa_key: str, rsa_key_passphrase: str):
+def recover_keys_impl(
+    zip_file: str, passphrase: str, rsa_key: str, rsa_key_passphrase: str
+):
     """
     Retrieves XPRV, FPRV, XPUB, FPUB.
     :param zip_file: Base64 encoded string representation of the zip file.
@@ -162,25 +130,18 @@ def recover_keys_impl(zip_file: str, passphrase: str, rsa_key: str, rsa_key_pass
     """
     # TODO - copy existing recovery code from Github (Fireblocks Recovery) and use it in here.
     # TODO - use set_data to global state after recovering keys.
-    return {"xprv": "",
-            "fprv": "",
-            "xpub": "",
-            "fpub": ""}
+    return {"xprv": "", "fprv": "", "xpub": "", "fpub": ""}
 
 
 # ======================================= Show Extended Private Keys API
 
-@app.route("/show-extended-private-keys", methods=['GET'])
+
+@app.route("/show-extended-private-keys", methods=["GET"])
 def show_extended_private_keys():
     try:
         res = show_extended_private_keys_impl()
     except Exception as e:
-        res = app.response_class(
-            response=json.dumps({
-                "reason": str(e)
-            }),
-            status=500
-        )
+        res = app.response_class(response=json.dumps({"reason": str(e)}), status=500)
 
     return res
 
@@ -193,22 +154,20 @@ def show_extended_private_keys_impl():
     fprv = get_data(data_key)
 
     if xprv and fprv:
-        return {"xprv": xprv,
-                "fprv": fprv
-                }
+        return {"xprv": xprv, "fprv": fprv}
 
-    raise Exception(f"No entry for either xprv or fprv. Make sure to recover the addresses first.")
+    raise Exception(
+        f"No entry for either xprv or fprv. Make sure to recover the addresses first."
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         prog="Recovery Utility", description="Fireblocks workspace recovery utility"
     )
-    parser.add_argument(
-        "-p", "--port", help="HTTP server port", type=int, default=5000)
+    parser.add_argument("-p", "--port", help="HTTP server port", type=int, default=5000)
     parser.add_argument("-s", "--secret", type=str, help="JWT secret")
-    parser.add_argument("-d", "--debug", help="debug mode",
-                        action="store_true")
+    parser.add_argument("-d", "--debug", help="debug mode", action="store_true")
     args = parser.parse_args()
 
     if args.secret:
@@ -216,4 +175,4 @@ if __name__ == '__main__':
 
     setup_global_state()
     print("Server started")
-    serve(app, host="localhost", port=8080)
+    serve(app, host="localhost", port=args.port)
