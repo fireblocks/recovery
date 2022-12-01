@@ -1,0 +1,257 @@
+{
+	"info": {
+		"_postman_id": "170ead2a-216b-4fc9-aabd-5872b88e85d5",
+		"name": "DRS Endpoints Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Recover Keys",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"zip\":\"<BASE_64_ENCODED_ZIP_FILE>\",\n    \"passphrase\":\"<ZIP_PASSPHRASE>\",\n    \"rsa-key\": \"<BASE_64_ENCODED_RSA_KEY_FOR_ZIP>\",\n    \"rsa-key-passphrase\":\"<RSA_KEY_PASSPHRASE>\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/recover-keys?recover-prv",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"recover-keys"
+					],
+					"query": [
+						{
+							"key": "recover-prv",
+							"value": null,
+							"description": "Return the private key too"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Derive Keys",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/derive-keys?asset=&account=&change=&index_start=&index_end=&xpub=&legacy=&checksum=&testnet",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"derive-keys"
+					],
+					"query": [
+						{
+							"key": "asset",
+							"value": "",
+							"description": "The asset to derive"
+						},
+						{
+							"key": "account",
+							"value": "",
+							"description": "The account to use for the derivation"
+						},
+						{
+							"key": "change",
+							"value": "",
+							"description": "The change to use in derivation"
+						},
+						{
+							"key": "index_start",
+							"value": "",
+							"description": "The start index to use in derivation"
+						},
+						{
+							"key": "index_end",
+							"value": "",
+							"description": "The end index to use in derivation"
+						},
+						{
+							"key": "xpub",
+							"value": "",
+							"description": "Whether to only use the XPUB (will result in the public key only)"
+						},
+						{
+							"key": "legacy",
+							"value": "",
+							"description": "For BTC (or other components that have legacy addresses) - generate a legacy address"
+						},
+						{
+							"key": "checksum",
+							"value": "",
+							"description": "For ETH (and other EVMs, or capitalized checksumed addresses) - return a checksummed address instead of an all lower case address"
+						},
+						{
+							"key": "testnet",
+							"value": null,
+							"description": "Whether to get the testnet address"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Show Extended Private Keys",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/show-extended-private-keys",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"show-extended-private-keys"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Show Private Key",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/show-private-key?asset=&account&change&index",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"show-private-key"
+					],
+					"query": [
+						{
+							"key": "asset",
+							"value": "",
+							"description": "The asset for which to provide the private key for"
+						},
+						{
+							"key": "account",
+							"value": null,
+							"description": "The account to use for derivation"
+						},
+						{
+							"key": "change",
+							"value": null,
+							"description": "The change to use for derivation"
+						},
+						{
+							"key": "index",
+							"value": null,
+							"description": "The index to use for derivation"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get WIF",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/get-wif?asset=&account&change&index",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"get-wif"
+					],
+					"query": [
+						{
+							"key": "asset",
+							"value": ""
+						},
+						{
+							"key": "account",
+							"value": null
+						},
+						{
+							"key": "change",
+							"value": null
+						},
+						{
+							"key": "index",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Tx",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"to\":\"<ADDRESS TO SEND THE FUNDS TO>\",\n    \"amount\":\"<VALUE TO SEND IN BASE ASSET>\",\n    \"memo\":\"<MEMO TO ADD IF APPLICABLE>\",\n    \"abi\":\"<THE CONTRACT ABI IF APPLICABLE>\",\n    \"contract_call_params\": [\n        {\n            \"key\":\"<THE NAME OF THE ARGUMENT CORRESPONDING TO THE ABI>\",\n            \"value\":\"<THE VALUE OF THE ARGUMENT>\"\n        }\n    ],\n    \"fee\":{\n        \"rate\": \"<FOR UTXO / NOT EVM>, ONLY THIS OR THE TWO GAS ITEMS, NOT BOTH\",\n        \"gasPrice\":\"<GAS PRICE TO USE>\",\n        \"gasLimit\":\"<MAX GAS TO USE>\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/create-tx?asset=&account=&change=&index=&qr=",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"create-tx"
+					],
+					"query": [
+						{
+							"key": "asset",
+							"value": ""
+						},
+						{
+							"key": "account",
+							"value": ""
+						},
+						{
+							"key": "change",
+							"value": ""
+						},
+						{
+							"key": "index",
+							"value": ""
+						},
+						{
+							"key": "qr",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
