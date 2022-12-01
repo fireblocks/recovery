@@ -1,4 +1,9 @@
-module.exports = {
+// @ts-check
+
+/**
+ * @type {import('next').NextConfig}
+ **/
+const nextConfig = {
   reactStrictMode: true,
 
   webpack: (config, { isServer }) => {
@@ -9,3 +14,5 @@ module.exports = {
     return config;
   },
 };
+
+module.exports = nextConfig;

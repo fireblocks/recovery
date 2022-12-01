@@ -13,7 +13,8 @@
     {
       "from": ".",
       "filter": ["package.json", "app"]
-    }
+    },
+    "!node_modules/**/*.{mk,a,o,h}"
   ],
   "publish": null,
   "mac": {

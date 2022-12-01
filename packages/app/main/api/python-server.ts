@@ -1,12 +1,12 @@
-import spawn from "cross-spawn";
-import { ChildProcess } from "child_process";
+import execa from "execa";
+import waitOn from "wait-on";
 import { nanoid } from "nanoid";
 import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig } from "axios";
 import { getPortPromise } from "portfinder";
-import jsonwebtoken from "jsonwebtoken";
+// import jsonwebtoken from "jsonwebtoken";
 
 export class PythonServer {
-  private childProcess: ChildProcess | null = null;
+  private subprocess: execa.ExecaChildProcess | null = null;
 
   private apiClient: AxiosInstance | null = null;
 
@@ -20,34 +20,37 @@ export class PythonServer {
     const secretKey = nanoid(32);
 
     // Generate a JWT for requests to the server
-    const jwt = jsonwebtoken.sign({}, secretKey, {
-      algorithm: "HS256",
-      noTimestamp: true,
-    });
+    // const jwt = jsonwebtoken.sign({}, secretKey, {
+    //   algorithm: "HS256",
+    //   noTimestamp: true,
+    // });
 
     // Get an available port
     const port = await getPortPromise();
 
     // Spawn the Python server
-    this.childProcess = spawn("python", [
-      "../scripts/server.py",
+    this.subprocess = execa("python", [
+      "../server/__init__.py",
       "-s",
       secretKey,
       "-p",
       port.toString(),
     ]);
 
-    console.info(`Python server started at port ${port}`);
-
     // Wait for the server to start
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await waitOn({
+      resources: [`http://localhost:${port}`],
+      timeout: 10000,
+    });
+
+    console.info(`Python server subprocess running on port ${port}`);
 
     // Create an HTTP client to make requests to the server
     this.apiClient = axios.create({
-      baseURL: `http://localhost:${port}`,
-      headers: {
-        Authorization: `Bearer ${jwt}`,
-      },
+      baseURL: `http://localhost:${port}/recover-keys`,
+      // headers: {
+      //   Authorization: `Bearer ${jwt}`,
+      // },
     });
   }
 
@@ -57,9 +60,11 @@ export class PythonServer {
    * @returns `true` if [`kill(2)`](http://man7.org/linux/man-pages/man2/kill.2.html) succeeds, and `false` otherwise.
    */
   public kill() {
-    const success = this.childProcess?.kill();
+    const success = this.subprocess?.kill("SIGTERM", {
+      forceKillAfterTimeout: 2000,
+    });
 
-    this.childProcess = null;
+    this.subprocess = null;
 
     this.apiClient = null;
 
@@ -73,7 +78,7 @@ export class PythonServer {
    * @returns response data
    */
   public async request<T = any, D = any>(config: AxiosRequestConfig<D>) {
-    if (!this.apiClient || !this.childProcess || this.childProcess.killed) {
+    if (!this.apiClient || !this.subprocess || this.subprocess.killed) {
       throw new Error("Python server is not running");
     }
 

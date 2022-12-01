@@ -1,64 +1,28 @@
 import { app, protocol, session, ipcMain, BrowserWindow, Menu } from "electron";
-import serve from "electron-serve";
 import Store from "secure-electron-store";
-import ContextMenu from "secure-electron-context-menu";
+// import ContextMenu from "secure-electron-context-menu";
 import fs from "fs";
 import path from "path";
 import installExtension, {
-  REDUX_DEVTOOLS,
   REACT_DEVELOPER_TOOLS,
 } from "electron-devtools-installer";
+import { createIPCHandler } from "./electron-trpc";
+import { appRouter } from "./api/_app";
 import { scheme, requestHandler } from "./protocol";
-// import { createWindow, PythonServer } from "./helpers";
+import { createContext, pythonServer } from "./api/context";
 
-// const pythonServer = new PythonServer();
-
-const isProd: boolean = process.env.NODE_ENV === "production";
-
-// if (isProd) {
-//   serve({ directory: "app" });
-// } else {
-//   app.setPath("userData", `${app.getPath("userData")} (development)`);
-// }
-
-// (async () => {
-//   await app.whenReady();
-
-//   const mainWindow = createWindow("main", {
-//     width: 1000,
-//     height: 600,
-//   });
-
-//   if (isProd) {
-//     await mainWindow.loadURL("app://./home.html");
-//   } else {
-//     const port = process.argv[2];
-//     await mainWindow.loadURL(`http://localhost:${port}/home`);
-//     mainWindow.webContents.openDevTools();
-//   }
-// })();
-
-// app.on("ready", async () => {
-//   pythonServer.spawn();
-
-//   const data = await pythonServer.request({ url: "/" });
-
-//   console.info({ data });
-// });
-
-// app.on("window-all-closed", app.quit);
-// app.on("quit", pythonServer.kill);
-// process.on("exit", pythonServer.kill);
-// process.on("uncaughtException", pythonServer.kill);
-// process.on("unhandledRejection", pythonServer.kill);
+app.on("quit", pythonServer.kill);
+process.on("exit", pythonServer.kill);
+process.on("uncaughtException", pythonServer.kill);
+process.on("unhandledRejection", pythonServer.kill);
 
 const isDev = process.env.NODE_ENV === "development";
-const port = 40992; // Hardcoded; needs to match webpack.development.js and package.json
+const port = 8888; // Hardcoded; needs to match webpack.development.js and package.json
 const selfHost = `http://localhost:${port}`;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win: BrowserWindow;
+let win: BrowserWindow | null = null;
 
 async function createWindow() {
   // If you'd like to set up auto-updating for your app,
@@ -79,24 +43,27 @@ async function createWindow() {
     path: app.getPath("userData"),
   });
 
+  void pythonServer.spawn();
+
   // Use saved config values for configuring your
   // BrowserWindow, for instance.
   // NOTE - this config is not passcode protected
   // and stores plaintext values
   //let savedConfig = store.mainInitialStore(fs);
 
+  // TODO: Enable nodeIntegration with no contextIsolation in dev. Disable in prod.
+
   // Create the browser window.
   win = new BrowserWindow({
     width: 800,
     height: 600,
-    title: "Application is currently initializing...",
+    title: "Fireblocks Recovery Utility",
     webPreferences: {
       devTools: isDev,
-      nodeIntegration: false,
-      nodeIntegrationInWorker: false,
-      nodeIntegrationInSubFrames: false,
+      nodeIntegration: true,
       contextIsolation: true,
-      // enableRemoteModule: false,
+      // nodeIntegrationInWorker: false,
+      // nodeIntegrationInSubFrames: false,
       additionalArguments: [
         `--storePath=${store.sanitizePath(app.getPath("userData"))}`,
       ],
@@ -108,9 +75,9 @@ async function createWindow() {
 
   // Sets up main.js bindings for our electron store;
   // callback is optional and allows you to use store in main process
-  const callback = function (success, initialStore) {
+  const callback = function (success: boolean, initialStore: any) {
     console.log(
-      `${!success ? "Un-s" : "S"}uccessfully retrieved store in main process.`
+      `${!success ? "Uns" : "S"}uccessfully retrieved store in main process.`
     );
     console.log(initialStore); // {"key1": "value1", ... }
   };
@@ -118,20 +85,20 @@ async function createWindow() {
   store.mainBindings(ipcMain, win, fs, callback);
 
   // Sets up bindings for our custom context menu
-  ContextMenu.mainBindings(ipcMain, win, Menu, isDev, {
-    loudAlertTemplate: [
-      {
-        id: "loudAlert",
-        label: "AN ALERT!",
-      },
-    ],
-    softAlertTemplate: [
-      {
-        id: "softAlert",
-        label: "Soft alert",
-      },
-    ],
-  });
+  // ContextMenu.mainBindings(ipcMain, win, Menu, isDev, {
+  //   loudAlertTemplate: [
+  //     {
+  //       id: "loudAlert",
+  //       label: "AN ALERT!",
+  //     },
+  //   ],
+  //   softAlertTemplate: [
+  //     {
+  //       id: "softAlert",
+  //       label: "Soft alert",
+  //     },
+  //   ],
+  // });
 
   // Load app
   if (isDev) {
@@ -141,9 +108,7 @@ async function createWindow() {
   }
 
   win.webContents.on("did-finish-load", () => {
-    win.setTitle(
-      `Getting started with secure-electron-template (v${app.getVersion()})`
-    );
+    win?.setTitle("Fireblocks Recovery Utility");
   });
 
   // Only do these things when in development
@@ -151,12 +116,12 @@ async function createWindow() {
     // Errors are thrown if the dev tools are opened
     // before the DOM is ready
     win.webContents.once("dom-ready", async () => {
-      await installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
-        .then((name) => console.log(`Added Extension: ${name}`))
-        .catch((err) => console.log("An error occurred: ", err))
+      await installExtension([REACT_DEVELOPER_TOOLS])
+        .then((name) => console.info(`Added Extension: ${name}`))
+        .catch((err) => console.error("An error occurred: ", err))
         .finally(() => {
           require("electron-debug")(); // https://github.com/sindresorhus/electron-debug
-          win.webContents.openDevTools();
+          win?.webContents.openDevTools();
         });
     });
   }
@@ -219,25 +184,15 @@ protocol.registerSchemesAsPrivileged([
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on("ready", createWindow);
+app.on("ready", () => {
+  createIPCHandler({ router: appRouter, createContext });
+
+  void createWindow();
+});
 
 // Quit when all windows are closed.
 app.on("window-all-closed", () => {
-  // On macOS it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== "darwin") {
-    app.quit();
-  } else {
-    ContextMenu.clearMainBindings(ipcMain);
-  }
-});
-
-app.on("activate", () => {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (win === null) {
-    createWindow();
-  }
+  app.quit();
 });
 
 // https://electronjs.org/docs/tutorial/security#12-disable-or-limit-navigation
@@ -258,17 +213,11 @@ app.on("web-contents-created", (event, contents) => {
   });
 
   contents.on("will-redirect", (contentsEvent, navigationUrl) => {
-    const parsedUrl = new URL(navigationUrl);
-    const validOrigins = [];
+    console.error(
+      `The application tried to redirect to the following address: '${navigationUrl}'. This attempt was blocked.`
+    );
 
-    // Log and prevent the app from redirecting to a new page
-    if (!validOrigins.includes(parsedUrl.origin)) {
-      console.error(
-        `The application tried to redirect to the following address: '${navigationUrl}'. This attempt was blocked.`
-      );
-
-      contentsEvent.preventDefault();
-    }
+    contentsEvent.preventDefault();
   });
 
   // https://electronjs.org/docs/tutorial/security#11-verify-webview-options-before-creation
@@ -276,11 +225,10 @@ app.on("web-contents-created", (event, contents) => {
     "will-attach-webview",
     (contentsEvent, webPreferences, params) => {
       // Strip away preload scripts if unused or verify their location is legitimate
-      delete webPreferences.preload;
+      // delete webPreferences.preload;
       // delete webPreferences.preloadURL;
-
       // Disable Node.js integration
-      webPreferences.nodeIntegration = false;
+      // webPreferences.nodeIntegration = false;
     }
   );
 
@@ -288,22 +236,12 @@ app.on("web-contents-created", (event, contents) => {
   // This code replaces the old "new-window" event handling;
   // https://github.com/electron/electron/pull/24517#issue-447670981
   contents.setWindowOpenHandler(({ url }) => {
-    const parsedUrl = new URL(url);
-    const validOrigins = [];
-
-    // Log and prevent opening up a new window
-    if (!validOrigins.includes(parsedUrl.origin)) {
-      console.error(
-        `The application tried to open a new window at the following address: '${url}'. This attempt was blocked.`
-      );
-
-      return {
-        action: "deny",
-      };
-    }
+    console.error(
+      `The application tried to open a new window at the following address: '${url}'. This attempt was blocked.`
+    );
 
     return {
-      action: "allow",
+      action: "deny",
     };
   });
 });
