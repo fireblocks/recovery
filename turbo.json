@@ -2,8 +2,16 @@
   "$schema": "https://turborepo.org/schema.json",
   "pipeline": {
     "build": {
-      "dependsOn": ["^build", "$NODE_ENV"],
-      "outputs": ["app/**", "renderer/.next/**"]
+      "dependsOn": ["^build"],
+      "outputs": [
+        "electron-builder.json",
+        "app/**",
+        "renderer/.next/**",
+        "server/build/**",
+        "server/dist/**",
+        "server/__init__.spec"
+      ],
+      "env": ["NODE_ENV", "ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES"]
     },
     "lint": {
       "outputs": []
