@@ -17,7 +17,7 @@ import {
   TableRow,
   TableCell,
 } from "@mui/material";
-import { QrCode2, ContentCopy, Key, ArrowUpward } from "@mui/icons-material";
+import { Key, ArrowUpward } from "@mui/icons-material";
 import { getAssetName } from "../../../lib/assetInfo";
 
 type Wallet = {

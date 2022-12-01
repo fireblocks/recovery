@@ -13,12 +13,6 @@ export class PythonServer {
    * @returns void
    */
   public async spawn() {
-    // Generate a JWT for requests to the server
-    // const jwt = jsonwebtoken.sign({}, secretKey, {
-    //   algorithm: "HS256",
-    //   noTimestamp: true,
-    // });
-
     const port = await getPortPromise();
 
     const baseURL = `http://localhost:${port}`;

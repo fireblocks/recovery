@@ -192,9 +192,9 @@ def recover_keys_impl(
     """
     Retrieves XPRV, FPRV, XPUB, FPUB.
     :param zip_file: Base64 encoded string representation of the zip file.
-    :param mobile_pass: Base64 encoded string representation of the passphrase.
+    :param mobile_pass: Mobile passphrase string.
     :param zip_prv_key: Base64 encoded string representation of the RSA key file.
-    :param zip_prv_key_pass: Base64 encoded string representation of the RSA key passphrase.
+    :param zip_prv_key_pass: RSA key passphrase string.
     :param recover_prv: Recover the private key as well
     :return:
     """

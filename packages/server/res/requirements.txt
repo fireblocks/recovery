@@ -14,3 +14,5 @@ eth-keys==0.4.0
 flask==2.2.2
 flask-cors==3.0.10
 PyJWT==2.6.0
+dataclasses-json==0.5.7
+qrcode==7.3.1

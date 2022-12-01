@@ -10,7 +10,7 @@ import { Layout } from "../components/Layout";
 import { UploadWell } from "../components/UploadWell";
 import { TextField } from "../components/TextField";
 import { Box, Button, Grid, Typography } from "@mui/material";
-import { readFileToBase64, readFileToText } from "../lib/readFile";
+import { readFileToBase64 } from "../lib/readFile";
 
 type FormData = z.infer<typeof recoverKeysInput>;
 
@@ -34,17 +34,22 @@ const Recover: NextPageWithLayout = () => {
 
     try {
       const encodedFormData = new FormData();
-      encodedFormData.append("recover-prv", "true");
-      encodedFormData.append("zip", "");
-      encodedFormData.append("passphrase", "");
-      encodedFormData.append("rsa-key", "");
-      encodedFormData.append("rsa-key-passphrase", "");
+      encodedFormData.append("zip", formData.zip);
+      encodedFormData.append("passphrase", formData.passphrase);
+      encodedFormData.append("rsa-key", formData.rsaKey);
+
+      if (formData.rsaKeyPassphrase) {
+        encodedFormData.append("rsa-key-passphrase", formData.rsaKeyPassphrase);
+      }
 
       // TODO: USE DYNAMIC PORT
-      const res = await fetch("http://localhost:8000/recover-keys", {
-        method: "POST",
-        body: encodedFormData,
-      });
+      const res = await fetch(
+        "http://localhost:8000/recover-keys?recover-prv=true",
+        {
+          method: "POST",
+          body: encodedFormData,
+        }
+      );
 
       const data = (await res.json()) as RecoverKeysResponse;
 
@@ -72,7 +77,7 @@ const Recover: NextPageWithLayout = () => {
     setValue("zip", await readFileToBase64(file));
 
   const onDropRsaPrivateKey = async (file: File) =>
-    setValue("rsaKey", await readFileToText(file));
+    setValue("rsaKey", await readFileToBase64(file));
 
   return (
     <Box
