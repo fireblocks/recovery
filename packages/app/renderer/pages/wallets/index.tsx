@@ -1,14 +1,14 @@
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
-const Index = () => {
+const Wallets = () => {
   const router = useRouter();
 
   useEffect(() => {
-    router.push("/recover");
+    router.push("/wallets/[assetId]", "/wallets/BTC");
   });
 
   return null;
 };
 
-export default Index;
+export default Wallets;

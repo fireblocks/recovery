@@ -12,4 +12,5 @@ bip32==3.3
 bitcoin-utils==0.5.8
 eth-keys==0.4.0
 flask==2.2.2
+flask-cors==3.0.10
 PyJWT==2.6.0

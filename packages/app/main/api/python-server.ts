@@ -1,9 +1,6 @@
 import execa from "execa";
-import waitOn from "wait-on";
-import { nanoid } from "nanoid";
 import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig } from "axios";
 import { getPortPromise } from "portfinder";
-// import jsonwebtoken from "jsonwebtoken";
 
 export class PythonServer {
   private subprocess: execa.ExecaChildProcess | null = null;
@@ -16,42 +13,31 @@ export class PythonServer {
    * @returns void
    */
   public async spawn() {
-    // Generate a random secret key
-    const secretKey = nanoid(32);
-
     // Generate a JWT for requests to the server
     // const jwt = jsonwebtoken.sign({}, secretKey, {
     //   algorithm: "HS256",
     //   noTimestamp: true,
     // });
 
-    // Get an available port
     const port = await getPortPromise();
 
-    // Spawn the Python server
+    const baseURL = `http://localhost:${port}`;
+
     this.subprocess = execa("python", [
       "../server/__init__.py",
-      "-s",
-      secretKey,
       "-p",
       port.toString(),
     ]);
 
-    // Wait for the server to start
-    await waitOn({
-      resources: [`http://localhost:${port}`],
-      timeout: 10000,
-    });
+    this.subprocess.stderr?.pipe(process.stderr);
+
+    if (process.env.NODE_ENV === "development") {
+      this.subprocess.stdout?.pipe(process.stdout);
+    }
 
     console.info(`Python server subprocess running on port ${port}`);
 
-    // Create an HTTP client to make requests to the server
-    this.apiClient = axios.create({
-      baseURL: `http://localhost:${port}/recover-keys`,
-      // headers: {
-      //   Authorization: `Bearer ${jwt}`,
-      // },
-    });
+    this.apiClient = axios.create({ baseURL });
   }
 
   /**

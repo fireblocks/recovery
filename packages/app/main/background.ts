@@ -1,6 +1,5 @@
 import { app, protocol, session, ipcMain, BrowserWindow, Menu } from "electron";
 import Store from "secure-electron-store";
-// import ContextMenu from "secure-electron-context-menu";
 import fs from "fs";
 import path from "path";
 import installExtension, {
@@ -61,7 +60,7 @@ async function createWindow() {
     webPreferences: {
       devTools: isDev,
       nodeIntegration: true,
-      contextIsolation: true,
+      contextIsolation: false,
       // nodeIntegrationInWorker: false,
       // nodeIntegrationInSubFrames: false,
       additionalArguments: [
@@ -83,22 +82,6 @@ async function createWindow() {
   };
 
   store.mainBindings(ipcMain, win, fs, callback);
-
-  // Sets up bindings for our custom context menu
-  // ContextMenu.mainBindings(ipcMain, win, Menu, isDev, {
-  //   loudAlertTemplate: [
-  //     {
-  //       id: "loudAlert",
-  //       label: "AN ALERT!",
-  //     },
-  //   ],
-  //   softAlertTemplate: [
-  //     {
-  //       id: "softAlert",
-  //       label: "Soft alert",
-  //     },
-  //   ],
-  // });
 
   // Load app
   if (isDev) {
@@ -213,11 +196,17 @@ app.on("web-contents-created", (event, contents) => {
   });
 
   contents.on("will-redirect", (contentsEvent, navigationUrl) => {
-    console.error(
-      `The application tried to redirect to the following address: '${navigationUrl}'. This attempt was blocked.`
-    );
+    /* eng-disable LIMIT_NAVIGATION_JS_CHECK  */
+    const parsedUrl = new URL(navigationUrl);
+    const validOrigins = [selfHost];
 
-    contentsEvent.preventDefault();
+    if (!validOrigins.includes(parsedUrl.origin)) {
+      console.error(
+        `The application tried to redirect to the following address: '${navigationUrl}'. This attempt was blocked.`
+      );
+
+      contentsEvent.preventDefault();
+    }
   });
 
   // https://electronjs.org/docs/tutorial/security#11-verify-webview-options-before-creation

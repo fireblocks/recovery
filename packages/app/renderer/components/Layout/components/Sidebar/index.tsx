@@ -1,4 +1,4 @@
-import { useMemo, ReactNode } from "react";
+import { ReactNode } from "react";
 import {
   Box,
   List,
@@ -43,7 +43,7 @@ export const Sidebar = () => {
               component={NextLinkComposed}
               selected={selectedAssetId === assetId}
               to={{
-                pathname: "/[assetId]",
+                pathname: "/wallets/[assetId]",
                 query: { assetId },
               }}
             >

@@ -1,9 +1,14 @@
 import {
   screen,
   BrowserWindow,
-  BrowserWindowConstructorOptions,
+  BrowserWindowConstructorOptions as BrowserWindowConstructorOptionsBase,
 } from "electron";
 import Store from "electron-store";
+
+type BrowserWindowConstructorOptions = Omit<
+  BrowserWindowConstructorOptionsBase,
+  "width" | "height"
+> & { width: number; height: number };
 
 export const createWindow = (
   windowName: string,
@@ -11,7 +16,9 @@ export const createWindow = (
 ): BrowserWindow => {
   const key = "window-state";
   const name = `window-state-${windowName}`;
-  const store = new Store({ name });
+  const store = new Store<{ "window-state": BrowserWindowConstructorOptions }>({
+    name,
+  });
   const defaultSize = {
     width: options.width,
     height: options.height,
@@ -32,27 +39,40 @@ export const createWindow = (
     };
   };
 
-  const windowWithinBounds = (windowState, bounds) => {
-    return (
-      windowState.x >= bounds.x &&
-      windowState.y >= bounds.y &&
-      windowState.x + windowState.width <= bounds.x + bounds.width &&
-      windowState.y + windowState.height <= bounds.y + bounds.height
-    );
-  };
+  const windowWithinBounds = (
+    windowState: BrowserWindowConstructorOptions,
+    bounds: BrowserWindowConstructorOptions
+  ) =>
+    [
+      windowState.width,
+      windowState.height,
+      windowState.x,
+      windowState.y,
+      bounds.width,
+      bounds.height,
+      bounds.x,
+      bounds.y,
+    ].every((x) => typeof x === "number") &&
+    windowState.x! >= bounds.x! &&
+    windowState.y! >= bounds.y! &&
+    windowState.x! + windowState.width <= bounds.x! + bounds.width &&
+    windowState.y! + windowState.height <= bounds.y! + bounds.height;
 
   const resetToDefaults = () => {
-    const bounds = screen.getPrimaryDisplay().bounds;
-    return Object.assign({}, defaultSize, {
+    const { bounds } = screen.getPrimaryDisplay();
+    return {
+      ...defaultSize,
       x: (bounds.width - defaultSize.width) / 2,
       y: (bounds.height - defaultSize.height) / 2,
-    });
+    };
   };
 
-  const ensureVisibleOnSomeDisplay = (windowState) => {
-    const visible = screen.getAllDisplays().some((display) => {
-      return windowWithinBounds(windowState, display.bounds);
-    });
+  const ensureVisibleOnSomeDisplay = (
+    windowState: BrowserWindowConstructorOptions
+  ) => {
+    const visible = screen
+      .getAllDisplays()
+      .some((display) => windowWithinBounds(windowState, display.bounds));
     if (!visible) {
       // Window is partially or fully not visible now.
       // Reset it to safe defaults.

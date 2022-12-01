@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
-import { Box, Grid, IconButton } from "@mui/material";
-import { Refresh, Settings } from "@mui/icons-material";
+import { Box, Grid, Button, IconButton } from "@mui/material";
+import { Wallet, Verified, Settings } from "@mui/icons-material";
 import { Link, NextLinkComposed } from "../../../Link";
 import { Logo } from "./components/Logo";
 
@@ -8,7 +8,7 @@ export const Header = () => {
   const router = useRouter();
 
   // TODO
-  const isAuthenticated = false;
+  const isAuthenticated = true;
 
   const isActive = (pathname: string) => router.pathname.startsWith(pathname);
 
@@ -54,14 +54,37 @@ export const Header = () => {
         {isAuthenticated && (
           <>
             <Grid item>
-              <IconButton
+              <Button
+                component={NextLinkComposed}
+                to="/wallets"
+                startIcon={<Wallet />}
+                color={isActive("/wallet") ? "primary" : "secondary"}
+                aria-label="Wallet"
+              >
+                Wallets
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                component={NextLinkComposed}
+                to="/verify"
+                startIcon={<Verified />}
+                color={isActive("/verify") ? "primary" : "secondary"}
+                aria-label="Verify"
+              >
+                Verify
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
                 component={NextLinkComposed}
                 to="/settings"
+                startIcon={<Settings />}
                 color={isActive("/settings") ? "primary" : "secondary"}
                 aria-label="Settings"
               >
-                <Settings />
-              </IconButton>
+                Settings
+              </Button>
             </Grid>
           </>
         )}

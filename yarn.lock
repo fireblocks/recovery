@@ -5327,11 +5327,6 @@ lodash.camelcase@^4.3.0:
   resolved "https://registry.yarnpkg.com/lodash.camelcase/-/lodash.camelcase-4.3.0.tgz#b28aa6288a2b9fc651035c7711f65ab6190331a6"
   integrity sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==
 
-lodash.clonedeep@^4.5.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
-  integrity sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==
-
 lodash.debounce@^4.0.8:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
@@ -6647,13 +6642,6 @@ schema-utils@^4.0.0:
     ajv "^8.8.0"
     ajv-formats "^2.1.1"
     ajv-keywords "^5.0.0"
-
-secure-electron-context-menu@^1.3.3:
-  version "1.3.3"
-  resolved "https://registry.yarnpkg.com/secure-electron-context-menu/-/secure-electron-context-menu-1.3.3.tgz#22b9b5eb06206f5ab70afa66e20d457f5d1c279e"
-  integrity sha512-Q0YneA7OtdTtILYBRRl4+dB7ACUyyDGS552VBC7PeWWnPLdb1yezgzDrJPUbx42GKdIgUyjDiiXYu5sWmF71+g==
-  dependencies:
-    lodash.clonedeep "^4.5.0"
 
 secure-electron-store@^4.0.2:
   version "4.0.2"

@@ -107,9 +107,9 @@ export const theme = createTheme({
         },
         contained: { boxShadow: "0px 9px 25px 1px rgb(1 22 45 / 8%);" },
         containedPrimary: {
-          backgroundColor: "#4287f5",
+          backgroundColor: "#4287F5",
           background:
-            "linear-gradient(10.71deg, #1866cc 6.42%, #0075f2 93.52%)",
+            "linear-gradient(10.71deg, #1866CC 6.42%, #0075F2 93.52%)",
         },
       },
     },

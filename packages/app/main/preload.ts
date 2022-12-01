@@ -1,7 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import fs from "fs";
 import Store from "secure-electron-store";
-import ContextMenu from "secure-electron-context-menu";
 import { exposeElectronTRPC } from "./electron-trpc";
 
 console.info("Preload entry point");
@@ -13,7 +12,6 @@ const store = new Store();
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("api", {
   store: store.preloadBindings(ipcRenderer, fs),
-  contextMenu: ContextMenu.preloadBindings(ipcRenderer),
 });
 
 // Expose tRPC to the renderer process

@@ -1,8 +1,7 @@
 import { z } from "zod";
-import { nonEmptyString } from "./nonEmptyString";
 
 export const deriveKeysInput = z.object({
-  asset: nonEmptyString().describe("Asset ID"),
+  asset: z.string().trim().min(1).describe("Asset ID"),
   account: z.number().int().nonnegative().describe("Vault account ID"),
   change: z.number().int().nonnegative().describe("BIP44 change address index"),
   indexStart: z.number().int().nonnegative().describe("BIP44 index start"),

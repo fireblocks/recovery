@@ -4,16 +4,18 @@ import { FileUpload, CheckCircle, Cancel } from "@mui/icons-material";
 import { theme } from "../../lib/theme";
 
 type Props = {
-  hasExistingFile?: boolean;
+  hasFile?: boolean;
   error?: string;
   accept?: { [key: string]: string[] };
+  disabled?: boolean;
   onDrop: (file: File) => void;
 };
 
 export const UploadWell = ({
-  hasExistingFile = false,
+  hasFile,
   error,
   accept,
+  disabled,
   onDrop: _onDrop,
 }: Props) => {
   const onDropAccepted = (files: File[]) => _onDrop(files[0]);
@@ -21,11 +23,32 @@ export const UploadWell = ({
   const { getRootProps, getInputProps, isDragAccept, isDragReject } =
     useDropzone({
       accept,
+      disabled,
       multiple: false,
       onDropAccepted,
     });
 
-  const isActive = hasExistingFile || isDragAccept;
+  const isActive = hasFile || isDragAccept;
+
+  let InputIcon = FileUpload;
+  let inputText = "Drag & drop or select file";
+
+  if (isActive) {
+    InputIcon = CheckCircle;
+  }
+
+  if (hasFile) {
+    inputText = "File selected";
+  }
+
+  if (isDragAccept) {
+    inputText = "Drop file";
+  }
+
+  if (isDragReject) {
+    InputIcon = Cancel;
+    inputText = "Invalid file";
+  }
 
   return (
     <Box marginBottom={error ? "0" : "23px"} {...getRootProps()}>
@@ -46,25 +69,20 @@ export const UploadWell = ({
         alignItems="center"
         justifyContent="center"
         sx={{
-          backgroundColor: isActive ? "#0081D6" : "#E0E0E0",
-          cursor: "pointer",
+          backgroundColor: isActive
+            ? theme.palette.primary.main
+            : disabled
+            ? theme.palette.background.default
+            : "#E0E0E0",
+          background: isActive
+            ? "linear-gradient(10.71deg, #1866CC 6.42%, #0075F2 93.52%)"
+            : undefined,
+          cursor: disabled ? "default" : "pointer",
         }}
       >
         <input {...getInputProps()} />
-        {isDragReject ? (
-          <Cancel />
-        ) : isActive ? (
-          <CheckCircle />
-        ) : (
-          <FileUpload />
-        )}
-        <Typography fontSize="16px" sx={{ marginLeft: "0.5rem" }}>
-          {isDragReject
-            ? "Invalid file"
-            : isActive
-            ? "File selected"
-            : "Drag & drop or select file"}
-        </Typography>
+        <InputIcon sx={{ marginRight: "0.5rem" }} />
+        <Typography fontSize="16px">{inputText}</Typography>
       </Box>
       {!!error && <FormHelperText error>{error}</FormHelperText>}
     </Box>

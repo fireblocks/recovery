@@ -1,4 +1,11 @@
-"""Recovery Utility Server"""
+"""
+
+Fireblocks Recovery Utility Server
+
+Recovers xprv, fprv, xpub, fpub from Fireblocks.
+Derives private keys for supported assets.
+
+"""
 
 import json
 import traceback
@@ -6,6 +13,7 @@ import argparse
 from pprint import pprint
 from waitress import serve
 from flask import Flask, request
+from flask_cors import CORS
 from com.fireblocks.drs.crypto.basic import DerivationDetails
 from com.fireblocks.drs.infra.global_state import (
     setup_global_state,
@@ -16,9 +24,8 @@ from com.fireblocks.drs.infra.global_state import (
     ASSET_HELPER,
 )
 
-
 app = Flask(__name__)
-
+CORS(app)
 
 def get_parameter(k, default=None):
     param = request.args.get(k)
@@ -112,9 +119,12 @@ def recover_keys():
         res = recover_keys_impl(
             data["zip"], data["passphrase"], data["rsa-key"], data["rsa-key-passphrase"]
         )
-        return res
+        print(res)
     except Exception as e:
         res = app.response_class(response=json.dumps({"reason": str(e)}), status=500)
+
+    return res
+
 
 
 def recover_keys_impl(
@@ -157,7 +167,7 @@ def show_extended_private_keys_impl():
         return {"xprv": xprv, "fprv": fprv}
 
     raise Exception(
-        f"No entry for either xprv or fprv. Make sure to recover the addresses first."
+        "No entry for either xprv or fprv. Make sure to recover the addresses first."
     )
 
 
@@ -174,5 +184,5 @@ if __name__ == "__main__":
         app.config["SECRET_KEY"] = args.secret
 
     setup_global_state()
-    print("Server started")
+    print(f"Server started on port {args.port}")
     serve(app, host="localhost", port=args.port)
