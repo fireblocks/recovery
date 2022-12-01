@@ -54,7 +54,7 @@ const Recover: NextPageWithLayout = () => {
       console.error("Recover keys error:", error.message);
     }
 
-    router.push("/wallets");
+    router.push("/wallets/[assetId]", "/wallets/BTC");
   };
 
   const {

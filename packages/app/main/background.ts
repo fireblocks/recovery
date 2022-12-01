@@ -9,6 +9,7 @@ import { createIPCHandler } from "./electron-trpc";
 import { appRouter } from "./api/_app";
 import { scheme, requestHandler } from "./protocol";
 import { createContext, pythonServer } from "./api/context";
+import { minWidth } from "@mui/system";
 
 app.on("quit", pythonServer.kill);
 process.on("exit", pythonServer.kill);
@@ -55,7 +56,7 @@ async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
     width: 800,
-    height: 600,
+    height: 680,
     title: "Fireblocks Recovery Utility",
     webPreferences: {
       devTools: isDev,
@@ -225,6 +226,27 @@ app.on("web-contents-created", (event, contents) => {
   // This code replaces the old "new-window" event handling;
   // https://github.com/electron/electron/pull/24517#issue-447670981
   contents.setWindowOpenHandler(({ url }) => {
+    if (url.includes("/qr")) {
+      return {
+        action: "allow",
+        overrideBrowserWindowOptions: {
+          frame: true,
+          fullscreenable: false,
+          modal: true,
+          height: 428,
+          width: 300,
+          minHeight: 428,
+          minWidth: 300,
+          webPreferences: {
+            devTools: isDev,
+            nodeIntegration: true,
+            contextIsolation: false,
+            disableBlinkFeatures: "Auxclick",
+          },
+        },
+      };
+    }
+
     console.error(
       `The application tried to open a new window at the following address: '${url}'. This attempt was blocked.`
     );

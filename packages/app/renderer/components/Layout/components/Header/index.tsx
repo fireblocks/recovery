@@ -56,7 +56,10 @@ export const Header = () => {
             <Grid item>
               <Button
                 component={NextLinkComposed}
-                to="/wallets"
+                to={{
+                  pathname: "/wallets/[assetId]",
+                  query: { assetId: "BTC" },
+                }}
                 startIcon={<Wallet />}
                 color={isActive("/wallet") ? "primary" : "secondary"}
                 aria-label="Wallet"

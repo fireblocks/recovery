@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import type { NextPageWithLayout } from "../../_app";
 import { useState, useCallback, ReactElement } from "react";
 import { Layout } from "../../../components/Layout";
+import { TextField } from "../../../components/TextField";
 import {
   Box,
   Grid,
@@ -16,18 +17,16 @@ import {
   TableRow,
   TableCell,
 } from "@mui/material";
-import {
-  Add,
-  FileDownload,
-  AlternateEmail,
-  Key,
-  ArrowUpward,
-} from "@mui/icons-material";
+import { QrCode2, ContentCopy, Key, ArrowUpward } from "@mui/icons-material";
 import { getAssetName } from "../../../lib/assetInfo";
 
 type Wallet = {
+  path: string;
   accountId: number;
-  addresses: string[];
+  index: number;
+  address: string;
+  publicKey: string;
+  privateKey: string;
 };
 
 type DeriveKeysResponse = {
@@ -42,7 +41,13 @@ const Asset: NextPageWithLayout = () => {
 
   const [wallets, setWallets] = useState<Wallet[]>([]);
 
+  const [showPaths, setShowPaths] = useState(false);
+
   const assetId = router.query.assetId as string;
+
+  const assetName = getAssetName(assetId);
+
+  const toggleShowPaths = () => setShowPaths((prev) => !prev);
 
   const addWallet = useCallback(async () => {
     // TODO: User input
@@ -66,21 +71,40 @@ const Asset: NextPageWithLayout = () => {
         `http://localhost:8000/derive-keys?${searchParams}`
       );
 
-      const data = (await res.json()) as DeriveKeysResponse;
+      const derivations = (await res.json()) as DeriveKeysResponse[];
 
-      console.info("Derive keys response:", data);
+      console.info("Derive keys response:", derivations);
 
-      const wallet = {
-        accountId: accountId,
-        addresses: [data.address],
-      };
+      const newWallets = derivations.map((data) => {
+        const pathParts = data.path.split(",");
 
-      setWallets((prev) => [...prev, wallet]);
+        const bip44Path = `m/${pathParts.join("/")}`;
+
+        return {
+          path: bip44Path,
+          accountId: Number(accountId),
+          index: Number(pathParts[4]),
+          address: data.address,
+          publicKey: data.pub,
+          privateKey: data.prv,
+        };
+      });
+
+      setWallets((prev) => [...prev, ...newWallets]);
     } catch (err) {
       const error = err as Error;
       console.error("Derive keys error:", error.message);
     }
   }, [assetId, wallets.length]);
+
+  const openAddressQrCode = (address: string) => {
+    const qrCodeParams = new URLSearchParams({
+      data: address,
+      title: `${assetName} address`,
+    });
+
+    window.open(`/qr?${qrCodeParams.toString()}`, "_blank");
+  };
 
   return (
     <Box height="100%" display="flex" flexDirection="column">
@@ -91,24 +115,26 @@ const Asset: NextPageWithLayout = () => {
         justifyContent="space-between"
       >
         <Grid item>
-          <Typography variant="h1">{getAssetName(assetId)}</Typography>
+          <Typography variant="h1">{assetName}</Typography>
         </Grid>
         <Grid item>
           <Grid container spacing={2} alignItems="center">
             <Grid item>
-              <Button size="small" startIcon={<FileDownload />}>
-                Export CSV
+              <Button size="small" onClick={toggleShowPaths}>
+                {showPaths ? "Hide" : "Show"} Paths
               </Button>
+            </Grid>
+            <Grid item>
+              <Button size="small">Export</Button>
             </Grid>
             <Grid item>
               <Button
                 size="small"
                 variant="contained"
                 color="primary"
-                startIcon={<Add />}
                 onClick={addWallet}
               >
-                Add Wallet
+                Add
               </Button>
             </Grid>
           </Grid>
@@ -116,11 +142,18 @@ const Asset: NextPageWithLayout = () => {
       </Grid>
 
       <TableContainer component={Paper}>
-        <Table aria-label="simple table">
+        <Table aria-label={`${assetName} wallets`}>
           <TableHead>
             <TableRow>
-              <TableCell>Account</TableCell>
-              <TableCell align="center">Address</TableCell>
+              {showPaths ? (
+                <TableCell>Path</TableCell>
+              ) : (
+                <>
+                  <TableCell>Account</TableCell>
+                  <TableCell>Index</TableCell>
+                </>
+              )}
+              <TableCell>Address</TableCell>
               <TableCell align="center">Keys</TableCell>
               <TableCell align="center">Withdraw</TableCell>
             </TableRow>
@@ -128,16 +161,52 @@ const Asset: NextPageWithLayout = () => {
           <TableBody>
             {wallets.map((wallet) => (
               <TableRow
-                key={wallet.accountId}
+                key={wallet.path || wallet.address}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell component="th" scope="row">
-                  {wallet.accountId}
-                </TableCell>
+                {showPaths ? (
+                  <TableCell component="th" scope="row">
+                    {wallet.path}
+                  </TableCell>
+                ) : (
+                  <>
+                    <TableCell component="th" scope="row">
+                      {wallet.accountId}
+                    </TableCell>
+                    <TableCell>{wallet.index}</TableCell>
+                  </>
+                )}
                 <TableCell align="center">
-                  <IconButton aria-label="Show address">
-                    <AlternateEmail />
-                  </IconButton>
+                  <TextField
+                    id={`address-${wallet.address}`}
+                    type="text"
+                    label={`${assetName} Address`}
+                    value={wallet.address}
+                    hideLabel
+                    enableQr
+                    enableCopy
+                  />
+
+                  {/* <Grid container spacing={1} alignItems="center">
+                    <Grid item>
+                      <Box maxWidth="130px">
+                        <Typography noWrap>{wallet.address}</Typography>
+                      </Box>
+                    </Grid>
+                    <Grid item>
+                      <IconButton
+                        aria-label="Show QR code"
+                        onClick={() => openAddressQrCode(wallet.address)}
+                      >
+                        <QrCode2 />
+                      </IconButton>
+                    </Grid>
+                    <Grid item>
+                      <IconButton aria-label="Copy address">
+                        <ContentCopy />
+                      </IconButton>
+                    </Grid>
+                  </Grid> */}
                 </TableCell>
                 <TableCell align="center">
                   <IconButton aria-label="Show keys">
