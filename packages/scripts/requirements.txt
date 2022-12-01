@@ -1,6 +1,19 @@
+pytest==6.2.5
+pycryptodome==3.11.0
+termcolor==1.1.0
+substrate-interface==1.1.4
+py-algorand-sdk==1.8.0
+solana==0.19.1
+stellar_base==1.1.2.0
+gql==3.4.0
+cbor2==5.4.3
+bech32==1.2.0
 flask==2.2.2
 Flask-RESTful==0.3.9
 PyJWT==2.6.0
-
-# Development
 black==22.10.0
+base58~=2.1.1
+bip32~=3.3
+waitress~=2.1.2
+qrcode~=7.3.1
+Pillow~=9.3.0

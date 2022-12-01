@@ -1,18 +1,11 @@
+from bip32 import BIP32
+from bitcoinutils.keys import PublicKey
+from bitcoinutils.setup import setup
+
 from com.fireblocks.drs.crypto.basic import DERIVATION_PURPOSE, DerivationDetails
 from com.fireblocks.drs.crypto.derivation import Derivation
 from com.fireblocks.drs.crypto.ecdsa_basic import EcDSARecovery
-from com.fireblocks.drs.infra.dynamic_loader import get_dep
-
-btcutils_setup = get_dep("bitcoinutils.setup")
-btcutils_keys = get_dep("bitcoinutils.keys")
-BIP32 = get_dep("bip32").BIP32
-
-setup = btcutils_setup.setup
-P2wpkhAddress = btcutils_keys.P2wpkhAddress
-P2wshAddress = btcutils_keys.P2wshAddress
-P2shAddress = btcutils_keys.P2shAddress
-PrivateKey = btcutils_keys.PrivateKey
-PublicKey = btcutils_keys.PublicKey
+from com.fireblocks.drs.crypto.tx import TxRequest, TxResponse
 
 
 class BitcoinRecovery(EcDSARecovery):
@@ -21,9 +14,14 @@ class BitcoinRecovery(EcDSARecovery):
                  xprv: str,
                  account: int = 0,
                  change: int = 0,
-                 address_index: int = 0):
-        super().__init__(xprv=xprv, coin_type=Derivation.Bitcoin, account=account, change=change,
-                         address_index=address_index)
+                 address_index: int = 0,
+                 testnet: bool = False):
+        super().__init__(xprv=xprv,
+                         coin_type=Derivation.Bitcoin,
+                         account=account,
+                         change=change,
+                         address_index=address_index,
+                         testnet=testnet)
         self.address = self.to_address()
         self.legacy_address = self.to_address(legacy=True)
 
@@ -47,6 +45,9 @@ class BitcoinRecovery(EcDSARecovery):
             setup('mainnet')
         return DerivationDetails(self.prv_hex, self.pub_hex, self.to_address(testnet, legacy),
                                  f"44,{self.coin_id},{self.account},{self.change},{self.address_index}")
+
+    def create_tx(self, txRequest: TxRequest, **kwargs) -> TxResponse:
+        pass
 
     @staticmethod
     def public_key_verification(extended_pub: str,

@@ -10,6 +10,11 @@ global_state_lock = Lock()
 ASSET_TYPE = "type"
 ASSET_HELPER = "helper"
 
+XPRV = "xprv"
+FPRV = "fprv"
+XPUB = "xpub"
+FPUB = "fpub"
+
 ASSET_TYPE_ECDSA = 0
 ASSET_TYPE_EDDSA = 1
 
@@ -23,15 +28,6 @@ def setup_global_state():
     set_data("BTC", {ASSET_HELPER: BitcoinRecovery, ASSET_TYPE: ASSET_TYPE_ECDSA})
     set_data("ETH", {ASSET_HELPER: EthereumRecovery, ASSET_TYPE: ASSET_TYPE_ECDSA})
     set_data("SOL", {ASSET_HELPER: SolanaRecovery, ASSET_TYPE: ASSET_TYPE_EDDSA})
-
-    set_data("xprv",
-             "xprv9s21ZrQH143K4ZtuNcBPjXZJJLCyA6xJ6ta3spD9e6LpuoqYxXyAetiHxdJ5DUoRHmek7iEZNaTTMR6MzGkH9znKrZa2Yo7paNWJ6HT3Dbp")
-    set_data("fprv",
-             "fprv4LsXPWzhTTp9cXduCWonC2wkNsjN9Z6pXyiJa716Byvs16zffMAc5pXwc67LvHVNK87L935jCCKUF7Yi7omAnZ1pQnLc4UqbdSE3EdPpSHy")
-    set_data("xpub",
-             "xpub661MyMwAqRbcGfa1fQr7JtdBaCgefFD1pdzt1xf56vqX1hWmgeMhvxqjTBkLySerERmLByXPTZoMMeDkWS2msCUg5zn4vYZHZ4ecjX5256L")
-    set_data("fpub",
-             "fpub8sZZXw2wbqVpVcGLGwc5ofj1fjtVQZpbTopKCP5hWkgy4gbWUK4UzaxmRQszuUwaxZWQ4j7FEwduyrhqMgZ5LVwUYmnbb6t6m3RkieV2WSV")
 
 
 def set_data(key: str, val: any, overwrite: bool = False) -> bool | Exception:
@@ -60,7 +56,7 @@ def set_data(key: str, val: any, overwrite: bool = False) -> bool | Exception:
 
 def get_data(key: str) -> any:
     """
-    Gets some data from global storage.
+    Gets data from global storage associated with the given key.
     :param key: the key associated with the data
     :return: None if the key doesn't exist, or the data stored.
     """

@@ -1,25 +1,26 @@
 import hashlib
 import hmac
 
-from com.fireblocks.drs.crypto import ed25519
-from com.fireblocks.drs.infra.dynamic_loader import get_dep
+import base58
+from Crypto import Random
 
-base58 = get_dep("base58")
-Random = get_dep("Crypto.Random")
+from com.fireblocks.drs.crypto import ed25519
 
 
 def _ed25519_serialize(p):
-    if (p[0] & 1):
-        return (p[1] + 2**255).to_bytes(32, byteorder="little")
+    if p[0] & 1:
+        return (p[1] + 2 ** 255).to_bytes(32, byteorder="little")
     else:
         return (p[1]).to_bytes(32, byteorder="little")
 
+
 def _hash_for_derive(pubkey, chaincode, child_num):
-    ctx = hmac.new(chaincode, digestmod = hashlib.sha512)
+    ctx = hmac.new(chaincode, digestmod=hashlib.sha512)
     ctx.update(_ed25519_serialize(pubkey))
     ctx.update(b'\0')
     ctx.update(child_num.to_bytes(4, byteorder="big"))
     return ctx.digest()
+
 
 def _derive_next_key_level(pubkey, privkey, chaincode, child_num):
     hash = _hash_for_derive(pubkey, chaincode, child_num)
@@ -28,7 +29,8 @@ def _derive_next_key_level(pubkey, privkey, chaincode, child_num):
     tmp_point = ed25519.scalarmult(ed25519.B, exp)
     derived_pubkey = ed25519.edwards(pubkey, tmp_point)
     derived_privkey = (privkey + exp) % ed25519.l
-    return (derived_pubkey, derived_privkey, derived_chaincode)
+    return derived_pubkey, derived_privkey, derived_chaincode
+
 
 def eddsa_sign(private_key, message):
     if type(message) == str:
@@ -51,6 +53,7 @@ def eddsa_sign(private_key, message):
     hram = int.from_bytes(sha.digest(), byteorder='little') % ed25519.l
     s = (hram * privkey + nonce) % ed25519.l
     return _ed25519_serialize(R) + s.to_bytes(32, byteorder="little")
+
 
 def eddsa_derive(fkey, derivation_path):
     path = derivation_path.split('/')
@@ -79,7 +82,8 @@ def eddsa_derive(fkey, derivation_path):
         (pub, priv, chaincode) = _derive_next_key_level(pub, priv, chaincode, int(index))
     if not is_private:
         priv = None
-    return (priv, _ed25519_serialize(pub))
+    return priv, _ed25519_serialize(pub)
+
 
 def fprv_eddsa_sig(fprv, derivation_path, message):
     fprv_decoded = base58.b58decode_check(fprv)
@@ -87,6 +91,7 @@ def fprv_eddsa_sig(fprv, derivation_path, message):
         raise Exception(fprv + " is not valid FPRV")
     (priv, pub) = eddsa_derive(fprv, derivation_path)
     return eddsa_sign(priv, message)
+
 
 def private_key_to_public_key(private_key):
     return _ed25519_serialize(ed25519.scalarmult(ed25519.B, private_key))

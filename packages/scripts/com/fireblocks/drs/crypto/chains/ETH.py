@@ -1,11 +1,10 @@
+from bip32 import BIP32
+from eth_keys.datatypes import PrivateKey, PublicKey
+
 from com.fireblocks.drs.crypto.basic import DERIVATION_PURPOSE, DerivationDetails
 from com.fireblocks.drs.crypto.derivation import Derivation
 from com.fireblocks.drs.crypto.ecdsa_basic import EcDSARecovery
-from com.fireblocks.drs.infra.dynamic_loader import get_dep
-
-PrivateKey = get_dep("eth_keys.datatypes").PrivateKey
-PublicKey = get_dep("eth_keys.datatypes").PublicKey
-BIP32 = get_dep("bip32").BIP32
+from com.fireblocks.drs.crypto.tx import TxRequest, TxResponse
 
 
 class EthereumRecovery(EcDSARecovery):
@@ -13,9 +12,14 @@ class EthereumRecovery(EcDSARecovery):
                  xprv: str,
                  account: int = 0,
                  change: int = 0,
-                 address_index: int = 0):
-        super().__init__(xprv=xprv, coin_type=Derivation.Ethereum, account=account, change=change,
-                         address_index=address_index)
+                 address_index: int = 0,
+                 testnet: bool = False):
+        super().__init__(xprv=xprv,
+                         coin_type=Derivation.Ethereum,
+                         account=account,
+                         change=change,
+                         address_index=address_index,
+                         testnet=testnet)
 
     def to_address(self, checksum=False) -> str:
         if not checksum:
@@ -27,6 +31,9 @@ class EthereumRecovery(EcDSARecovery):
         checksum = kwargs.get("checksum", True)
         return DerivationDetails(self.prv_hex, self.pub_hex, self.to_address(checksum),
                                  f"44,{self.coin_id},{self.account},{self.change},{self.address_index}")
+
+    def create_tx(self, txRequest: TxRequest, **kwargs) -> TxResponse:
+        pass
 
     @staticmethod
     def public_key_verification(extended_pub: str,
