@@ -218,25 +218,27 @@ def recover_keys_impl(
 # ======================================= Show Extended Private Keys API
 
 
-@app.route("/show-extended-private-keys", methods=["GET"])
-def show_extended_private_keys():
+@app.route("/show-extended-keys", methods=["GET"])
+def show_extended_keys():
     try:
-        res = show_extended_private_keys_impl()
+        res = show_extended_keys_impl()
     except Exception as e:
         res = app.response_class(response=json.dumps({"reason": str(e)}), status=500)
 
     return res
 
 
-def show_extended_private_keys_impl():
+def show_extended_keys_impl():
     xprv = get_data(XPRV)
     fprv = get_data(FPRV)
+    xpub = get_data(XPUB)
+    fpub = get_data(FPUB)
 
-    if xprv and fprv:
-        return {XPRV: xprv, FPRV: fprv}
+    if xprv and fprv and xpub and fpub:
+        return {XPRV: xprv, FPRV: fprv, XPUB: xpub, FPUB: fpub}
 
     raise Exception(
-        "No entry for either xprv or fprv. Make sure to recover the addresses first."
+        "No extended key entries. Make sure to recover the addresses first."
     )
 
 

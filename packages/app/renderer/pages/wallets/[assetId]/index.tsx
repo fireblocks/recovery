@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import type { NextPageWithLayout } from "../../_app";
-import { useState, useCallback, ReactElement } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useState, ReactElement } from "react";
 import { Layout } from "../../../components/Layout";
 import { TextField } from "../../../components/TextField";
 import {
@@ -36,6 +37,54 @@ type DeriveKeysResponse = {
   path: string;
 };
 
+type AddWalletVariables = {
+  assetId: string;
+  accountId: number;
+  indexStart: number;
+  indexEnd: number;
+};
+
+const addWallet = async ({
+  assetId,
+  accountId,
+  indexStart,
+  indexEnd,
+}: AddWalletVariables) => {
+  const searchParams = new URLSearchParams({
+    asset: assetId.split("_TEST")[0],
+    account: String(accountId),
+    change: "0",
+    index_start: String(indexStart),
+    index_end: String(indexEnd),
+    xpub: "false",
+    legacy: "false",
+    checksum: "false",
+    testnet: assetId.includes("_TEST") ? "true" : "false",
+  });
+
+  // TODO: USE DYNAMIC PORT
+  const res = await fetch(`http://localhost:8000/derive-keys?${searchParams}`);
+
+  const derivations = (await res.json()) as DeriveKeysResponse[];
+
+  const newWallets = derivations.map<Wallet>((data) => {
+    const pathParts = data.path.split(",");
+
+    const bip44Path = `m/${pathParts[0]}'/${pathParts[1]}'/${pathParts[2]}'/${pathParts[3]}/${pathParts[4]}`;
+
+    return {
+      path: bip44Path,
+      accountId: Number(accountId),
+      index: Number(pathParts[4]),
+      address: data.address,
+      publicKey: data.pub,
+      privateKey: data.prv,
+    };
+  });
+
+  return newWallets;
+};
+
 const Asset: NextPageWithLayout = () => {
   const router = useRouter();
 
@@ -49,62 +98,21 @@ const Asset: NextPageWithLayout = () => {
 
   const toggleShowPaths = () => setShowPaths((prev) => !prev);
 
-  const addWallet = useCallback(async () => {
-    // TODO: User input
-    const accountId = wallets.length;
+  const addWalletMutation = useMutation({
+    mutationFn: addWallet,
+    onSuccess: (newWallets) => setWallets((prev) => [...prev, ...newWallets]),
+    onError: (err) => {
+      throw err;
+    },
+  });
 
-    try {
-      const searchParams = new URLSearchParams({
-        asset: assetId.split("_TEST")[0],
-        account: accountId.toString(),
-        change: "0",
-        index_start: "0",
-        index_end: "0",
-        xpub: "false",
-        legacy: "false",
-        checksum: "false",
-        testnet: assetId.includes("_TEST") ? "true" : "false",
-      });
-
-      // TODO: USE DYNAMIC PORT
-      const res = await fetch(
-        `http://localhost:8000/derive-keys?${searchParams}`
-      );
-
-      const derivations = (await res.json()) as DeriveKeysResponse[];
-
-      console.info("Derive keys response:", derivations);
-
-      const newWallets = derivations.map((data) => {
-        const pathParts = data.path.split(",");
-
-        const bip44Path = `m/${pathParts.join("/")}`;
-
-        return {
-          path: bip44Path,
-          accountId: Number(accountId),
-          index: Number(pathParts[4]),
-          address: data.address,
-          publicKey: data.pub,
-          privateKey: data.prv,
-        };
-      });
-
-      setWallets((prev) => [...prev, ...newWallets]);
-    } catch (err) {
-      const error = err as Error;
-      console.error("Derive keys error:", error.message);
-    }
-  }, [assetId, wallets.length]);
-
-  const openAddressQrCode = (address: string) => {
-    const qrCodeParams = new URLSearchParams({
-      data: address,
-      title: `${assetName} address`,
+  const onAddWallet = () =>
+    addWalletMutation.mutate({
+      assetId,
+      accountId: wallets.length,
+      indexStart: 0,
+      indexEnd: 0,
     });
-
-    window.open(`/qr?${qrCodeParams.toString()}`, "_blank");
-  };
 
   return (
     <Box height="100%" display="flex" flexDirection="column">
@@ -132,7 +140,8 @@ const Asset: NextPageWithLayout = () => {
                 size="small"
                 variant="contained"
                 color="primary"
-                onClick={addWallet}
+                onClick={onAddWallet}
+                disabled={addWalletMutation.isLoading}
               >
                 Add
               </Button>
@@ -142,7 +151,7 @@ const Asset: NextPageWithLayout = () => {
       </Grid>
 
       <TableContainer component={Paper}>
-        <Table aria-label={`${assetName} wallets`}>
+        <Table aria-label={`${assetName} wallets`} size="small">
           <TableHead>
             <TableRow>
               {showPaths ? (
@@ -161,7 +170,7 @@ const Asset: NextPageWithLayout = () => {
           <TableBody>
             {wallets.map((wallet) => (
               <TableRow
-                key={wallet.path || wallet.address}
+                key={`${assetId}-${wallet.path}`}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 {showPaths ? (
@@ -186,27 +195,6 @@ const Asset: NextPageWithLayout = () => {
                     enableQr
                     enableCopy
                   />
-
-                  {/* <Grid container spacing={1} alignItems="center">
-                    <Grid item>
-                      <Box maxWidth="130px">
-                        <Typography noWrap>{wallet.address}</Typography>
-                      </Box>
-                    </Grid>
-                    <Grid item>
-                      <IconButton
-                        aria-label="Show QR code"
-                        onClick={() => openAddressQrCode(wallet.address)}
-                      >
-                        <QrCode2 />
-                      </IconButton>
-                    </Grid>
-                    <Grid item>
-                      <IconButton aria-label="Copy address">
-                        <ContentCopy />
-                      </IconButton>
-                    </Grid>
-                  </Grid> */}
                 </TableCell>
                 <TableCell align="center">
                   <IconButton aria-label="Show keys">

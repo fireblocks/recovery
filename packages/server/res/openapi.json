@@ -26,9 +26,7 @@
   "paths": {
     "/recover-keys": {
       "post": {
-        "tags": [
-          "Key Recovery"
-        ],
+        "tags": ["Key Recovery"],
         "summary": "Recover Extended Keys",
         "description": "Retrieves XPRV, FPRV, XPUB, FPUB. Zip & RSA key should be in base 64 format.",
         "operationId": "recoverKeys",
@@ -74,13 +72,11 @@
         }
       }
     },
-    "/show-extended-private-keys": {
+    "/show-extended-keys": {
       "get": {
-        "tags": [
-          "Key Recovery"
-        ],
+        "tags": ["Key Recovery"],
         "summary": "Retrieve full extended keys to show",
-        "description": "Retrieves full info of XPRV, FPRV",
+        "description": "Retrieves full info of XPRV, FPRV, XPUB, FPUB",
         "operationId": "showFullPrv",
         "responses": {
           "200": {
@@ -104,9 +100,7 @@
     },
     "/derive-addresses": {
       "get": {
-        "tags": [
-          "Derivation"
-        ],
+        "tags": ["Derivation"],
         "summary": "Derives a certain amount of addresses",
         "description": "Given an asset, vault and index (if UTXO), returns the private key, public key, and list of addresses & paths (or single address & path).",
         "operationId": "deriveAddress",
@@ -176,9 +170,7 @@
     },
     "/show-private-key": {
       "get": {
-        "tags": [
-          "Derivation"
-        ],
+        "tags": ["Derivation"],
         "summary": "Retrieve private key to show",
         "description": "Retrieves full info of PRV.",
         "operationId": "showPrv",
@@ -254,6 +246,12 @@
             "type": "string"
           },
           "fprv": {
+            "type": "string"
+          },
+          "xpub": {
+            "type": "string"
+          },
+          "fpub": {
             "type": "string"
           }
         }

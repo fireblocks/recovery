@@ -1,7 +1,7 @@
-import { useState } from "react";
 import { useRouter } from "next/router";
 import type { NextPageWithLayout } from "./_app";
 import type { ReactElement } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,47 +21,36 @@ type RecoverKeysResponse = {
   fpub: string;
 };
 
+const recoverKeys = async (formData: FormData) => {
+  // TODO: USE DYNAMIC PORT
+  const res = await fetch(
+    "http://localhost:8000/recover-keys?recover-prv=true",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        zip: formData.zip,
+        passphrase: formData.passphrase,
+        "rsa-key": formData.rsaKey,
+        "rsa-key-passphrase": formData.rsaKeyPassphrase,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  const keyData = (await res.json()) as RecoverKeysResponse;
+
+  return keyData;
+};
+
 const Recover: NextPageWithLayout = () => {
   const router = useRouter();
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // const recoverKeysMutation = trpc.recoverKeys.useMutation();
-  // const isSubmitting = recoverKeysMutation.isLoading
-
-  const onSubmit = async (formData: FormData) => {
-    setIsSubmitting(true);
-
-    try {
-      const encodedFormData = new FormData();
-      encodedFormData.append("zip", formData.zip);
-      encodedFormData.append("passphrase", formData.passphrase);
-      encodedFormData.append("rsa-key", formData.rsaKey);
-
-      if (formData.rsaKeyPassphrase) {
-        encodedFormData.append("rsa-key-passphrase", formData.rsaKeyPassphrase);
-      }
-
-      // TODO: USE DYNAMIC PORT
-      const res = await fetch(
-        "http://localhost:8000/recover-keys?recover-prv=true",
-        {
-          method: "POST",
-          body: encodedFormData,
-        }
-      );
-
-      const data = (await res.json()) as RecoverKeysResponse;
-
-      console.info("Recover keys response:", data);
-    } catch (err) {
-      setIsSubmitting(false);
-      const error = err as Error;
-      console.error("Recover keys error:", error.message);
-    }
-
-    router.push("/wallets/[assetId]", "/wallets/BTC");
-  };
+  const recoverMutation = useMutation({
+    mutationFn: recoverKeys,
+    onSuccess: () => router.push("/wallets/[assetId]", "/wallets/BTC"),
+  });
 
   const {
     register,
@@ -78,6 +67,8 @@ const Recover: NextPageWithLayout = () => {
 
   const onDropRsaPrivateKey = async (file: File) =>
     setValue("rsaKey", await readFileToBase64(file));
+
+  const onSubmit = (formData: FormData) => recoverMutation.mutate(formData);
 
   return (
     <Box
@@ -108,7 +99,7 @@ const Recover: NextPageWithLayout = () => {
             hasFile={!!watch("zip")}
             error={errors.zip?.message}
             accept={{ "application/zip": [".zip"] }}
-            disabled={isSubmitting}
+            disabled={recoverMutation.isLoading}
             onDrop={onDropBackupZip}
           />
         </Grid>
@@ -125,7 +116,7 @@ const Recover: NextPageWithLayout = () => {
             hasFile={!!watch("rsaKey")}
             error={errors.rsaKey?.message}
             accept={{ "application/x-pem-file": [".key", ".pem"] }}
-            disabled={isSubmitting}
+            disabled={recoverMutation.isLoading}
             onDrop={onDropRsaPrivateKey}
           />
         </Grid>
@@ -135,7 +126,7 @@ const Recover: NextPageWithLayout = () => {
             type="password"
             label="Mobile passphrase"
             error={errors.passphrase?.message}
-            disabled={isSubmitting}
+            disabled={recoverMutation.isLoading}
             {...register("passphrase")}
           />
         </Grid>
@@ -145,7 +136,7 @@ const Recover: NextPageWithLayout = () => {
             type="password"
             label="RSA key passphrase"
             error={errors.rsaKeyPassphrase?.message}
-            disabled={isSubmitting}
+            disabled={recoverMutation.isLoading}
             {...register("rsaKeyPassphrase")}
           />
         </Grid>
@@ -155,7 +146,7 @@ const Recover: NextPageWithLayout = () => {
         type="submit"
         variant="contained"
         color="primary"
-        disabled={isSubmitting}
+        disabled={recoverMutation.isLoading}
         sx={{ margin: "auto 0 0 auto" }}
       >
         Recover
