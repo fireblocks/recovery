@@ -5,8 +5,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { withdrawInput } from "../../../lib/schemas";
-import { Box, Grid, Typography, Button } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import { TextField } from "../../../components/TextField";
+import { Button } from "../../../components/Button";
 import { getAssetName, getAssetIcon } from "../../../lib/assetInfo";
 import { formatPath } from "../../../lib/bip44";
 
@@ -167,7 +168,6 @@ const Withdraw = () => {
         <Grid item xs={12} display="flex" justifyContent="flex-end">
           <Button
             type="submit"
-            variant="contained"
             color="primary"
             disabled={withdrawMutation.isLoading}
           >

@@ -1,7 +1,8 @@
 import { useRouter } from "next/router";
-import { Box, Grid, Button } from "@mui/material";
-import { Key, Settings } from "@mui/icons-material";
+import { Box, Grid } from "@mui/material";
+import { Key } from "@mui/icons-material";
 import { Link, NextLinkComposed } from "../../../Link";
+import { Button } from "../../../Button";
 import { Logo } from "../../../Logo";
 import { AssetsIcon } from "./components/Icons";
 
@@ -57,6 +58,7 @@ export const Header = ({ hideNavigation }: Props) => {
           <>
             <Grid item>
               <Button
+                variant="text"
                 component={NextLinkComposed}
                 to={{
                   pathname: "/assets/[assetId]",
@@ -70,6 +72,7 @@ export const Header = ({ hideNavigation }: Props) => {
             </Grid>
             <Grid item>
               <Button
+                variant="text"
                 component={NextLinkComposed}
                 to="/keys"
                 startIcon={<Key />}
@@ -80,6 +83,7 @@ export const Header = ({ hideNavigation }: Props) => {
             </Grid>
             {/* <Grid item>
               <Button
+                variant="text"
                 component={NextLinkComposed}
                 to="/settings"
                 startIcon={<Settings />}

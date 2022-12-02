@@ -8,9 +8,9 @@ import { generateRsaKeypairInput } from "../lib/schemas";
 import { Layout } from "../components/Layout";
 import { TextField } from "../components/TextField";
 import { NextLinkComposed } from "../components/Link";
+import { Button } from "../components/Button";
 import {
   Box,
-  Button,
   Grid,
   Typography,
   List,
@@ -213,7 +213,6 @@ const Backup: NextPageWithLayout = () => {
             <Grid item xs={6}>
               <Button
                 type="submit"
-                variant="contained"
                 color="primary"
                 fullWidth
                 disabled={activeStep < 2}
@@ -223,7 +222,6 @@ const Backup: NextPageWithLayout = () => {
             </Grid>
             <Grid item xs={6}>
               <Button
-                variant="contained"
                 color="error"
                 fullWidth
                 disabled={!rsaKeypairUris}
@@ -258,7 +256,6 @@ const Backup: NextPageWithLayout = () => {
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Button
-                variant="contained"
                 color="primary"
                 fullWidth
                 disabled={activeStep < 3}
@@ -272,7 +269,6 @@ const Backup: NextPageWithLayout = () => {
             </Grid>
             <Grid item xs={6}>
               <Button
-                variant="contained"
                 color="primary"
                 fullWidth
                 disabled={activeStep < 3}
@@ -334,7 +330,6 @@ const Backup: NextPageWithLayout = () => {
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Button
-                variant="contained"
                 color="primary"
                 fullWidth
                 component={NextLinkComposed}

@@ -8,9 +8,9 @@ import { recoverKeysInput } from "../lib/schemas";
 import { Layout } from "../components/Layout";
 import { UploadWell } from "../components/UploadWell";
 import { TextField } from "../components/TextField";
+import { Button } from "../components/Button";
 import {
   Box,
-  Button,
   Grid,
   Typography,
   FormGroup,
@@ -199,7 +199,6 @@ const Recover: NextPageWithLayout = () => {
         <Grid item>
           <Button
             type="submit"
-            variant="contained"
             color="primary"
             disabled={recoverMutation.isLoading}
           >

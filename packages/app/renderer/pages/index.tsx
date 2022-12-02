@@ -3,7 +3,8 @@ import type { ReactElement } from "react";
 import { Layout } from "../components/Layout";
 import { NextLinkComposed } from "../components/Link";
 import { Logo } from "../components/Logo";
-import { Box, Grid, Typography, Button } from "@mui/material";
+import { Button } from "../components/Button";
+import { Box, Grid, Typography } from "@mui/material";
 import { Restore } from "@mui/icons-material";
 
 const Index: NextPageWithLayout = () => {
@@ -58,7 +59,6 @@ const Index: NextPageWithLayout = () => {
           <Grid item xs={12}>
             <Button
               size="large"
-              variant="contained"
               color="primary"
               fullWidth
               component={NextLinkComposed}

@@ -1,7 +1,8 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Box, Grid, Typography, Button } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import { TextField } from "../../../components/TextField";
+import { Button } from "../../../components/Button";
 import { getAssetName, getAssetIcon } from "../../../lib/assetInfo";
 import { formatPath } from "../../../lib/bip44";
 
@@ -48,11 +49,7 @@ const WalletDetails = () => {
           </Grid>
         </Grid>
         <Grid item>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={onOpenWithdrawal}
-          >
+          <Button color="primary" onClick={onOpenWithdrawal}>
             Withdraw
           </Button>
         </Grid>

@@ -4,11 +4,11 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { Layout } from "../../../components/Layout";
 import { TextField } from "../../../components/TextField";
+import { Button } from "../../../components/Button";
 import {
   Box,
   Grid,
   Typography,
-  Button,
   IconButton,
   Paper,
   TableContainer,
@@ -158,7 +158,7 @@ const Asset: NextPageWithLayout = () => {
         <Grid item>
           <Grid container spacing={2} alignItems="center">
             <Grid item>
-              <Button onClick={toggleShowPaths}>
+              <Button variant="text" onClick={toggleShowPaths}>
                 {showPaths ? "Hide" : "Show"} Paths
               </Button>
             </Grid>
@@ -167,7 +167,6 @@ const Asset: NextPageWithLayout = () => {
             </Grid> */}
             <Grid item>
               <Button
-                variant="contained"
                 color="primary"
                 onClick={onAddWallet}
                 disabled={addWalletMutation.isLoading}
