@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 import type { NextPageWithLayout } from "./_app";
-import type { ReactElement } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,7 +8,19 @@ import { recoverKeysInput } from "../lib/schemas";
 import { Layout } from "../components/Layout";
 import { UploadWell } from "../components/UploadWell";
 import { TextField } from "../components/TextField";
-import { Box, Button, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Grid,
+  Typography,
+  FormGroup,
+  FormControl,
+  FormLabel,
+  FormControlLabel,
+  RadioGroup,
+  Radio,
+  Checkbox,
+} from "@mui/material";
 import { readFileToBase64 } from "../lib/readFile";
 
 type FormData = z.infer<typeof recoverKeysInput>;
@@ -47,9 +58,12 @@ const recoverKeys = async (formData: FormData) => {
 const Recover: NextPageWithLayout = () => {
   const router = useRouter();
 
+  const verifyOnly = router.query.verifyOnly === "true";
+
   const recoverMutation = useMutation({
     mutationFn: recoverKeys,
-    onSuccess: () => router.push("/verify"),
+    onSuccess: () =>
+      router.push(verifyOnly ? "/keys?verifyOnly=true" : "/assets"),
   });
 
   const {
@@ -78,12 +92,46 @@ const Recover: NextPageWithLayout = () => {
       flexDirection="column"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <Typography variant="h1">Recover Workspace</Typography>
+      <Typography variant="h1">
+        {verifyOnly ? "Verify Recovery" : "Recover Workspace"}
+      </Typography>
+
+      {/* <FormControl>
+        <FormLabel
+          htmlFor="recoveryMethod"
+          sx={{
+            fontSize: "14px",
+            fontWeight: 600,
+            color: "#000000",
+            marginBottom: "0.5rem",
+          }}
+        >
+          Recovery Method
+        </FormLabel>
+        <RadioGroup
+          id="recoveryMethod"
+          defaultValue="drs"
+          name="recoveryMethod"
+          row
+        >
+          <FormControlLabel
+            value="drs"
+            control={<Radio />}
+            label="Disaster Recovery System"
+          />
+          <FormControlLabel
+            value="xprv"
+            control={<Radio />}
+            label="Extended Private Keys"
+          />
+        </RadioGroup>
+      </FormControl> */}
+
       <Grid container spacing={2}>
         <Grid item xs={6}>
           <Grid container spacing={2} justifyContent="space-between">
             <Grid item>
-              <Typography variant="h3">Recovery kit</Typography>
+              <Typography variant="h3">Recovery Kit</Typography>
             </Grid>
             <Grid item>
               <Typography variant="h3">.ZIP</Typography>
@@ -100,7 +148,7 @@ const Recover: NextPageWithLayout = () => {
         <Grid item xs={6}>
           <Grid container spacing={2} justifyContent="space-between">
             <Grid item>
-              <Typography variant="h3">RSA private key</Typography>
+              <Typography variant="h3">RSA Private Key</Typography>
             </Grid>
             <Grid item>
               <Typography variant="h3">.PEM / .KEY</Typography>
@@ -118,7 +166,7 @@ const Recover: NextPageWithLayout = () => {
           <TextField
             id="passphrase"
             type="password"
-            label="Mobile passphrase"
+            label="Mobile App Passphrase"
             error={errors.passphrase?.message}
             disabled={recoverMutation.isLoading}
             {...register("passphrase")}
@@ -128,7 +176,7 @@ const Recover: NextPageWithLayout = () => {
           <TextField
             id="rsaKeyPassphrase"
             type="password"
-            label="RSA key passphrase"
+            label="RSA Key Passphrase"
             error={errors.rsaKeyPassphrase?.message}
             disabled={recoverMutation.isLoading}
             {...register("rsaKeyPassphrase")}
@@ -136,19 +184,37 @@ const Recover: NextPageWithLayout = () => {
         </Grid>
       </Grid>
 
-      <Button
-        type="submit"
-        variant="contained"
-        color="primary"
-        disabled={recoverMutation.isLoading}
-        sx={{ margin: "auto 0 0 auto" }}
+      <Grid
+        container
+        spacing={2}
+        alignItems="center"
+        justifyContent="flex-end"
+        marginTop="auto"
       >
-        Recover
-      </Button>
+        {/* <Grid item>
+          <FormGroup>
+            <FormControlLabel control={<Checkbox />} label="Save to disk" />
+          </FormGroup>
+        </Grid> */}
+        <Grid item>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={recoverMutation.isLoading}
+          >
+            {verifyOnly ? "Verify Recovery" : "Recover"}
+          </Button>
+        </Grid>
+      </Grid>
     </Box>
   );
 };
 
-Recover.getLayout = (page: ReactElement) => <Layout hideSidebar>{page}</Layout>;
+Recover.getLayout = (page) => (
+  <Layout hideNavigation hideSidebar>
+    {page}
+  </Layout>
+);
 
 export default Recover;

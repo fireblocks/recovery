@@ -1,14 +1,16 @@
 import { useRouter } from "next/router";
-import { Box, Grid, Button, IconButton } from "@mui/material";
-import { Wallet, Verified, Settings } from "@mui/icons-material";
+import { Box, Grid, Button } from "@mui/material";
+import { Key, Settings } from "@mui/icons-material";
 import { Link, NextLinkComposed } from "../../../Link";
-import { Logo } from "./components/Logo";
+import { Logo } from "../../../Logo";
+import { AssetsIcon } from "./components/Icons";
 
-export const Header = () => {
+type Props = {
+  hideNavigation: boolean;
+};
+
+export const Header = ({ hideNavigation }: Props) => {
   const router = useRouter();
-
-  // TODO
-  const isAuthenticated = true;
 
   const isActive = (pathname: string) => router.pathname.startsWith(pathname);
 
@@ -51,32 +53,32 @@ export const Header = () => {
             </Grid>
           </Grid>
         </Grid>
-        {isAuthenticated && (
+        {!hideNavigation && (
           <>
             <Grid item>
               <Button
                 component={NextLinkComposed}
                 to={{
-                  pathname: "/wallets/[assetId]",
+                  pathname: "/assets/[assetId]",
                   query: { assetId: "BTC" },
                 }}
-                startIcon={<Wallet />}
-                color={isActive("/wallet") ? "primary" : "secondary"}
+                startIcon={<AssetsIcon active={isActive("/assets")} />}
+                color={isActive("/assets") ? "primary" : "secondary"}
               >
-                Wallets
+                Assets
               </Button>
             </Grid>
             <Grid item>
               <Button
                 component={NextLinkComposed}
-                to="/verify"
-                startIcon={<Verified />}
-                color={isActive("/verify") ? "primary" : "secondary"}
+                to="/keys"
+                startIcon={<Key />}
+                color={isActive("/keys") ? "primary" : "secondary"}
               >
-                Verify
+                Keys
               </Button>
             </Grid>
-            <Grid item>
+            {/* <Grid item>
               <Button
                 component={NextLinkComposed}
                 to="/settings"
@@ -85,7 +87,7 @@ export const Header = () => {
               >
                 Settings
               </Button>
-            </Grid>
+            </Grid> */}
           </>
         )}
       </Grid>

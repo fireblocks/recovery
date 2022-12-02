@@ -6,7 +6,8 @@ import { Footer } from "./components/Footer";
 
 type Props = {
   children: ReactNode;
-  navbarChildren?: ReactNode;
+  hideHeader?: boolean;
+  hideNavigation?: boolean;
   hideSidebar?: boolean;
 };
 
@@ -14,7 +15,8 @@ const area = (...areas: string[]) => `"${areas.join(" ")}"`;
 
 export const Layout = ({
   children,
-  navbarChildren,
+  hideHeader = false,
+  hideNavigation = false,
   hideSidebar = false,
 }: Props) => {
   const areaWithSidebar = (mainArea: string) =>
@@ -34,7 +36,7 @@ export const Layout = ({
       gridTemplateRows="64px 1fr min-content"
       gridTemplateAreas={gridTemplateAreas}
     >
-      <Header />
+      {!hideHeader && <Header hideNavigation={hideNavigation} />}
       {!hideSidebar && <Sidebar />}
       <Box component="main" gridArea="main" padding="1em">
         {children}

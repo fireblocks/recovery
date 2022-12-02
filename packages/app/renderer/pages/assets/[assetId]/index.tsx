@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import type { NextPageWithLayout } from "../../_app";
 import { useMutation } from "@tanstack/react-query";
-import { useState, ReactElement } from "react";
+import { useState } from "react";
 import { Layout } from "../../../components/Layout";
 import { TextField } from "../../../components/TextField";
 import {
@@ -127,7 +127,7 @@ const Asset: NextPageWithLayout = () => {
     });
 
     window.open(
-      `/wallets/${assetId}/details?${keysParams.toString()}`,
+      `/assets/${assetId}/details?${keysParams.toString()}`,
       "_blank"
     );
   };
@@ -139,7 +139,7 @@ const Asset: NextPageWithLayout = () => {
     });
 
     window.open(
-      `/wallets/${assetId}/withdraw?${withdrawalParams.toString()}`,
+      `/assets/${assetId}/withdraw?${withdrawalParams.toString()}`,
       "_blank"
     );
   };
@@ -162,9 +162,9 @@ const Asset: NextPageWithLayout = () => {
                 {showPaths ? "Hide" : "Show"} Paths
               </Button>
             </Grid>
-            <Grid item>
+            {/* <Grid item>
               <Button>Export</Button>
-            </Grid>
+            </Grid> */}
             <Grid item>
               <Button
                 variant="contained"
@@ -178,7 +178,6 @@ const Asset: NextPageWithLayout = () => {
           </Grid>
         </Grid>
       </Grid>
-
       <TableContainer component={Paper}>
         <Table aria-label={`${assetName} wallets`} size="small">
           <TableHead>
@@ -250,6 +249,6 @@ const Asset: NextPageWithLayout = () => {
   );
 };
 
-Asset.getLayout = (page: ReactElement) => <Layout>{page}</Layout>;
+Asset.getLayout = (page) => <Layout>{page}</Layout>;
 
 export default Asset;

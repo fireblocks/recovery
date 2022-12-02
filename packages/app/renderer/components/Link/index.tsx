@@ -91,7 +91,9 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
 
   const isExternal =
     typeof href === "string" &&
-    (href.indexOf("http") === 0 || href.indexOf("mailto:") === 0);
+    (href.indexOf("http") === 0 ||
+      href.indexOf("mailto:") === 0 ||
+      href.indexOf("blob:") === 0);
 
   if (isExternal) {
     if (noLinkStyle) {

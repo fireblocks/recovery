@@ -43,7 +43,7 @@ export const Sidebar = () => {
               component={NextLinkComposed}
               selected={selectedAssetId === assetId}
               to={{
-                pathname: "/wallets/[assetId]",
+                pathname: "/assets/[assetId]",
                 query: { assetId },
               }}
             >

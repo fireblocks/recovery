@@ -1,5 +1,4 @@
 import type { NextPageWithLayout } from "./_app";
-import type { ReactElement } from "react";
 import { Layout } from "../components/Layout";
 import { Box, Typography } from "@mui/material";
 
@@ -11,8 +10,6 @@ const Settings: NextPageWithLayout = () => {
   );
 };
 
-Settings.getLayout = (page: ReactElement) => (
-  <Layout hideSidebar>{page}</Layout>
-);
+Settings.getLayout = (page) => <Layout hideSidebar>{page}</Layout>;
 
 export default Settings;

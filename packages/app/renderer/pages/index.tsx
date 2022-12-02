@@ -1,27 +1,34 @@
+import type { NextPageWithLayout } from "./_app";
+import type { ReactElement } from "react";
+import { Layout } from "../components/Layout";
 import { NextLinkComposed } from "../components/Link";
-import { Box, Button, Grid, Typography } from "@mui/material";
-import { Logo } from "../components/Layout/components/Header/components/Logo";
+import { Logo } from "../components/Logo";
+import { Box, Grid, Typography, Button } from "@mui/material";
+import { Restore } from "@mui/icons-material";
 
-const Index = () => {
+const Index: NextPageWithLayout = () => {
   return (
-    <Grid
-      container
-      spacing={2}
-      alignItems="center"
-      height="100%"
-      padding="1rem"
-    >
+    <Grid container spacing={2} alignItems="center" height="100%" padding="rem">
       <Grid item xs={6}>
         <Typography sx={{ color: (theme) => theme.palette.primary.main }}>
           <Logo width={150} />
         </Typography>
-        <Typography variant="h1">Recovery Utility</Typography>
-        <Typography variant="body1" paragraph>
-          Recovery Utility can help you start a backup of your Fireblocks
-          workspace or recover your assets. With your hard key recovery
-          materials, you can recover your master extended keys, derive wallet
-          keys and addresses, and build transactions for broadcasting with an
-          online device.
+        <Box display="flex" alignItems="center">
+          <Typography
+            variant="h1"
+            marginTop={0}
+            lineHeight={0}
+            marginRight="8px"
+          >
+            <Restore />
+          </Typography>
+          <Typography variant="h1" marginTop={0.3}>
+            Recovery Utility
+          </Typography>
+        </Box>
+        <Typography variant="body1" paragraph gutterBottom={false}>
+          Recovery Utility can help recover your Fireblocks workspace, verify a
+          recovery, or build keys for hard key recovery setup.
         </Typography>
       </Grid>
       <Grid item xs={6}>
@@ -29,21 +36,28 @@ const Index = () => {
           <Grid item xs={12}>
             <Button
               size="large"
-              type="submit"
-              variant="contained"
-              color="secondary"
+              variant="outlined"
               fullWidth
               component={NextLinkComposed}
-              to="/backup"
-              disabled
+              to="/setup"
             >
-              Start Back Up
+              Recovery Setup
             </Button>
           </Grid>
           <Grid item xs={12}>
             <Button
               size="large"
-              type="submit"
+              variant="outlined"
+              fullWidth
+              component={NextLinkComposed}
+              to="/recover?verifyOnly=true"
+            >
+              Verify Recovery
+            </Button>
+          </Grid>
+          <Grid item xs={12}>
+            <Button
+              size="large"
               variant="contained"
               color="primary"
               fullWidth
@@ -58,5 +72,11 @@ const Index = () => {
     </Grid>
   );
 };
+
+Index.getLayout = (page: ReactElement) => (
+  <Layout hideHeader hideSidebar>
+    {page}
+  </Layout>
+);
 
 export default Index;

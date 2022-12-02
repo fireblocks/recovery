@@ -26,7 +26,7 @@ const WalletDetails = () => {
     });
 
     window.open(
-      `/wallets/${assetId}/withdraw?${withdrawalParams.toString()}`,
+      `/assets/${assetId}/withdraw?${withdrawalParams.toString()}`,
       "_blank"
     );
   };

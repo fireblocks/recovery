@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { nonEmptyString } from "./scalars";
 
 export const withdrawInput = z.object({
-  to: z.string().trim().min(1).describe("Recipient address"),
+  to: nonEmptyString().describe("Recipient address"),
   amount: z.number().positive().describe("Amount to withdraw"),
   memo: z.string().trim().optional().describe("Transaction memo"),
 });

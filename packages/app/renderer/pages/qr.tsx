@@ -43,7 +43,7 @@ const QR = () => {
             }}
             includeMargin={false}
           />
-          <Box width="100%" padding="1rem">
+          <Box width="100%" padding="1em">
             <TextField id="qrCodeData" label={title} value={data} enableCopy />
           </Box>
         </>

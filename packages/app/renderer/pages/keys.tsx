@@ -1,5 +1,5 @@
+import { useRouter, NextRouter } from "next/router";
 import type { NextPageWithLayout } from "./_app";
-import type { ReactElement } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Layout } from "../components/Layout";
 import { TextField } from "../components/TextField";
@@ -22,6 +22,10 @@ const getExtendedKeys = async () => {
 };
 
 const Verify: NextPageWithLayout = () => {
+  const router = useRouter();
+
+  const verifyOnly = router.query.verifyOnly === "true";
+
   const { data, isLoading } = useQuery({
     queryKey: ["extended-keys"],
     queryFn: getExtendedKeys,
@@ -35,12 +39,15 @@ const Verify: NextPageWithLayout = () => {
 
   return (
     <Box>
-      <Typography variant="h1">Verify Keys</Typography>
+      <Typography variant="h1">Extended Keys</Typography>
+      <Typography variant="body1" paragraph>
+        The public keys and private keys of all of wallets in this workspace are
+        derived from the extended public keys and private keys.
+      </Typography>
       <Typography variant="body1" paragraph>
         Check that the recovered Fireblocks master public keys match the keys in
         your Fireblocks Console Settings.
       </Typography>
-
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Typography variant="h2">Public Keys</Typography>
@@ -61,33 +68,40 @@ const Verify: NextPageWithLayout = () => {
             enableCopy
           />
         </Grid>
-
-        <Grid item xs={12}>
-          <Typography variant="h2">Private Keys</Typography>
-          <TextField
-            id="xprv"
-            type="password"
-            label="XPRV"
-            value={data.xprv}
-            disabled={isLoading}
-            enableCopy
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            id="fprv"
-            type="password"
-            label="FPRV"
-            value={data.fprv}
-            disabled={isLoading}
-            enableCopy
-          />
-        </Grid>
+        {!verifyOnly && (
+          <>
+            <Grid item xs={12}>
+              <Typography variant="h2">Private Keys</Typography>
+              <TextField
+                id="xprv"
+                type="password"
+                label="XPRV"
+                value={data.xprv}
+                disabled={isLoading}
+                enableCopy
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                id="fprv"
+                type="password"
+                label="FPRV"
+                value={data.fprv}
+                disabled={isLoading}
+                enableCopy
+              />
+            </Grid>
+          </>
+        )}
       </Grid>
     </Box>
   );
 };
 
-Verify.getLayout = (page: ReactElement) => <Layout hideSidebar>{page}</Layout>;
+Verify.getLayout = (page, router) => (
+  <Layout hideNavigation={router.query.verifyOnly === "true"} hideSidebar>
+    {page}
+  </Layout>
+);
 
 export default Verify;

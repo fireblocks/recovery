@@ -1,16 +1,16 @@
 import { z } from "zod";
+import { nonEmptyString, nonNegativeInt, optionalBoolean } from "./scalars";
 
 export const deriveKeysInput = z.object({
-  asset: z.string().trim().min(1).describe("Asset ID"),
-  account: z.number().int().nonnegative().describe("Vault account ID"),
-  change: z.number().int().nonnegative().describe("BIP44 change address index"),
-  indexStart: z.number().int().nonnegative().describe("BIP44 index start"),
-  indexEnd: z.number().int().nonnegative().describe("BIP44 index end"),
-  useXpub: z
-    .boolean()
-    .optional()
-    .describe("Derive public key instead of private key"),
-  legacy: z.boolean().optional().describe("Use legacy format"),
-  checksum: z.boolean().optional().describe("Use checksum"),
-  testnet: z.boolean().optional().describe("Use testnet chain"),
+  asset: nonEmptyString().describe("Asset ID"),
+  account: nonNegativeInt().describe("Vault account ID"),
+  change: nonNegativeInt().describe("BIP44 change address index"),
+  indexStart: nonNegativeInt().describe("BIP44 index start"),
+  indexEnd: nonNegativeInt().describe("BIP44 index end"),
+  useXpub: optionalBoolean().describe(
+    "Derive public key instead of private key"
+  ),
+  legacy: optionalBoolean().describe("Use legacy format"),
+  checksum: optionalBoolean().describe("Use checksum"),
+  testnet: optionalBoolean().describe("Use testnet chain"),
 });

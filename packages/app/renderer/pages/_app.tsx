@@ -2,6 +2,7 @@ import { useState, ReactElement, ReactNode } from "react";
 import type { NextPage } from "next";
 import type { AppProps as NextAppProps } from "next/app";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
 import { CacheProvider, EmotionCache } from "@emotion/react";
@@ -12,9 +13,10 @@ import { QueryClient } from "@tanstack/react-query";
 import { theme } from "../lib/theme";
 import { createEmotionCache } from "../lib/createEmotionCache";
 import { ErrorBoundary } from "../components/ErrorBoundary";
+import { NextRouter } from "next/router";
 
 export type NextPageWithLayout = NextPage & {
-  getLayout?: (page: ReactElement) => ReactNode;
+  getLayout?: (page: ReactElement, router: NextRouter) => ReactNode;
 };
 
 type AppProps = NextAppProps & {
@@ -33,6 +35,8 @@ export default function App({
   emotionCache = clientSideEmotionCache,
   pageProps,
 }: AppProps) {
+  const router = useRouter();
+
   const [queryClient] = useState(() => new QueryClient());
 
   const getLayout = Component.getLayout ?? ((page) => page);
@@ -47,7 +51,7 @@ export default function App({
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <ErrorBoundary>
-            {getLayout(<Component {...pageProps} />)}
+            {getLayout(<Component {...pageProps} />, router)}
           </ErrorBoundary>
         </ThemeProvider>
       </CacheProvider>

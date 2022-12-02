@@ -99,7 +99,7 @@ const Withdraw = () => {
     });
 
   return (
-    <Box component="form" padding="1rem" onSubmit={handleSubmit(onSubmit)}>
+    <Box component="form" padding="1em" onSubmit={handleSubmit(onSubmit)}>
       <Head>
         <title>{title}</title>
       </Head>
