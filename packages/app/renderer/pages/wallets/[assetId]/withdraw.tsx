@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { withdrawInput } from "../../../../schemas";
+import { withdrawInput } from "../../../lib/schemas";
 import { Box, Grid, Typography, Button } from "@mui/material";
 import { TextField } from "../../../components/TextField";
 import { getAssetName, getAssetIcon } from "../../../lib/assetInfo";

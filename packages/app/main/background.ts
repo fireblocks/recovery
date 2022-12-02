@@ -12,20 +12,19 @@ import path from "path";
 import installExtension, {
   REACT_DEVELOPER_TOOLS,
 } from "electron-devtools-installer";
-import { createIPCHandler } from "./electron-trpc";
-import { appRouter } from "./api/_app";
 import { scheme, requestHandler } from "./protocol";
-import { createContext, pythonServer } from "./api/context";
-import { minWidth } from "@mui/system";
+import { PythonServer } from "./api/python-server";
+
+const isDev = process.env.NODE_ENV === "development";
+const port = 8888; // Hardcoded; needs to match webpack.development.js and package.json
+const selfHost = `http://localhost:${port}`;
+
+const pythonServer = new PythonServer();
 
 app.on("quit", pythonServer.kill);
 process.on("exit", pythonServer.kill);
 process.on("uncaughtException", pythonServer.kill);
 process.on("unhandledRejection", pythonServer.kill);
-
-const isDev = process.env.NODE_ENV === "development";
-const port = 8888; // Hardcoded; needs to match webpack.development.js and package.json
-const selfHost = `http://localhost:${port}`;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -154,7 +153,7 @@ async function createWindow() {
       partition
     ) /* eng-disable PERMISSION_REQUEST_HANDLER_JS_CHECK */
     .setPermissionRequestHandler((webContents, permission, permCallback) => {
-      const allowedPermissions = []; // Full list here: https://developer.chrome.com/extensions/declare_permissions#manifest
+      const allowedPermissions: string[] = []; // Full list here: https://developer.chrome.com/extensions/declare_permissions#manifest
 
       if (allowedPermissions.includes(permission)) {
         permCallback(true); // Approve permission request
@@ -197,8 +196,6 @@ protocol.registerSchemesAsPrivileged([
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
-  createIPCHandler({ router: appRouter, createContext });
-
   void createWindow();
 });
 
