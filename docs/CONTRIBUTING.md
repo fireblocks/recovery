@@ -7,7 +7,7 @@ This project is a monorepo using [Yarn workspaces](https://classic.yarnpkg.com/l
 ```
 📦packages      Workspaces
  ┣ 📂app        Electron app
- ┗ 📂scripts    Python scripts and server
+ ┗ 📂server    Python DRS server
 ```
 
 ## Prerequisites
@@ -28,15 +28,29 @@ This project is a monorepo using [Yarn workspaces](https://classic.yarnpkg.com/l
 - [**Changesets**](https://github.com/changesets/changesets) for versioning and changelogs
 - [**Husky**](https://github.com/typicode/husky) and [**lint-staged**](https://github.com/okonet/lint-staged) for Git hooks
 
+## Development Setup
+
+1. Obtain a hard key recovery ZIP, RSA private key (with passphrase), and Fireblocks mobile app passphrase.
+2. After installing the prerequisite software, install Node.js and Python dependencies:
+
+   ```sh
+   yarn install
+   ./packages/server/res/setup.sh
+   ```
+
+3. Start the Python DRS server and Electron development app:
+
+   ```sh
+   yarn dev
+   ```
+
+4. Build the app Electron app for production, compiling for the current development platform:
+
+   ```sh
+   yarn build
+   ```
+
 ## Development Scripts
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-yarn build
-```
 
 ### Develop
 
@@ -44,6 +58,14 @@ To develop all apps and packages, run the following command:
 
 ```
 yarn dev
+```
+
+### Build
+
+To build all apps and packages, run the following command:
+
+```
+yarn build
 ```
 
 ## Remote Caching

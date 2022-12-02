@@ -1,7 +1,7 @@
 * @fireblocks-solutions-engineering
 
 [Electron App]
-packages/app/ @fireblocks-solutions-engineering @gburry-fireblocks @Burry
+packages/app/ @fireblocks-solutions-engineering @gburry-fireblocks @Burry @slava23
 
-[Python Scripts]
-packages/scripts/ @fireblocks-solutions-engineering @agoltzman @dlevitan @eraneshel @hhorta @IMaluntsev @slava23 @ylevi
+[Python DRS Server]
+packages/server/ @fireblocks-solutions-engineering @agoltzman @dlevitan @eraneshel @hhorta @IMaluntsev @slava23 @ylevi
