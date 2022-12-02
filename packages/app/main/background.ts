@@ -1,4 +1,11 @@
-import { app, protocol, session, ipcMain, BrowserWindow, Menu } from "electron";
+import {
+  app,
+  protocol,
+  session,
+  ipcMain,
+  BrowserWindow,
+  BrowserWindowConstructorOptions,
+} from "electron";
 import Store from "secure-electron-store";
 import fs from "fs";
 import path from "path";
@@ -23,6 +30,25 @@ const selfHost = `http://localhost:${port}`;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win: BrowserWindow | null = null;
+
+const getWindowOptions = (
+  width: number,
+  height: number
+): BrowserWindowConstructorOptions => ({
+  frame: true,
+  fullscreenable: false,
+  modal: true,
+  height,
+  width,
+  minHeight: height,
+  minWidth: width,
+  webPreferences: {
+    devTools: isDev,
+    nodeIntegration: true,
+    contextIsolation: false,
+    disableBlinkFeatures: "Auxclick",
+  },
+});
 
 async function createWindow() {
   // If you'd like to set up auto-updating for your app,
@@ -57,6 +83,8 @@ async function createWindow() {
   win = new BrowserWindow({
     width: 800,
     height: 680,
+    minWidth: 800,
+    minHeight: 680,
     title: "Fireblocks Recovery Utility",
     webPreferences: {
       devTools: isDev,
@@ -226,25 +254,30 @@ app.on("web-contents-created", (event, contents) => {
   // This code replaces the old "new-window" event handling;
   // https://github.com/electron/electron/pull/24517#issue-447670981
   contents.setWindowOpenHandler(({ url }) => {
-    if (url.includes("/qr")) {
-      return {
-        action: "allow",
-        overrideBrowserWindowOptions: {
-          frame: true,
-          fullscreenable: false,
-          modal: true,
-          height: 428,
-          width: 300,
-          minHeight: 428,
-          minWidth: 300,
-          webPreferences: {
-            devTools: isDev,
-            nodeIntegration: true,
-            contextIsolation: false,
-            disableBlinkFeatures: "Auxclick",
-          },
-        },
-      };
+    const parsedUrl = new URL(url);
+    const validOrigins = [selfHost];
+
+    if (validOrigins.includes(parsedUrl.origin)) {
+      if (url.includes("/qr")) {
+        return {
+          action: "allow",
+          overrideBrowserWindowOptions: getWindowOptions(300, 428),
+        };
+      }
+
+      if (url.includes("/details")) {
+        return {
+          action: "allow",
+          overrideBrowserWindowOptions: getWindowOptions(500, 440),
+        };
+      }
+
+      if (url.includes("/withdraw")) {
+        return {
+          action: "allow",
+          overrideBrowserWindowOptions: getWindowOptions(500, 522),
+        };
+      }
     }
 
     console.error(

@@ -20,11 +20,13 @@ import {
 } from "@mui/material";
 import { Key, ArrowUpward } from "@mui/icons-material";
 import { getAssetName } from "../../../lib/assetInfo";
+import { formatPath } from "../../../lib/bip44";
 
 type Wallet = {
   path: string;
-  accountId: number;
-  index: number;
+  accountId: string;
+  change: string;
+  index: string;
   address: string;
   publicKey: string;
   privateKey: string;
@@ -40,6 +42,7 @@ type DeriveKeysResponse = {
 type AddWalletVariables = {
   assetId: string;
   accountId: number;
+  change: number;
   indexStart: number;
   indexEnd: number;
 };
@@ -47,13 +50,14 @@ type AddWalletVariables = {
 const addWallet = async ({
   assetId,
   accountId,
+  change,
   indexStart,
   indexEnd,
 }: AddWalletVariables) => {
   const searchParams = new URLSearchParams({
     asset: assetId.split("_TEST")[0],
     account: String(accountId),
-    change: "0",
+    change: String(change),
     index_start: String(indexStart),
     index_end: String(indexEnd),
     xpub: "false",
@@ -70,12 +74,11 @@ const addWallet = async ({
   const newWallets = derivations.map<Wallet>((data) => {
     const pathParts = data.path.split(",");
 
-    const bip44Path = `m/${pathParts[0]}'/${pathParts[1]}'/${pathParts[2]}'/${pathParts[3]}/${pathParts[4]}`;
-
     return {
-      path: bip44Path,
-      accountId: Number(accountId),
-      index: Number(pathParts[4]),
+      path: data.path,
+      accountId: pathParts[2],
+      change: pathParts[3],
+      index: pathParts[4],
       address: data.address,
       publicKey: data.pub,
       privateKey: data.prv,
@@ -110,9 +113,36 @@ const Asset: NextPageWithLayout = () => {
     addWalletMutation.mutate({
       assetId,
       accountId: wallets.length,
+      change: 0,
       indexStart: 0,
       indexEnd: 0,
     });
+
+  const onOpenKeys = (wallet: Wallet) => {
+    const keysParams = new URLSearchParams({
+      path: wallet.path,
+      address: wallet.address,
+      publicKey: wallet.publicKey,
+      privateKey: wallet.privateKey,
+    });
+
+    window.open(
+      `/wallets/${assetId}/details?${keysParams.toString()}`,
+      "_blank"
+    );
+  };
+
+  const onOpenWithdrawal = (wallet: Wallet) => {
+    const withdrawalParams = new URLSearchParams({
+      path: wallet.path,
+      testnet: "false",
+    });
+
+    window.open(
+      `/wallets/${assetId}/withdraw?${withdrawalParams.toString()}`,
+      "_blank"
+    );
+  };
 
   return (
     <Box height="100%" display="flex" flexDirection="column">
@@ -128,16 +158,15 @@ const Asset: NextPageWithLayout = () => {
         <Grid item>
           <Grid container spacing={2} alignItems="center">
             <Grid item>
-              <Button size="small" onClick={toggleShowPaths}>
+              <Button onClick={toggleShowPaths}>
                 {showPaths ? "Hide" : "Show"} Paths
               </Button>
             </Grid>
             <Grid item>
-              <Button size="small">Export</Button>
+              <Button>Export</Button>
             </Grid>
             <Grid item>
               <Button
-                size="small"
                 variant="contained"
                 color="primary"
                 onClick={onAddWallet}
@@ -175,7 +204,7 @@ const Asset: NextPageWithLayout = () => {
               >
                 {showPaths ? (
                   <TableCell component="th" scope="row">
-                    {wallet.path}
+                    {formatPath(wallet.path)}
                   </TableCell>
                 ) : (
                   <>
@@ -197,12 +226,18 @@ const Asset: NextPageWithLayout = () => {
                   />
                 </TableCell>
                 <TableCell align="center">
-                  <IconButton aria-label="Show keys">
+                  <IconButton
+                    aria-label="Show keys"
+                    onClick={() => onOpenKeys(wallet)}
+                  >
                     <Key />
                   </IconButton>
                 </TableCell>
                 <TableCell align="center">
-                  <IconButton aria-label="Withdraw">
+                  <IconButton
+                    aria-label="Withdraw"
+                    onClick={() => onOpenWithdrawal(wallet)}
+                  >
                     <ArrowUpward />
                   </IconButton>
                 </TableCell>

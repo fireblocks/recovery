@@ -65,7 +65,7 @@ const Input = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-type Props = Omit<InputBaseProps, "error"> & {
+export type Props = Omit<InputBaseProps, "error"> & {
   id: string;
   error?: ReactNode;
   label?: ReactNode;

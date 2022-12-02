@@ -45,7 +45,7 @@ const Verify: NextPageWithLayout = () => {
         <Grid item xs={12}>
           <Typography variant="h2">Public Keys</Typography>
           <TextField
-            id="passphrase"
+            id="xpub"
             label="XPUB"
             value={data.xpub}
             disabled={isLoading}
@@ -54,7 +54,7 @@ const Verify: NextPageWithLayout = () => {
         </Grid>
         <Grid item xs={12}>
           <TextField
-            id="rsaKeyPassphrase"
+            id="fpub"
             label="FPUB"
             value={data.fpub}
             disabled={isLoading}
@@ -65,7 +65,7 @@ const Verify: NextPageWithLayout = () => {
         <Grid item xs={12}>
           <Typography variant="h2">Private Keys</Typography>
           <TextField
-            id="passphrase"
+            id="xprv"
             type="password"
             label="XPRV"
             value={data.xprv}
@@ -75,7 +75,7 @@ const Verify: NextPageWithLayout = () => {
         </Grid>
         <Grid item xs={12}>
           <TextField
-            id="rsaKeyPassphrase"
+            id="fprv"
             type="password"
             label="FPRV"
             value={data.fprv}
