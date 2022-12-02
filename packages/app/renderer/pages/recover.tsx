@@ -49,7 +49,7 @@ const Recover: NextPageWithLayout = () => {
 
   const recoverMutation = useMutation({
     mutationFn: recoverKeys,
-    onSuccess: () => router.push("/wallets/[assetId]", "/wallets/BTC"),
+    onSuccess: () => router.push("/verify"),
   });
 
   const {
@@ -78,13 +78,7 @@ const Recover: NextPageWithLayout = () => {
       flexDirection="column"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <Typography variant="h1">Recover Fireblocks Workspace</Typography>
-      <Typography variant="body1" paragraph>
-        Recovery Utility can recover your Fireblocks assets if you lose access
-        to your workspace. With your hard key recovery materials, you can derive
-        private keys, check balances, and transfer assets to external wallets.
-      </Typography>
-
+      <Typography variant="h1">Recover Workspace</Typography>
       <Grid container spacing={2}>
         <Grid item xs={6}>
           <Grid container spacing={2} justifyContent="space-between">

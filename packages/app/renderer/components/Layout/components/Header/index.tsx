@@ -62,7 +62,6 @@ export const Header = () => {
                 }}
                 startIcon={<Wallet />}
                 color={isActive("/wallet") ? "primary" : "secondary"}
-                aria-label="Wallet"
               >
                 Wallets
               </Button>
@@ -73,7 +72,6 @@ export const Header = () => {
                 to="/verify"
                 startIcon={<Verified />}
                 color={isActive("/verify") ? "primary" : "secondary"}
-                aria-label="Verify"
               >
                 Verify
               </Button>
@@ -84,7 +82,6 @@ export const Header = () => {
                 to="/settings"
                 startIcon={<Settings />}
                 color={isActive("/settings") ? "primary" : "secondary"}
-                aria-label="Settings"
               >
                 Settings
               </Button>
