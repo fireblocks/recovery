@@ -2,18 +2,17 @@ import { useState, ReactElement, ReactNode } from "react";
 import type { NextPage } from "next";
 import type { AppProps as NextAppProps } from "next/app";
 import Head from "next/head";
-import { useRouter } from "next/router";
+import { useRouter, NextRouter } from "next/router";
 import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
 import { CacheProvider, EmotionCache } from "@emotion/react";
 import log from "electron-log";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { QueryClient } from "@tanstack/react-query";
-
 import { theme } from "../lib/theme";
 import { createEmotionCache } from "../lib/createEmotionCache";
 import { ErrorBoundary } from "../components/ErrorBoundary";
-import { NextRouter } from "next/router";
+import { WorkspaceProvider } from "../context/Workspace";
 
 export type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement, router: NextRouter) => ReactNode;
@@ -44,16 +43,21 @@ export default function App({
   return (
     <QueryClientProvider client={queryClient}>
       <CacheProvider value={emotionCache}>
-        <Head>
-          <title>Fireblocks Recovery Utility</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-        </Head>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <ErrorBoundary>
-            {getLayout(<Component {...pageProps} />, router)}
-          </ErrorBoundary>
-        </ThemeProvider>
+        <WorkspaceProvider>
+          <Head>
+            <title>Fireblocks Recovery Utility</title>
+            <meta
+              name="viewport"
+              content="width=device-width, initial-scale=1"
+            />
+          </Head>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <ErrorBoundary>
+              {getLayout(<Component {...pageProps} />, router)}
+            </ErrorBoundary>
+          </ThemeProvider>
+        </WorkspaceProvider>
       </CacheProvider>
     </QueryClientProvider>
   );

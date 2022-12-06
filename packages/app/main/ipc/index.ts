@@ -1,0 +1,2 @@
+import "./addWallets";
+import "./closeWindow";

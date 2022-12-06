@@ -191,11 +191,6 @@ const Recover: NextPageWithLayout = () => {
         justifyContent="flex-end"
         marginTop="auto"
       >
-        {/* <Grid item>
-          <FormGroup>
-            <FormControlLabel control={<Checkbox />} label="Save to disk" />
-          </FormGroup>
-        </Grid> */}
         <Grid item>
           <Button
             type="submit"

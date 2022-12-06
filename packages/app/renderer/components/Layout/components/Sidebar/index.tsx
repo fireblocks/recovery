@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ComponentType, ReactNode } from "react";
 import {
   Box,
   List,
@@ -9,21 +9,7 @@ import {
 } from "@mui/material";
 import { NextLinkComposed } from "../../../Link";
 import { useRouter } from "next/router";
-import { getAssetIcon, getAssetName } from "../../../../lib/assetInfo";
-
-type AssetInfo = {
-  assetId: string;
-  name: string;
-  icon: ReactNode;
-};
-
-const assetIds = ["BTC", "ETH", "SOL"];
-
-const assetsInfo = assetIds.map<AssetInfo>((assetId) => ({
-  assetId,
-  name: getAssetName(assetId),
-  icon: getAssetIcon(assetId),
-}));
+import { assets } from "../../../../lib/assetInfo";
 
 export const Sidebar = () => {
   const router = useRouter();
@@ -37,17 +23,19 @@ export const Sidebar = () => {
       sx={{ backgroundColor: "#FFFFFF" }}
     >
       <List component="nav" disablePadding>
-        {assetsInfo.map(({ assetId, name, icon }) => (
-          <ListItem key={assetId} disablePadding>
+        {assets.map(({ id, name, Icon }) => (
+          <ListItem key={id} disablePadding>
             <ListItemButton
               component={NextLinkComposed}
-              selected={selectedAssetId === assetId}
+              selected={selectedAssetId === id}
               to={{
                 pathname: "/assets/[assetId]",
-                query: { assetId },
+                query: { assetId: id },
               }}
             >
-              <ListItemIcon sx={{ minWidth: "42px" }}>{icon}</ListItemIcon>
+              <ListItemIcon sx={{ minWidth: "42px" }}>
+                <Icon />
+              </ListItemIcon>
               <ListItemText
                 primary={name}
                 primaryTypographyProps={{ noWrap: true }}

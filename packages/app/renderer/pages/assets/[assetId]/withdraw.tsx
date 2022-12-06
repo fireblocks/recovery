@@ -1,5 +1,4 @@
 import Head from "next/head";
-import { useRouter } from "next/router";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,17 +7,16 @@ import { withdrawInput } from "../../../lib/schemas";
 import { Box, Grid, Typography } from "@mui/material";
 import { TextField } from "../../../components/TextField";
 import { Button } from "../../../components/Button";
-import { getAssetName, getAssetIcon } from "../../../lib/assetInfo";
-import { formatPath } from "../../../lib/bip44";
+import { deserializePath, serializePath } from "../../../lib/bip44";
+import { useWorkspace } from "../../../context/Workspace";
 
 type FormData = z.infer<typeof withdrawInput>;
 
 type WithdrawVariables = {
   assetId: string;
-  accountId: string;
-  change: string;
-  index: string;
-  testnet: boolean;
+  accountId: number;
+  index: number;
+  isTestnet: boolean;
   to: string;
   amount: number;
   abi?: string;
@@ -32,10 +30,10 @@ type WithdrawResponse = { tx: string };
 const withdraw = async (variables: WithdrawVariables) => {
   const searchParams = new URLSearchParams({
     asset: variables.assetId.split("_TEST")[0],
-    account: variables.accountId,
-    change: variables.change,
-    index: variables.index,
-    testnet: String(variables.testnet),
+    account: String(variables.accountId),
+    change: "0",
+    index: String(variables.index),
+    isTestnet: String(variables.isTestnet),
   });
 
   // TODO: USE DYNAMIC PORT
@@ -55,17 +53,13 @@ const withdraw = async (variables: WithdrawVariables) => {
 };
 
 const Withdraw = () => {
-  const router = useRouter();
+  const { asset, pathParts, isTestnet } = useWorkspace();
 
-  const assetId = (router.query.assetId ?? "") as string;
-  const path = (router.query.path ?? "") as string;
-  const testnet = (router.query.testnet as string)?.toLowerCase?.() === "test";
+  const { coinType, accountId, change, index } = deserializePath(pathParts);
 
-  const [_, coinType, accountId, change, index] = path.split(",");
+  const title = `${asset?.name} Withdrawal`;
 
-  const assetName = getAssetName(assetId);
-
-  const title = `${assetName} Withdrawal`;
+  const AssetIcon = asset?.Icon ?? (() => null);
 
   const withdrawMutation = useMutation({
     mutationFn: withdraw,
@@ -89,11 +83,10 @@ const Withdraw = () => {
 
   const onSubmit = (formData: FormData) =>
     withdrawMutation.mutate({
-      assetId,
+      assetId: asset?.id as string,
       accountId,
-      change,
       index,
-      testnet,
+      isTestnet: !!isTestnet,
       to: formData.to,
       amount: formData.amount,
       memo: formData.memo,
@@ -105,7 +98,9 @@ const Withdraw = () => {
         <title>{title}</title>
       </Head>
       <Grid container spacing={2} alignItems="center" marginBottom="1rem">
-        <Grid item>{getAssetIcon(assetId)}</Grid>
+        <Grid item>
+          <AssetIcon />
+        </Grid>
         <Grid item>
           <Typography variant="h1" margin={0}>
             {title}
@@ -119,8 +114,8 @@ const Withdraw = () => {
         <Grid item xs={6}>
           <TextField
             id="path"
-            label="BIP32 Path"
-            value={formatPath(path)}
+            label="HD Path"
+            value={serializePath(pathParts)}
             enableCopy
           />
         </Grid>

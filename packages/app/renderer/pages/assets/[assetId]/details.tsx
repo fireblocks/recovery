@@ -1,33 +1,27 @@
 import Head from "next/head";
-import { useRouter } from "next/router";
 import { Box, Grid, Typography } from "@mui/material";
 import { TextField } from "../../../components/TextField";
 import { Button } from "../../../components/Button";
-import { getAssetName, getAssetIcon } from "../../../lib/assetInfo";
-import { formatPath } from "../../../lib/bip44";
+import { deserializePath, serializePath } from "../../../lib/bip44";
+import { useWorkspace } from "../../../context/Workspace";
 
 const WalletDetails = () => {
-  const router = useRouter();
+  const { asset, pathParts, address, publicKey, privateKey } = useWorkspace();
 
-  const assetId = (router.query.assetId ?? "") as string;
-  const path = (router.query.path ?? "") as string;
-  const address = (router.query.address ?? "") as string;
-  const publicKey = (router.query.publicKey ?? "") as string;
-  const privateKey = (router.query.privateKey ?? "") as string;
+  const { coinType, accountId, change, index } = deserializePath(pathParts);
 
-  const assetName = getAssetName(assetId);
-  const [_, coinType, accountId, change, index] = path.split(",");
+  const title = `${asset?.name} Wallet`;
 
-  const title = `${assetName} Wallet`;
+  const AssetIcon = asset?.Icon ?? (() => null);
 
   const onOpenWithdrawal = () => {
     const withdrawalParams = new URLSearchParams({
-      path,
-      testnet: "false",
+      path: pathParts.join(","),
+      isTestnet: "false",
     });
 
     window.open(
-      `/assets/${assetId}/withdraw?${withdrawalParams.toString()}`,
+      `/assets/${asset?.id}/withdraw?${withdrawalParams.toString()}`,
       "_blank"
     );
   };
@@ -40,7 +34,9 @@ const WalletDetails = () => {
       <Grid container spacing={2} alignItems="center" marginBottom="1rem">
         <Grid item flex={1}>
           <Grid container spacing={2} alignItems="center">
-            <Grid item>{getAssetIcon(assetId)}</Grid>
+            <Grid item>
+              <AssetIcon />
+            </Grid>
             <Grid item>
               <Typography variant="h1" margin={0}>
                 {title}
@@ -58,8 +54,8 @@ const WalletDetails = () => {
         <Grid item xs={6}>
           <TextField
             id="path"
-            label="BIP32 Path"
-            value={formatPath(path)}
+            label="HD Path"
+            value={serializePath(pathParts)}
             enableCopy
           />
         </Grid>

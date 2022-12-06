@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { pki, md } from "node-forge";
 import { generateRsaKeypairInput } from "../lib/schemas";
+import { download } from "../lib/download";
 import { Layout } from "../components/Layout";
 import { TextField } from "../components/TextField";
 import { NextLinkComposed } from "../components/Link";
@@ -25,17 +26,22 @@ type InternetConnectionState = "connected" | "disconnected" | "waiting";
 
 type FormData = z.infer<typeof generateRsaKeypairInput>;
 
-type KeypairUris = {
-  privateKeyUri: string;
-  publicKeyUri: string;
-  checksumUri: string;
+type BlobData = {
+  data: string;
+  uri: string;
 };
 
-const createBlobDataUri = (content: string) =>
-  URL.createObjectURL(new Blob([content]));
+type Keypair = {
+  privateKey: BlobData;
+  publicKey: BlobData;
+  checksum: BlobData;
+};
 
-const generateRsaKeypairUris = (formData: FormData) =>
-  new Promise<KeypairUris>((resolve, reject) =>
+const createBlobUri = (content: string) =>
+  URL.createObjectURL(new Blob([content], { type: "text/plain" }));
+
+const generateRsaKeypair = (formData: FormData) =>
+  new Promise<Keypair>((resolve, reject) =>
     pki.rsa.generateKeyPair({ bits: 4096, workers: 2 }, (err, keypair) => {
       if (err) {
         reject(err);
@@ -55,20 +61,21 @@ const generateRsaKeypairUris = (formData: FormData) =>
 
       const publicKeyPem = pki.publicKeyToPem(publicKey);
 
-      const md5 = md.md5.create();
-
-      md5.update(publicKeyPem);
-
-      const checksum = md5.digest().toHex();
-
-      const privateKeyUri = createBlobDataUri(privateKeyPem);
-      const publicKeyUri = createBlobDataUri(publicKeyPem);
-      const checksumUri = createBlobDataUri(checksum);
+      const checksum = md.md5.create().update(publicKeyPem).digest().toHex();
 
       resolve({
-        privateKeyUri,
-        publicKeyUri,
-        checksumUri,
+        privateKey: {
+          data: privateKeyPem,
+          uri: createBlobUri(privateKeyPem),
+        },
+        publicKey: {
+          data: publicKeyPem,
+          uri: createBlobUri(publicKeyPem),
+        },
+        checksum: {
+          data: checksum,
+          uri: createBlobUri(checksum),
+        },
       });
     })
   );
@@ -79,11 +86,13 @@ const Backup: NextPageWithLayout = () => {
   const [internetConnectionState, setInternetConnectionState] =
     useState<InternetConnectionState>("waiting");
 
-  const [rsaKeypairUris, setRsaKeypairUris] = useState<KeypairUris | null>(
-    null
-  );
+  const [rsaKeypair, setRsaKeypair] = useState<Keypair | null>(null);
 
-  const downloadedFilesCount = useRef(0);
+  const downloadedFilesRef = useRef({
+    privateKey: false,
+    publicKey: false,
+    checksum: false,
+  });
 
   const machineSetupColor =
     internetConnectionState === "waiting"
@@ -101,22 +110,43 @@ const Backup: NextPageWithLayout = () => {
     }, 1000);
   }, []);
 
-  const onGenerateRsaKeypair = async (formData: FormData) => {
-    const uris = await generateRsaKeypairUris(formData);
+  useEffect(
+    () => () => {
+      if (!rsaKeypair) {
+        return;
+      }
 
-    setRsaKeypairUris(uris);
-  };
+      Object.keys(rsaKeypair).forEach((type) =>
+        URL.revokeObjectURL(rsaKeypair[type as keyof Keypair].uri)
+      );
+    },
+    [rsaKeypair]
+  );
 
-  const onDownload = () => {
-    downloadedFilesCount.current += 1;
+  const onDownload = (key: keyof typeof downloadedFilesRef.current) => {
+    downloadedFilesRef.current[key] = true;
 
-    if (downloadedFilesCount.current === 1) {
+    const downloadedFiles = downloadedFilesRef.current;
+
+    if (
+      downloadedFiles.privateKey &&
+      downloadedFiles.publicKey &&
+      downloadedFiles.checksum
+    ) {
+      setActiveStep(4);
+    } else if (downloadedFiles.privateKey) {
       setActiveStep(3);
     }
+  };
 
-    if (downloadedFilesCount.current === 3) {
-      setActiveStep(4);
-    }
+  const onGenerateRsaKeypair = async (formData: FormData) => {
+    const keypair = await generateRsaKeypair(formData);
+
+    setRsaKeypair(keypair);
+
+    download(keypair.privateKey.uri, "fb-recovery-prv.pem", "text/plain");
+
+    onDownload("privateKey");
   };
 
   const {
@@ -222,12 +252,12 @@ const Backup: NextPageWithLayout = () => {
             </Grid>
             <Grid item xs={6}>
               <Button
-                color="error"
+                color="primary"
                 fullWidth
-                disabled={!rsaKeypairUris}
-                onClick={onDownload}
+                disabled={!rsaKeypair}
+                onClick={() => onDownload("privateKey")}
                 component="a"
-                href={rsaKeypairUris?.privateKeyUri ?? ""}
+                href={rsaKeypair?.privateKey.uri ?? ""}
                 download="fb-recovery-prv.pem"
               >
                 Download Private Key
@@ -259,9 +289,9 @@ const Backup: NextPageWithLayout = () => {
                 color="primary"
                 fullWidth
                 disabled={activeStep < 3}
-                onClick={onDownload}
+                onClick={() => onDownload("publicKey")}
                 component="a"
-                href={rsaKeypairUris?.publicKeyUri ?? ""}
+                href={rsaKeypair?.publicKey.uri ?? ""}
                 download="fb-recovery-pub.pem"
               >
                 Download Public Key
@@ -272,9 +302,9 @@ const Backup: NextPageWithLayout = () => {
                 color="primary"
                 fullWidth
                 disabled={activeStep < 3}
-                onClick={onDownload}
+                onClick={() => onDownload("checksum")}
                 component="a"
-                href={rsaKeypairUris?.checksumUri ?? ""}
+                href={rsaKeypair?.checksum.uri ?? ""}
                 download="fb-recovery-pub.md5"
               >
                 Download Checksum

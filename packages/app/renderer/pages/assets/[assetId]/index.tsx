@@ -1,10 +1,9 @@
-import { useRouter } from "next/router";
 import type { NextPageWithLayout } from "../../_app";
-import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { Layout } from "../../../components/Layout";
 import { TextField } from "../../../components/TextField";
 import { Button } from "../../../components/Button";
+import { NextLinkComposed } from "../../../components/Link";
 import {
   Box,
   Grid,
@@ -19,129 +18,72 @@ import {
   TableCell,
 } from "@mui/material";
 import { Key, ArrowUpward } from "@mui/icons-material";
-import { getAssetName } from "../../../lib/assetInfo";
-import { formatPath } from "../../../lib/bip44";
-
-type Wallet = {
-  path: string;
-  accountId: string;
-  change: string;
-  index: string;
-  address: string;
-  publicKey: string;
-  privateKey: string;
-};
-
-type DeriveKeysResponse = {
-  prv: string;
-  pub: string;
-  address: string;
-  path: string;
-};
-
-type AddWalletVariables = {
-  assetId: string;
-  accountId: number;
-  change: number;
-  indexStart: number;
-  indexEnd: number;
-};
-
-const addWallet = async ({
-  assetId,
-  accountId,
-  change,
-  indexStart,
-  indexEnd,
-}: AddWalletVariables) => {
-  const searchParams = new URLSearchParams({
-    asset: assetId.split("_TEST")[0],
-    account: String(accountId),
-    change: String(change),
-    index_start: String(indexStart),
-    index_end: String(indexEnd),
-    xpub: "false",
-    legacy: "false",
-    checksum: "false",
-    testnet: assetId.includes("_TEST") ? "true" : "false",
-  });
-
-  // TODO: USE DYNAMIC PORT
-  const res = await fetch(`http://localhost:8000/derive-keys?${searchParams}`);
-
-  const derivations = (await res.json()) as DeriveKeysResponse[];
-
-  const newWallets = derivations.map<Wallet>((data) => {
-    const pathParts = data.path.split(",");
-
-    return {
-      path: data.path,
-      accountId: pathParts[2],
-      change: pathParts[3],
-      index: pathParts[4],
-      address: data.address,
-      publicKey: data.pub,
-      privateKey: data.prv,
-    };
-  });
-
-  return newWallets;
-};
+import { deserializePath, serializePath } from "../../../lib/bip44";
+import { useWorkspace, Wallet } from "../../../context/Workspace";
+import { csvExport } from "../../../lib/csvExport";
+import { getAssetInfo } from "../../../lib/assetInfo";
+import { download } from "../../../lib/download";
 
 const Asset: NextPageWithLayout = () => {
-  const router = useRouter();
-
-  const [wallets, setWallets] = useState<Wallet[]>([]);
+  const { asset, wallets, currentAssetWallets } = useWorkspace();
 
   const [showPaths, setShowPaths] = useState(false);
 
-  const assetId = router.query.assetId as string;
-
-  const assetName = getAssetName(assetId);
-
   const toggleShowPaths = () => setShowPaths((prev) => !prev);
-
-  const addWalletMutation = useMutation({
-    mutationFn: addWallet,
-    onSuccess: (newWallets) => setWallets((prev) => [...prev, ...newWallets]),
-    onError: (err) => {
-      throw err;
-    },
-  });
-
-  const onAddWallet = () =>
-    addWalletMutation.mutate({
-      assetId,
-      accountId: wallets.length,
-      change: 0,
-      indexStart: 0,
-      indexEnd: 0,
-    });
 
   const onOpenKeys = (wallet: Wallet) => {
     const keysParams = new URLSearchParams({
-      path: wallet.path,
+      path: wallet.pathParts.join(","),
       address: wallet.address,
       publicKey: wallet.publicKey,
       privateKey: wallet.privateKey,
     });
 
     window.open(
-      `/assets/${assetId}/details?${keysParams.toString()}`,
+      `/assets/${asset?.id}/details?${keysParams.toString()}`,
       "_blank"
     );
   };
 
   const onOpenWithdrawal = (wallet: Wallet) => {
     const withdrawalParams = new URLSearchParams({
-      path: wallet.path,
+      path: wallet.pathParts.join(","),
       testnet: "false",
     });
 
     window.open(
-      `/assets/${assetId}/withdraw?${withdrawalParams.toString()}`,
+      `/assets/${asset?.id}/withdraw?${withdrawalParams.toString()}`,
       "_blank"
     );
+  };
+
+  const onExportCsv = async () => {
+    const data = wallets.map((wallet) => {
+      const { accountId } = deserializePath(wallet.pathParts);
+
+      return {
+        // accountName: "",
+        accountId,
+        assetId: wallet.assetId,
+        assetName: getAssetInfo(wallet.assetId)?.name ?? wallet.assetId,
+        address: wallet.address,
+        addressType: wallet.addressType,
+        // addressDescription: "",
+        // tag: "",
+        hdPath: ["m", ...wallet.pathParts].join(" / "),
+      };
+    });
+
+    const csv = await csvExport(data);
+
+    const timestamp = new Date()
+      .toISOString()
+      .replace(/[^0-9T-]/g, "")
+      .slice(0, -3);
+
+    const filename = `Fireblocks_vault_addresses_recovery_${timestamp}.csv`;
+
+    download(csv, filename, "text/plain");
   };
 
   return (
@@ -153,7 +95,7 @@ const Asset: NextPageWithLayout = () => {
         justifyContent="space-between"
       >
         <Grid item>
-          <Typography variant="h1">{assetName}</Typography>
+          <Typography variant="h1">{asset?.name}</Typography>
         </Grid>
         <Grid item>
           <Grid container spacing={2} alignItems="center">
@@ -162,14 +104,20 @@ const Asset: NextPageWithLayout = () => {
                 {showPaths ? "Hide" : "Show"} Paths
               </Button>
             </Grid>
-            {/* <Grid item>
-              <Button>Export</Button>
-            </Grid> */}
+            <Grid item>
+              <Button variant="text" onClick={onExportCsv}>
+                Export
+              </Button>
+            </Grid>
             <Grid item>
               <Button
                 color="primary"
-                onClick={onAddWallet}
-                disabled={addWalletMutation.isLoading}
+                component={NextLinkComposed}
+                to={{
+                  pathname: "/assets/[assetId]/add",
+                  query: { assetId: asset?.id as string },
+                }}
+                target="_blank"
               >
                 Add
               </Button>
@@ -178,7 +126,7 @@ const Asset: NextPageWithLayout = () => {
         </Grid>
       </Grid>
       <TableContainer component={Paper}>
-        <Table aria-label={`${assetName} wallets`} size="small">
+        <Table aria-label={`${asset?.name} wallets`} size="small">
           <TableHead>
             <TableRow>
               {showPaths ? (
@@ -186,7 +134,7 @@ const Asset: NextPageWithLayout = () => {
               ) : (
                 <>
                   <TableCell>Account</TableCell>
-                  <TableCell>Index</TableCell>
+                  {asset?.derivation.utxo && <TableCell>Index</TableCell>}
                 </>
               )}
               <TableCell>Address</TableCell>
@@ -195,52 +143,57 @@ const Asset: NextPageWithLayout = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {wallets.map((wallet) => (
-              <TableRow
-                key={`${assetId}-${wallet.path}`}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                {showPaths ? (
-                  <TableCell component="th" scope="row">
-                    {formatPath(wallet.path)}
-                  </TableCell>
-                ) : (
-                  <>
+            {currentAssetWallets.map((wallet) => {
+              const serializedPath = serializePath(wallet.pathParts);
+              const { accountId, index } = deserializePath(wallet.pathParts);
+
+              return (
+                <TableRow
+                  key={wallet.address}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  {showPaths ? (
                     <TableCell component="th" scope="row">
-                      {wallet.accountId}
+                      {serializedPath}
                     </TableCell>
-                    <TableCell>{wallet.index}</TableCell>
-                  </>
-                )}
-                <TableCell align="center">
-                  <TextField
-                    id={`address-${wallet.address}`}
-                    type="text"
-                    label={`${assetName} Address`}
-                    value={wallet.address}
-                    hideLabel
-                    enableQr
-                    enableCopy
-                  />
-                </TableCell>
-                <TableCell align="center">
-                  <IconButton
-                    aria-label="Show keys"
-                    onClick={() => onOpenKeys(wallet)}
-                  >
-                    <Key />
-                  </IconButton>
-                </TableCell>
-                <TableCell align="center">
-                  <IconButton
-                    aria-label="Withdraw"
-                    onClick={() => onOpenWithdrawal(wallet)}
-                  >
-                    <ArrowUpward />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
+                  ) : (
+                    <>
+                      <TableCell component="th" scope="row">
+                        {accountId}
+                      </TableCell>
+                      {asset?.derivation.utxo && <TableCell>{index}</TableCell>}
+                    </>
+                  )}
+                  <TableCell align="center">
+                    <TextField
+                      id={`address-${wallet.address}`}
+                      type="text"
+                      label={`${asset?.name} Address`}
+                      value={wallet.address}
+                      hideLabel
+                      enableQr
+                      enableCopy
+                    />
+                  </TableCell>
+                  <TableCell align="center">
+                    <IconButton
+                      aria-label="Show keys"
+                      onClick={() => onOpenKeys(wallet)}
+                    >
+                      <Key />
+                    </IconButton>
+                  </TableCell>
+                  <TableCell align="center">
+                    <IconButton
+                      aria-label="Withdraw"
+                      onClick={() => onOpenWithdrawal(wallet)}
+                    >
+                      <ArrowUpward />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>

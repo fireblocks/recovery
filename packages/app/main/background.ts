@@ -14,12 +14,13 @@ import installExtension, {
 } from "electron-devtools-installer";
 import { scheme, requestHandler } from "./protocol";
 import { PythonServer } from "./api/python-server";
+import "./ipc";
 
 const isDev = process.env.NODE_ENV === "development";
 const port = 8888; // Hardcoded; needs to match webpack.development.js and package.json
 const selfHost = `http://localhost:${port}`;
 
-const pythonServer = new PythonServer();
+export const pythonServer = new PythonServer();
 
 app.on("quit", pythonServer.kill);
 process.on("exit", pythonServer.kill);
@@ -28,13 +29,13 @@ process.on("unhandledRejection", pythonServer.kill);
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win: BrowserWindow | null = null;
+export let win: BrowserWindow | null = null;
 
 const getWindowOptions = (
   width: number,
   height: number
 ): BrowserWindowConstructorOptions => ({
-  frame: true,
+  // frame: true,
   fullscreenable: false,
   modal: true,
   height,
@@ -45,6 +46,9 @@ const getWindowOptions = (
     devTools: isDev,
     nodeIntegration: true,
     contextIsolation: false,
+    plugins: true,
+    backgroundThrottling: false,
+    webSecurity: false,
     disableBlinkFeatures: "Auxclick",
   },
 });
@@ -89,6 +93,9 @@ async function createWindow() {
       devTools: isDev,
       nodeIntegration: true,
       contextIsolation: false,
+      plugins: true,
+      backgroundThrottling: false,
+      webSecurity: false,
       // nodeIntegrationInWorker: false,
       // nodeIntegrationInSubFrames: false,
       additionalArguments: [
@@ -128,7 +135,7 @@ async function createWindow() {
     // before the DOM is ready
     win.webContents.once("dom-ready", async () => {
       await installExtension([REACT_DEVELOPER_TOOLS])
-        .then((name) => console.info(`Added Extension: ${name}`))
+        .then((name) => console.info(`Added Chrome extension: ${name}`))
         .catch((err) => console.error("An error occurred: ", err))
         .finally(() => {
           require("electron-debug")(); // https://github.com/sindresorhus/electron-debug
@@ -259,6 +266,13 @@ app.on("web-contents-created", (event, contents) => {
         return {
           action: "allow",
           overrideBrowserWindowOptions: getWindowOptions(300, 428),
+        };
+      }
+
+      if (url.includes("/add")) {
+        return {
+          action: "allow",
+          overrideBrowserWindowOptions: getWindowOptions(500, 440),
         };
       }
 
