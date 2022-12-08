@@ -42,7 +42,7 @@ const Index: NextPageWithLayout = () => {
               component={NextLinkComposed}
               to="/setup"
             >
-              Recovery Setup
+              Setup Recovery Kit
             </Button>
           </Grid>
           <Grid item xs={12}>
@@ -53,7 +53,7 @@ const Index: NextPageWithLayout = () => {
               component={NextLinkComposed}
               to="/recover?verifyOnly=true"
             >
-              Verify Recovery
+              Verify Recovery Kit
             </Button>
           </Grid>
           <Grid item xs={12}>
@@ -64,7 +64,7 @@ const Index: NextPageWithLayout = () => {
               component={NextLinkComposed}
               to="/recover"
             >
-              Recover
+              Recover Private Keys
             </Button>
           </Grid>
         </Grid>

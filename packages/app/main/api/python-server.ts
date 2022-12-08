@@ -1,4 +1,6 @@
+import isDev from "electron-is-dev";
 import execa from "execa";
+import path from "path";
 import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig } from "axios";
 import { getPortPromise } from "portfinder";
 
@@ -13,15 +15,38 @@ export class PythonServer {
    * @returns void
    */
   public async spawn() {
+    console.info("Spawning Python server...");
+
     const port = await getPortPromise();
 
     const baseURL = `http://localhost:${port}`;
 
-    this.subprocess = execa("python", [
-      "../server/__init__.py",
-      "-p",
-      port.toString(),
-    ]);
+    const portArgs = ["-p", port.toString()];
+
+    // DEBUGGING
+    // const lsProcess = execa("ls", ["-lah"]);
+    // lsProcess.stderr?.pipe(process.stderr);
+    // lsProcess.stdout?.pipe(process.stdout);
+
+    if (isDev) {
+      const serverPath = path.join(
+        __dirname,
+        "..",
+        "..",
+        "server",
+        "__init__.py"
+      );
+
+      this.subprocess = execa("python", [serverPath, ...portArgs]);
+    } else {
+      const serverPath = path.join(
+        __dirname,
+        "server",
+        process.platform === "win32" ? ".exe" : ""
+      );
+
+      this.subprocess = execa(serverPath, portArgs);
+    }
 
     this.subprocess.stderr?.pipe(process.stderr);
 

@@ -173,6 +173,7 @@ const Asset: NextPageWithLayout = () => {
                       hideLabel
                       enableQr
                       enableCopy
+                      isMonospace
                     />
                   </TableCell>
                   <TableCell align="center">

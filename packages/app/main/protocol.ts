@@ -23,7 +23,9 @@ const charset = (mimeExt: string) =>
   [".html", ".htm", ".js", ".mjs"].some((m) => m === mimeExt) ? "utf-8" : null;
 
 const mime = (filename: string) => {
-  const mimeExt = path.extname(`${filename || ""}`).toLowerCase();
+  const mimeExt = path
+    .extname(`${filename || ""}`)
+    .toLowerCase() as keyof typeof mimeTypes;
   const mimeType = mimeTypes[mimeExt];
   return mimeType ? { mimeExt, mimeType } : { mimeExt: null, mimeType: null };
 };

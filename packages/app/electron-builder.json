@@ -14,17 +14,18 @@
       "from": ".",
       "filter": ["package.json", "app"]
     },
-    "!node_modules/**/*.{mk,a,o,h}"
+    "!node_modules/**/*.{mk,a,o,h}",
+    "!node_modules/server"
+  ],
+  "extraFiles": [
+    {
+      "from": "../server/dist",
+      "filter": ["server", "server.exe"]
+    }
   ],
   "publish": null,
   "mac": {
-    "category": "public.app-category.developer-tools",
-    "target": [
-      {
-        "target": "zip",
-        "arch": "universal"
-      }
-    ]
+    "category": "public.app-category.developer-tools"
   },
   "win": {
     "target": "nsis"

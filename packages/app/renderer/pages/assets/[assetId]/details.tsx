@@ -57,6 +57,7 @@ const WalletDetails = () => {
             label="HD Path"
             value={serializePath(pathParts)}
             enableCopy
+            isMonospace
           />
         </Grid>
         <Grid item xs={6} display="flex">
@@ -78,6 +79,7 @@ const WalletDetails = () => {
             value={address}
             enableQr
             enableCopy
+            isMonospace
           />
         </Grid>
         <Grid item xs={12}>
@@ -87,6 +89,7 @@ const WalletDetails = () => {
             value={publicKey}
             enableQr
             enableCopy
+            isMonospace
           />
         </Grid>
         <Grid item xs={12}>
@@ -97,6 +100,7 @@ const WalletDetails = () => {
             value={privateKey}
             enableQr
             enableCopy
+            isMonospace
           />
         </Grid>
       </Grid>

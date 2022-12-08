@@ -6,6 +6,7 @@ import { z } from "zod";
 import { pki, md } from "node-forge";
 import { generateRsaKeypairInput } from "../lib/schemas";
 import { download } from "../lib/download";
+import { useConnectionTest } from "../context/ConnectionTest";
 import { Layout } from "../components/Layout";
 import { TextField } from "../components/TextField";
 import { NextLinkComposed } from "../components/Link";
@@ -21,8 +22,6 @@ import {
   Avatar,
   CircularProgress,
 } from "@mui/material";
-
-type InternetConnectionState = "connected" | "disconnected" | "waiting";
 
 type FormData = z.infer<typeof generateRsaKeypairInput>;
 
@@ -80,11 +79,10 @@ const generateRsaKeypair = (formData: FormData) =>
     })
   );
 
-const Backup: NextPageWithLayout = () => {
-  const [activeStep, setActiveStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+const Setup: NextPageWithLayout = () => {
+  const { isOnline } = useConnectionTest();
 
-  const [internetConnectionState, setInternetConnectionState] =
-    useState<InternetConnectionState>("waiting");
+  const [activeStep, setActiveStep] = useState<2 | 3 | 4 | 5>(2);
 
   const [rsaKeypair, setRsaKeypair] = useState<Keypair | null>(null);
 
@@ -94,21 +92,7 @@ const Backup: NextPageWithLayout = () => {
     checksum: false,
   });
 
-  const machineSetupColor =
-    internetConnectionState === "waiting"
-      ? "primary"
-      : internetConnectionState === "connected"
-      ? "error"
-      : "success";
-
-  useEffect(() => {
-    setTimeout(() => {
-      setActiveStep(2);
-      setInternetConnectionState(
-        navigator.onLine ? "connected" : "disconnected"
-      );
-    }, 1000);
-  }, []);
+  const machineSetupColor = isOnline ? "error" : "success";
 
   useEffect(
     () => () => {
@@ -144,7 +128,7 @@ const Backup: NextPageWithLayout = () => {
 
     setRsaKeypair(keypair);
 
-    download(keypair.privateKey.uri, "fb-recovery-prv.pem", "text/plain");
+    download(keypair.privateKey.data, "fb-recovery-prv.pem", "text/plain");
 
     onDownload("privateKey");
   };
@@ -160,12 +144,11 @@ const Backup: NextPageWithLayout = () => {
   return (
     <Box
       component="form"
-      height="100%"
       display="flex"
       flexDirection="column"
       onSubmit={handleSubmit(onGenerateRsaKeypair)}
     >
-      <Typography variant="h1">Recovery Setup</Typography>
+      <Typography variant="h1">Setup Recovery Kit</Typography>
       <List sx={{ width: "100%" }} dense disablePadding>
         <ListItem sx={{ alignItems: "flex-start" }}>
           <ListItemAvatar>
@@ -174,11 +157,7 @@ const Backup: NextPageWithLayout = () => {
                 background: (theme) => theme.palette[machineSetupColor].main,
               }}
             >
-              {internetConnectionState === "waiting" ? (
-                <CircularProgress color="inherit" size="24px" />
-              ) : (
-                1
-              )}
+              1
             </Avatar>
           </ListItemAvatar>
           <ListItemText
@@ -191,21 +170,17 @@ const Backup: NextPageWithLayout = () => {
                   <li>
                     <Typography
                       color={machineSetupColor}
-                      fontWeight={
-                        internetConnectionState === "connected"
-                          ? 600
-                          : undefined
-                      }
+                      fontWeight={isOnline ? 600 : undefined}
                     >
                       Offline and air-gapped.{" "}
-                      {internetConnectionState === "connected" &&
-                        "This machine is connected to the internet."}
+                      {isOnline &&
+                        "This machine is connected to a network. Please disconnect."}
                     </Typography>
                   </li>
                   <li>Accessible only by necessary, authorized personnel,</li>
                   <li>Protected with a very strong password,</li>
-                  <li>Encrypted on all partitions,</li>
-                  <li>And stored in a safe box when not in use.</li>
+                  <li>Encrypted on all partitions, and</li>
+                  <li>Stored in a safe box when not in use.</li>
                 </ol>
               </>
             }
@@ -216,7 +191,11 @@ const Backup: NextPageWithLayout = () => {
             <Avatar
               sx={{
                 background: (theme) =>
-                  activeStep === 2 ? theme.palette.primary.main : undefined,
+                  activeStep > 2
+                    ? theme.palette.success.main
+                    : activeStep === 2
+                    ? theme.palette.primary.main
+                    : undefined,
               }}
             >
               2
@@ -225,7 +204,17 @@ const Backup: NextPageWithLayout = () => {
           <ListItemText
             primary="Generate the recovery keypair and checksum."
             primaryTypographyProps={{ variant: "h2" }}
-            secondary="The recovery keypair is used for encrypting Fireblocks key shares and decrypting them in an offline environment. The checksum is used to verify the integrity of the recovery public key."
+            secondary={
+              <>
+                The recovery keypair is used for encrypting Fireblocks key
+                shares and decrypting them in an offline environment. The
+                checksum is used to verify the integrity of the recovery public
+                key.{" "}
+                <Typography fontWeight={600}>
+                  Store your recovery private key in a secure location!
+                </Typography>
+              </>
+            }
           />
         </ListItem>
         <ListItem sx={{ paddingLeft: "4.5rem" }}>
@@ -270,7 +259,11 @@ const Backup: NextPageWithLayout = () => {
             <Avatar
               sx={{
                 background: (theme) =>
-                  activeStep === 3 ? theme.palette.primary.main : undefined,
+                  activeStep > 3
+                    ? theme.palette.success.main
+                    : activeStep === 3
+                    ? theme.palette.primary.main
+                    : undefined,
               }}
             >
               3
@@ -351,7 +344,7 @@ const Backup: NextPageWithLayout = () => {
             <Avatar>5</Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="Verify recovery."
+            primary="Verify recovery kit."
             primaryTypographyProps={{ variant: "h2" }}
             secondary="Use Recovery Utility to verify your recovery kit. Check that the recovered Fireblocks master public keys match the keys in your Fireblocks Console Settings. The public keys and private keys of all of wallets in this workspace are derived from the extended public keys and private keys."
           />
@@ -366,7 +359,7 @@ const Backup: NextPageWithLayout = () => {
                 to="/recover?verifyOnly=true"
                 disabled={activeStep < 4}
               >
-                Verify Recovery
+                Verify Recovery Kit
               </Button>
             </Grid>
           </Grid>
@@ -376,10 +369,10 @@ const Backup: NextPageWithLayout = () => {
   );
 };
 
-Backup.getLayout = (page) => (
+Setup.getLayout = (page) => (
   <Layout hideNavigation hideSidebar>
     {page}
   </Layout>
 );
 
-export default Backup;
+export default Setup;

@@ -44,7 +44,7 @@ This project is a monorepo using [Yarn workspaces](https://classic.yarnpkg.com/l
    yarn dev
    ```
 
-4. Build the app Electron app for production, compiling for the current development platform:
+4. Build the Python DRS server and Electron app for production, compiling for the current development platform:
 
    ```sh
    yarn build

@@ -6,7 +6,8 @@ import {
   BrowserWindow,
   BrowserWindowConstructorOptions,
 } from "electron";
-import Store from "secure-electron-store";
+import isDev from "electron-is-dev";
+import log from "electron-log";
 import fs from "fs";
 import path from "path";
 import installExtension, {
@@ -16,9 +17,11 @@ import { scheme, requestHandler } from "./protocol";
 import { PythonServer } from "./api/python-server";
 import "./ipc";
 
-const isDev = process.env.NODE_ENV === "development";
 const port = 8888; // Hardcoded; needs to match webpack.development.js and package.json
 const selfHost = `http://localhost:${port}`;
+
+// Override console.log with electron-log
+Object.assign(console, log.functions);
 
 export const pythonServer = new PythonServer();
 
@@ -68,10 +71,6 @@ async function createWindow() {
     ); /* eng-disable PROTOCOL_HANDLER_JS_CHECK */
   }
 
-  const store = new Store({
-    path: app.getPath("userData"),
-  });
-
   void pythonServer.spawn();
 
   // Use saved config values for configuring your
@@ -98,25 +97,9 @@ async function createWindow() {
       webSecurity: false,
       // nodeIntegrationInWorker: false,
       // nodeIntegrationInSubFrames: false,
-      additionalArguments: [
-        `--storePath=${store.sanitizePath(app.getPath("userData"))}`,
-      ],
-      preload: path.join(__dirname, "preload.js"),
-      /* eng-disable PRELOAD_JS_CHECK */
       disableBlinkFeatures: "Auxclick",
     },
   });
-
-  // Sets up main.js bindings for our electron store;
-  // callback is optional and allows you to use store in main process
-  const callback = function (success: boolean, initialStore: any) {
-    console.log(
-      `${!success ? "Uns" : "S"}uccessfully retrieved store in main process.`
-    );
-    console.log(initialStore); // {"key1": "value1", ... }
-  };
-
-  store.mainBindings(ipcMain, win, fs, callback);
 
   // Load app
   if (isDev) {

@@ -6,6 +6,7 @@ import {
   RefObject,
   useRef,
 } from "react";
+import copy from "copy-to-clipboard";
 import { alpha, styled } from "@mui/material/styles";
 import {
   FormControl,
@@ -23,7 +24,7 @@ import {
   ContentCopy,
   Check,
 } from "@mui/icons-material";
-import copy from "copy-to-clipboard";
+import { monospaceFontFamily } from "../../lib/theme";
 
 const Input = styled(InputBase)(({ theme }) => ({
   fontSize: "16px",
@@ -72,6 +73,7 @@ export type Props = Omit<InputBaseProps, "error"> & {
   hideLabel?: boolean;
   enableQr?: boolean;
   enableCopy?: boolean;
+  isMonospace?: boolean;
 };
 
 export const TextField = forwardRef<HTMLInputElement, Props>(
@@ -83,10 +85,12 @@ export const TextField = forwardRef<HTMLInputElement, Props>(
       hideLabel,
       enableQr,
       enableCopy,
+      isMonospace,
       type,
       value,
       readOnly,
       endAdornment,
+      inputProps,
       inputRef: _inputRef,
       onFocus: _onFocus,
       ...props
@@ -169,6 +173,13 @@ export const TextField = forwardRef<HTMLInputElement, Props>(
           error={!!error}
           readOnly={readOnly || enableCopy}
           inputRef={inputRef}
+          inputProps={{
+            ...inputProps,
+            sx:
+              isMonospace && !copied
+                ? { ...inputProps?.sx, fontFamily: monospaceFontFamily }
+                : inputProps?.sx,
+          }}
           onFocus={onFocus}
           endAdornment={
             <>

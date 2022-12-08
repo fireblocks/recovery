@@ -23,7 +23,7 @@ export const Header = ({ hideNavigation }: Props) => {
       display="flex"
       flexDirection="column"
       alignItems="center"
-      zIndex={2}
+      zIndex="2"
       sx={{ backgroundColor: "#FFFFFF" }}
     >
       <Grid container alignItems="center" spacing={2} minHeight="80px">
@@ -54,7 +54,13 @@ export const Header = ({ hideNavigation }: Props) => {
             </Grid>
           </Grid>
         </Grid>
-        {!hideNavigation && (
+        {hideNavigation ? (
+          <Grid item>
+            <Button variant="text" onClick={router.back}>
+              Back
+            </Button>
+          </Grid>
+        ) : (
           <>
             <Grid item>
               <Button

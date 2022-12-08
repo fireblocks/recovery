@@ -12,6 +12,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { theme } from "../lib/theme";
 import { createEmotionCache } from "../lib/createEmotionCache";
 import { ErrorBoundary } from "../components/ErrorBoundary";
+import { ConnectionTestProvider } from "../context/ConnectionTest";
 import { WorkspaceProvider } from "../context/Workspace";
 
 export type NextPageWithLayout = NextPage & {
@@ -43,21 +44,23 @@ export default function App({
   return (
     <QueryClientProvider client={queryClient}>
       <CacheProvider value={emotionCache}>
-        <WorkspaceProvider>
-          <Head>
-            <title>Fireblocks Recovery Utility</title>
-            <meta
-              name="viewport"
-              content="width=device-width, initial-scale=1"
-            />
-          </Head>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <ErrorBoundary>
-              {getLayout(<Component {...pageProps} />, router)}
-            </ErrorBoundary>
-          </ThemeProvider>
-        </WorkspaceProvider>
+        <ConnectionTestProvider>
+          <WorkspaceProvider>
+            <Head>
+              <title>Fireblocks Recovery Utility</title>
+              <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1"
+              />
+            </Head>
+            <ThemeProvider theme={theme}>
+              <CssBaseline />
+              <ErrorBoundary>
+                {getLayout(<Component {...pageProps} />, router)}
+              </ErrorBoundary>
+            </ThemeProvider>
+          </WorkspaceProvider>
+        </ConnectionTestProvider>
       </CacheProvider>
     </QueryClientProvider>
   );

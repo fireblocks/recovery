@@ -3,7 +3,8 @@ import type { NextPageWithLayout } from "./_app";
 import { useQuery } from "@tanstack/react-query";
 import { Layout } from "../components/Layout";
 import { TextField } from "../components/TextField";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Typography, InputAdornment } from "@mui/material";
+import { CheckCircle } from "@mui/icons-material";
 
 type ExtendedKeysResponse = {
   xprv: string;
@@ -57,6 +58,13 @@ const Verify: NextPageWithLayout = () => {
             value={data.xpub}
             disabled={isLoading}
             enableCopy
+            isMonospace
+            endAdornment={
+              <InputAdornment position="end">
+                <CheckCircle color="success" sx={{ marginRight: "0.25rem" }} />
+                Verified
+              </InputAdornment>
+            }
           />
         </Grid>
         <Grid item xs={12}>
@@ -66,6 +74,13 @@ const Verify: NextPageWithLayout = () => {
             value={data.fpub}
             disabled={isLoading}
             enableCopy
+            isMonospace
+            endAdornment={
+              <InputAdornment position="end">
+                <CheckCircle color="success" sx={{ marginRight: "0.25rem" }} />
+                Verified
+              </InputAdornment>
+            }
           />
         </Grid>
         {!verifyOnly && (
@@ -79,6 +94,7 @@ const Verify: NextPageWithLayout = () => {
                 value={data.xprv}
                 disabled={isLoading}
                 enableCopy
+                isMonospace
               />
             </Grid>
             <Grid item xs={12}>
@@ -89,6 +105,7 @@ const Verify: NextPageWithLayout = () => {
                 value={data.fprv}
                 disabled={isLoading}
                 enableCopy
+                isMonospace
               />
             </Grid>
           </>

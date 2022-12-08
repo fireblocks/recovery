@@ -87,13 +87,23 @@ const Recover: NextPageWithLayout = () => {
   return (
     <Box
       component="form"
-      height="100%"
       display="flex"
       flexDirection="column"
       onSubmit={handleSubmit(onSubmit)}
     >
       <Typography variant="h1">
-        {verifyOnly ? "Verify Recovery" : "Recover Workspace"}
+        {verifyOnly ? "Verify Recovery Kit" : "Recover Private Keys"}
+      </Typography>
+
+      <Typography
+        variant="body1"
+        color={(theme) => theme.palette.error.main}
+        paragraph
+      >
+        Recovering private keys exposes your Fireblocks extended private keys
+        and derived asset private keys to this system&apos;s memory. This should
+        only be done in a disaster recovery scenario. Do not recover private
+        keys for usual business operations.
       </Typography>
 
       {/* <FormControl>

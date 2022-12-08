@@ -89,12 +89,20 @@ export const theme = createTheme({
       styleOverrides: {
         html: {
           height: "100%",
+          cursor: "default",
+          userSelect: "none",
         },
         body: {
           height: "100%",
         },
         "#__next": {
           height: "100%",
+        },
+        a: {
+          WebkitUserDrag: "none",
+        },
+        img: {
+          WebkitUserDrag: "none",
         },
       },
     },

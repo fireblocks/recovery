@@ -117,6 +117,7 @@ const Withdraw = () => {
             label="HD Path"
             value={serializePath(pathParts)}
             enableCopy
+            isMonospace
           />
         </Grid>
         <Grid item xs={6} display="flex">
@@ -137,6 +138,7 @@ const Withdraw = () => {
             label="Recipient Address"
             error={errors.to?.message}
             disabled={withdrawMutation.isLoading}
+            isMonospace
             {...register("to")}
           />
         </Grid>
