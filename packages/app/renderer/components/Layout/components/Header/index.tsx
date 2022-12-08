@@ -1,8 +1,7 @@
 import { useRouter } from "next/router";
 import { Box, Grid } from "@mui/material";
-import { Key } from "@mui/icons-material";
-import { Link, NextLinkComposed } from "../../../Link";
-import { Button } from "../../../Button";
+import { Key, Settings } from "@mui/icons-material";
+import { Button, Link, NextLinkComposed } from "styles";
 import { Logo } from "../../../Logo";
 import { AssetsIcon } from "./components/Icons";
 
@@ -87,7 +86,7 @@ export const Header = ({ hideNavigation }: Props) => {
                 Keys
               </Button>
             </Grid>
-            {/* <Grid item>
+            <Grid item>
               <Button
                 variant="text"
                 component={NextLinkComposed}
@@ -97,7 +96,7 @@ export const Header = ({ hideNavigation }: Props) => {
               >
                 Settings
               </Button>
-            </Grid> */}
+            </Grid>
           </>
         )}
       </Grid>

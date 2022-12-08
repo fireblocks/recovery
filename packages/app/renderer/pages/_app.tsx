@@ -3,17 +3,15 @@ import type { NextPage } from "next";
 import type { AppProps as NextAppProps } from "next/app";
 import Head from "next/head";
 import { useRouter, NextRouter } from "next/router";
-import { ThemeProvider } from "@mui/material/styles";
-import { CssBaseline } from "@mui/material";
-import { CacheProvider, EmotionCache } from "@emotion/react";
+import { EmotionCache } from "@emotion/react";
 import log from "electron-log";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { QueryClient } from "@tanstack/react-query";
-import { theme } from "../lib/theme";
-import { createEmotionCache } from "../lib/createEmotionCache";
-import { ErrorBoundary } from "../components/ErrorBoundary";
+import { StylesProvider } from "styles";
+import { SettingsProvider } from "../context/Settings";
 import { ConnectionTestProvider } from "../context/ConnectionTest";
 import { WorkspaceProvider } from "../context/Workspace";
+import { ErrorBoundary } from "../components/ErrorBoundary";
 
 export type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement, router: NextRouter) => ReactNode;
@@ -27,14 +25,7 @@ type AppProps = NextAppProps & {
 // Override console.log with electron-log
 Object.assign(console, log.functions);
 
-// Client-side cache, shared for the whole session of the user in the browser.
-const clientSideEmotionCache = createEmotionCache();
-
-export default function App({
-  Component,
-  emotionCache = clientSideEmotionCache,
-  pageProps,
-}: AppProps) {
+export default function App({ Component, emotionCache, pageProps }: AppProps) {
   const router = useRouter();
 
   const [queryClient] = useState(() => new QueryClient());
@@ -43,25 +34,24 @@ export default function App({
 
   return (
     <QueryClientProvider client={queryClient}>
-      <CacheProvider value={emotionCache}>
+      <SettingsProvider>
         <ConnectionTestProvider>
           <WorkspaceProvider>
-            <Head>
-              <title>Fireblocks Recovery Utility</title>
-              <meta
-                name="viewport"
-                content="width=device-width, initial-scale=1"
-              />
-            </Head>
-            <ThemeProvider theme={theme}>
-              <CssBaseline />
+            <StylesProvider emotionCache={emotionCache}>
+              <Head>
+                <title>Fireblocks Recovery Utility</title>
+                <meta
+                  name="viewport"
+                  content="width=device-width, initial-scale=1"
+                />
+              </Head>
               <ErrorBoundary>
                 {getLayout(<Component {...pageProps} />, router)}
               </ErrorBoundary>
-            </ThemeProvider>
+            </StylesProvider>
           </WorkspaceProvider>
         </ConnectionTestProvider>
-      </CacheProvider>
+      </SettingsProvider>
     </QueryClientProvider>
   );
 }

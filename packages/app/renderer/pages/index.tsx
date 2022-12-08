@@ -1,9 +1,8 @@
 import type { NextPageWithLayout } from "./_app";
 import type { ReactElement } from "react";
 import { Layout } from "../components/Layout";
-import { NextLinkComposed } from "../components/Link";
+import { Button, NextLinkComposed } from "styles";
 import { Logo } from "../components/Logo";
-import { Button } from "../components/Button";
 import { Box, Grid, Typography } from "@mui/material";
 import { Restore } from "@mui/icons-material";
 

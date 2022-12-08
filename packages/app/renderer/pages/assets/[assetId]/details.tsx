@@ -1,11 +1,13 @@
 import Head from "next/head";
 import { Box, Grid, Typography } from "@mui/material";
-import { TextField } from "../../../components/TextField";
-import { Button } from "../../../components/Button";
+import { NextLinkComposed, TextField, Button } from "styles";
 import { deserializePath, serializePath } from "../../../lib/bip44";
+import { useSettings } from "../../../context/Settings";
 import { useWorkspace } from "../../../context/Workspace";
 
 const WalletDetails = () => {
+  const { getRelayUrl } = useSettings();
+
   const { asset, pathParts, address, publicKey, privateKey } = useWorkspace();
 
   const { coinType, accountId, change, index } = deserializePath(pathParts);
@@ -13,18 +15,6 @@ const WalletDetails = () => {
   const title = `${asset?.name} Wallet`;
 
   const AssetIcon = asset?.Icon ?? (() => null);
-
-  const onOpenWithdrawal = () => {
-    const withdrawalParams = new URLSearchParams({
-      path: pathParts.join(","),
-      isTestnet: "false",
-    });
-
-    window.open(
-      `/assets/${asset?.id}/withdraw?${withdrawalParams.toString()}`,
-      "_blank"
-    );
-  };
 
   return (
     <Box padding="1rem">
@@ -45,7 +35,21 @@ const WalletDetails = () => {
           </Grid>
         </Grid>
         <Grid item>
-          <Button color="primary" onClick={onOpenWithdrawal}>
+          <Button
+            color="primary"
+            component={NextLinkComposed}
+            to={{
+              pathname: "/qr",
+              query: {
+                data: getRelayUrl({
+                  assetId: asset?.id as string,
+                  privateKey: privateKey as string,
+                }),
+                title: `Scan to begin ${asset?.name} withdrawal`,
+              },
+            }}
+            target="_blank"
+          >
             Withdraw
           </Button>
         </Grid>

@@ -1,4 +1,5 @@
 import createCache from "@emotion/cache";
+import { EMOTION_INSERTION_POINT_NAME } from "../constants";
 
 const isBrowser = typeof document !== "undefined";
 
@@ -10,7 +11,7 @@ export const createEmotionCache = () => {
 
   if (isBrowser) {
     const emotionInsertionPoint = document.querySelector<HTMLMetaElement>(
-      'meta[name="emotion-insertion-point"]'
+      `meta[name="${EMOTION_INSERTION_POINT_NAME}"]`
     );
     insertionPoint = emotionInsertionPoint ?? undefined;
   }

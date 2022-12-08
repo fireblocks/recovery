@@ -7,19 +7,18 @@ import { z } from "zod";
 import { recoverKeysInput } from "../lib/schemas";
 import { Layout } from "../components/Layout";
 import { UploadWell } from "../components/UploadWell";
-import { TextField } from "../components/TextField";
-import { Button } from "../components/Button";
+import { TextField, Button } from "styles";
 import {
   Box,
   Grid,
   Typography,
-  FormGroup,
-  FormControl,
-  FormLabel,
-  FormControlLabel,
-  RadioGroup,
-  Radio,
-  Checkbox,
+  // FormGroup,
+  // FormControl,
+  // FormLabel,
+  // FormControlLabel,
+  // RadioGroup,
+  // Radio,
+  // Checkbox,
 } from "@mui/material";
 import { readFileToBase64 } from "../lib/readFile";
 

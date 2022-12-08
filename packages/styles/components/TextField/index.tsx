@@ -24,7 +24,8 @@ import {
   ContentCopy,
   Check,
 } from "@mui/icons-material";
-import { monospaceFontFamily } from "../../lib/theme";
+import { NextLinkComposed } from "../Link";
+import { monospaceFontFamily } from "styles";
 
 const Input = styled(InputBase)(({ theme }) => ({
   fontSize: "16px",
@@ -69,6 +70,7 @@ const Input = styled(InputBase)(({ theme }) => ({
 export type Props = Omit<InputBaseProps, "error"> & {
   id: string;
   error?: ReactNode;
+  helpText?: ReactNode;
   label?: ReactNode;
   hideLabel?: boolean;
   enableQr?: boolean;
@@ -91,6 +93,7 @@ export const TextField = forwardRef<HTMLInputElement, Props>(
       readOnly,
       endAdornment,
       inputProps,
+      helpText: _helpText,
       inputRef: _inputRef,
       onFocus: _onFocus,
       ...props
@@ -100,6 +103,8 @@ export const TextField = forwardRef<HTMLInputElement, Props>(
     const inputRef = (_inputRef || ref) as
       | RefObject<HTMLInputElement>
       | undefined;
+
+    const helpText = error || _helpText;
 
     const [revealed, setRevealed] = useState(type !== "password");
     const [copied, setCopied] = useState(false);
@@ -117,16 +122,6 @@ export const TextField = forwardRef<HTMLInputElement, Props>(
     };
 
     const onToggleReveal = () => setRevealed((prev) => !prev);
-
-    const onOpenQrCode = () => {
-      const qrCodeParams = new URLSearchParams({ data: getData() });
-
-      if (typeof label === "string") {
-        qrCodeParams.append("title", label);
-      }
-
-      window.open(`/qr?${qrCodeParams.toString()}`, "_blank");
-    };
 
     const onCopy = () => {
       if (typeof copiedTimeoutRef.current === "number") {
@@ -199,8 +194,16 @@ export const TextField = forwardRef<HTMLInputElement, Props>(
                 <InputAdornment position="end">
                   <IconButton
                     aria-label="Show QR code"
-                    onClick={onOpenQrCode}
                     edge="end"
+                    component={NextLinkComposed}
+                    to={{
+                      pathname: "/qr",
+                      query: {
+                        data: getData(),
+                        title: typeof label === "string" ? label : undefined,
+                      },
+                    }}
+                    target="_blank"
                   >
                     <QrCode2 />
                   </IconButton>
@@ -217,9 +220,9 @@ export const TextField = forwardRef<HTMLInputElement, Props>(
           }
           {...props}
         />
-        {!!error && (
-          <FormHelperText id={`${id}-helper-text`} error>
-            {error}
+        {!!helpText && (
+          <FormHelperText id={`${id}-helper-text`} error={!!error}>
+            {helpText}
           </FormHelperText>
         )}
       </FormControl>

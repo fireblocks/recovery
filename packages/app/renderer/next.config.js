@@ -1,11 +1,12 @@
 // @ts-check
+const withTM = require("next-transpile-modules")(["styles"]);
 
 /**
  * @type {import('next').NextConfig}
  **/
 const nextConfig = {
   reactStrictMode: true,
-
+  swcMinify: true,
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.target = "electron-renderer";
@@ -15,4 +16,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = withTM(nextConfig);

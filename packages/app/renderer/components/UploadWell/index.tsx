@@ -1,7 +1,6 @@
 import { useDropzone } from "react-dropzone";
 import { Box, FormHelperText, Typography } from "@mui/material";
 import { FileUpload, CheckCircle, Cancel } from "@mui/icons-material";
-import { theme } from "../../lib/theme";
 
 type Props = {
   hasFile?: boolean;
@@ -56,24 +55,27 @@ export const UploadWell = ({
         paddingX="3rem"
         paddingY="1.5rem"
         textAlign="center"
-        color={isActive ? "#FFFFFF" : theme.palette.text.primary}
-        border={`solid 1px ${
-          isActive
-            ? theme.palette.secondary.main
-            : error || isDragReject
-            ? theme.palette.error.main
-            : theme.palette.text.primary
-        }`}
+        color={(theme) => (isActive ? "#FFFFFF" : theme.palette.text.primary)}
+        border={(theme) =>
+          `solid 1px ${
+            isActive
+              ? theme.palette.secondary.main
+              : error || isDragReject
+              ? theme.palette.error.main
+              : theme.palette.text.primary
+          }`
+        }
         borderRadius="10px"
         display="flex"
         alignItems="center"
         justifyContent="center"
         sx={{
-          backgroundColor: isActive
-            ? theme.palette.primary.main
-            : disabled
-            ? theme.palette.background.default
-            : "#E0E0E0",
+          backgroundColor: (theme) =>
+            isActive
+              ? theme.palette.primary.main
+              : disabled
+              ? theme.palette.background.default
+              : "#E0E0E0",
           background: isActive
             ? "linear-gradient(10.71deg, #1866CC 6.42%, #0075F2 93.52%)"
             : undefined,

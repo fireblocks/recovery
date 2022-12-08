@@ -1,26 +1,6 @@
-import { Heebo } from "@next/font/google";
 import { createTheme } from "@mui/material/styles";
 import { TypographyStyleOptions } from "@mui/material/styles/createTypography";
-
-export const heebo = Heebo({
-  subsets: ["latin"],
-  display: "swap",
-  fallback: [
-    "system-ui",
-    "-apple-system",
-    '"Segoe UI"',
-    "Roboto",
-    '"Helvetica Neue"',
-    '"Noto Sans"',
-    '"Liberation Sans"',
-    "Arial",
-    "sans-serif",
-    '"Apple Color Emoji"',
-    '"Segoe UI Emoji"',
-    '"Segoe UI Symbol"',
-    '"Noto Color Emoji"',
-  ],
-});
+import { heebo } from "./fonts/heebo";
 
 const headingProps = (
   fontSize = 14,

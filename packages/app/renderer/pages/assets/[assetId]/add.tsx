@@ -12,12 +12,11 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
-import { TextField } from "../../../components/TextField";
-import { Button } from "../../../components/Button";
+import { Button, TextField } from "styles";
 import { deserializePath } from "../../../lib/bip44";
 import { addWallets } from "../../../lib/ipc/addWallets";
+import { closeWindow } from "../../../lib/ipc/closeWindow";
 import { useWorkspace } from "../../../context/Workspace";
-import { ipcRenderer } from "electron";
 
 type FormData = z.infer<typeof deriveKeysInput>;
 
@@ -72,7 +71,7 @@ const AddWallets = () => {
     return isNaN(total) ? 0 : total;
   }, [values]);
 
-  const onSubmit = (formData: FormData) => {
+  const onSubmit = async (formData: FormData) => {
     addWallets({
       assetId: asset?.id as string,
       accountIdStart: formData.accountIdStart,
@@ -83,7 +82,7 @@ const AddWallets = () => {
       isChecksum: formData.isChecksum,
     });
 
-    ipcRenderer.send("close-window");
+    closeWindow();
   };
 
   return (

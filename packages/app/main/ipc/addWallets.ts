@@ -76,5 +76,5 @@ ipcMain.on("add-wallets", async (event, args: AddWalletVariables) => {
     wallets.push(...accountWallets);
   }
 
-  win?.webContents.send("add-wallets", wallets);
+  win?.webContents.send("wallets/add", wallets);
 });

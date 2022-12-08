@@ -1,16 +1,8 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useState, useCallback, ReactElement } from "react";
-import {
-  Box,
-  Grid,
-  Typography,
-  InputAdornment,
-  IconButton,
-} from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { QRCodeSVG } from "qrcode.react";
-import { theme } from "../lib/theme";
-import { TextField } from "../components/TextField";
+import { theme, TextField } from "styles";
 
 const QR = () => {
   const router = useRouter();

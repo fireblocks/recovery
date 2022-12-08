@@ -87,10 +87,10 @@ export const WorkspaceProvider = ({ children }: Props) => {
     const handleAddWallets = (event: IpcRendererEvent, data: Wallet[]) =>
       setWallets((prev) => [...prev, ...data]);
 
-    ipcRenderer.on("add-wallets", handleAddWallets);
+    ipcRenderer.on("wallets/add", handleAddWallets);
 
     return () => {
-      ipcRenderer.removeListener("add-wallets", handleAddWallets);
+      ipcRenderer.removeListener("wallets/add", handleAddWallets);
     };
   }, []);
 

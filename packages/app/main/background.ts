@@ -51,7 +51,6 @@ const getWindowOptions = (
     contextIsolation: false,
     plugins: true,
     backgroundThrottling: false,
-    webSecurity: false,
     disableBlinkFeatures: "Auxclick",
   },
 });
@@ -94,7 +93,6 @@ async function createWindow() {
       contextIsolation: false,
       plugins: true,
       backgroundThrottling: false,
-      webSecurity: false,
       // nodeIntegrationInWorker: false,
       // nodeIntegrationInSubFrames: false,
       disableBlinkFeatures: "Auxclick",
@@ -263,13 +261,6 @@ app.on("web-contents-created", (event, contents) => {
         return {
           action: "allow",
           overrideBrowserWindowOptions: getWindowOptions(500, 440),
-        };
-      }
-
-      if (url.includes("/withdraw")) {
-        return {
-          action: "allow",
-          overrideBrowserWindowOptions: getWindowOptions(500, 522),
         };
       }
     }

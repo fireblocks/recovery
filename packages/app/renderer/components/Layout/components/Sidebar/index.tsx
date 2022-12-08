@@ -1,4 +1,3 @@
-import { ComponentType, ReactNode } from "react";
 import {
   Box,
   List,
@@ -7,7 +6,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { NextLinkComposed } from "../../../Link";
+import { NextLinkComposed } from "styles";
 import { useRouter } from "next/router";
 import { assets } from "../../../../lib/assetInfo";
 

@@ -1,9 +1,7 @@
 import type { NextPageWithLayout } from "../../_app";
 import { useState } from "react";
 import { Layout } from "../../../components/Layout";
-import { TextField } from "../../../components/TextField";
-import { Button } from "../../../components/Button";
-import { NextLinkComposed } from "../../../components/Link";
+import { NextLinkComposed, TextField, Button } from "styles";
 import {
   Box,
   Grid,
@@ -19,43 +17,20 @@ import {
 } from "@mui/material";
 import { Key, ArrowUpward } from "@mui/icons-material";
 import { deserializePath, serializePath } from "../../../lib/bip44";
-import { useWorkspace, Wallet } from "../../../context/Workspace";
+import { useSettings } from "../../../context/Settings";
+import { useWorkspace } from "../../../context/Workspace";
 import { csvExport } from "../../../lib/csvExport";
 import { getAssetInfo } from "../../../lib/assetInfo";
 import { download } from "../../../lib/download";
 
 const Asset: NextPageWithLayout = () => {
+  const { getRelayUrl } = useSettings();
+
   const { asset, wallets, currentAssetWallets } = useWorkspace();
 
   const [showPaths, setShowPaths] = useState(false);
 
   const toggleShowPaths = () => setShowPaths((prev) => !prev);
-
-  const onOpenKeys = (wallet: Wallet) => {
-    const keysParams = new URLSearchParams({
-      path: wallet.pathParts.join(","),
-      address: wallet.address,
-      publicKey: wallet.publicKey,
-      privateKey: wallet.privateKey,
-    });
-
-    window.open(
-      `/assets/${asset?.id}/details?${keysParams.toString()}`,
-      "_blank"
-    );
-  };
-
-  const onOpenWithdrawal = (wallet: Wallet) => {
-    const withdrawalParams = new URLSearchParams({
-      path: wallet.pathParts.join(","),
-      testnet: "false",
-    });
-
-    window.open(
-      `/assets/${asset?.id}/withdraw?${withdrawalParams.toString()}`,
-      "_blank"
-    );
-  };
 
   const onExportCsv = async () => {
     const data = wallets.map((wallet) => {
@@ -179,7 +154,18 @@ const Asset: NextPageWithLayout = () => {
                   <TableCell align="center">
                     <IconButton
                       aria-label="Show keys"
-                      onClick={() => onOpenKeys(wallet)}
+                      component={NextLinkComposed}
+                      to={{
+                        pathname: "/assets/[assetId]/details",
+                        query: {
+                          assetId: asset?.id as string,
+                          path: wallet.pathParts.join(","),
+                          address: wallet.address,
+                          publicKey: wallet.publicKey,
+                          privateKey: wallet.privateKey,
+                        },
+                      }}
+                      target="_blank"
                     >
                       <Key />
                     </IconButton>
@@ -187,7 +173,18 @@ const Asset: NextPageWithLayout = () => {
                   <TableCell align="center">
                     <IconButton
                       aria-label="Withdraw"
-                      onClick={() => onOpenWithdrawal(wallet)}
+                      component={NextLinkComposed}
+                      to={{
+                        pathname: "/qr",
+                        query: {
+                          data: getRelayUrl({
+                            assetId: asset?.id as string,
+                            privateKey: wallet.privateKey,
+                          }),
+                          title: `Scan to begin ${asset?.name} withdrawal`,
+                        },
+                      }}
+                      target="_blank"
                     >
                       <ArrowUpward />
                     </IconButton>
