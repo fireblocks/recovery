@@ -4,11 +4,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { transactionInput } from "../../lib/schemas";
-import {
-  getWifFromPrivateKeyHex,
-  getAddressFromWif,
-  createTransaction,
-} from "../../lib/chains/BTC";
+import { Bitcoin } from "../../lib/wallets/BTC";
+import { Ethereum } from "../../lib/wallets/ETH";
+import { Solana } from "../../lib/wallets/SOL";
 import { Box, Grid, Divider } from "@mui/material";
 import { TextField, Button } from "styles";
 import { useWallet, Transaction } from "../../context/Wallet";
@@ -19,9 +17,6 @@ type FormData = z.infer<typeof transactionInput>;
 const Wallet: NextPageWithLayout = () => {
   const { assetId, privateKey, transactions } = useWallet();
 
-  const privateKeyWif = privateKey ? getWifFromPrivateKeyHex(privateKey) : "";
-  const address = privateKeyWif ? getAddressFromWif(privateKeyWif) : "";
-
   const newTx = useMemo<Transaction>(() => {
     const transactionsDescending = transactions.slice().reverse();
 
@@ -29,6 +24,34 @@ const Wallet: NextPageWithLayout = () => {
 
     return newTx ?? { state: "init" };
   }, [transactions]);
+
+  // const senderAddress = useMemo(() => {
+  //   if (!privateKey) {
+  //     return "";
+  //   }
+
+  //   const isTestnet = !!assetId?.includes("_TEST");
+
+  //   if (assetId?.startsWith("BTC")) {
+  //     const bitcoinWallet = new Bitcoin(privateKey, isTestnet);
+
+  //     return bitcoinWallet.getAddress();
+  //   }
+
+  //   if (assetId?.startsWith("ETH")) {
+  //     const ethereumWallet = new Ethereum(privateKey, isTestnet);
+
+  //     return ethereumWallet.getAddress();
+  //   }
+
+  //   if (assetId?.startsWith("SOL")) {
+  //     const solanaWallet = new Solana(privateKey, isTestnet);
+
+  //     return solanaWallet.getAddress();
+  //   }
+
+  //   return "";
+  // }, [privateKey]);
 
   const {
     register,
@@ -46,16 +69,30 @@ const Wallet: NextPageWithLayout = () => {
   });
 
   const onSubmit = async (data: FormData) => {
-    console.info({ data });
+    console.info("Tx form data:", { data });
 
-    // TODO: Handle other chains — TESTING ONLY!
+    if (!privateKey) {
+      return;
+    }
+
+    const isTestnet = !!assetId?.includes("_TEST");
+
     if (assetId?.startsWith("BTC")) {
-      await createTransaction(
-        privateKeyWif,
-        assetId?.includes("_TEST"),
-        data.to,
-        data.amount
-      );
+      const bitcoinWallet = new Bitcoin(privateKey, isTestnet);
+
+      return bitcoinWallet.sendTransaction(data.to, data.amount);
+    }
+
+    if (assetId?.startsWith("ETH")) {
+      const ethereumWallet = new Ethereum(privateKey, isTestnet);
+
+      return ethereumWallet.sendTransaction(data.to, data.amount);
+    }
+
+    if (assetId?.startsWith("SOL")) {
+      const solanaWallet = new Solana(privateKey, isTestnet);
+
+      return solanaWallet.sendTransaction(data.to, data.amount);
     }
   };
 
@@ -87,25 +124,15 @@ const Wallet: NextPageWithLayout = () => {
             isMonospace
           />
         </Grid>
-        <Grid item xs={12}>
-          <TextField
-            id="privateKey"
-            type="password"
-            label="Private Key WIF"
-            value={privateKeyWif}
-            enableCopy
-            isMonospace
-          />
-        </Grid>
-        <Grid item xs={12}>
+        {/* <Grid item xs={12}>
           <TextField
             id="senderAddress"
             label="Sender Address"
-            value={address}
+            value={senderAddress}
             enableCopy
             isMonospace
           />
-        </Grid>
+        </Grid> */}
         <Grid item xs={12}>
           <Divider sx={{ margin: "1em 0" }} />
         </Grid>
