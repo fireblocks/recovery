@@ -4,6 +4,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { transactionInput } from "../../lib/schemas";
+import {
+  getWifFromPrivateKeyHex,
+  getAddressFromWif,
+  createTransaction,
+} from "../../lib/chains/BTC";
 import { Box, Grid, Divider } from "@mui/material";
 import { TextField, Button } from "styles";
 import { useWallet, Transaction } from "../../context/Wallet";
@@ -13,6 +18,9 @@ type FormData = z.infer<typeof transactionInput>;
 
 const Wallet: NextPageWithLayout = () => {
   const { assetId, privateKey, transactions } = useWallet();
+
+  const privateKeyWif = privateKey ? getWifFromPrivateKeyHex(privateKey) : "";
+  const address = privateKeyWif ? getAddressFromWif(privateKeyWif) : "";
 
   const newTx = useMemo<Transaction>(() => {
     const transactionsDescending = transactions.slice().reverse();
@@ -37,7 +45,19 @@ const Wallet: NextPageWithLayout = () => {
     },
   });
 
-  const onSubmit = (data: FormData) => console.info({ data });
+  const onSubmit = async (data: FormData) => {
+    console.info({ data });
+
+    // TODO: Handle other chains — TESTING ONLY!
+    if (assetId?.startsWith("BTC")) {
+      await createTransaction(
+        privateKeyWif,
+        assetId?.includes("_TEST"),
+        data.to,
+        data.amount
+      );
+    }
+  };
 
   return (
     <Box
@@ -71,8 +91,17 @@ const Wallet: NextPageWithLayout = () => {
           <TextField
             id="privateKey"
             type="password"
-            label="Private Key"
-            value={privateKey}
+            label="Private Key WIF"
+            value={privateKeyWif}
+            enableCopy
+            isMonospace
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            id="senderAddress"
+            label="Sender Address"
+            value={address}
             enableCopy
             isMonospace
           />

@@ -11,6 +11,14 @@ const withPWA = require("next-pwa")({
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  webpack: (config, options) => {
+    config.experiments = {
+      ...config.experiments,
+      asyncWebAssembly: true,
+    };
+
+    return config;
+  },
 };
 
 // @ts-ignore
