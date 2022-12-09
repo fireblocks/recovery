@@ -41,7 +41,7 @@ export const decodePayload = (encodedPayload: string) => {
   }
 };
 
-const decryptParams = (
+const decryptPayload = (
   payload: RelayUrlEncryptedPayload,
   passphrase: string
 ) => {
@@ -65,10 +65,10 @@ const decryptParams = (
   }
 };
 
-export const parseParams = (payload: RelayUrlPayload, passphrase?: string) => {
+export const parsePayload = (payload: RelayUrlPayload, passphrase?: string) => {
   const paramString =
     passphrase?.length && isEncryptedPayload(payload)
-      ? decryptParams(payload, passphrase)
+      ? decryptPayload(payload, passphrase)
       : payload.data;
 
   const params = JSON.parse(paramString) as RelayUrlParameters;

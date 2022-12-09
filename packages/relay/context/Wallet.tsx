@@ -11,29 +11,33 @@ import {
 import {
   isEncryptedPayload,
   decodePayload,
-  parseParams,
+  parsePayload,
   getHash,
+  RelayUrlPayload,
 } from "../lib/urlParams";
 
-interface IWalletContext {
+type WalletData = {
   state: "init" | "encrypted" | "ready";
-  encodedPayload?: string;
   assetId?: string;
   privateKey?: string;
-  handleUrlPayload: (encodedPayload?: string, passphrase?: string) => void;
-}
-
-type WalletData = Omit<IWalletContext, "encodedPayload" | "handleUrlPayload">;
-
-const defaultValue: IWalletContext = {
-  state: "init",
-  encodedPayload: undefined,
-  assetId: undefined,
-  privateKey: undefined,
-  handleUrlPayload: () => undefined,
 };
 
-export const defaultSettings = defaultValue;
+type IWalletContext = WalletData & {
+  handleUrlPayload: (encodedPayload: string) => void;
+  handlePassphrase: (passphrase: string) => void;
+};
+
+const defaultWalletData: WalletData = {
+  state: "init",
+  assetId: undefined,
+  privateKey: undefined,
+};
+
+const defaultValue: IWalletContext = {
+  ...defaultWalletData,
+  handleUrlPayload: () => undefined,
+  handlePassphrase: () => undefined,
+};
 
 const Context = createContext(defaultValue);
 
@@ -44,42 +48,60 @@ type Props = {
 export const WalletProvider = ({ children }: Props) => {
   const router = useRouter();
 
-  const encodedPayloadRef = useRef<string | undefined>();
+  const payloadRef = useRef<RelayUrlPayload | null>(null);
 
-  const [wallet, setWallet] = useState<WalletData>(() => ({
-    state: defaultValue.state,
-    assetId: defaultValue.assetId,
-    privateKey: defaultValue.privateKey,
-  }));
+  const [wallet, setWallet] = useState(defaultWalletData);
+
+  const handleParsingPayload = (
+    payload: RelayUrlPayload,
+    passphrase?: string
+  ) => {
+    const { assetId, privateKey } = parsePayload(payload, passphrase);
+
+    setWallet((prev) => ({
+      ...prev,
+      state: "ready",
+      assetId,
+      privateKey,
+    }));
+  };
 
   const handleUrlPayload = useCallback(
-    (encodedPayload = encodedPayloadRef.current, passphrase?: string) => {
+    (encodedPayload: string) => {
       try {
-        if (!encodedPayload) {
-          throw new Error("No URL hash");
-        }
-
-        encodedPayloadRef.current = encodedPayload;
-
         const payload = decodePayload(encodedPayload);
 
-        const isEncrypted = isEncryptedPayload(payload);
+        payloadRef.current = payload;
 
-        if (isEncrypted && !passphrase) {
-          setWallet((prev) => ({
-            ...prev,
-            state: "encrypted",
-          }));
+        if (isEncryptedPayload(payload)) {
+          setWallet((prev) => ({ ...prev, state: "encrypted" }));
         } else {
-          const params = parseParams(payload, passphrase);
-
-          setWallet((prev) => ({
-            ...prev,
-            state: "ready",
-            assetId: params.assetId,
-            privateKey: params.privateKey,
-          }));
+          handleParsingPayload(payload);
         }
+
+        router.push("/");
+      } catch (error) {
+        console.error(error);
+
+        router.push("/scan");
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  const handlePassphrase = useCallback(
+    (passphrase: string) => {
+      try {
+        if (!payloadRef.current) {
+          throw new Error("No encoded payload provided");
+        }
+
+        handleParsingPayload(payloadRef.current, passphrase);
+
+        payloadRef.current = null;
+
+        router.push("/");
       } catch (error) {
         console.error(error);
 
@@ -93,22 +115,26 @@ export const WalletProvider = ({ children }: Props) => {
   useEffect(() => {
     const hash = getHash();
 
-    handleUrlPayload(hash);
-
     if (hash) {
+      handleUrlPayload(hash);
+
       window.location.hash = "";
+    } else if (!payloadRef.current) {
+      router.push("/scan");
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [typeof window !== "undefined" ? window.location.hash : ""]);
 
   const value: IWalletContext = {
     state: wallet.state,
-    encodedPayload: encodedPayloadRef.current,
     assetId: wallet.assetId,
     privateKey: wallet.privateKey,
     handleUrlPayload,
+    handlePassphrase,
   };
+
+  console.info("Wallet", value);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 };

@@ -1,8 +1,7 @@
 import type { NextPageWithLayout } from "./_app";
 import type { ReactElement } from "react";
 import { Layout } from "../components/Layout";
-import { Button, NextLinkComposed } from "styles";
-import { Logo } from "../components/Logo";
+import { Logo, Button, NextLinkComposed } from "styles";
 import { Box, Grid, Typography } from "@mui/material";
 import { Restore } from "@mui/icons-material";
 
@@ -27,8 +26,8 @@ const Index: NextPageWithLayout = () => {
           </Typography>
         </Box>
         <Typography variant="body1" paragraph gutterBottom={false}>
-          Recovery Utility can help recover your Fireblocks workspace, verify a
-          recovery, or build keys for hard key recovery setup.
+          Recovery Utility can help recover your Fireblocks assets, verify a
+          recovery kit, or build keys for hard key recovery setup.
         </Typography>
       </Grid>
       <Grid item xs={6}>

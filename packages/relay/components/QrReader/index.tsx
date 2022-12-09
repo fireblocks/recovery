@@ -1,49 +1,12 @@
-import { useRef, useEffect, useId } from "react";
+import { useRef, useId, useState, useEffect } from "react";
+import "webrtc-adapter";
 import { BrowserQRCodeReader, IScannerControls } from "@zxing/browser";
 import { Result } from "@zxing/library";
 import { Box } from "@mui/material";
-import { QrCodeScanner as QrCodeScannerIcon } from "@mui/icons-material";
-import "webrtc-adapter";
-
-export const isMediaDevicesSupported = () => {
-  const isMediaDevicesSupported =
-    typeof navigator !== "undefined" && !!navigator.mediaDevices;
-
-  if (!isMediaDevicesSupported) {
-    console.warn(
-      `[ReactQrReader]: MediaDevices API has no support for your browser. You can fix this by running "npm i webrtc-adapter"`
-    );
-  }
-
-  return isMediaDevicesSupported;
-};
-
-export const isValidType = (value: any, name: string, type: string) => {
-  const isValid = typeof value === type;
-
-  if (!isValid) {
-    console.warn(
-      `[ReactQrReader]: Expected "${name}" to be a of type "${type}".`
-    );
-  }
-
-  return isValid;
-};
-
-type OnResultFunction = (
-  /**
-   * The QR values extracted by Zxing
-   */
-  result?: Result | undefined | null,
-  /**
-   * The name of the exceptions thrown while reading the QR
-   */
-  error?: Error | undefined | null,
-  /**
-   * The instance of the QR browser reader
-   */
-  codeReader?: BrowserQRCodeReader
-) => void;
+import {
+  QrCodeScanner as QrCodeScannerIcon,
+  CheckCircle as CheckCircleIcon,
+} from "@mui/icons-material";
 
 type Props = {
   /**
@@ -51,58 +14,111 @@ type Props = {
    */
   constraints?: MediaTrackConstraints;
   /**
+   * Called when QR code data is detected and validated.
+   * @returns true if the QR code is valid, false otherwise
+   */
+  onValidate?: (
+    /**
+     * The QR values extracted by Zxing
+     */
+    result: Result,
+    /**
+     * The instance of the QR browser reader
+     */
+    codeReader?: BrowserQRCodeReader
+  ) => boolean;
+  /**
+   * Called when QR code data is detected.
+   */
+  onResult?: (
+    /**
+     * The QR values extracted by Zxing
+     */
+    result: Result,
+    /**
+     * The instance of the QR browser reader
+     */
+    codeReader?: BrowserQRCodeReader
+  ) => void;
+  /**
    * Called when an error occurs.
    */
-  onResult?: OnResultFunction;
+  onError?: (
+    /**
+     * The name of the exceptions thrown while reading the QR
+     */
+    error: Error,
+    /**
+     * The instance of the QR browser reader
+     */
+    codeReader?: BrowserQRCodeReader
+  ) => void;
   /**
    * Property that represents the scan period
    */
   scanDelay?: number;
 };
 
-export const QrReader = ({ constraints, scanDelay, onResult }: Props) => {
+export const QrReader = ({
+  constraints,
+  scanDelay,
+  onValidate,
+  onResult,
+  onError,
+}: Props) => {
   const videoId = useId();
 
   const controlsRef = useRef<IScannerControls | null>(null);
 
+  const [isSuccess, setIsSuccess] = useState(false);
+
   useEffect(() => {
+    let successTimeout: NodeJS.Timeout;
+
     const codeReader = new BrowserQRCodeReader(undefined, {
       delayBetweenScanAttempts: scanDelay,
     });
 
-    if (
-      !isMediaDevicesSupported() &&
-      isValidType(onResult, "onResult", "function")
-    ) {
-      const message =
-        'MediaDevices API has no support for your browser. You can fix this by running "npm i webrtc-adapter"';
+    if (typeof navigator === "undefined" || !navigator.mediaDevices) {
+      const message = "MediaDevices API has no support for your browser.";
 
-      onResult?.(null, new Error(message), codeReader);
+      onError?.(new Error(message), codeReader);
     }
 
-    if (isValidType(constraints, "constraints", "object")) {
-      codeReader
-        .decodeFromConstraints(
+    const startCodeReader = async () => {
+      try {
+        const controls = await codeReader.decodeFromConstraints(
           { video: constraints },
           videoId,
-          (result, error) => {
-            if (isValidType(onResult, "onResult", "function")) {
-              onResult?.(result, error, codeReader);
+          (result) => {
+            clearTimeout(successTimeout);
+
+            if (result) {
+              onResult?.(result, codeReader);
+
+              const isValid = onValidate?.(result, codeReader) ?? true;
+              setIsSuccess(isValid);
+              successTimeout = setTimeout(() => setIsSuccess(false), 1000);
             }
           }
-        )
-        .then((controls: IScannerControls) => (controlsRef.current = controls))
-        .catch((error: Error) => {
-          if (isValidType(onResult, "onResult", "function")) {
-            onResult?.(null, error, codeReader);
-          }
-        });
-    }
+        );
+
+        controlsRef.current = controls;
+      } catch (error) {
+        onError?.(error as Error, codeReader);
+      }
+    };
+
+    startCodeReader();
 
     return () => {
+      clearTimeout(successTimeout);
+
       controlsRef.current?.stop();
     };
   }, []);
+
+  const Icon = isSuccess ? CheckCircleIcon : QrCodeScannerIcon;
 
   return (
     <Box
@@ -112,7 +128,7 @@ export const QrReader = ({ constraints, scanDelay, onResult }: Props) => {
       position="relative"
       sx={{ aspectRatio: "1" }}
     >
-      <QrCodeScannerIcon
+      <Icon
         sx={{
           width: "25%",
           height: "25%",

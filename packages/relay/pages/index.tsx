@@ -11,14 +11,12 @@ import {
   monospaceFontFamily,
 } from "styles";
 import { useWallet } from "../context/Wallet";
+import { Logo } from "../components/Logo";
 
 type FormData = z.infer<typeof decryptInput>;
 
 const Index: NextPageWithLayout = () => {
-  const { state, encodedPayload, assetId, privateKey, handleUrlPayload } =
-    useWallet();
-
-  console.info({ state, encodedPayload, assetId, privateKey });
+  const { state, assetId, privateKey, handlePassphrase } = useWallet();
 
   const {
     register,
@@ -32,7 +30,7 @@ const Index: NextPageWithLayout = () => {
   });
 
   const onSubmit = async (formData: FormData) =>
-    handleUrlPayload(encodedPayload as string, formData.passphrase);
+    handlePassphrase(formData.passphrase);
 
   return (
     <Box
@@ -43,9 +41,7 @@ const Index: NextPageWithLayout = () => {
       alignItems="center"
       justifyContent="center"
     >
-      <Typography variant="h1" marginBottom="1em">
-        Fireblocks Recovery Relay
-      </Typography>
+      <Logo marginBottom="2em" />
       {state === "init" && <CircularProgress size="48px" />}
       {state === "encrypted" && (
         <Grid
@@ -56,13 +52,14 @@ const Index: NextPageWithLayout = () => {
           justifyContent="center"
           onSubmit={handleSubmit(onSubmit)}
         >
-          <Grid item flex={1} maxWidth="300px">
+          <Grid item flex={1} maxWidth="350px">
             <TextField
               id="passphrase"
               type="password"
               label="Relay Passphrase"
               helpText="Set in Fireblocks Recovery Utility Settings"
               error={errors.passphrase?.message}
+              autoFocus
               {...register("passphrase")}
             />
           </Grid>
@@ -74,7 +71,7 @@ const Index: NextPageWithLayout = () => {
               justifyContent="center"
             >
               <Grid item>
-                <Button type="submit">Decrypt Key</Button>
+                <Button type="submit">Decrypt Wallet</Button>
               </Grid>
               <Grid item>
                 <Button
@@ -82,7 +79,7 @@ const Index: NextPageWithLayout = () => {
                   component={NextLinkComposed}
                   to="/scan"
                 >
-                  Scan
+                  Scan Code
                 </Button>
               </Grid>
             </Grid>

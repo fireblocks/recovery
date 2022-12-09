@@ -1,8 +1,7 @@
 import { useRouter } from "next/router";
 import { Box, Grid } from "@mui/material";
 import { Key, Settings } from "@mui/icons-material";
-import { Button, Link, NextLinkComposed } from "styles";
-import { Logo } from "../../../Logo";
+import { Logo, Button, Link, NextLinkComposed } from "styles";
 import { AssetsIcon } from "./components/Icons";
 
 type Props = {

@@ -1,6 +1,6 @@
 {
   "name": "fireblocks-recovery-utility",
-  "description": "Fireblocks workspace recovery utility",
+  "description": "Recovery Utility can help recover your Fireblocks assets, verify a recovery kit, or build keys for hard key recovery setup.",
   "version": "0.0.0",
   "private": true,
   "license": "MIT",

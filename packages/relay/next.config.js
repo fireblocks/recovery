@@ -1,5 +1,8 @@
 // @ts-check
 const withTM = require("next-transpile-modules")(["styles"]);
+const withPWA = require("next-pwa")({
+  dest: "public",
+});
 
 /**
  * @type {import('next').NextConfig}
@@ -9,4 +12,5 @@ const nextConfig = {
   swcMinify: true,
 };
 
-module.exports = withTM(nextConfig);
+// @ts-ignore
+module.exports = withTM(withPWA(nextConfig));
