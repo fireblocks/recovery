@@ -36,11 +36,8 @@ const Scan: NextPageWithLayout = () => {
         zIndex="2"
         sx={{ backgroundColor: (theme) => theme.palette.primary.main }}
       >
-        <Logo />
-        <Typography
-          variant="body1"
-          color={scanError ? (theme) => theme.palette.error.main : undefined}
-        >
+        <Logo color="#FFF" />
+        <Typography variant="body1">
           {scanError ??
             "Start a withdrawal from a Fireblocks Recovery Utility wallet, then scan the code."}
         </Typography>

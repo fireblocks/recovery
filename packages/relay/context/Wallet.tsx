@@ -52,10 +52,7 @@ export const WalletProvider = ({ children }: Props) => {
 
   const [wallet, setWallet] = useState(defaultWalletData);
 
-  const handleParsingPayload = (
-    payload: RelayUrlPayload,
-    passphrase?: string
-  ) => {
+  const handleFullPayload = (payload: RelayUrlPayload, passphrase?: string) => {
     const { assetId, privateKey } = parsePayload(payload, passphrase);
 
     setWallet((prev) => ({
@@ -64,6 +61,8 @@ export const WalletProvider = ({ children }: Props) => {
       assetId,
       privateKey,
     }));
+
+    router.push("/[assetId]", `/${assetId}`);
   };
 
   const handleUrlPayload = useCallback((encodedPayload: string) => {
@@ -74,14 +73,12 @@ export const WalletProvider = ({ children }: Props) => {
 
       if (isEncryptedPayload(payload)) {
         setWallet((prev) => ({ ...prev, state: "encrypted" }));
+
+        router.push("/");
       } else {
-        handleParsingPayload(payload);
+        handleFullPayload(payload);
       }
-
-      router.push("/");
     } catch (error) {
-      router.push("/scan");
-
       console.error(error);
 
       throw new Error("Invalid relay URL");
@@ -94,14 +91,10 @@ export const WalletProvider = ({ children }: Props) => {
         throw new Error("No encoded payload provided");
       }
 
-      handleParsingPayload(payloadRef.current, passphrase);
+      handleFullPayload(payloadRef.current, passphrase);
 
       payloadRef.current = null;
-
-      router.push("/");
     } catch (error) {
-      router.push("/scan");
-
       console.error(error);
 
       throw new Error("Invalid passphrase");

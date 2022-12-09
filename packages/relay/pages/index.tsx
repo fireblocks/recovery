@@ -4,13 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { decryptInput } from "../lib/schemas";
-import { Box, Grid, Typography, CircularProgress } from "@mui/material";
-import {
-  TextField,
-  Button,
-  NextLinkComposed,
-  monospaceFontFamily,
-} from "styles";
+import { Box, Grid, CircularProgress } from "@mui/material";
+import { TextField, Button, NextLinkComposed } from "styles";
 import { useWallet } from "../context/Wallet";
 import { Logo } from "../components/Logo";
 
@@ -60,11 +55,12 @@ const Index: NextPageWithLayout = () => {
           component="form"
           container
           spacing={2}
+          maxWidth="600px"
           alignItems="center"
           justifyContent="center"
           onSubmit={handleSubmit(onSubmit)}
         >
-          <Grid item flex={1} maxWidth="350px">
+          <Grid item flex={1}>
             <TextField
               id="passphrase"
               type="password"
