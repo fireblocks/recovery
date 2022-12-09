@@ -55,6 +55,10 @@ const Withdraw = () => {
         Send a transaction with Fireblocks Recovery Relay by scanning the QR
         code with your mobile device.
       </Typography>
+      <Typography variant="body1" paragraph>
+        Set a passphrase in Recovery Utility Settings to encrypt your private
+        key in withdrawal URLs.
+      </Typography>
       <Grid container spacing={2}>
         <Grid item xs={6}>
           <Grid container spacing={2}>
