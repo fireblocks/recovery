@@ -26,14 +26,12 @@ const QR = () => {
           <QRCodeSVG
             value={data}
             size={512}
-            fgColor={theme.palette.primary.main}
             style={{
-              background: "#FFF",
               aspectRatio: "1",
               height: "auto",
               width: "100%",
             }}
-            includeMargin={false}
+            includeMargin
           />
           <Box width="100%" padding="1em">
             <TextField

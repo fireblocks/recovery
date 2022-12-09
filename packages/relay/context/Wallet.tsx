@@ -66,65 +66,67 @@ export const WalletProvider = ({ children }: Props) => {
     }));
   };
 
-  const handleUrlPayload = useCallback(
-    (encodedPayload: string) => {
-      try {
-        const payload = decodePayload(encodedPayload);
+  const handleUrlPayload = useCallback((encodedPayload: string) => {
+    try {
+      const payload = decodePayload(encodedPayload);
 
-        payloadRef.current = payload;
+      payloadRef.current = payload;
 
-        if (isEncryptedPayload(payload)) {
-          setWallet((prev) => ({ ...prev, state: "encrypted" }));
-        } else {
-          handleParsingPayload(payload);
-        }
-
-        router.push("/");
-      } catch (error) {
-        console.error(error);
-
-        router.push("/scan");
+      if (isEncryptedPayload(payload)) {
+        setWallet((prev) => ({ ...prev, state: "encrypted" }));
+      } else {
+        handleParsingPayload(payload);
       }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
 
-  const handlePassphrase = useCallback(
-    (passphrase: string) => {
-      try {
-        if (!payloadRef.current) {
-          throw new Error("No encoded payload provided");
-        }
+      router.push("/");
+    } catch (error) {
+      router.push("/scan");
 
-        handleParsingPayload(payloadRef.current, passphrase);
+      console.error(error);
 
-        payloadRef.current = null;
+      throw new Error("Invalid relay URL");
+    }
+  }, []);
 
-        router.push("/");
-      } catch (error) {
-        console.error(error);
-
-        router.push("/scan");
+  const handlePassphrase = useCallback((passphrase: string) => {
+    try {
+      if (!payloadRef.current) {
+        throw new Error("No encoded payload provided");
       }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
 
-  useEffect(() => {
-    const hash = getHash();
+      handleParsingPayload(payloadRef.current, passphrase);
 
-    if (hash) {
-      handleUrlPayload(hash);
+      payloadRef.current = null;
 
-      window.location.hash = "";
-    } else if (!payloadRef.current) {
+      router.push("/");
+    } catch (error) {
+      router.push("/scan");
+
+      console.error(error);
+
+      throw new Error("Invalid passphrase");
+    }
+  }, []);
+
+  const handleHashChange = useCallback(() => {
+    try {
+      const hash = getHash();
+
+      if (hash) {
+        handleUrlPayload(hash);
+
+        window.location.hash = "";
+      } else if (!payloadRef.current) {
+        throw new Error("No hash provided");
+      }
+    } catch {
       router.push("/scan");
     }
+  }, []);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [typeof window !== "undefined" ? window.location.hash : ""]);
+  useEffect(handleHashChange, [
+    typeof window !== "undefined" ? window.location.hash : "",
+  ]);
 
   const value: IWalletContext = {
     state: wallet.state,
@@ -133,8 +135,6 @@ export const WalletProvider = ({ children }: Props) => {
     handleUrlPayload,
     handlePassphrase,
   };
-
-  console.info("Wallet", value);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 };

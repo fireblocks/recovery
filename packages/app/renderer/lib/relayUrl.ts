@@ -17,8 +17,6 @@ export const getRelayUrl = (
   baseUrl: string,
   passphrase?: string
 ) => {
-  console.info("Getting relay URL", { params, baseUrl, passphrase });
-
   let payload: RelayUrlPayload;
 
   const paramString = JSON.stringify(params);

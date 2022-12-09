@@ -1,4 +1,5 @@
 import type { NextPageWithLayout } from "./_app";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,6 +19,10 @@ type FormData = z.infer<typeof decryptInput>;
 const Index: NextPageWithLayout = () => {
   const { state, assetId, privateKey, handlePassphrase } = useWallet();
 
+  const [decryptionError, setDecryptionError] = useState<string | undefined>(
+    undefined
+  );
+
   const {
     register,
     handleSubmit,
@@ -29,8 +34,15 @@ const Index: NextPageWithLayout = () => {
     },
   });
 
-  const onSubmit = async (formData: FormData) =>
-    handlePassphrase(formData.passphrase);
+  const onSubmit = (formData: FormData) => {
+    try {
+      handlePassphrase(formData.passphrase);
+
+      setDecryptionError(undefined);
+    } catch {
+      setDecryptionError("Invalid passphrase");
+    }
+  };
 
   return (
     <Box
@@ -58,7 +70,7 @@ const Index: NextPageWithLayout = () => {
               type="password"
               label="Relay Passphrase"
               helpText="Set in Fireblocks Recovery Utility Settings"
-              error={errors.passphrase?.message}
+              error={errors.passphrase?.message ?? decryptionError}
               autoFocus
               {...register("passphrase")}
             />
@@ -87,18 +99,27 @@ const Index: NextPageWithLayout = () => {
         </Grid>
       )}
       {state === "ready" && (
-        <Typography
-          component="pre"
-          sx={{
-            whiteSpace: "pre-wrap",
-            border: (theme) => `solid 1px ${theme.palette.primary.main}`,
-            borderRadius: "10px",
-            padding: "1em",
-            fontFamily: monospaceFontFamily,
-          }}
-        >
-          {JSON.stringify({ assetId, privateKey }, null, 2)}
-        </Typography>
+        <Grid container spacing={2} alignItems="center" justifyContent="center">
+          <Grid item xs={12}>
+            <TextField
+              id="assetId"
+              label="Asset ID"
+              value={assetId}
+              enableCopy
+              isMonospace
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              id="privateKey"
+              type="password"
+              label="Private Key"
+              value={privateKey}
+              enableCopy
+              isMonospace
+            />
+          </Grid>
+        </Grid>
       )}
     </Box>
   );

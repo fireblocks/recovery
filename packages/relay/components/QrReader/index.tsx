@@ -98,7 +98,7 @@ export const QrReader = ({
 
               const isValid = onValidate?.(result, codeReader) ?? true;
               setIsSuccess(isValid);
-              successTimeout = setTimeout(() => setIsSuccess(false), 1000);
+              successTimeout = setTimeout(() => setIsSuccess(false), 3000);
             }
           }
         );
