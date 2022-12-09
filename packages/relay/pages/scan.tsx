@@ -1,21 +1,20 @@
 import type { NextPageWithLayout } from "./_app";
 import { useState } from "react";
 import { Box, Typography } from "@mui/material";
-import { Result } from "@zxing/library";
 import { useWallet } from "../context/Wallet";
 import { Logo } from "../components/Logo";
-import { QrReader } from "../components/QrReader";
-
-const getHashFromCodeUrl = (result: Result) => result?.getText().split("#")[1];
+import { QrCodeScanner, ScanResult } from "../components/QrCodeScanner";
 
 const Scan: NextPageWithLayout = () => {
   const { handleUrlPayload } = useWallet();
 
   const [scanError, setScanError] = useState<string | undefined>(undefined);
 
-  const onQrCodeResult = (result: Result) => {
+  const onQrDecode = ({ data }: ScanResult) => {
     try {
-      handleUrlPayload(getHashFromCodeUrl(result));
+      const hash = data.split("#")[1];
+
+      handleUrlPayload(hash);
 
       setScanError(undefined);
     } catch {
@@ -33,7 +32,7 @@ const Scan: NextPageWithLayout = () => {
         padding="1.25em 1em 1em 1em"
         textAlign="center"
         color="#FFF"
-        zIndex="2"
+        zIndex="4"
         sx={{ backgroundColor: (theme) => theme.palette.primary.main }}
       >
         <Logo color="#FFF" />
@@ -42,11 +41,7 @@ const Scan: NextPageWithLayout = () => {
             "Start a withdrawal from a Fireblocks Recovery Utility wallet, then scan the code."}
         </Typography>
       </Box>
-      <QrReader
-        onValidate={(result) => !!getHashFromCodeUrl(result)}
-        onResult={onQrCodeResult}
-        onError={(error) => console.error(error)}
-      />
+      <QrCodeScanner onDecode={onQrDecode} />
     </Box>
   );
 };
