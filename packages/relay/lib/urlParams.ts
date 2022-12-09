@@ -4,6 +4,9 @@ import JSONCrush from "jsoncrush";
 type RelayUrlParameters = {
   assetId: string;
   privateKey: string;
+  to?: string;
+  amount?: number;
+  memo?: string;
 };
 
 type RelayUrlUnencryptedPayload = {

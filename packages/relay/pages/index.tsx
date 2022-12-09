@@ -12,7 +12,7 @@ import { Logo } from "../components/Logo";
 type FormData = z.infer<typeof decryptInput>;
 
 const Index: NextPageWithLayout = () => {
-  const { state, assetId, privateKey, handlePassphrase } = useWallet();
+  const { state, handlePassphrase } = useWallet();
 
   const [decryptionError, setDecryptionError] = useState<string | undefined>(
     undefined
@@ -49,7 +49,8 @@ const Index: NextPageWithLayout = () => {
       justifyContent="center"
     >
       <Logo marginBottom="2em" />
-      {state === "init" && <CircularProgress size="48px" />}
+      {state === "init" ||
+        (state === "ready" && <CircularProgress size="48px" />)}
       {state === "encrypted" && (
         <Grid
           component="form"
@@ -91,29 +92,6 @@ const Index: NextPageWithLayout = () => {
                 </Button>
               </Grid>
             </Grid>
-          </Grid>
-        </Grid>
-      )}
-      {state === "ready" && (
-        <Grid container spacing={2} alignItems="center" justifyContent="center">
-          <Grid item xs={12}>
-            <TextField
-              id="assetId"
-              label="Asset ID"
-              value={assetId}
-              enableCopy
-              isMonospace
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              id="privateKey"
-              type="password"
-              label="Private Key"
-              value={privateKey}
-              enableCopy
-              isMonospace
-            />
           </Grid>
         </Grid>
       )}

@@ -16,10 +16,19 @@ import {
   RelayUrlPayload,
 } from "../lib/urlParams";
 
+export type Transaction = {
+  state: "init" | "broadcasting" | "confirming" | "success" | "error";
+  to?: string;
+  amount?: number;
+  memo?: string;
+  hash?: string;
+};
+
 type WalletData = {
   state: "init" | "encrypted" | "ready";
   assetId?: string;
   privateKey?: string;
+  transactions: Transaction[];
 };
 
 type IWalletContext = WalletData & {
@@ -31,6 +40,7 @@ const defaultWalletData: WalletData = {
   state: "init",
   assetId: undefined,
   privateKey: undefined,
+  transactions: [],
 };
 
 const defaultValue: IWalletContext = {
@@ -53,13 +63,29 @@ export const WalletProvider = ({ children }: Props) => {
   const [wallet, setWallet] = useState(defaultWalletData);
 
   const handleFullPayload = (payload: RelayUrlPayload, passphrase?: string) => {
-    const { assetId, privateKey } = parsePayload(payload, passphrase);
+    const { assetId, privateKey, to, amount, memo } = parsePayload(
+      payload,
+      passphrase
+    );
+
+    const hasTxInput = to || amount || memo;
 
     setWallet((prev) => ({
       ...prev,
       state: "ready",
       assetId,
       privateKey,
+      transactions: hasTxInput
+        ? [
+            ...(prev.transactions ?? []),
+            {
+              state: "init",
+              to,
+              amount,
+              memo,
+            },
+          ]
+        : prev.transactions,
     }));
 
     router.push("/[assetId]", `/${assetId}`);
@@ -125,6 +151,7 @@ export const WalletProvider = ({ children }: Props) => {
     state: wallet.state,
     assetId: wallet.assetId,
     privateKey: wallet.privateKey,
+    transactions: wallet.transactions,
     handleUrlPayload,
     handlePassphrase,
   };

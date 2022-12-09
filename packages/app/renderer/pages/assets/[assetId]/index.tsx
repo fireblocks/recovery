@@ -17,15 +17,12 @@ import {
 } from "@mui/material";
 import { Key, ArrowUpward } from "@mui/icons-material";
 import { deserializePath, serializePath } from "../../../lib/bip44";
-import { useSettings } from "../../../context/Settings";
 import { useWorkspace } from "../../../context/Workspace";
 import { csvExport } from "../../../lib/csvExport";
 import { getAssetInfo } from "../../../lib/assetInfo";
 import { download } from "../../../lib/download";
 
 const Asset: NextPageWithLayout = () => {
-  const { getRelayUrl } = useSettings();
-
   const { asset, wallets, currentAssetWallets } = useWorkspace();
 
   const [showPaths, setShowPaths] = useState(false);
@@ -175,13 +172,10 @@ const Asset: NextPageWithLayout = () => {
                       aria-label="Withdraw"
                       component={NextLinkComposed}
                       to={{
-                        pathname: "/qr",
+                        pathname: "/assets/[assetId]/withdraw",
                         query: {
-                          data: getRelayUrl({
-                            assetId: asset?.id as string,
-                            privateKey: wallet.privateKey,
-                          }),
-                          title: `Scan to begin ${asset?.name} withdrawal`,
+                          assetId: asset?.id as string,
+                          privateKey: wallet.privateKey,
                         },
                       }}
                       target="_blank"

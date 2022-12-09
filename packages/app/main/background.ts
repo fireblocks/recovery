@@ -263,6 +263,13 @@ app.on("web-contents-created", (event, contents) => {
           overrideBrowserWindowOptions: getWindowOptions(500, 440),
         };
       }
+
+      if (url.includes("/withdraw")) {
+        return {
+          action: "allow",
+          overrideBrowserWindowOptions: getWindowOptions(500, 522),
+        };
+      }
     }
 
     console.error(

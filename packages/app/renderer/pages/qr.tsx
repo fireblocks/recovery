@@ -1,8 +1,6 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Box, Typography } from "@mui/material";
-import { QRCodeSVG } from "qrcode.react";
-import { theme, TextField } from "styles";
+import { QrCode } from "../components/QrCode";
 
 const QR = () => {
   const router = useRouter();
@@ -11,42 +9,12 @@ const QR = () => {
   const title = router.query.title as string | undefined;
 
   return (
-    <Box
-      height="100%"
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent={data ? "flex-start" : "center"}
-    >
+    <>
       <Head>
         <title>{`${title ? `${title} ` : ""} QR Code`}</title>
       </Head>
-      {data ? (
-        <>
-          <QRCodeSVG
-            value={data}
-            size={512}
-            style={{
-              aspectRatio: "1",
-              height: "auto",
-              width: "100%",
-            }}
-            includeMargin
-          />
-          <Box width="100%" padding="1em">
-            <TextField
-              id="qrCodeData"
-              label={title}
-              value={data}
-              enableCopy
-              isMonospace
-            />
-          </Box>
-        </>
-      ) : (
-        <Typography variant="body1">No data</Typography>
-      )}
-    </Box>
+      <QrCode data={data} title={title} />
+    </>
   );
 };
 

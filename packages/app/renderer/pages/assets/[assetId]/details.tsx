@@ -2,12 +2,9 @@ import Head from "next/head";
 import { Box, Grid, Typography } from "@mui/material";
 import { NextLinkComposed, TextField, Button } from "styles";
 import { deserializePath, serializePath } from "../../../lib/bip44";
-import { useSettings } from "../../../context/Settings";
 import { useWorkspace } from "../../../context/Workspace";
 
 const WalletDetails = () => {
-  const { getRelayUrl } = useSettings();
-
   const { asset, pathParts, address, publicKey, privateKey } = useWorkspace();
 
   const { coinType, accountId, change, index } = deserializePath(pathParts);
@@ -39,13 +36,10 @@ const WalletDetails = () => {
             color="primary"
             component={NextLinkComposed}
             to={{
-              pathname: "/qr",
+              pathname: "/assets/[assetId]/withdraw",
               query: {
-                data: getRelayUrl({
-                  assetId: asset?.id as string,
-                  privateKey: privateKey as string,
-                }),
-                title: `Scan to begin ${asset?.name} withdrawal`,
+                assetId: asset?.id as string,
+                privateKey,
               },
             }}
             target="_blank"
