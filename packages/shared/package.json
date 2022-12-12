@@ -1,12 +1,13 @@
 {
-  "name": "styles",
+  "name": "shared",
   "author": "Fireblocks (https://www.fireblocks.com)",
-  "version": "0.0.2",
+  "version": "0.0.0",
   "private": true,
   "main": "index.ts",
   "scripts": {
     "lint": "next lint --fix .",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@emotion/react": "^11.10.5",

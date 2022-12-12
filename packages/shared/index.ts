@@ -7,3 +7,6 @@ export * from "./lib/getInitialDocumentProps";
 // Theme
 export * from "./theme";
 export * from "./theme/fonts/heebo";
+
+// Types
+export * from "./types";

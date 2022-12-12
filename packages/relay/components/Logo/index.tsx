@@ -1,5 +1,5 @@
 import { Typography, Grid, GridProps } from "@mui/material";
-import { Logo as LogoSvg } from "styles";
+import { Logo as LogoSvg } from "shared";
 
 export const Logo = ({ color, ...props }: GridProps) => (
   <Grid

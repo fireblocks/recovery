@@ -1,6 +1,6 @@
 import { Box, BoxProps, Typography } from "@mui/material";
 import { QRCodeSVG } from "qrcode.react";
-import { TextField } from "styles";
+import { TextField } from "shared";
 
 type Props = BoxProps & {
   data?: string;

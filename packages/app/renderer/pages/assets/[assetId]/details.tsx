@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { Box, Grid, Typography } from "@mui/material";
-import { NextLinkComposed, TextField, Button } from "styles";
+import { NextLinkComposed, TextField, Button } from "shared";
 import { deserializePath, serializePath } from "../../../lib/bip44";
 import { useWorkspace } from "../../../context/Workspace";
 
@@ -40,6 +40,7 @@ const WalletDetails = () => {
               query: {
                 assetId: asset?.id as string,
                 privateKey,
+                publicKey,
               },
             }}
             target="_blank"

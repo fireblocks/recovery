@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { withdrawInput } from "../../../lib/schemas";
 import { Box, Grid, Typography } from "@mui/material";
-import { TextField, theme } from "styles";
+import { TextField, theme } from "shared";
 import { QrCode } from "../../../components/QrCode";
 import { useSettings } from "../../../context/Settings";
 import { useWorkspace } from "../../../context/Workspace";
@@ -14,7 +14,7 @@ type FormData = z.infer<typeof withdrawInput>;
 const Withdraw = () => {
   const { getRelayUrl } = useSettings();
 
-  const { asset, address, privateKey } = useWorkspace();
+  const { asset, privateKey, publicKey } = useWorkspace();
 
   const title = `${asset?.name} Withdrawal`;
 
@@ -30,11 +30,10 @@ const Withdraw = () => {
     reValidateMode: "onChange",
     defaultValues: {
       amount: 0,
-      memo: "Sent with Fireblocks Recovery Utility & Recovery Relay",
     },
   });
 
-  const { to, amount, memo } = watch();
+  const { to, amount } = watch();
 
   return (
     <Box component="form" padding="1em">
@@ -82,14 +81,6 @@ const Withdraw = () => {
                 {...register("amount", { valueAsNumber: true })}
               />
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                id="memo"
-                label="Memo"
-                error={errors.memo?.message}
-                {...register("memo")}
-              />
-            </Grid>
           </Grid>
         </Grid>
         <Grid item xs={6}>
@@ -97,9 +88,8 @@ const Withdraw = () => {
             data={getRelayUrl({
               assetId: asset?.id as string,
               privateKey: privateKey as string,
-              to,
-              amount,
-              memo,
+              publicKey: publicKey as string,
+              tx: { to, amount },
             })}
             title="Open with an online device"
             bgColor={theme.palette.background.default}

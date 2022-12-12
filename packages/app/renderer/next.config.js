@@ -1,5 +1,5 @@
 // @ts-check
-const withTM = require("next-transpile-modules")(["styles"]);
+const withTM = require("next-transpile-modules")(["shared"]);
 
 /**
  * @type {import('next').NextConfig}

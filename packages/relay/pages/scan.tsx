@@ -6,7 +6,7 @@ import { Logo } from "../components/Logo";
 import { QrCodeScanner, ScanResult } from "../components/QrCodeScanner";
 
 const Scan: NextPageWithLayout = () => {
-  const { handleUrlPayload } = useWallet();
+  const { handleUrlParams } = useWallet();
 
   const [scanError, setScanError] = useState<string | undefined>(undefined);
 
@@ -14,7 +14,7 @@ const Scan: NextPageWithLayout = () => {
     try {
       const hash = data.split("#")[1];
 
-      handleUrlPayload(hash);
+      handleUrlParams(hash);
 
       setScanError(undefined);
     } catch {

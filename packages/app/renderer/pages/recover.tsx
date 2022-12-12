@@ -7,7 +7,7 @@ import { z } from "zod";
 import { recoverKeysInput } from "../lib/schemas";
 import { Layout } from "../components/Layout";
 import { UploadWell } from "../components/UploadWell";
-import { TextField, Button } from "styles";
+import { TextField, Button } from "shared";
 import {
   Box,
   Grid,

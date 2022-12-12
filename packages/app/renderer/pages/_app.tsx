@@ -7,7 +7,7 @@ import { EmotionCache } from "@emotion/react";
 import log from "electron-log";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { QueryClient } from "@tanstack/react-query";
-import { StylesProvider } from "styles";
+import { StylesProvider } from "shared";
 import { SettingsProvider } from "../context/Settings";
 import { ConnectionTestProvider } from "../context/ConnectionTest";
 import { WorkspaceProvider } from "../context/Workspace";

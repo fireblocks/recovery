@@ -1,34 +1,17 @@
 import type { NextPageWithLayout } from "./_app";
 import type { ReactElement } from "react";
 import { Layout } from "../components/Layout";
-import { Logo, Button, NextLinkComposed } from "styles";
-import { Box, Grid, Typography } from "@mui/material";
-import { Restore } from "@mui/icons-material";
+import { LogoHero, Button, NextLinkComposed } from "shared";
+import { Grid } from "@mui/material";
 
 const Index: NextPageWithLayout = () => {
   return (
     <Grid container spacing={2} alignItems="center" height="100%" padding="rem">
       <Grid item xs={6}>
-        <Typography sx={{ color: (theme) => theme.palette.primary.main }}>
-          <Logo width={150} />
-        </Typography>
-        <Box display="flex" alignItems="center">
-          <Typography
-            variant="h1"
-            marginTop={0}
-            lineHeight={0}
-            marginRight="8px"
-          >
-            <Restore />
-          </Typography>
-          <Typography variant="h1" marginTop={0.3}>
-            Recovery Utility
-          </Typography>
-        </Box>
-        <Typography variant="body1" paragraph gutterBottom={false}>
-          Recovery Utility can help recover your Fireblocks assets, verify a
-          recovery kit, or build keys for hard key recovery setup.
-        </Typography>
+        <LogoHero
+          title="Recovery Utility"
+          description="Recover Fireblocks private keys and assets, verify a recovery kit, or build keys to set up a new recovery kit."
+        />
       </Grid>
       <Grid item xs={6}>
         <Grid container spacing={2}>

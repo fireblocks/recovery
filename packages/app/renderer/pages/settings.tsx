@@ -5,7 +5,7 @@ import { z } from "zod";
 import { settingsInput } from "../lib/schemas";
 import { useSettings, defaultSettings } from "../context/Settings";
 import { Layout } from "../components/Layout";
-import { Button, TextField } from "styles";
+import { Button, TextField } from "shared";
 import { Box, Grid, Typography } from "@mui/material";
 
 type FormData = z.infer<typeof settingsInput>;

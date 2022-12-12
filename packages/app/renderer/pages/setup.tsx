@@ -8,7 +8,7 @@ import { generateRsaKeypairInput } from "../lib/schemas";
 import { download } from "../lib/download";
 import { useConnectionTest } from "../context/ConnectionTest";
 import { Layout } from "../components/Layout";
-import { NextLinkComposed, TextField, Button } from "styles";
+import { NextLinkComposed, TextField, Button } from "shared";
 import {
   Box,
   Grid,

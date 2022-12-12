@@ -12,7 +12,7 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
-import { Button, TextField } from "styles";
+import { Button, TextField } from "shared";
 import { deserializePath } from "../../../lib/bip44";
 import { addWallets } from "../../../lib/ipc/addWallets";
 import { closeWindow } from "../../../lib/ipc/closeWindow";

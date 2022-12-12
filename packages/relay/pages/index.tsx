@@ -1,102 +1,46 @@
 import type { NextPageWithLayout } from "./_app";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { decryptInput } from "../lib/schemas";
-import { Box, Grid, CircularProgress } from "@mui/material";
-import { TextField, Button, NextLinkComposed } from "styles";
-import { useWallet } from "../context/Wallet";
-import { Logo } from "../components/Logo";
+import { Box, Grid } from "@mui/material";
+import { LeakAdd } from "@mui/icons-material";
+import { LogoHero, Button, NextLinkComposed } from "shared";
 
-type FormData = z.infer<typeof decryptInput>;
-
-const Index: NextPageWithLayout = () => {
-  const { state, handlePassphrase } = useWallet();
-
-  const [decryptionError, setDecryptionError] = useState<string | undefined>(
-    undefined
-  );
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(decryptInput),
-    defaultValues: {
-      passphrase: "",
-    },
-  });
-
-  const onSubmit = (formData: FormData) => {
-    try {
-      handlePassphrase(formData.passphrase);
-
-      setDecryptionError(undefined);
-    } catch {
-      setDecryptionError("Invalid passphrase");
-    }
-  };
-
-  return (
-    <Box
-      height="100%"
-      padding="1em"
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-    >
-      <Logo marginBottom="2em" />
-      {state === "init" ||
-        (state === "ready" && <CircularProgress size="48px" />)}
-      {state === "encrypted" && (
-        <Grid
-          component="form"
-          container
-          spacing={2}
-          maxWidth="600px"
-          alignItems="center"
-          justifyContent="center"
-          onSubmit={handleSubmit(onSubmit)}
-        >
-          <Grid item flex={1}>
-            <TextField
-              id="passphrase"
-              type="password"
-              label="Relay Passphrase"
-              helpText="Set in Fireblocks Recovery Utility Settings"
-              error={errors.passphrase?.message ?? decryptionError}
-              autoFocus
-              {...register("passphrase")}
-            />
-          </Grid>
-          <Grid item xs={12} sm="auto">
-            <Grid
-              container
-              spacing={2}
-              alignItems="center"
-              justifyContent="center"
+const Index: NextPageWithLayout = () => (
+  <Box
+    height="100%"
+    padding="1rem"
+    display="flex"
+    alignItems="center"
+    justifyContent="center"
+  >
+    <Grid container spacing={2} alignItems="center" maxWidth="800px">
+      <Grid item sm={6}>
+        <LogoHero
+          title="Recovery Relay"
+          description="Make transactions from wallets recovered with Fireblocks Recovery Utility."
+          icon={LeakAdd}
+        />
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Grid container spacing={2}>
+          {/* <Grid item xs={12}>
+              <Button size="large" variant="outlined" fullWidth>
+                New Transaction
+              </Button>
+            </Grid> */}
+          <Grid item xs={12}>
+            <Button
+              size="large"
+              color="primary"
+              fullWidth
+              component={NextLinkComposed}
+              to="/scan"
             >
-              <Grid item>
-                <Button type="submit">Decrypt Wallet</Button>
-              </Grid>
-              <Grid item>
-                <Button
-                  variant="outlined"
-                  component={NextLinkComposed}
-                  to="/scan"
-                >
-                  Scan Code
-                </Button>
-              </Grid>
-            </Grid>
+              Scan QR Code
+            </Button>
           </Grid>
         </Grid>
-      )}
-    </Box>
-  );
-};
+      </Grid>
+    </Grid>
+  </Box>
+);
 
 export default Index;

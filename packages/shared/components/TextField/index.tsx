@@ -1,4 +1,4 @@
-import {
+import React, {
   forwardRef,
   useState,
   ReactNode,
@@ -25,7 +25,7 @@ import {
   Check,
 } from "@mui/icons-material";
 import { NextLinkComposed } from "../Link";
-import { monospaceFontFamily } from "styles";
+import { monospaceFontFamily } from "shared";
 
 const Input = styled(InputBase)(({ theme }) => ({
   fontSize: "16px",

@@ -1,7 +1,7 @@
 import type { NextPageWithLayout } from "../../_app";
 import { useState } from "react";
 import { Layout } from "../../../components/Layout";
-import { NextLinkComposed, TextField, Button } from "styles";
+import { NextLinkComposed, TextField, Button } from "shared";
 import {
   Box,
   Grid,
@@ -176,6 +176,7 @@ const Asset: NextPageWithLayout = () => {
                         query: {
                           assetId: asset?.id as string,
                           privateKey: wallet.privateKey,
+                          publicKey: wallet.publicKey,
                         },
                       }}
                       target="_blank"

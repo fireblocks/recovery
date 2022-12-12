@@ -1,6 +1,6 @@
 import NextDocument, { Html, Head, Main, NextScript } from "next/document";
 import { ReactNode } from "react";
-import { heebo, getInitialDocumentProps, EmotionHeadTags } from "styles";
+import { heebo, getInitialDocumentProps, EmotionHeadTags } from "shared";
 
 export default class Document extends NextDocument {
   render() {

@@ -1,21 +1,25 @@
 import type { NextPageWithLayout } from "../_app";
-import { useMemo } from "react";
+import { useRouter } from "next/router";
+import { useMemo, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { transactionInput } from "../../lib/schemas";
-import { Bitcoin } from "../../lib/wallets/BTC";
-import { Ethereum } from "../../lib/wallets/ETH";
-import { Solana } from "../../lib/wallets/SOL";
+import { WalletClasses } from "../../lib/wallets";
 import { Box, Grid, Divider } from "@mui/material";
-import { TextField, Button } from "styles";
+import { TextField, Button } from "shared";
 import { useWallet, Transaction } from "../../context/Wallet";
 import { Logo } from "../../components/Logo";
+import { BaseWallet } from "../../lib/wallets/BaseWallet";
+import { ConfirmationModal } from "../../components/ConfirmationModal";
 
 type FormData = z.infer<typeof transactionInput>;
 
 const Wallet: NextPageWithLayout = () => {
-  const { assetId, privateKey, transactions } = useWallet();
+  const router = useRouter();
+
+  const { assetId, address, transactions, walletInstance, handleTransaction } =
+    useWallet();
 
   const newTx = useMemo<Transaction>(() => {
     const transactionsDescending = transactions.slice().reverse();
@@ -25,36 +29,13 @@ const Wallet: NextPageWithLayout = () => {
     return newTx ?? { state: "init" };
   }, [transactions]);
 
-  // const senderAddress = useMemo(() => {
-  //   if (!privateKey) {
-  //     return "";
-  //   }
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
 
-  //   const isTestnet = !!assetId?.includes("_TEST");
-
-  //   if (assetId?.startsWith("BTC")) {
-  //     const bitcoinWallet = new Bitcoin(privateKey, isTestnet);
-
-  //     return bitcoinWallet.getAddress();
-  //   }
-
-  //   if (assetId?.startsWith("ETH")) {
-  //     const ethereumWallet = new Ethereum(privateKey, isTestnet);
-
-  //     return ethereumWallet.getAddress();
-  //   }
-
-  //   if (assetId?.startsWith("SOL")) {
-  //     const solanaWallet = new Solana(privateKey, isTestnet);
-
-  //     return solanaWallet.getAddress();
-  //   }
-
-  //   return "";
-  // }, [privateKey]);
+  const onCloseConfirmationModal = () => setIsConfirmationModalOpen(false);
 
   const {
     register,
+    watch,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({
@@ -64,37 +45,42 @@ const Wallet: NextPageWithLayout = () => {
     defaultValues: {
       to: newTx.to ?? "",
       amount: newTx.amount ?? 0,
-      memo: newTx.memo ?? "",
     },
   });
+
+  const values = watch();
 
   const onSubmit = async (data: FormData) => {
     console.info("Tx form data:", { data });
 
-    if (!privateKey) {
-      return;
-    }
-
-    const isTestnet = !!assetId?.includes("_TEST");
-
-    if (assetId?.startsWith("BTC")) {
-      const bitcoinWallet = new Bitcoin(privateKey, isTestnet);
-
-      return bitcoinWallet.sendTransaction(data.to, data.amount);
-    }
-
-    if (assetId?.startsWith("ETH")) {
-      const ethereumWallet = new Ethereum(privateKey, isTestnet);
-
-      return ethereumWallet.sendTransaction(data.to, data.amount);
-    }
-
-    if (assetId?.startsWith("SOL")) {
-      const solanaWallet = new Solana(privateKey, isTestnet);
-
-      return solanaWallet.sendTransaction(data.to, data.amount);
-    }
+    setIsConfirmationModalOpen(true);
   };
+
+  const onConfirmTransaction = async (privateKey: string) => {
+    if (!walletInstance) {
+      throw new Error("No wallet instance found");
+    }
+
+    const txHash = await walletInstance.sendTransaction(
+      privateKey,
+      values.to,
+      values.amount
+    );
+
+    handleTransaction({
+      ...newTx,
+      state: "broadcasting",
+      to: values.to,
+      amount: values.amount,
+      hash: txHash,
+    });
+  };
+
+  useEffect(() => {
+    if (!walletInstance) {
+      router.push("/");
+    }
+  }, [walletInstance]);
 
   return (
     <Box
@@ -104,11 +90,11 @@ const Wallet: NextPageWithLayout = () => {
       flexDirection="column"
       alignItems="center"
       justifyContent="center"
-      component="form"
       onSubmit={handleSubmit(onSubmit)}
     >
       <Logo marginBottom="2em" />
       <Grid
+        component="form"
         maxWidth="600px"
         container
         spacing={2}
@@ -124,15 +110,15 @@ const Wallet: NextPageWithLayout = () => {
             isMonospace
           />
         </Grid>
-        {/* <Grid item xs={12}>
+        <Grid item xs={12}>
           <TextField
             id="senderAddress"
             label="Sender Address"
-            value={senderAddress}
+            value={address}
             enableCopy
             isMonospace
           />
-        </Grid> */}
+        </Grid>
         <Grid item xs={12}>
           <Divider sx={{ margin: "1em 0" }} />
         </Grid>
@@ -155,19 +141,19 @@ const Wallet: NextPageWithLayout = () => {
             {...register("amount", { valueAsNumber: true })}
           />
         </Grid>
-        <Grid item xs={12}>
-          <TextField
-            id="memo"
-            type="number"
-            label="Memo"
-            error={errors.memo?.message}
-            {...register("memo")}
-          />
-        </Grid>
         <Grid item xs={12} display="flex" justifyContent="flex-end">
           <Button type="submit">Send</Button>
         </Grid>
       </Grid>
+      <ConfirmationModal
+        isOpen={isConfirmationModalOpen}
+        amount={values.amount}
+        assetSymbol={assetId?.split("_")[0] ?? ""}
+        fromAddress={address ?? ""}
+        toAddress={values.to}
+        onClose={onCloseConfirmationModal}
+        onSubmit={onConfirmTransaction}
+      />
     </Box>
   );
 };

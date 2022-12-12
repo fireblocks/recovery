@@ -8,13 +8,14 @@ import {
   ReactNode,
   useCallback,
 } from "react";
+import { EncryptedString, RelayUrlParameters } from "shared";
 import {
-  isEncryptedPayload,
-  decodePayload,
-  parsePayload,
+  isEncryptedString,
+  decodeParams,
+  decryptString,
   getHash,
-  RelayUrlPayload,
 } from "../lib/urlParams";
+import { BaseWallet, WalletClasses } from "../lib/wallets";
 
 export type Transaction = {
   state: "init" | "broadcasting" | "confirming" | "success" | "error";
@@ -27,26 +28,49 @@ export type Transaction = {
 type WalletData = {
   state: "init" | "encrypted" | "ready";
   assetId?: string;
-  privateKey?: string;
+  address?: string;
+  isTestnet?: boolean;
   transactions: Transaction[];
+  walletInstance?: BaseWallet;
 };
 
 type IWalletContext = WalletData & {
-  handleUrlPayload: (encodedPayload: string) => void;
-  handlePassphrase: (passphrase: string) => void;
+  handleUrlParams: (encodedPayload: string) => void;
+  handleDecryptPrivateKey: (passphrase: string) => string;
+  handleTransaction: (tx: Transaction) => void;
+};
+
+const handleTransactionState = (
+  transactions: Transaction[] = [],
+  tx: Transaction
+) => {
+  const initTxIndex = transactions.findIndex(({ state }) => state === "init");
+
+  if (initTxIndex > 0) {
+    return [
+      ...transactions.slice(0, initTxIndex),
+      { ...transactions[initTxIndex], ...tx },
+      ...transactions.slice(initTxIndex + 1),
+    ];
+  }
+
+  return [...transactions, tx];
 };
 
 const defaultWalletData: WalletData = {
   state: "init",
   assetId: undefined,
-  privateKey: undefined,
+  address: "",
+  isTestnet: undefined,
   transactions: [],
+  walletInstance: undefined,
 };
 
 const defaultValue: IWalletContext = {
   ...defaultWalletData,
-  handleUrlPayload: () => undefined,
-  handlePassphrase: () => undefined,
+  handleUrlParams: () => undefined,
+  handleDecryptPrivateKey: () => "",
+  handleTransaction: () => undefined,
 };
 
 const Context = createContext(defaultValue);
@@ -58,74 +82,93 @@ type Props = {
 export const WalletProvider = ({ children }: Props) => {
   const router = useRouter();
 
-  const payloadRef = useRef<RelayUrlPayload | null>(null);
+  const privateKeyRef = useRef<EncryptedString | string | null>(null);
 
-  const [wallet, setWallet] = useState(defaultWalletData);
+  const [wallet, setWallet] = useState<WalletData>(defaultWalletData);
 
-  const handleFullPayload = (payload: RelayUrlPayload, passphrase?: string) => {
-    const { assetId, privateKey, to, amount, memo } = parsePayload(
-      payload,
-      passphrase
-    );
-
-    const hasTxInput = to || amount || memo;
-
-    setWallet((prev) => ({
-      ...prev,
-      state: "ready",
-      assetId,
-      privateKey,
-      transactions: hasTxInput
-        ? [
-            ...(prev.transactions ?? []),
-            {
-              state: "init",
-              to,
-              amount,
-              memo,
-            },
-          ]
-        : prev.transactions,
-    }));
-
-    router.push("/[assetId]", `/${assetId}`);
-  };
-
-  const handleUrlPayload = useCallback((encodedPayload: string) => {
+  const handleUrlParams = useCallback(async (encodedParams: string) => {
     try {
-      const payload = decodePayload(encodedPayload);
+      const params = decodeParams(encodedParams);
 
-      payloadRef.current = payload;
+      privateKeyRef.current = params.privateKey;
 
-      if (isEncryptedPayload(payload)) {
-        setWallet((prev) => ({ ...prev, state: "encrypted" }));
+      const state = isEncryptedString(params.privateKey)
+        ? "encrypted"
+        : "ready";
 
-        router.push("/");
-      } else {
-        handleFullPayload(payload);
+      const assetIdParts = params.assetId.split("_");
+
+      const isTestnet = !!assetIdParts[1]?.includes("TEST");
+
+      const baseAsset = assetIdParts[0] as keyof typeof WalletClasses;
+
+      const WalletClass = WalletClasses[baseAsset];
+
+      if (!WalletClass) {
+        throw new Error("Unsupported asset ID");
       }
+
+      const walletInstance = new WalletClass(params.publicKey, isTestnet);
+
+      const address = await walletInstance.getAddress();
+
+      console.info({ address });
+
+      setWallet((prev) => ({
+        ...prev,
+        state,
+        assetId: params.assetId,
+        address,
+        isTestnet,
+        transactions: params.tx
+          ? handleTransactionState(prev.transactions, {
+              state: "init",
+              ...params.tx,
+            })
+          : prev.transactions,
+        walletInstance,
+      }));
+
+      router.push("/[assetId]", `/${params.assetId}`);
     } catch (error) {
+      privateKeyRef.current = null;
+
       console.error(error);
 
       throw new Error("Invalid relay URL");
     }
   }, []);
 
-  const handlePassphrase = useCallback((passphrase: string) => {
+  const handleDecryptPrivateKey = useCallback((passphrase: string) => {
+    if (!privateKeyRef.current) {
+      throw new Error("No private key provided");
+    }
+
+    if (!isEncryptedString(privateKeyRef.current)) {
+      return privateKeyRef.current;
+    }
+
     try {
-      if (!payloadRef.current) {
-        throw new Error("No encoded payload provided");
-      }
+      const privateKey = decryptString(privateKeyRef.current, passphrase);
 
-      handleFullPayload(payloadRef.current, passphrase);
+      setWallet((prev) => ({ ...prev, state: "ready" }));
 
-      payloadRef.current = null;
+      return privateKey;
     } catch (error) {
       console.error(error);
 
       throw new Error("Invalid passphrase");
     }
   }, []);
+
+  const handleTransaction = useCallback(
+    (tx: Transaction) =>
+      setWallet((prev) => ({
+        ...prev,
+        transactions: handleTransactionState(prev.transactions, tx),
+      })),
+    []
+  );
 
   const handleHashChange = useCallback(() => {
     try {
@@ -139,7 +182,7 @@ export const WalletProvider = ({ children }: Props) => {
         throw new Error("No hash provided");
       }
     } catch {
-      router.push("/scan");
+      router.push("/");
     }
   }, []);
 
@@ -150,10 +193,13 @@ export const WalletProvider = ({ children }: Props) => {
   const value: IWalletContext = {
     state: wallet.state,
     assetId: wallet.assetId,
-    privateKey: wallet.privateKey,
+    address: wallet.address,
+    isTestnet: wallet.isTestnet,
     transactions: wallet.transactions,
-    handleUrlPayload,
-    handlePassphrase,
+    walletInstance: wallet.walletInstance,
+    handleUrlParams,
+    handleDecryptPrivateKey,
+    handleTransaction,
   };
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

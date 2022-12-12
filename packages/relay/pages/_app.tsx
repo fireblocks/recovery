@@ -6,7 +6,7 @@ import { useRouter, NextRouter } from "next/router";
 import { EmotionCache } from "@emotion/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { QueryClient } from "@tanstack/react-query";
-import { theme, StylesProvider } from "styles";
+import { theme, StylesProvider } from "shared";
 import { WalletProvider } from "../context/Wallet";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 

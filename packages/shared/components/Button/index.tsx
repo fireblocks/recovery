@@ -1,4 +1,4 @@
-import { ElementType } from "react";
+import React, { ElementType } from "react";
 import { NextLinkComposedProps } from "../Link";
 import { Button as MuiButton, ButtonProps } from "@mui/material";
 

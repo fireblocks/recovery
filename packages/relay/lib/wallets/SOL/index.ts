@@ -1,50 +1,91 @@
 import * as web3 from "@solana/web3.js";
+import bs58 from "bs58";
+import { eddsaSign } from "../../eddsa";
 import { BaseWallet } from "../BaseWallet";
 
-export class Solana implements BaseWallet {
+const fromHexString = (hexString: string) => {
+  const chars = hexString.match(/.{1,2}/g);
+
+  if (!chars) {
+    return new Uint8Array();
+  }
+
+  return Uint8Array.from(chars.map((byte) => parseInt(byte, 16)));
+};
+
+export class Solana extends BaseWallet {
   private readonly connection: web3.Connection;
 
-  private readonly keypair: web3.Keypair;
+  private readonly publicKey: web3.PublicKey;
 
-  constructor(privateKeyHex: string, isTestnet: boolean) {
-    const endpoint = web3.clusterApiUrl(isTestnet ? "devnet" : "mainnet-beta");
+  constructor(
+    private readonly publicKeyHex: string,
+    private readonly isTestnet: boolean
+  ) {
+    super(publicKeyHex, isTestnet);
+
+    const endpoint = this.isTestnet
+      ? web3.clusterApiUrl("devnet")
+      : "https://try-rpc.mainnet.solana.blockdaemon.tech";
 
     this.connection = new web3.Connection(endpoint, "confirmed");
 
-    const privateKeyBuffer = Uint8Array.from(Buffer.from(privateKeyHex, "hex"));
+    const publicKeyBase58 = bs58.encode(fromHexString(publicKeyHex));
 
-    this.keypair = web3.Keypair.fromSecretKey(privateKeyBuffer);
+    this.publicKey = new web3.PublicKey(publicKeyBase58);
   }
 
   public getAddress() {
-    return this.keypair.publicKey.toBase58();
+    return this.publicKey.toBase58();
   }
 
   public async getBalance() {
-    const lamports = await this.connection.getBalance(this.keypair.publicKey);
+    const lamports = await this.connection.getBalance(this.publicKey);
 
     const balance = lamports / web3.LAMPORTS_PER_SOL;
 
     return balance;
   }
 
-  public async sendTransaction(to: string, amount: number) {
-    const transaction = new web3.Transaction().add(
-      web3.SystemProgram.transfer({
-        fromPubkey: this.keypair.publicKey,
-        toPubkey: new web3.PublicKey(to),
-        lamports: amount * web3.LAMPORTS_PER_SOL,
-      })
+  public async sendTransaction(
+    privateKeyHex: string,
+    to: string,
+    amount: number
+  ) {
+    const fromPubkey = this.publicKey;
+
+    const toPubkey = new web3.PublicKey(to);
+
+    const lamports = amount * web3.LAMPORTS_PER_SOL;
+
+    const latestBlockhash = await this.connection.getLatestBlockhash();
+
+    const instruction = web3.SystemProgram.transfer({
+      fromPubkey,
+      toPubkey,
+      lamports,
+    });
+
+    const tx = new web3.Transaction().add(instruction);
+
+    tx.recentBlockhash = latestBlockhash.blockhash;
+
+    tx.feePayer = fromPubkey;
+
+    const serializedTx = tx.serializeMessage();
+
+    const signature = await eddsaSign(serializedTx, privateKeyHex);
+
+    tx.addSignature(fromPubkey, signature as Buffer);
+
+    const encodedSerializedTx = tx.serialize();
+
+    const txHash = await this.connection.sendRawTransaction(
+      encodedSerializedTx
     );
 
-    const signature = await web3.sendAndConfirmTransaction(
-      this.connection,
-      transaction,
-      [this.keypair]
-    );
+    console.info({ txHash });
 
-    console.info({ signature });
-
-    return signature;
+    return txHash;
   }
 }

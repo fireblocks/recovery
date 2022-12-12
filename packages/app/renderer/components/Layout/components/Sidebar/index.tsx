@@ -6,7 +6,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { NextLinkComposed } from "styles";
+import { NextLinkComposed } from "shared";
 import { useRouter } from "next/router";
 import { assets } from "../../../../lib/assetInfo";
 
