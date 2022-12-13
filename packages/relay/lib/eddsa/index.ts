@@ -1,16 +1,11 @@
 import { stringToBytes } from "shared";
 import {
-  CURVE,
   hexToNumber,
   numberToBytesLE,
   randomBytes,
   concatBytes,
-  sha512,
-  mod,
-  modlLE,
-  scalarMult,
-  serialize,
-} from "./ed25519";
+} from "../bytes";
+import { CURVE, sha512, mod, modlLE, scalarMult, serialize } from "./ed25519";
 
 /**
  * Generate a Fireblocks EdDSA signature for a given message and private key.

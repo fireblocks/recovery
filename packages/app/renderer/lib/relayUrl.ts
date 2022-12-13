@@ -40,7 +40,7 @@ export const getRelayUrl = (
 ): string => {
   let privateKey: EncryptedString | string;
 
-  if (typeof passphrase === "string" && passphrase?.length) {
+  if (passphrase?.length) {
     privateKey = encryptString(input.privateKey, passphrase);
   } else {
     privateKey = input.privateKey;

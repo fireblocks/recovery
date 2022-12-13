@@ -50,21 +50,20 @@ const Withdraw = () => {
         </Box>
         {title}
       </Typography>
-
+      <Typography variant="body1" paragraph>
+        Scan the QR code with an online device to send a transaction with
+        Fireblocks Recovery Relay.
+      </Typography>
       <Grid container spacing={2}>
         <Grid item xs={6}>
           <Typography variant="body1" paragraph>
-            Scan the QR code with an online device to send a transaction with
-            Fireblocks Recovery Relay.
-          </Typography>
-          <Typography variant="body1" paragraph>
-            Set a custom Relay Base URL or a passphrase for URL encryption in
+            Set a passphrase for URL encryption or a self-hosted Relay URL in
             Settings.
           </Typography>
           <Typography variant="body1" paragraph>
             Set transaction information here to pre-fill the Relay URL.
           </Typography>
-          <Grid container spacing={2}>
+          <Grid container spacing={2} marginTop="16px">
             <Grid item xs={12}>
               <TextField
                 id="recipientAddress"
@@ -105,6 +104,7 @@ const Withdraw = () => {
             bgColor={theme.palette.background.default}
             includeMargin={false}
             noFieldPadding
+            formControlProps={{ sx: { marginTop: "auto" } }}
           />
         </Grid>
       </Grid>

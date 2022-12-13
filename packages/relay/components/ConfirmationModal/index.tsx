@@ -13,6 +13,7 @@ import {
   Box,
   Typography,
   CircularProgress,
+  Divider,
 } from "@mui/material";
 import {
   TextField,
@@ -27,6 +28,7 @@ type FormData = z.infer<typeof decryptInput>;
 type Props = Omit<DialogProps, "open" | "onClose" | "onSubmit"> & {
   isOpen: boolean;
   isLoading: boolean;
+  error?: Error | null;
   amount: number;
   assetSymbol: string;
   fromAddress: string;
@@ -39,6 +41,7 @@ type Props = Omit<DialogProps, "open" | "onClose" | "onSubmit"> & {
 export const ConfirmationModal = ({
   isOpen,
   isLoading,
+  error,
   amount,
   assetSymbol,
   fromAddress,
@@ -114,7 +117,7 @@ export const ConfirmationModal = ({
     <Dialog
       aria-labelledby={headingId}
       aria-describedby={descriptionId}
-      maxWidth="lg"
+      maxWidth="sm"
       open={isOpen}
       onClose={onClose}
       {...props}
@@ -130,13 +133,33 @@ export const ConfirmationModal = ({
         >
           <CircularProgress size="48px" />
         </DialogContent>
+      ) : error ? (
+        <>
+          <DialogTitle id={headingId} variant="h1">
+            Transaction Failed
+          </DialogTitle>
+          <DialogContent sx={{ padding: "1rem" }}>
+            <DialogContentText>{txDescription}</DialogContentText>
+            <Divider sx={{ margin: "1rem 0" }} />
+            <DialogContentText
+              fontFamily={monospaceFontFamily}
+              color={(theme) => theme.palette.error.main}
+              sx={{ whiteSpace: "pre-wrap" }}
+            >
+              {error.message}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions sx={{ padding: "1rem" }}>
+            <Button onClick={onClose}>Close</Button>
+          </DialogActions>
+        </>
       ) : explorerUrl ? (
         <>
           <DialogTitle id={headingId} variant="h1">
             Sent Transaction
           </DialogTitle>
           <DialogContent sx={{ padding: "1rem" }}>
-            {txDescription}
+            <DialogContentText>{txDescription}</DialogContentText>
           </DialogContent>
           <DialogActions sx={{ padding: "1rem" }}>
             <Button variant="outlined" onClick={onClose}>
@@ -159,7 +182,7 @@ export const ConfirmationModal = ({
             Confirm Transaction
           </DialogTitle>
           <DialogContent sx={{ padding: "1rem" }}>
-            {txDescription}
+            <DialogContentText>{txDescription}</DialogContentText>
             {state === "encrypted" && (
               <Box
                 display="flex"

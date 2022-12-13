@@ -42,7 +42,7 @@ export type Transaction = TransactionInput &
       }
     | {
         state: "error";
-        error: string;
+        error: Error;
         hash?: never;
       }
   );
@@ -172,6 +172,8 @@ export const WalletProvider = ({ children }: Props) => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  console.info("WalletProvider", wallet);
 
   const value: IWalletContext = {
     state: wallet.state,

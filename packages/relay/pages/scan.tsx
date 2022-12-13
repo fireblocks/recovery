@@ -1,5 +1,6 @@
 import type { NextPageWithLayout } from "./_app";
 import { useState } from "react";
+import { Link } from "shared";
 import { Box, Typography } from "@mui/material";
 import { useWallet } from "../context/Wallet";
 import { Logo } from "../components/Logo";
@@ -33,7 +34,9 @@ const Scan: NextPageWithLayout = () => {
         zIndex="4"
         sx={{ backgroundColor: (theme) => theme.palette.primary.main }}
       >
-        <Logo color="#FFF" />
+        <Link href="/" underline="none">
+          <Logo color="#FFF" />
+        </Link>
         <Typography variant="body1">
           {scanError ??
             "Start a withdrawal from a Fireblocks Recovery Utility wallet, then scan the code."}

@@ -63,10 +63,7 @@ export type ParsedUrlParams = {
   walletInstance: BaseWallet;
 };
 
-export const parseUrl = (
-  assetId: AssetId,
-  encodedParams: string
-): ParsedUrlParams => {
+export const parseUrl = (assetId: AssetId, encodedParams: string) => {
   try {
     if (!assetId) {
       throw new Error("Invalid asset ID in URL");
@@ -96,7 +93,7 @@ export const parseUrl = (
 
     const walletInstance = new WalletClass(address, isTestnet);
 
-    return {
+    const parsedParams: ParsedUrlParams = {
       state,
       assetId,
       address,
@@ -105,6 +102,8 @@ export const parseUrl = (
       newTx: tx,
       walletInstance,
     };
+
+    return parsedParams;
   } catch (error) {
     console.error(error);
 

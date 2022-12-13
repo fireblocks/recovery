@@ -1,7 +1,7 @@
 import type { NextPageWithLayout } from "../_app";
 import { GetStaticProps, GetStaticPaths } from "next";
 import Head from "next/head";
-import { useId, useState } from "react";
+import { useRef, useId, useState, useEffect } from "react";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,6 +38,8 @@ type Props = {
 const Wallet: NextPageWithLayout<Props> = ({ assetId }) => {
   const { address, newTx, walletInstance, handleTransaction } = useWallet();
 
+  const initialTxRef = useRef(newTx);
+
   const asset = getAssetInfo(assetId);
   const title = `${asset?.name} Wallet`;
 
@@ -70,6 +72,15 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }) => {
       amount: newTx.amount ?? 0,
     },
   });
+
+  useEffect(() => {
+    if (newTx !== initialTxRef.current) {
+      reset({
+        to: newTx.to ?? "",
+        amount: newTx.amount ?? 0,
+      });
+    }
+  }, [reset, newTx]);
 
   const onCloseConfirmationModal = () => {
     setIsConfirmationModalOpen(false);
@@ -134,17 +145,16 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }) => {
 
       setTimeout(balanceQuery.refetch, 1000);
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error(error);
-
-      const errorMessage =
-        error instanceof Error ? error.message : "Transaction failed";
 
       handleTransaction({
         ...newTx,
         state: "error",
-        error: errorMessage,
+        error,
       });
+
+      return error;
     },
   });
 
@@ -303,6 +313,7 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }) => {
       <ConfirmationModal
         isOpen={isConfirmationModalOpen}
         isLoading={txMutation.isLoading}
+        error={txMutation.error}
         amount={values.amount}
         assetSymbol={asset?.id ?? ""}
         fromAddress={address ?? ""}

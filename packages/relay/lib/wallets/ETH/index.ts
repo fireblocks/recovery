@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import { ecdsaHexToWif } from "../../ecdsa";
 import { BaseWallet } from "../BaseWallet";
 
 export class Ethereum implements BaseWallet {
@@ -25,11 +26,20 @@ export class Ethereum implements BaseWallet {
     to: string,
     amount: number
   ) {
-    const signer = this.provider.getSigner(privateKeyHex);
+    const wif = await ecdsaHexToWif(privateKeyHex);
+
+    const signer = this.provider.getSigner(wif);
 
     const tx = await signer.sendTransaction({
       to,
       value: ethers.utils.parseEther(String(amount)),
+      // TODO: Make this user-configurable
+      gasLimit: "21000",
+      maxPriorityFeePerGas: ethers.utils.parseUnits("5", "gwei"),
+      maxFeePerGas: ethers.utils.parseUnits("20", "gwei"),
+      nonce: 1,
+      type: 2,
+      chainId: 1,
     });
 
     return tx.hash;
