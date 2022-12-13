@@ -29,7 +29,6 @@ from com.fireblocks.drs.infra.global_state import (
     FPRV,
 )
 from com.fireblocks.drs.infra.recovery.recover_keys import RecoveryException, recover
-from com.fireblocks.drs.infra.utils import convert_to_qr
 
 
 app = Flask(__name__)
@@ -275,7 +274,7 @@ def get_wif():
 
 def get_wif_impl():
     helper, *_ = unpack_request()
-    return convert_to_qr(helper.to_import_format())
+    return helper.to_import_format()
 
 
 # ======================================= Create transaction API
