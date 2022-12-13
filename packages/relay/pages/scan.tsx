@@ -6,15 +6,13 @@ import { Logo } from "../components/Logo";
 import { QrCodeScanner, ScanResult } from "../components/QrCodeScanner";
 
 const Scan: NextPageWithLayout = () => {
-  const { handleUrlParams } = useWallet();
+  const { handleRelayUrl } = useWallet();
 
   const [scanError, setScanError] = useState<string | undefined>(undefined);
 
-  const onQrDecode = ({ data }: ScanResult) => {
+  const onQrDecode = async ({ data }: ScanResult) => {
     try {
-      const hash = data.split("#")[1];
-
-      handleUrlParams(hash);
+      await handleRelayUrl(data);
 
       setScanError(undefined);
     } catch {

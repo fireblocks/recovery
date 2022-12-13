@@ -1,7 +1,7 @@
 {
   "name": "shared",
   "author": "Fireblocks (https://www.fireblocks.com)",
-  "version": "0.0.0",
+  "version": "0.0.22",
   "private": true,
   "main": "index.ts",
   "scripts": {
@@ -16,8 +16,11 @@
     "@mui/icons-material": "^5.10.16",
     "@mui/material": "^5.10.17",
     "@next/font": "^13.0.6",
+    "@tanstack/react-query": "^4.19.1",
+    "@tanstack/react-query-devtools": "^4.19.1",
     "@types/react": "^18.0.26",
     "clsx": "^1.2.1",
+    "copy-to-clipboard": "^3.3.3",
     "eslint": "8.29.0",
     "eslint-config-next": "13.0.6",
     "eslint-config-prettier": "^8.5.0",
@@ -26,8 +29,5 @@
     "prettier": "^2.8.1",
     "react": "^18.2.0",
     "typescript": "^4.9.4"
-  },
-  "dependencies": {
-    "copy-to-clipboard": "^3.3.3"
   }
 }

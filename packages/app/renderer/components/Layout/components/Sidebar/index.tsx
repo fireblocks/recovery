@@ -6,9 +6,8 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { NextLinkComposed } from "shared";
+import { AssetIcon, NextLinkComposed, assets } from "shared";
 import { useRouter } from "next/router";
-import { assets } from "../../../../lib/assetInfo";
 
 export const Sidebar = () => {
   const router = useRouter();
@@ -22,7 +21,7 @@ export const Sidebar = () => {
       sx={{ backgroundColor: "#FFFFFF" }}
     >
       <List component="nav" disablePadding>
-        {assets.map(({ id, name, Icon }) => (
+        {assets.map(({ id, name }) => (
           <ListItem key={id} disablePadding>
             <ListItemButton
               component={NextLinkComposed}
@@ -33,7 +32,7 @@ export const Sidebar = () => {
               }}
             >
               <ListItemIcon sx={{ minWidth: "42px" }}>
-                <Icon />
+                <AssetIcon assetId={id} />
               </ListItemIcon>
               <ListItemText
                 primary={name}

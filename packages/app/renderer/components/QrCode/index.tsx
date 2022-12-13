@@ -42,18 +42,35 @@ export const QrCode = ({
             width: "100%",
           }}
         />
-        <Box width="100%" padding={noFieldPadding ? "1em 0 0 0" : "1em"}>
-          <TextField
-            id="qrCodeData"
-            label={title}
-            value={data}
-            enableCopy
-            isMonospace
-          />
-        </Box>
+        <TextField
+          id="qrCodeData"
+          label={title}
+          value={data}
+          fullWidth
+          enableCopy
+          isMonospace
+          formControlProps={{
+            sx: {
+              border: "solid 1px red",
+              margin: noFieldPadding ? "1em 0 0 0" : "1em",
+            },
+          }}
+        />
       </>
     ) : (
-      <Typography variant="body1">No data</Typography>
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        width="100%"
+        height="auto"
+        sx={{
+          aspectRatio: "1",
+          background: (theme) => theme.palette.grey[300],
+        }}
+      >
+        <Typography variant="body1">No QR code data</Typography>
+      </Box>
     )}
   </Box>
 );

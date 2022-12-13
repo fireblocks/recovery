@@ -6,55 +6,61 @@ import {
   useState,
   useEffect,
   ReactNode,
-  useCallback,
 } from "react";
-import { EncryptedString, RelayUrlParameters } from "shared";
+import { AssetId, EncryptedString, TransactionInput } from "shared";
 import {
   isEncryptedString,
-  decodeParams,
   decryptString,
-  getHash,
-} from "../lib/urlParams";
-import { BaseWallet, WalletClasses } from "../lib/wallets";
+  decodeUrl,
+  parseUrl,
+  ParsedUrlParams,
+} from "../lib/relayUrl";
+import { BaseWallet } from "../lib/wallets";
 
-export type Transaction = {
-  state: "init" | "broadcasting" | "confirming" | "success" | "error";
-  to?: string;
-  amount?: number;
-  memo?: string;
-  hash?: string;
-};
+let initialUrlParams: ParsedUrlParams | undefined;
+
+if (typeof window !== "undefined") {
+  const { assetId, encodedParams } = decodeUrl();
+
+  window.location.hash = "";
+
+  if (assetId && encodedParams) {
+    try {
+      initialUrlParams = parseUrl(assetId, encodedParams);
+    } catch {
+      console.info("No wallet data in URL");
+    }
+  }
+}
+
+export type Transaction = TransactionInput &
+  (
+    | {
+        state: "success";
+        error?: never;
+        hash: string;
+      }
+    | {
+        state: "error";
+        error: string;
+        hash?: never;
+      }
+  );
 
 type WalletData = {
   state: "init" | "encrypted" | "ready";
-  assetId?: string;
+  assetId?: AssetId;
   address?: string;
   isTestnet?: boolean;
+  newTx: TransactionInput;
   transactions: Transaction[];
   walletInstance?: BaseWallet;
 };
 
 type IWalletContext = WalletData & {
-  handleUrlParams: (encodedPayload: string) => void;
+  handleRelayUrl: (encodedPayload: string) => void;
   handleDecryptPrivateKey: (passphrase: string) => string;
   handleTransaction: (tx: Transaction) => void;
-};
-
-const handleTransactionState = (
-  transactions: Transaction[] = [],
-  tx: Transaction
-) => {
-  const initTxIndex = transactions.findIndex(({ state }) => state === "init");
-
-  if (initTxIndex > 0) {
-    return [
-      ...transactions.slice(0, initTxIndex),
-      { ...transactions[initTxIndex], ...tx },
-      ...transactions.slice(initTxIndex + 1),
-    ];
-  }
-
-  return [...transactions, tx];
 };
 
 const defaultWalletData: WalletData = {
@@ -62,13 +68,14 @@ const defaultWalletData: WalletData = {
   assetId: undefined,
   address: "",
   isTestnet: undefined,
+  newTx: { to: "", amount: 0 },
   transactions: [],
   walletInstance: undefined,
 };
 
 const defaultValue: IWalletContext = {
   ...defaultWalletData,
-  handleUrlParams: () => undefined,
+  handleRelayUrl: async () => undefined,
   handleDecryptPrivateKey: () => "",
   handleTransaction: () => undefined,
 };
@@ -82,54 +89,42 @@ type Props = {
 export const WalletProvider = ({ children }: Props) => {
   const router = useRouter();
 
-  const privateKeyRef = useRef<EncryptedString | string | null>(null);
+  const privateKeyRef = useRef<EncryptedString | string | null>(
+    initialUrlParams?.privateKey ?? null
+  );
 
   const [wallet, setWallet] = useState<WalletData>(defaultWalletData);
 
-  const handleUrlParams = useCallback(async (encodedParams: string) => {
+  const setWalletFromUrlParams = (params: ParsedUrlParams) =>
+    setWallet((prev) => ({
+      ...prev,
+      state: params.state,
+      assetId: params.assetId,
+      address: params.address,
+      isTestnet: params.isTestnet,
+      newTx: params.newTx ?? defaultWalletData.newTx,
+      walletInstance: params.walletInstance,
+    }));
+
+  const handleRelayUrl = (url: string) => {
     try {
-      const params = decodeParams(encodedParams);
+      const { assetId, encodedParams } = decodeUrl(url);
 
-      privateKeyRef.current = params.privateKey;
-
-      const state = isEncryptedString(params.privateKey)
-        ? "encrypted"
-        : "ready";
-
-      const assetIdParts = params.assetId.split("_");
-
-      const isTestnet = !!assetIdParts[1]?.includes("TEST");
-
-      const baseAsset = assetIdParts[0] as keyof typeof WalletClasses;
-
-      const WalletClass = WalletClasses[baseAsset];
-
-      if (!WalletClass) {
-        throw new Error("Unsupported asset ID");
+      if (!assetId) {
+        throw new Error("Invalid asset ID in URL");
       }
 
-      const walletInstance = new WalletClass(params.publicKey, isTestnet);
+      if (!encodedParams) {
+        throw new Error("No wallet data in URL");
+      }
 
-      const address = await walletInstance.getAddress();
+      const parsedParams = parseUrl(assetId, encodedParams);
 
-      console.info({ address });
+      privateKeyRef.current = parsedParams.privateKey;
 
-      setWallet((prev) => ({
-        ...prev,
-        state,
-        assetId: params.assetId,
-        address,
-        isTestnet,
-        transactions: params.tx
-          ? handleTransactionState(prev.transactions, {
-              state: "init",
-              ...params.tx,
-            })
-          : prev.transactions,
-        walletInstance,
-      }));
+      setWalletFromUrlParams(parsedParams);
 
-      router.push("/[assetId]", `/${params.assetId}`);
+      router.push("/[assetId]", `/${assetId}`);
     } catch (error) {
       privateKeyRef.current = null;
 
@@ -137,9 +132,9 @@ export const WalletProvider = ({ children }: Props) => {
 
       throw new Error("Invalid relay URL");
     }
-  }, []);
+  };
 
-  const handleDecryptPrivateKey = useCallback((passphrase: string) => {
+  const handleDecryptPrivateKey = (passphrase: string) => {
     if (!privateKeyRef.current) {
       throw new Error("No private key provided");
     }
@@ -159,45 +154,34 @@ export const WalletProvider = ({ children }: Props) => {
 
       throw new Error("Invalid passphrase");
     }
-  }, []);
+  };
 
-  const handleTransaction = useCallback(
-    (tx: Transaction) =>
-      setWallet((prev) => ({
-        ...prev,
-        transactions: handleTransactionState(prev.transactions, tx),
-      })),
-    []
-  );
+  const handleTransaction = (tx: Transaction) =>
+    setWallet((prev) => ({
+      ...prev,
+      newTx: defaultWalletData.newTx,
+      transactions: [...prev.transactions, tx],
+    }));
 
-  const handleHashChange = useCallback(() => {
-    try {
-      const hash = getHash();
-
-      if (hash) {
-        handleUrlPayload(hash);
-
-        window.location.hash = "";
-      } else if (!payloadRef.current) {
-        throw new Error("No hash provided");
-      }
-    } catch {
+  useEffect(() => {
+    if (initialUrlParams) {
+      setWalletFromUrlParams(initialUrlParams);
+    } else if (decodeUrl().assetId) {
       router.push("/");
     }
-  }, []);
 
-  useEffect(handleHashChange, [
-    typeof window !== "undefined" ? window.location.hash : "",
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const value: IWalletContext = {
     state: wallet.state,
     assetId: wallet.assetId,
     address: wallet.address,
     isTestnet: wallet.isTestnet,
+    newTx: wallet.newTx,
     transactions: wallet.transactions,
     walletInstance: wallet.walletInstance,
-    handleUrlParams,
+    handleRelayUrl,
     handleDecryptPrivateKey,
     handleTransaction,
   };

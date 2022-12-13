@@ -1,8 +1,8 @@
+import { stringToBytes } from "shared";
 import {
   CURVE,
   hexToNumber,
   numberToBytesLE,
-  messageToBytes,
   randomBytes,
   concatBytes,
   sha512,
@@ -25,7 +25,7 @@ export const eddsaSign = async (
 ) => {
   const privateKeyInt = hexToNumber(privateKey);
   const privateKeyBytes = numberToBytesLE(privateKeyInt);
-  const messageBytes = messageToBytes(message);
+  const messageBytes = stringToBytes(message);
   const seed = randomBytes();
 
   const nonceDigest = await sha512(seed, privateKeyBytes, messageBytes);

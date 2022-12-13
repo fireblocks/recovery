@@ -28,7 +28,7 @@ const Verify: NextPageWithLayout = () => {
   const verifyOnly = router.query.verifyOnly === "true";
 
   const { data, isLoading } = useQuery({
-    queryKey: ["extended-keys"],
+    queryKey: ["extendedKeys"],
     queryFn: getExtendedKeys,
     initialData: {
       xprv: "",

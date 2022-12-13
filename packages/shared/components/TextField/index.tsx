@@ -10,6 +10,7 @@ import copy from "copy-to-clipboard";
 import { alpha, styled } from "@mui/material/styles";
 import {
   FormControl,
+  FormControlProps,
   FormHelperText,
   InputLabel,
   InputBase,
@@ -76,6 +77,7 @@ export type Props = Omit<InputBaseProps, "error"> & {
   enableQr?: boolean;
   enableCopy?: boolean;
   isMonospace?: boolean;
+  formControlProps?: FormControlProps;
 };
 
 export const TextField = forwardRef<HTMLInputElement, Props>(
@@ -88,6 +90,7 @@ export const TextField = forwardRef<HTMLInputElement, Props>(
       enableQr,
       enableCopy,
       isMonospace,
+      formControlProps,
       type,
       value,
       readOnly,
@@ -144,7 +147,7 @@ export const TextField = forwardRef<HTMLInputElement, Props>(
     };
 
     return (
-      <FormControl variant="standard" fullWidth>
+      <FormControl variant="standard" fullWidth {...formControlProps}>
         {!!label && !hideLabel && (
           <InputLabel
             shrink

@@ -1,6 +1,12 @@
 import Head from "next/head";
 import { Box, Grid, Typography } from "@mui/material";
-import { NextLinkComposed, TextField, Button } from "shared";
+import {
+  AssetIcon,
+  NextLinkComposed,
+  TextField,
+  Button,
+  AssetId,
+} from "shared";
 import { deserializePath, serializePath } from "../../../lib/bip44";
 import { useWorkspace } from "../../../context/Workspace";
 
@@ -11,8 +17,6 @@ const WalletDetails = () => {
 
   const title = `${asset?.name} Wallet`;
 
-  const AssetIcon = asset?.Icon ?? (() => null);
-
   return (
     <Box padding="1rem">
       <Head>
@@ -20,16 +24,17 @@ const WalletDetails = () => {
       </Head>
       <Grid container spacing={2} alignItems="center" marginBottom="1rem">
         <Grid item flex={1}>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item>
-              <AssetIcon />
-            </Grid>
-            <Grid item>
-              <Typography variant="h1" margin={0}>
-                {title}
-              </Typography>
-            </Grid>
-          </Grid>
+          <Typography
+            variant="h1"
+            display="flex"
+            alignItems="center"
+            margin="0"
+          >
+            <Box display="flex" alignItems="center" marginRight="0.5rem">
+              <AssetIcon assetId={asset?.id as AssetId} />
+            </Box>
+            {title}
+          </Typography>
         </Grid>
         <Grid item>
           <Button
@@ -39,8 +44,8 @@ const WalletDetails = () => {
               pathname: "/assets/[assetId]/withdraw",
               query: {
                 assetId: asset?.id as string,
-                privateKey,
-                publicKey,
+                address: address as string,
+                privateKey: privateKey as string,
               },
             }}
             target="_blank"

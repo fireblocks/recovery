@@ -12,7 +12,7 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
-import { Button, TextField } from "shared";
+import { AssetIcon, Button, TextField, AssetId } from "shared";
 import { deserializePath } from "../../../lib/bip44";
 import { addWallets } from "../../../lib/ipc/addWallets";
 import { closeWindow } from "../../../lib/ipc/closeWindow";
@@ -22,8 +22,6 @@ type FormData = z.infer<typeof deriveKeysInput>;
 
 const AddWallets = () => {
   const { asset, currentAssetWallets } = useWorkspace();
-
-  const AssetIcon = asset?.Icon ?? (() => null);
 
   const title = `Add ${asset?.name} Wallets`;
 
@@ -92,7 +90,7 @@ const AddWallets = () => {
       </Head>
       <Grid container spacing={2} alignItems="center" marginBottom="1rem">
         <Grid item>
-          <AssetIcon />
+          <AssetIcon assetId={asset?.id as AssetId} />
         </Grid>
         <Grid item>
           <Typography variant="h1" margin={0}>
@@ -113,6 +111,9 @@ const AddWallets = () => {
                 inputProps={{ min: 0, step: 1 }}
                 label="Start"
                 error={errors.accountIdStart?.message}
+                autoComplete="off"
+                autoCapitalize="off"
+                spellCheck={false}
                 {...register("accountIdStart", { valueAsNumber: true })}
               />
             </Grid>
@@ -123,12 +124,15 @@ const AddWallets = () => {
                 inputProps={{ min: 0, step: 1 }}
                 label="End"
                 error={errors.accountIdEnd?.message}
+                autoComplete="off"
+                autoCapitalize="off"
+                spellCheck={false}
                 {...register("accountIdEnd", { valueAsNumber: true })}
               />
             </Grid>
           </Grid>
         </Grid>
-        {asset?.derivation.utxo ? (
+        {asset?.derivation?.utxo ? (
           <Grid item xs={6}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
@@ -141,6 +145,9 @@ const AddWallets = () => {
                   inputProps={{ min: 0, step: 1 }}
                   label="Start"
                   error={errors.indexStart?.message}
+                  autoComplete="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
                   {...register("indexStart", { valueAsNumber: true })}
                 />
               </Grid>
@@ -151,6 +158,9 @@ const AddWallets = () => {
                   inputProps={{ min: 0, step: 1 }}
                   label="End"
                   error={errors.indexEnd?.message}
+                  autoComplete="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
                   {...register("indexEnd", { valueAsNumber: true })}
                 />
               </Grid>
@@ -168,7 +178,7 @@ const AddWallets = () => {
             />
           </>
         )}
-        {(asset?.derivation.legacy || asset?.derivation.checksum) && (
+        {(asset?.derivation?.legacy || asset?.derivation?.checksum) && (
           <>
             <Grid item xs={12}>
               <Typography variant="h2">Address Type</Typography>

@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { withdrawInput } from "../../../lib/schemas";
 import { Box, Grid, Typography } from "@mui/material";
-import { TextField, theme } from "shared";
+import { theme, AssetIcon, TextField, AssetId } from "shared";
 import { QrCode } from "../../../components/QrCode";
 import { useSettings } from "../../../context/Settings";
 import { useWorkspace } from "../../../context/Workspace";
@@ -14,11 +14,9 @@ type FormData = z.infer<typeof withdrawInput>;
 const Withdraw = () => {
   const { getRelayUrl } = useSettings();
 
-  const { asset, privateKey, publicKey } = useWorkspace();
+  const { asset, privateKey, address } = useWorkspace();
 
   const title = `${asset?.name} Withdrawal`;
-
-  const AssetIcon = asset?.Icon ?? (() => null);
 
   const {
     register,
@@ -29,6 +27,7 @@ const Withdraw = () => {
     mode: "onChange",
     reValidateMode: "onChange",
     defaultValues: {
+      to: "",
       amount: 0,
     },
   });
@@ -40,32 +39,40 @@ const Withdraw = () => {
       <Head>
         <title>{title}</title>
       </Head>
-      <Grid container spacing={2} alignItems="center" marginBottom="1rem">
-        <Grid item>
-          <AssetIcon />
-        </Grid>
-        <Grid item>
-          <Typography variant="h1" margin={0}>
-            {title}
-          </Typography>
-        </Grid>
-      </Grid>
-      <Typography variant="body1" paragraph>
-        Send a transaction with Fireblocks Recovery Relay by scanning the QR
-        code with your mobile device.
+      <Typography
+        variant="h1"
+        display="flex"
+        alignItems="center"
+        margin="0 0 1rem 0"
+      >
+        <Box display="flex" alignItems="center" marginRight="0.5rem">
+          <AssetIcon assetId={asset?.id as AssetId} />
+        </Box>
+        {title}
       </Typography>
-      <Typography variant="body1" paragraph>
-        Set a passphrase in Recovery Utility Settings to encrypt your private
-        key in withdrawal URLs.
-      </Typography>
+
       <Grid container spacing={2}>
         <Grid item xs={6}>
+          <Typography variant="body1" paragraph>
+            Scan the QR code with an online device to send a transaction with
+            Fireblocks Recovery Relay.
+          </Typography>
+          <Typography variant="body1" paragraph>
+            Set a custom Relay Base URL or a passphrase for URL encryption in
+            Settings.
+          </Typography>
+          <Typography variant="body1" paragraph>
+            Set transaction information here to pre-fill the Relay URL.
+          </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
                 id="recipientAddress"
                 label="Recipient Address"
                 error={errors.to?.message}
+                autoComplete="off"
+                autoCapitalize="off"
+                spellCheck={false}
                 isMonospace
                 {...register("to")}
               />
@@ -77,6 +84,9 @@ const Withdraw = () => {
                 inputProps={{ min: 0, step: 1 }}
                 label="Amount"
                 error={errors.amount?.message}
+                autoComplete="off"
+                autoCapitalize="off"
+                spellCheck={false}
                 isMonospace
                 {...register("amount", { valueAsNumber: true })}
               />
@@ -86,9 +96,9 @@ const Withdraw = () => {
         <Grid item xs={6}>
           <QrCode
             data={getRelayUrl({
-              assetId: asset?.id as string,
+              assetId: asset?.id as AssetId,
+              address: address as string,
               privateKey: privateKey as string,
-              publicKey: publicKey as string,
               tx: { to, amount },
             })}
             title="Open with an online device"

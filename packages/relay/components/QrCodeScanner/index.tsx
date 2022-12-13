@@ -1,5 +1,5 @@
 import "webrtc-adapter";
-import { useState, useRef, useId, useEffect } from "react";
+import { useState, useRef, useId, useMemo, useEffect } from "react";
 import QrScanner from "qr-scanner";
 import {
   Box,
@@ -56,13 +56,16 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
     zIndex: "2",
   };
 
-  const scannerOptions: QrCodeScannerOptions = {
-    onDecodeError: () => undefined,
-    preferredCamera,
-    highlightScanRegion: true,
-    highlightCodeOutline: true,
-    returnDetailedScanResult: true,
-  };
+  const scannerOptions = useMemo<QrCodeScannerOptions>(
+    () => ({
+      onDecodeError: () => undefined,
+      preferredCamera,
+      highlightScanRegion: true,
+      highlightCodeOutline: true,
+      returnDetailedScanResult: true,
+    }),
+    [preferredCamera]
+  );
 
   const handleCameraChange = async (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -126,7 +129,7 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
         qrScannerRef.current = null;
       }
     };
-  }, []);
+  }, [onDecode, scannerOptions]);
 
   return (
     <Box
@@ -138,7 +141,7 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
     >
       {isLoading ? (
         <CircularProgress
-          size="100px"
+          size="48px"
           sx={{
             ...iconProps,
             marginTop: "-50px",
@@ -197,7 +200,9 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
                     sx={{ color: "#FFF", "&:before": { borderColor: "#FFF" } }}
                   >
                     {cameras.map((camera) => (
-                      <option value={camera.id}>{camera.label}</option>
+                      <option key={camera.id} value={camera.id}>
+                        {camera.label}
+                      </option>
                     ))}
                   </NativeSelect>
                 </FormControl>

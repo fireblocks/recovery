@@ -7,7 +7,7 @@ import {
   ReactNode,
 } from "react";
 import { z } from "zod";
-import { RelayUrlInput } from "shared";
+import { RelayUrlInput } from "types";
 import { settingsInput } from "../lib/schemas";
 import { getRelayUrl as _getRelayUrl } from "../lib/relayUrl";
 
@@ -22,7 +22,8 @@ const defaultValue: ISettingsContext = {
   relayBaseUrl: "",
   relayPassphrase: "",
   saveSettings: async () => undefined,
-  getRelayUrl: (params: RelayUrlInput) => _getRelayUrl(params, ""),
+  getRelayUrl: (params: RelayUrlInput) =>
+    _getRelayUrl(params, "https://fbrelay.app"),
 };
 
 export const defaultSettings = defaultValue;

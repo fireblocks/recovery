@@ -1,3 +1,17 @@
+export type AssetId = "BTC" | "ETH" | "SOL";
+
+export type AssetInfo = {
+  id: AssetId;
+  name: string;
+  derivation?: {
+    utxo?: boolean;
+    legacy?: boolean;
+    checksum?: boolean;
+    gas?: boolean;
+  };
+  getExplorerUrl: (locator: string, type: "tx" | "address") => string;
+};
+
 /**
  * String encrypted with AES-128-CBC
  */
@@ -18,7 +32,7 @@ type ContractCallInput = {
 /**
  * New transaction data
  */
-type TransactionInput = {
+export type TransactionInput = {
   to?: string;
   amount?: number;
   memo?: string;
@@ -29,9 +43,9 @@ type TransactionInput = {
  * Relay URL input parameters
  */
 export type RelayUrlInput = {
-  assetId: string;
+  assetId: AssetId;
+  address: string;
   privateKey: string;
-  publicKey: string;
   tx?: TransactionInput;
 };
 
@@ -39,8 +53,7 @@ export type RelayUrlInput = {
  * Relay URL parameters with optionally encrypted private key
  */
 export type RelayUrlParameters = {
-  assetId: string;
-  privateKey: EncryptedString | string;
-  publicKey: string;
+  adr: string;
+  prv: EncryptedString | string;
   tx?: TransactionInput;
 };

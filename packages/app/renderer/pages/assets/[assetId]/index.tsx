@@ -1,7 +1,7 @@
 import type { NextPageWithLayout } from "../../_app";
 import { useState } from "react";
 import { Layout } from "../../../components/Layout";
-import { NextLinkComposed, TextField, Button } from "shared";
+import { NextLinkComposed, TextField, Button, getAssetInfo } from "shared";
 import {
   Box,
   Grid,
@@ -19,7 +19,6 @@ import { Key, ArrowUpward } from "@mui/icons-material";
 import { deserializePath, serializePath } from "../../../lib/bip44";
 import { useWorkspace } from "../../../context/Workspace";
 import { csvExport } from "../../../lib/csvExport";
-import { getAssetInfo } from "../../../lib/assetInfo";
 import { download } from "../../../lib/download";
 
 const Asset: NextPageWithLayout = () => {
@@ -106,7 +105,7 @@ const Asset: NextPageWithLayout = () => {
               ) : (
                 <>
                   <TableCell>Account</TableCell>
-                  {asset?.derivation.utxo && <TableCell>Index</TableCell>}
+                  {asset?.derivation?.utxo && <TableCell>Index</TableCell>}
                 </>
               )}
               <TableCell>Address</TableCell>
@@ -133,7 +132,9 @@ const Asset: NextPageWithLayout = () => {
                       <TableCell component="th" scope="row">
                         {accountId}
                       </TableCell>
-                      {asset?.derivation.utxo && <TableCell>{index}</TableCell>}
+                      {asset?.derivation?.utxo && (
+                        <TableCell>{index}</TableCell>
+                      )}
                     </>
                   )}
                   <TableCell align="center">
@@ -175,8 +176,8 @@ const Asset: NextPageWithLayout = () => {
                         pathname: "/assets/[assetId]/withdraw",
                         query: {
                           assetId: asset?.id as string,
+                          address: wallet.address,
                           privateKey: wallet.privateKey,
-                          publicKey: wallet.publicKey,
                         },
                       }}
                       target="_blank"

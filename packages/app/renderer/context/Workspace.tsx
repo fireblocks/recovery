@@ -8,10 +8,10 @@ import {
   useEffect,
 } from "react";
 import { useRouter } from "next/router";
-import { getAssetInfo, AssetInfo, SupportedAssetId } from "../lib/assetInfo";
+import { getAssetInfo, AssetInfo, AssetId } from "shared";
 
 export type Wallet = {
-  assetId: SupportedAssetId;
+  assetId: AssetId;
   pathParts: number[];
   address: string;
   addressType: "Permanent" | "Deposit";
@@ -63,9 +63,9 @@ export const WorkspaceProvider = ({ children }: Props) => {
   } = useRouter();
 
   const assetId =
-    typeof _assetId === "string" ? (_assetId as SupportedAssetId) : undefined;
+    typeof _assetId === "string" ? (_assetId as AssetId) : undefined;
 
-  const asset = getAssetInfo(assetId);
+  const asset = assetId ? getAssetInfo(assetId) : undefined;
 
   const pathParts = typeof _path === "string" ? splitPath(_path) : [];
   const address = typeof _address === "string" ? _address : undefined;

@@ -105,24 +105,6 @@ export const numberToBytesLE = (number: bigint) => {
 };
 
 /**
- * Convert a string to a byte array.
- *
- * @param message string or byte array
- * @returns byte array
- */
-export const messageToBytes = (message: string | Uint8Array) => {
-  if (typeof message === "string") {
-    return Uint8Array.from(
-      Array.from(message).map((letter) => letter.charCodeAt(0))
-    );
-  }
-
-  assertUint8Array(message);
-
-  return message;
-};
-
-/**
  * Get a byte array of cryptographically-secure random bytes.
  *
  * @param length length of byte array

@@ -19,12 +19,16 @@ const encryptString = (input: string, passphrase: string) => {
   };
 };
 
-const encodeRelayUrl = (params: RelayUrlParameters, baseUrl: string) => {
+const encodeRelayUrl = (
+  params: RelayUrlParameters,
+  assetId: string,
+  baseUrl: string
+) => {
   const compressedParams = JSONCrush.crush(JSON.stringify(params));
 
   const encodedParams = encodeURIComponent(compressedParams);
 
-  const relayUrl = `${baseUrl}#${encodedParams}`;
+  const relayUrl = `${baseUrl}/${assetId}#${encodedParams}`;
 
   return relayUrl;
 };
@@ -49,13 +53,12 @@ export const getRelayUrl = (
     );
 
   const params: RelayUrlParameters = {
-    assetId: input.assetId,
-    privateKey,
-    publicKey: input.publicKey,
+    adr: input.address,
+    prv: privateKey,
     tx: hasTxParams ? input.tx : undefined,
   };
 
-  const encodedRelayUrl = encodeRelayUrl(params, baseUrl);
+  const encodedRelayUrl = encodeRelayUrl(params, input.assetId, baseUrl);
 
   console.info({ params, encodedRelayUrl });
 

@@ -1,10 +1,10 @@
 import { ipcMain } from "electron";
 import { Wallet } from "../../renderer/context/Workspace";
-import { SupportedAssetId } from "../../renderer/lib/assetInfo";
+import { AssetId } from "shared";
 import { win, pythonServer } from "../background";
 
 type AddWalletVariables = {
-  assetId: SupportedAssetId;
+  assetId: AssetId;
   accountIdStart: string;
   accountIdEnd: string;
   indexStart: string;
