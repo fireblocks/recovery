@@ -8039,7 +8039,7 @@ shallow-clone@^3.0.0:
     kind-of "^6.0.2"
 
 "shared@file:packages/shared":
-  version "0.0.22"
+  version "0.0.23"
 
 shebang-command@^1.2.0:
   version "1.2.0"

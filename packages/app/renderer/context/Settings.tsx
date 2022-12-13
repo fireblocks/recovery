@@ -7,7 +7,7 @@ import {
   ReactNode,
 } from "react";
 import { z } from "zod";
-import { RelayUrlInput } from "types";
+import { RelayUrlInput } from "shared";
 import { settingsInput } from "../lib/schemas";
 import { getRelayUrl as _getRelayUrl } from "../lib/relayUrl";
 
