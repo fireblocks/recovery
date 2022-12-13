@@ -1,5 +1,6 @@
 import NextDocument, { DocumentContext } from "next/document";
 import createEmotionServer from "@emotion/server/create-instance";
+import { ServerStyleSheets } from "@mui/styles";
 import { createEmotionCache } from "./createEmotionCache";
 
 // `getInitialProps` belongs to `_document` (instead of `_app`),
@@ -27,6 +28,8 @@ export const getInitialDocumentProps = async (ctx: DocumentContext) => {
   // 3. app.render
   // 4. page.render
 
+  const sheets = new ServerStyleSheets();
+
   const originalRenderPage = ctx.renderPage;
 
   // You can consider sharing the same Emotion cache between all the SSR requests to speed up performance.
@@ -38,7 +41,7 @@ export const getInitialDocumentProps = async (ctx: DocumentContext) => {
     originalRenderPage({
       enhanceApp: (App: any) =>
         function EnhanceApp(props) {
-          return <App emotionCache={cache} {...props} />;
+          return sheets.collect(<App emotionCache={cache} {...props} />);
         },
     });
 
@@ -57,6 +60,6 @@ export const getInitialDocumentProps = async (ctx: DocumentContext) => {
 
   return {
     ...initialProps,
-    emotionStyleTags,
+    styleTags: [...emotionStyleTags, sheets.getStyleElement()],
   };
 };

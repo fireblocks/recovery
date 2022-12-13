@@ -4,13 +4,13 @@ import { heebo, getInitialDocumentProps, EmotionHeadTags } from "shared";
 
 export default class Document extends NextDocument {
   render() {
-    const emotionStyleTags = (this.props as any).emotionStyleTags as ReactNode;
+    const styleTags = (this.props as any).styleTags as ReactNode;
 
     return (
       <Html lang="en" dir="ltr" className={heebo.className}>
         <Head>
           <meta charSet="utf-8" />
-          <EmotionHeadTags styleTags={emotionStyleTags} />
+          <EmotionHeadTags styleTags={styleTags} />
         </Head>
         <body>
           <Main />
