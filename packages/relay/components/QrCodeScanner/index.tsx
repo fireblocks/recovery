@@ -144,8 +144,8 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
           size="48px"
           sx={{
             ...iconProps,
-            marginTop: "-50px",
-            marginLeft: "-50px",
+            marginTop: "-24px",
+            marginLeft: "-24px",
           }}
         />
       ) : (
