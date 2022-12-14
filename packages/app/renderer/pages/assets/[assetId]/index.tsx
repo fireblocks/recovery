@@ -187,6 +187,7 @@ const Asset: NextPageWithLayout = () => {
                           address: wallet.address,
                           publicKey: wallet.publicKey,
                           privateKey: wallet.privateKey,
+                          wif: wallet.wif,
                         },
                       }}
                       target="_blank"

@@ -266,7 +266,7 @@ app.on("web-contents-created", (event, contents) => {
       if (url.includes("/details")) {
         return {
           action: "allow",
-          overrideBrowserWindowOptions: getWindowOptions(500, 440),
+          overrideBrowserWindowOptions: getWindowOptions(500, 528),
         };
       }
 

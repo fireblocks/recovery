@@ -1,5 +1,7 @@
 import { ipcMain } from "electron";
 import type { Wallet } from "../../renderer/context/Workspace";
+import { getAssetInfo } from "../../../shared/lib/assetInfo";
+import { SigningAlgorithm } from "../../../shared/types";
 import { win, pythonServer } from "../background";
 
 type AddWalletsVariables = {
@@ -20,11 +22,30 @@ type AddWalletInput = {
   legacy: boolean;
 };
 
+type GetWifInput = {
+  assetId: string;
+  accountId: number;
+  index: number;
+};
+
 type DeriveKeysResponse = {
   prv: string;
   pub: string;
   address: string;
   path: string;
+};
+
+const getWif = async ({ assetId, accountId, index }: GetWifInput) => {
+  const params = new URLSearchParams({
+    asset: assetId,
+    account: String(accountId),
+    change: "0",
+    index: String(index),
+  });
+
+  const wif = await pythonServer.request<string>({ url: "/get-wif", params });
+
+  return wif;
 };
 
 const getAccountWallets = async ({
@@ -51,19 +72,30 @@ const getAccountWallets = async ({
     params,
   });
 
-  const accountWallets = derivations.map<Wallet>((data) => {
-    const pathParts = data.path.split(",").map((p) => parseInt(p));
-    const [purpose, coinType, accountId, change, index] = pathParts;
+  const accountWallets = await Promise.all(
+    derivations.map<Promise<Wallet>>(async (data) => {
+      const pathParts = data.path.split(",").map((p) => parseInt(p));
+      const [purpose, coinType, accountId, change, index] = pathParts;
 
-    return {
-      assetId: assetId as Wallet["assetId"],
-      pathParts,
-      address: data.address,
-      addressType: index > 0 ? "Deposit" : "Permanent",
-      publicKey: data.pub,
-      privateKey: data.prv,
-    };
-  });
+      let wif: string | undefined;
+
+      if (
+        getAssetInfo(assetId).algorithm !== SigningAlgorithm.MPC_EDDSA_ED25519
+      ) {
+        wif = await getWif({ assetId, accountId, index });
+      }
+
+      return {
+        assetId: assetId as Wallet["assetId"],
+        pathParts,
+        address: data.address,
+        addressType: index > 0 ? "Deposit" : "Permanent",
+        publicKey: data.pub,
+        privateKey: data.prv,
+        wif,
+      };
+    })
+  );
 
   return accountWallets;
 };

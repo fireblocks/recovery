@@ -12,7 +12,8 @@ import { deserializePath, serializePath } from "../../../lib/bip44";
 import { useWorkspace } from "../../../context/Workspace";
 
 const WalletDetails = () => {
-  const { asset, pathParts, address, publicKey, privateKey } = useWorkspace();
+  const { asset, pathParts, address, publicKey, privateKey, wif } =
+    useWorkspace();
 
   const { coinType, accountId, change, index } = deserializePath(pathParts);
 
@@ -48,6 +49,7 @@ const WalletDetails = () => {
                 assetId: asset?.id as string,
                 address: address as string,
                 privateKey: privateKey as string,
+                wif: wif as string,
               },
             }}
             target="_blank"
@@ -109,6 +111,19 @@ const WalletDetails = () => {
             isMonospace
           />
         </Grid>
+        {!!wif && (
+          <Grid item xs={12}>
+            <TextField
+              id="prv"
+              type="password"
+              label="Private Key (WIF)"
+              value={wif}
+              enableQr
+              enableCopy
+              isMonospace
+            />
+          </Grid>
+        )}
       </Grid>
     </Box>
   );

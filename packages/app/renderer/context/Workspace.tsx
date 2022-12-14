@@ -19,6 +19,7 @@ export type Wallet = {
   addressDescription?: string;
   publicKey: string;
   privateKey: string;
+  wif?: string;
 };
 
 const splitPath = (path: string) => path.split(",").map((p) => parseInt(p));
@@ -29,6 +30,7 @@ interface IWorkspaceContext {
   address?: string;
   publicKey?: string;
   privateKey?: string;
+  wif?: string;
   isTestnet?: boolean;
   wallets: Wallet[];
   currentAssetWallets: Wallet[];
@@ -40,6 +42,7 @@ const defaultValue: IWorkspaceContext = {
   address: undefined,
   publicKey: undefined,
   privateKey: undefined,
+  wif: undefined,
   isTestnet: undefined,
   wallets: [],
   currentAssetWallets: [],
@@ -108,6 +111,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
       address: _address,
       publicKey: _publicKey,
       privateKey: _privateKey,
+      wif: _wif,
       isTestnet: _isTestnet,
     },
   } = useRouter();
@@ -121,6 +125,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
   const address = typeof _address === "string" ? _address : undefined;
   const publicKey = typeof _publicKey === "string" ? _publicKey : undefined;
   const privateKey = typeof _privateKey === "string" ? _privateKey : undefined;
+  const wif = typeof _wif === "string" ? _wif : undefined;
   const isTestnet =
     typeof _isTestnet === "string"
       ? !["false", "0"].includes(_isTestnet.toLowerCase())
@@ -150,6 +155,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
     address,
     publicKey,
     privateKey,
+    wif,
     isTestnet,
     wallets,
     currentAssetWallets,

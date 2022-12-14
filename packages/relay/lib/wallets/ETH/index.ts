@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers, Wallet } from "ethers";
 import { BaseWallet } from "../BaseWallet";
 
 export class Ethereum implements BaseWallet {
@@ -21,13 +21,15 @@ export class Ethereum implements BaseWallet {
   }
 
   public async sendTransaction(
-    privateKeyWif: string,
+    privateKeyHex: string,
     to: string,
     amount: number
   ) {
-    const signer = this.provider.getSigner(privateKeyWif);
+    const wallet = new Wallet(`0x${privateKeyHex}`, this.provider);
 
-    const tx = await signer.sendTransaction({
+    // const signer = this.provider.getSigner(`0x${privateKeyHex}`);
+
+    const tx = await wallet.sendTransaction({
       to,
       value: ethers.utils.parseEther(String(amount)),
       // TODO: Make this user-configurable
