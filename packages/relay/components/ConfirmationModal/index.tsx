@@ -33,7 +33,7 @@ type Props = Omit<DialogProps, "open" | "onClose" | "onSubmit"> & {
   assetSymbol: string;
   fromAddress: string;
   toAddress: string;
-  explorerUrl?: string;
+  txUrl?: string;
   onClose: () => void;
   onSubmit: (privateKey: string) => void;
 };
@@ -46,12 +46,12 @@ export const ConfirmationModal = ({
   assetSymbol,
   fromAddress,
   toAddress,
-  explorerUrl,
+  txUrl,
   onClose,
   onSubmit: _onSubmit,
   ...props
 }: Props) => {
-  const { state, handleDecryptPrivateKey } = useWallet();
+  const { handleDecryptPrivateKey } = useWallet();
 
   const headingId = useId();
   const descriptionId = useId();
@@ -68,28 +68,24 @@ export const ConfirmationModal = ({
   } = useForm<FormData>({
     resolver: zodResolver(decryptInput),
     defaultValues: {
-      passphrase: "",
+      pin: "",
     },
   });
 
-  const onSubmit = (formData: FormData) => {
-    let privateKey: string;
-
+  const onSubmit = async (formData: FormData) => {
     try {
-      privateKey = handleDecryptPrivateKey(formData.passphrase);
-
       setDecryptionError(undefined);
 
+      const privateKey = await handleDecryptPrivateKey(formData.pin);
+
       reset();
+
+      _onSubmit(privateKey);
     } catch {
-      setDecryptionError("Invalid passphrase");
+      setDecryptionError("Invalid PIN");
 
-      return;
+      onClose();
     }
-
-    _onSubmit(privateKey);
-
-    onClose();
   };
 
   const txDescription = (
@@ -99,6 +95,7 @@ export const ConfirmationModal = ({
         component="span"
         display="block"
         fontFamily={monospaceFontFamily}
+        noWrap
       >
         {fromAddress}
       </Typography>{" "}
@@ -107,6 +104,7 @@ export const ConfirmationModal = ({
         component="span"
         display="block"
         fontFamily={monospaceFontFamily}
+        noWrap
       >
         {toAddress}
       </Typography>
@@ -153,7 +151,7 @@ export const ConfirmationModal = ({
             <Button onClick={onClose}>Close</Button>
           </DialogActions>
         </>
-      ) : explorerUrl ? (
+      ) : txUrl ? (
         <>
           <DialogTitle id={headingId} variant="h1">
             Sent Transaction
@@ -167,7 +165,7 @@ export const ConfirmationModal = ({
             </Button>
             <Button
               component={NextLinkComposed}
-              to={explorerUrl}
+              to={txUrl}
               target="_blank"
               rel="noopener noreferrer"
               sx={{ marginLeft: "8px" }}
@@ -183,24 +181,23 @@ export const ConfirmationModal = ({
           </DialogTitle>
           <DialogContent sx={{ padding: "1rem" }}>
             <DialogContentText>{txDescription}</DialogContentText>
-            {state === "encrypted" && (
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                marginTop="1rem"
-              >
-                <TextField
-                  id="passphrase"
-                  type="password"
-                  label="Private Key Passphrase"
-                  helpText="Set in Fireblocks Recovery Utility Settings"
-                  error={errors.passphrase?.message ?? decryptionError}
-                  autoFocus
-                  {...register("passphrase")}
-                />
-              </Box>
-            )}
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              marginTop="1rem"
+            >
+              <TextField
+                id="pin"
+                type="password"
+                label="Private Key PIN"
+                helpText={decryptInput.shape.pin.description}
+                error={errors.pin?.message ?? decryptionError}
+                inputProps={{ minLength: 6, maxLength: 6 }}
+                autoFocus
+                {...register("pin")}
+              />
+            </Box>
           </DialogContent>
           <DialogActions sx={{ padding: "1rem" }}>
             <Button variant="outlined" onClick={onClose}>

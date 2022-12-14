@@ -1,39 +1,27 @@
-import { AssetId, AssetInfo } from "../types";
+import { AssetId, AssetType, SigningAlgorithm, AssetInfo } from "../types";
 
 export const assetsInfo: Record<AssetId, AssetInfo> = {
   BTC: {
-    id: "BTC",
+    id: AssetId.BTC,
     name: "Bitcoin",
-    derivation: {
-      utxo: true,
-      legacy: true,
-      checksum: false,
-      gas: false,
-    },
+    type: AssetType.UTXO,
+    algorithm: SigningAlgorithm.MPC_ECDSA_SECP256K1,
     getExplorerUrl: (locator, type) =>
       `https://blockstream.info/${type}/${locator}`,
   },
   ETH: {
-    id: "ETH",
+    id: AssetId.ETH,
     name: "Ethereum",
-    derivation: {
-      utxo: false,
-      legacy: false,
-      checksum: true,
-      gas: true,
-    },
+    type: AssetType.ACCOUNT,
+    algorithm: SigningAlgorithm.MPC_ECDSA_SECP256K1,
     getExplorerUrl: (locator, type) =>
       `https://etherscan.io/${type}/${locator}`,
   },
   SOL: {
-    id: "SOL",
+    id: AssetId.SOL,
     name: "Solana",
-    derivation: {
-      utxo: false,
-      legacy: false,
-      checksum: false,
-      gas: false,
-    },
+    type: AssetType.ACCOUNT,
+    algorithm: SigningAlgorithm.MPC_EDDSA_ED25519,
     getExplorerUrl: (locator, type) =>
       `https://explorer.solana.com/${type}/${locator}`,
   },

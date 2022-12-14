@@ -1,7 +1,7 @@
 import type { NextPageWithLayout } from "../_app";
 import { GetStaticProps, GetStaticPaths } from "next";
 import Head from "next/head";
-import { useRef, useId, useState, useEffect } from "react";
+import { useId, useState } from "react";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,14 +31,19 @@ import { ConfirmationModal } from "../../components/ConfirmationModal";
 
 type FormData = z.infer<typeof transactionInput>;
 
+type TxMutationVariables = FormData & { privateKey: string };
+
+const defaultValues: FormData = {
+  to: "",
+  amount: 0,
+};
+
 type Props = {
   assetId: AssetId;
 };
 
 const Wallet: NextPageWithLayout<Props> = ({ assetId }) => {
-  const { address, newTx, walletInstance, handleTransaction } = useWallet();
-
-  const initialTxRef = useRef(newTx);
+  const { address, walletInstance, handleTransaction } = useWallet();
 
   const asset = getAssetInfo(assetId);
   const title = `${asset?.name} Wallet`;
@@ -67,20 +72,8 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }) => {
     resolver: zodResolver(transactionInput),
     mode: "onChange",
     reValidateMode: "onChange",
-    defaultValues: {
-      to: newTx.to ?? "",
-      amount: newTx.amount ?? 0,
-    },
+    defaultValues,
   });
-
-  useEffect(() => {
-    if (newTx !== initialTxRef.current) {
-      reset({
-        to: newTx.to ?? "",
-        amount: newTx.amount ?? 0,
-      });
-    }
-  }, [reset, newTx]);
 
   const onCloseConfirmationModal = () => {
     setIsConfirmationModalOpen(false);
@@ -113,15 +106,17 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }) => {
   });
 
   const txMutation = useMutation({
-    mutationFn: async (variables: { privateKey: string }) => {
+    mutationFn: async (variables: TxMutationVariables) => {
       if (!walletInstance) {
         throw new Error("No wallet instance found");
       }
 
+      const { privateKey, to, amount } = variables;
+
       const txHash = await walletInstance.sendTransaction(
-        variables.privateKey,
-        values.to,
-        values.amount
+        privateKey,
+        to,
+        amount
       );
 
       return txHash;
@@ -130,7 +125,6 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }) => {
       setTxHash(txHash);
 
       handleTransaction({
-        ...newTx,
         state: "success",
         to: values.to,
         amount: values.amount,
@@ -149,8 +143,9 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }) => {
       console.error(error);
 
       handleTransaction({
-        ...newTx,
         state: "error",
+        to: values.to,
+        amount: values.amount,
         error,
       });
 
@@ -161,7 +156,7 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }) => {
   const onSubmit = () => setIsConfirmationModalOpen(true);
 
   const onConfirmTransaction = (privateKey: string) =>
-    txMutation.mutate({ privateKey });
+    txMutation.mutate({ privateKey, to: values.to, amount: values.amount });
 
   return (
     <Box
@@ -299,15 +294,21 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }) => {
             autoCapitalize="off"
             spellCheck={false}
             isMonospace
-            {...register("amount", {
-              valueAsNumber: true,
+            inputProps={{
               min: 0,
               max: balanceQuery.data,
-            })}
+              step: 0.1,
+            }}
+            {...register("amount", { valueAsNumber: true })}
           />
         </Grid>
         <Grid item xs={12} display="flex" justifyContent="flex-end">
-          <Button type="submit">Send</Button>
+          <Button
+            type="submit"
+            disabled={balanceQuery.isLoading || txMutation.isLoading}
+          >
+            Send
+          </Button>
         </Grid>
       </Grid>
       <ConfirmationModal
@@ -318,7 +319,7 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }) => {
         assetSymbol={asset?.id ?? ""}
         fromAddress={address ?? ""}
         toAddress={values.to}
-        explorerUrl={txUrl}
+        txUrl={txUrl}
         onClose={onCloseConfirmationModal}
         onSubmit={onConfirmTransaction}
       />

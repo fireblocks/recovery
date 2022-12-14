@@ -25,20 +25,14 @@ class EthereumRecovery(EcDSARecovery):
             testnet=testnet,
         )
 
-    def to_address(self, checksum=False) -> str:
-        if not checksum:
-            return PrivateKey(bytes.fromhex(self.prv_hex)).public_key.to_address()
-        else:
-            return PrivateKey(
-                bytes.fromhex(self.prv_hex)
-            ).public_key.to_checksum_address()
+    def to_address(self) -> str:
+        return PrivateKey(bytes.fromhex(self.prv_hex)).public_key.to_checksum_address()
 
     def get_derivation_details(self, **kwargs) -> DerivationDetails:
-        checksum = kwargs.get("checksum", True)
         return DerivationDetails(
             self.prv_hex,
             self.pub_hex,
-            self.to_address(checksum),
+            self.to_address(),
             f"44,{self.coin_id},{self.account},{self.change},{self.address_index}",
         )
 
@@ -53,7 +47,6 @@ class EthereumRecovery(EcDSARecovery):
         address_index: int = 0,
         **kwargs,
     ) -> (str, str):
-        checksum = kwargs.get("checksum", True)
         testnet = kwargs.get("testnet", False)
         pub = BIP32.from_xpub(extended_pub).get_pubkey_from_path(
             [
@@ -67,7 +60,7 @@ class EthereumRecovery(EcDSARecovery):
         pub_key = PublicKey.from_compressed_bytes(pub)
         return (
             pub.hex(),
-            pub_key.to_address() if not checksum else pub_key.to_checksum_address(),
+            pub_key.to_checksum_address(),
         )
 
     @staticmethod

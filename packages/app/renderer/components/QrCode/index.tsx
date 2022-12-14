@@ -1,4 +1,4 @@
-import { Box, BoxProps, Typography, FormControlProps } from "@mui/material";
+import { Box, BoxProps, Typography } from "@mui/material";
 import { QRCodeSVG } from "qrcode.react";
 import { TextField } from "shared";
 
@@ -7,21 +7,9 @@ type Props = BoxProps & {
   title?: string;
   bgColor?: string;
   fgColor?: string;
-  includeMargin?: boolean;
-  noFieldPadding?: boolean;
-  formControlProps?: FormControlProps;
 };
 
-export const QrCode = ({
-  data,
-  title,
-  bgColor,
-  fgColor,
-  includeMargin = true,
-  noFieldPadding,
-  formControlProps,
-  ...props
-}: Props) => (
+export const QrCode = ({ data, title, bgColor, fgColor, ...props }: Props) => (
   <Box
     height="100%"
     display="flex"
@@ -37,7 +25,7 @@ export const QrCode = ({
           size={512}
           bgColor={bgColor}
           fgColor={fgColor}
-          includeMargin={includeMargin}
+          includeMargin={false}
           style={{
             aspectRatio: "1",
             height: "auto",
@@ -51,10 +39,7 @@ export const QrCode = ({
           fullWidth
           enableCopy
           isMonospace
-          formControlProps={{
-            sx: { margin: noFieldPadding ? "1em 0 0 0" : "1em" },
-            ...formControlProps,
-          }}
+          formControlProps={{ sx: { margin: "1em 0 0 0" } }}
         />
       </>
     ) : (

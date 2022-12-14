@@ -7,8 +7,6 @@ export const deriveKeysInput = z
     accountIdEnd: nonNegativeInt().describe("Vault account ID end"),
     indexStart: nonNegativeInt().describe("BIP44 address index start"),
     indexEnd: nonNegativeInt().describe("BIP44 address index end"),
-    isLegacy: z.boolean().describe("Use legacy format"),
-    isChecksum: z.boolean().describe("Use checksum format"),
   })
   .refine(
     (data) => data.accountIdStart <= data.accountIdEnd,

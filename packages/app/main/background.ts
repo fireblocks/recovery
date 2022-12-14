@@ -246,7 +246,7 @@ app.on("web-contents-created", (event, contents) => {
       if (url.includes("/qr")) {
         return {
           action: "allow",
-          overrideBrowserWindowOptions: getWindowOptions(300, 428),
+          overrideBrowserWindowOptions: getWindowOptions(300, 418),
         };
       }
 
@@ -267,7 +267,7 @@ app.on("web-contents-created", (event, contents) => {
       if (url.includes("/withdraw")) {
         return {
           action: "allow",
-          overrideBrowserWindowOptions: getWindowOptions(500, 532),
+          overrideBrowserWindowOptions: getWindowOptions(300, 642),
         };
       }
     }

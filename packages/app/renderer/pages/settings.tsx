@@ -11,7 +11,7 @@ import { Box, Grid, Typography } from "@mui/material";
 type FormData = z.infer<typeof settingsInput>;
 
 const Settings: NextPageWithLayout = () => {
-  const { relayBaseUrl, relayPassphrase, saveSettings } = useSettings();
+  const { relayBaseUrl, saveSettings } = useSettings();
 
   const {
     register,
@@ -21,7 +21,6 @@ const Settings: NextPageWithLayout = () => {
     resolver: zodResolver(settingsInput),
     defaultValues: {
       relayBaseUrl,
-      relayPassphrase,
     },
   });
 
@@ -48,16 +47,6 @@ const Settings: NextPageWithLayout = () => {
             helpText="Use the default Fireblocks Recovery Relay URL or host your own."
             error={errors.relayBaseUrl?.message}
             {...register("relayBaseUrl")}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            id="relayPassphrase"
-            type="password"
-            label="Passphrase"
-            helpText="Encrypts private keys in withdrawal QR codes."
-            error={errors.relayPassphrase?.message}
-            {...register("relayPassphrase")}
           />
         </Grid>
       </Grid>

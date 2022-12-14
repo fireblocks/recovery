@@ -57,7 +57,6 @@ def unpack_request():
     testnet = get_parameter("testnet", "False") in ["True", "true"]
     use_xpub = get_parameter("xpub", "False") in ["True", "true"]
     legacy = get_parameter("legacy", "False") in ["True", "true"]
-    checksum = get_parameter("checksum", "True") in ["True", "true"]
 
     if account < 0:
         raise Exception(f"Invalid account: {account}")
@@ -95,7 +94,6 @@ def unpack_request():
         testnet,
         use_xpub,
         legacy,
-        checksum,
     )
 
 
@@ -125,11 +123,10 @@ def derive_keys_impl():
         testnet,
         use_xpub,
         legacy,
-        checksum,
     ) = unpack_request()
     index_start = int(get_parameter("index_start", "0"))
     index_end = int(get_parameter("index_end", "0"))
-    kwargs = {"testnet": testnet, "checksum": checksum, "legacy": legacy}
+    kwargs = {"testnet": testnet, "legacy": legacy}
     res = []
     for index in range(index_start, index_end + 1):
         if use_xpub:
@@ -290,10 +287,10 @@ def create_tx():
 
 
 def create_tx_impl():
-    helper, _, _, _, _, _, _, _, _, legacy, checksum = unpack_request()
+    helper, _, _, _, _, _, _, _, _, legacy = unpack_request()
     tx_req = request.json
     qr = get_parameter("qr", "False") in ["True", "true"]
-    kwargs = {"checksum": checksum, "legacy": legacy}
+    kwargs = {"legacy": legacy}
     res: TxResponse = helper.create_tx(TxRequest.from_json(tx_req), **kwargs)
     if qr:
         return {"img": res.qr}

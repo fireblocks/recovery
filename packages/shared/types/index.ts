@@ -1,52 +1,26 @@
-export type AssetId = "BTC" | "ETH" | "SOL";
+export enum AssetId {
+  BTC = "BTC",
+  ETH = "ETH",
+  SOL = "SOL",
+}
+
+export enum AssetType {
+  UTXO = "UTXO",
+  ACCOUNT = "ACCOUNT",
+}
+
+export enum SigningAlgorithm {
+  MPC_ECDSA_SECP256K1 = "MPC_ECDSA_SECP256K1",
+  MPC_ECDSA_SECP256R1 = "MPC_ECDSA_SECP256R1",
+  MPC_EDDSA_ED25519 = "MPC_EDDSA_ED25519",
+}
 
 export type AssetInfo = {
   id: AssetId;
   name: string;
-  derivation?: {
-    utxo?: boolean;
-    legacy?: boolean;
-    checksum?: boolean;
-    gas?: boolean;
-  };
+  type: AssetType;
+  algorithm: SigningAlgorithm;
   getExplorerUrl: (locator: string, type: "tx" | "address") => string;
-};
-
-/**
- * String encrypted with AES-128-CBC
- */
-export type EncryptedString = {
-  iv: string;
-  salt: string;
-  data: string;
-};
-
-/**
- * Contract call transaction data
- */
-type ContractCallInput = {
-  abi: string;
-  params: Record<string, string>;
-};
-
-/**
- * New transaction data
- */
-export type TransactionInput = {
-  to?: string;
-  amount?: number;
-  memo?: string;
-  contractCall?: ContractCallInput;
-};
-
-/**
- * Relay URL input parameters
- */
-export type RelayUrlInput = {
-  assetId: AssetId;
-  address: string;
-  privateKey: string;
-  tx?: TransactionInput;
 };
 
 /**
@@ -54,6 +28,5 @@ export type RelayUrlInput = {
  */
 export type RelayUrlParameters = {
   adr: string;
-  prv: EncryptedString | string;
-  tx?: TransactionInput;
+  prv: string;
 };

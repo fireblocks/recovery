@@ -1,5 +1,4 @@
 import { ethers } from "ethers";
-import { ecdsaHexToWif } from "../../ecdsa";
 import { BaseWallet } from "../BaseWallet";
 
 export class Ethereum implements BaseWallet {
@@ -22,13 +21,11 @@ export class Ethereum implements BaseWallet {
   }
 
   public async sendTransaction(
-    privateKeyHex: string,
+    privateKeyWif: string,
     to: string,
     amount: number
   ) {
-    const wif = await ecdsaHexToWif(privateKeyHex);
-
-    const signer = this.provider.getSigner(wif);
+    const signer = this.provider.getSigner(privateKeyWif);
 
     const tx = await signer.sendTransaction({
       to,

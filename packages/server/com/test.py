@@ -23,18 +23,10 @@ if __name__ == "__main__":
 
     assert (
         EthereumRecovery.public_key_verification(xpub)[1]
-        == "0x372a84b1c8d3ea3c74e4595262ee47ae568bed28"
-    ), "Incorrect eth address"
-    assert (
-        EthereumRecovery.public_key_verification(xpub, testnet=True)[1]
-        == "0xfa724a940c60bd715c0ca732bb8cbb719231e874"
-    ), "Incorrect eth testnet address"
-    assert (
-        EthereumRecovery.public_key_verification(xpub, checksum=True)[1]
         == "0x372A84b1C8D3Ea3C74E4595262eE47aE568BEd28"
     ), "Incorrect eth checked address"
     assert (
-        EthereumRecovery.public_key_verification(xpub, checksum=True, testnet=True)[1]
+        EthereumRecovery.public_key_verification(xpub, testnet=True)[1]
         == "0xfa724a940C60Bd715C0ca732bb8cBb719231E874"
     ), "Incorrect eth testnet checked address"
     assert (
@@ -53,10 +45,7 @@ if __name__ == "__main__":
         btc.to_address(legacy=True) == "1EfwZMNJsvYDTMY42DaudMq95hWgfX6Zco"
     ), "Incorrect Legacy BTC address"
     assert (
-        eth.to_address() == "0x289826f7248b698b2aef6596681ab0291bfb2599"
-    ), "Incorrect eth address"
-    assert (
-        eth.to_address(checksum=True) == "0x289826f7248b698B2Aef6596681ab0291BFB2599"
+        eth.to_address() == "0x289826f7248b698B2Aef6596681ab0291BFB2599"
     ), "Incorrect eth checked address"
     assert (
         sol.to_address() == "uXvR3Yu8A8Zc6RZdQNfE4kzLcbeNwa6neMYXjHN6Y8V"

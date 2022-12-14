@@ -9,8 +9,6 @@ type AddWalletVariables = {
   accountIdEnd: string;
   indexStart: string;
   indexEnd: string;
-  isLegacy: boolean;
-  isChecksum: boolean;
 };
 
 type DeriveKeysResponse = {
@@ -21,15 +19,7 @@ type DeriveKeysResponse = {
 };
 
 ipcMain.on("add-wallets", async (event, args: AddWalletVariables) => {
-  const {
-    assetId,
-    accountIdStart,
-    accountIdEnd,
-    indexStart,
-    indexEnd,
-    isLegacy,
-    isChecksum,
-  } = args;
+  const { assetId, accountIdStart, accountIdEnd, indexStart, indexEnd } = args;
 
   const wallets = [];
 
@@ -49,8 +39,6 @@ ipcMain.on("add-wallets", async (event, args: AddWalletVariables) => {
       index_start: String(indexStart),
       index_end: String(indexEnd),
       xpub: "false",
-      legacy: String(isLegacy),
-      checksum: String(isChecksum),
       testnet: String(isTestnet),
     });
 

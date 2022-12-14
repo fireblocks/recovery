@@ -1,14 +1,9 @@
 import { ipcRenderer } from "electron";
+import { z } from "zod";
+import { AssetId } from "shared";
+import { deriveKeysInput } from "../schemas";
 
-type AddWalletsVariables = {
-  assetId: string;
-  accountIdStart: number;
-  accountIdEnd: number;
-  indexStart: number;
-  indexEnd: number;
-  isLegacy: boolean;
-  isChecksum: boolean;
-};
+type Variables = z.infer<typeof deriveKeysInput> & { assetId: AssetId };
 
 export const addWallets = async ({
   assetId,
@@ -16,15 +11,11 @@ export const addWallets = async ({
   accountIdEnd,
   indexStart,
   indexEnd,
-  isLegacy,
-  isChecksum,
-}: AddWalletsVariables) =>
+}: Variables) =>
   ipcRenderer.send("add-wallets", {
     assetId,
     accountIdStart,
     accountIdEnd,
     indexStart,
     indexEnd,
-    isLegacy,
-    isChecksum,
   });

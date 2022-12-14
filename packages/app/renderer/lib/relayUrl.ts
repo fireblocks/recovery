@@ -1,29 +1,29 @@
-import { random, pkcs5, cipher, util } from "node-forge";
 import JSONCrush from "jsoncrush";
-import { EncryptedString, RelayUrlInput, RelayUrlParameters } from "shared";
+import { AssetId, RelayUrlParameters } from "shared";
+import { encryptString } from "./encryption";
 
-const encryptString = (input: string, passphrase: string) => {
-  const salt = random.getBytesSync(128);
-  const key = pkcs5.pbkdf2(passphrase, salt, 10000, 32);
-
-  const encipher = cipher.createCipher("AES-CBC", key);
-  const iv = random.getBytesSync(16);
-  encipher.start({ iv });
-  encipher.update(util.createBuffer(input));
-  encipher.finish();
-
-  return {
-    iv: util.encode64(iv),
-    salt: util.encode64(salt),
-    data: util.encode64(encipher.output.data),
-  };
+export type RelayUrlInputData = {
+  assetId: AssetId;
+  address: string;
+  privateKey: string;
 };
 
-const encodeRelayUrl = (
-  params: RelayUrlParameters,
-  assetId: string,
-  baseUrl: string
-) => {
+type RelayUrlInput = {
+  baseUrl: string;
+  pin: string;
+  data: RelayUrlInputData;
+};
+
+export const getRelayUrl = async ({ baseUrl, pin, data }: RelayUrlInput) => {
+  const { assetId, address, privateKey } = data;
+
+  const encryptedPrivateKey = await encryptString(privateKey, pin);
+
+  const params: RelayUrlParameters = {
+    adr: address,
+    prv: encryptedPrivateKey,
+  };
+
   const compressedParams = JSONCrush.crush(JSON.stringify(params));
 
   const encodedParams = encodeURIComponent(compressedParams);
@@ -31,36 +31,4 @@ const encodeRelayUrl = (
   const relayUrl = `${baseUrl}/${assetId}#${encodedParams}`;
 
   return relayUrl;
-};
-
-export const getRelayUrl = (
-  input: RelayUrlInput,
-  baseUrl: string,
-  passphrase?: string
-): string => {
-  let privateKey: EncryptedString | string;
-
-  if (passphrase?.length) {
-    privateKey = encryptString(input.privateKey, passphrase);
-  } else {
-    privateKey = input.privateKey;
-  }
-
-  const hasTxParams =
-    !!input.tx &&
-    (Object.keys(input.tx) as Array<keyof typeof input.tx>).some(
-      (key) => !!input.tx?.[key]
-    );
-
-  const params: RelayUrlParameters = {
-    adr: input.address,
-    prv: privateKey,
-    tx: hasTxParams ? input.tx : undefined,
-  };
-
-  const encodedRelayUrl = encodeRelayUrl(params, input.assetId, baseUrl);
-
-  console.info({ params, encodedRelayUrl });
-
-  return encodedRelayUrl;
 };

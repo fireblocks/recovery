@@ -12,7 +12,7 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
-import { AssetIcon, Button, TextField, AssetId } from "shared";
+import { AssetId, AssetType, AssetIcon, Button, TextField } from "shared";
 import { deserializePath } from "../../../lib/bip44";
 import { addWallets } from "../../../lib/ipc/addWallets";
 import { closeWindow } from "../../../lib/ipc/closeWindow";
@@ -51,8 +51,6 @@ const AddWallets = () => {
       accountIdEnd: defaultAccountIdStart,
       indexStart: 0,
       indexEnd: 0,
-      isLegacy: false,
-      isChecksum: false,
     },
   });
 
@@ -71,13 +69,11 @@ const AddWallets = () => {
 
   const onSubmit = async (formData: FormData) => {
     addWallets({
-      assetId: asset?.id as string,
+      assetId: asset?.id as AssetId,
       accountIdStart: formData.accountIdStart,
       accountIdEnd: formData.accountIdEnd,
       indexStart: formData.indexStart,
       indexEnd: formData.indexEnd,
-      isLegacy: formData.isLegacy,
-      isChecksum: formData.isChecksum,
     });
 
     closeWindow();
@@ -132,7 +128,7 @@ const AddWallets = () => {
             </Grid>
           </Grid>
         </Grid>
-        {asset?.derivation?.utxo ? (
+        {asset?.type === AssetType.UTXO ? (
           <Grid item xs={6}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
@@ -176,26 +172,6 @@ const AddWallets = () => {
               type="hidden"
               {...register("indexEnd", { valueAsNumber: true })}
             />
-          </>
-        )}
-        {(asset?.derivation?.legacy || asset?.derivation?.checksum) && (
-          <>
-            <Grid item xs={12}>
-              <Typography variant="h2">Address Type</Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <FormGroup>
-                <FormControlLabel
-                  control={<Checkbox />}
-                  label={`${
-                    asset.derivation.legacy ? "Legacy" : "Checksum"
-                  } Format`}
-                  {...register(
-                    asset.derivation.legacy ? "isLegacy" : "isChecksum"
-                  )}
-                />
-              </FormGroup>
-            </Grid>
           </>
         )}
         <Grid item xs={12} display="flex" justifyContent="flex-end">
