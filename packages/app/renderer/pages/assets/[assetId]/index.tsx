@@ -24,7 +24,7 @@ import {
 import { Key, ArrowUpward } from "@mui/icons-material";
 import { pythonServerUrlParams } from "../../../lib/pythonClient";
 import { deserializePath, serializePath } from "../../../lib/bip44";
-import { useWorkspace } from "../../../context/Workspace";
+import { useWorkspace, Wallet } from "../../../context/Workspace";
 import { csvExport } from "../../../lib/csvExport";
 import { download } from "../../../lib/download";
 
@@ -126,14 +126,27 @@ const Asset: NextPageWithLayout = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {currentAssetWallets.map((wallet) => {
+            {currentAssetWallets.map((wallet, arrayIndex) => {
               const serializedPath = serializePath(wallet.pathParts);
-              const { accountId, index } = deserializePath(wallet.pathParts);
+              const path = deserializePath(wallet.pathParts);
+
+              const nextWallet = currentAssetWallets[arrayIndex + 1] as
+                | Wallet
+                | undefined;
+              const nextWalletPath = nextWallet
+                ? deserializePath(nextWallet.pathParts)
+                : ({} as ReturnType<typeof deserializePath<number>>);
+              const nextWalletIsSamePath =
+                path.accountId === nextWalletPath.accountId &&
+                path.index === nextWalletPath.index;
 
               return (
                 <TableRow
                   key={wallet.address}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  sx={{
+                    "td, th": { border: nextWalletIsSamePath ? 0 : undefined },
+                    "&:last-child td, &:last-child th": { border: 0 },
+                  }}
                 >
                   {showPaths ? (
                     <TableCell component="th" scope="row">
@@ -142,10 +155,10 @@ const Asset: NextPageWithLayout = () => {
                   ) : (
                     <>
                       <TableCell component="th" scope="row">
-                        {accountId}
+                        {path.accountId}
                       </TableCell>
                       {asset?.type === AssetType.UTXO && (
-                        <TableCell>{index}</TableCell>
+                        <TableCell>{path.index}</TableCell>
                       )}
                     </>
                   )}

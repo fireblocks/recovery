@@ -3,10 +3,14 @@ import { z } from "zod";
 import { AssetId } from "shared";
 import { deriveKeysInput } from "../schemas";
 
-type Variables = z.infer<typeof deriveKeysInput> & { assetId: AssetId };
+type Variables = z.infer<typeof deriveKeysInput> & {
+  assetId: AssetId;
+  isTestnet: boolean;
+};
 
 export const addWallets = async ({
   assetId,
+  isTestnet,
   accountIdStart,
   accountIdEnd,
   indexStart,
@@ -14,6 +18,7 @@ export const addWallets = async ({
 }: Variables) =>
   ipcRenderer.send("add-wallets", {
     assetId,
+    isTestnet,
     accountIdStart,
     accountIdEnd,
     indexStart,

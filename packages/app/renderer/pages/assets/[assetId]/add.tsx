@@ -70,6 +70,7 @@ const AddWallets = () => {
   const onSubmit = async (formData: FormData) => {
     addWallets({
       assetId: asset?.id as AssetId,
+      isTestnet: false,
       accountIdStart: formData.accountIdStart,
       accountIdEnd: formData.accountIdEnd,
       indexStart: formData.indexStart,

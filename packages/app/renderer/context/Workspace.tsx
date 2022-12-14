@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useRouter } from "next/router";
 import { getAssetInfo, AssetInfo, AssetId } from "shared";
+import { deserializePath } from "../lib/bip44";
 
 export type Wallet = {
   assetId: AssetId;
@@ -50,6 +51,55 @@ type Props = {
   children: ReactNode;
 };
 
+const orderWallets = (a: Wallet, b: Wallet) => {
+  const aPath = deserializePath(a.pathParts);
+  const bPath = deserializePath(b.pathParts);
+
+  // Keep wallets with the same path together
+  if (aPath.accountId === bPath.accountId && aPath.index === bPath.index) {
+    const aIsLegacy = a.address[0] === "1";
+    const bIsLegacy = b.address[0] === "1";
+
+    if (aIsLegacy && !bIsLegacy) {
+      return -1;
+    }
+
+    if (!aIsLegacy && bIsLegacy) {
+      return 1;
+    }
+
+    return 0;
+  }
+
+  if (aPath.accountId > bPath.accountId) {
+    return 1;
+  }
+
+  if (aPath.accountId < bPath.accountId) {
+    return -1;
+  }
+
+  if (aPath.index > bPath.index) {
+    return 1;
+  }
+
+  if (aPath.index < bPath.index) {
+    return -1;
+  }
+
+  return 0;
+};
+
+const formatWallets = (wallets: Wallet[]): Wallet[] => {
+  const uniqueWallets = [
+    ...new Map(wallets.map((wallet) => [wallet.address, wallet])).values(),
+  ];
+
+  const sortedWallets = uniqueWallets.sort(orderWallets);
+
+  return sortedWallets;
+};
+
 export const WorkspaceProvider = ({ children }: Props) => {
   const {
     query: {
@@ -85,7 +135,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
 
   useEffect(() => {
     const handleAddWallets = (event: IpcRendererEvent, data: Wallet[]) =>
-      setWallets((prev) => [...prev, ...data]);
+      setWallets((prev) => formatWallets([...prev, ...data]));
 
     ipcRenderer.on("wallets/add", handleAddWallets);
 
