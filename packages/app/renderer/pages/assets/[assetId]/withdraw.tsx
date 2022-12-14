@@ -2,19 +2,20 @@ import Head from "next/head";
 import { useQuery } from "@tanstack/react-query";
 import { Box, Typography } from "@mui/material";
 import { theme, AssetIcon, AssetId, TextField } from "shared";
-import { QrCode } from "../../../components/QrCode";
+import { getRelayUrl } from "../../../lib/relayUrl";
 import { useSettings } from "../../../context/Settings";
 import { useWorkspace } from "../../../context/Workspace";
+import { QrCode } from "../../../components/QrCode";
 
 const Withdraw = () => {
-  const { getRelayUrl } = useSettings();
+  const { relayBaseUrl } = useSettings();
 
   const { asset, address, privateKey } = useWorkspace();
 
   const title = `${asset?.name} Withdrawal`;
 
   const relayUrlQuery = useQuery({
-    queryKey: ["relayUrl", address],
+    queryKey: ["relayUrl", address, relayBaseUrl],
     enabled: !!asset?.id && !!address && !!privateKey,
     staleTime: Infinity,
     refetchOnWindowFocus: false,
@@ -24,14 +25,15 @@ const Withdraw = () => {
 
       const pin = (random % 1000000).toString().padStart(6, "0");
 
-      const relayUrl = await getRelayUrl(
-        {
+      const relayUrl = await getRelayUrl({
+        baseUrl: relayBaseUrl,
+        pin,
+        data: {
           assetId: asset?.id as AssetId,
           address: address as string,
           privateKey: privateKey as string,
         },
-        pin
-      );
+      });
 
       return { pin, relayUrl };
     },

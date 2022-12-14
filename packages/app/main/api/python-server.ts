@@ -12,7 +12,7 @@ export class PythonServer {
   /**
    * Spawn a new Python server process and create a new Axios client.
    *
-   * @returns void
+   * @returns Python server base URL
    */
   public async spawn() {
     console.info("Spawning Python server...");
@@ -57,6 +57,8 @@ export class PythonServer {
     console.info(`Python server subprocess running on port ${port}`);
 
     this.apiClient = axios.create({ baseURL });
+
+    return baseURL;
   }
 
   /**

@@ -70,7 +70,13 @@ async function createWindow() {
     ); /* eng-disable PROTOCOL_HANDLER_JS_CHECK */
   }
 
-  void pythonServer.spawn();
+  const pythonServerBaseUrl = await pythonServer.spawn();
+
+  const urlParams = new URLSearchParams({
+    server: pythonServerBaseUrl,
+  });
+
+  const encodedUrlParams = urlParams.toString();
 
   // Use saved config values for configuring your
   // BrowserWindow, for instance.
@@ -101,9 +107,9 @@ async function createWindow() {
 
   // Load app
   if (isDev) {
-    win.loadURL(selfHost);
+    win.loadURL(`${selfHost}?${encodedUrlParams}`);
   } else {
-    win.loadURL(`${scheme}://rse/index.html`);
+    win.loadURL(`${scheme}://rse/index.html?${encodedUrlParams}`);
   }
 
   win.webContents.on("did-finish-load", () => {

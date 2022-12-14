@@ -1,26 +1,11 @@
 import { useRouter } from "next/router";
 import type { NextPageWithLayout } from "./_app";
 import { useQuery } from "@tanstack/react-query";
+import { getExtendedKeys } from "../lib/pythonClient";
 import { Layout } from "../components/Layout";
 import { TextField } from "shared";
 import { Box, Grid, Typography, InputAdornment } from "@mui/material";
 import { CheckCircle } from "@mui/icons-material";
-
-type ExtendedKeysResponse = {
-  xprv: string;
-  fprv: string;
-  xpub: string;
-  fpub: string;
-};
-
-const getExtendedKeys = async () => {
-  // TODO: USE DYNAMIC PORT
-  const res = await fetch(`http://localhost:8000/show-extended-keys`);
-
-  const keys = (await res.json()) as ExtendedKeysResponse;
-
-  return keys;
-};
 
 const Verify: NextPageWithLayout = () => {
   const router = useRouter();

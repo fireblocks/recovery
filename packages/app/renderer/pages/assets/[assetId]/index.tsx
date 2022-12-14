@@ -1,7 +1,13 @@
 import type { NextPageWithLayout } from "../../_app";
 import { useState } from "react";
 import { Layout } from "../../../components/Layout";
-import { NextLinkComposed, TextField, Button, getAssetInfo } from "shared";
+import {
+  NextLinkComposed,
+  TextField,
+  Button,
+  getAssetInfo,
+  AssetType,
+} from "shared";
 import {
   Box,
   Grid,
@@ -16,6 +22,7 @@ import {
   TableCell,
 } from "@mui/material";
 import { Key, ArrowUpward } from "@mui/icons-material";
+import { pythonServerUrlParams } from "../../../lib/pythonClient";
 import { deserializePath, serializePath } from "../../../lib/bip44";
 import { useWorkspace } from "../../../context/Workspace";
 import { csvExport } from "../../../lib/csvExport";
@@ -86,7 +93,10 @@ const Asset: NextPageWithLayout = () => {
                 component={NextLinkComposed}
                 to={{
                   pathname: "/assets/[assetId]/add",
-                  query: { assetId: asset?.id as string },
+                  query: {
+                    ...pythonServerUrlParams,
+                    assetId: asset?.id as string,
+                  },
                 }}
                 target="_blank"
               >
@@ -105,7 +115,9 @@ const Asset: NextPageWithLayout = () => {
               ) : (
                 <>
                   <TableCell>Account</TableCell>
-                  {asset?.derivation?.utxo && <TableCell>Index</TableCell>}
+                  {asset?.type === AssetType.UTXO && (
+                    <TableCell>Index</TableCell>
+                  )}
                 </>
               )}
               <TableCell>Address</TableCell>
@@ -132,7 +144,7 @@ const Asset: NextPageWithLayout = () => {
                       <TableCell component="th" scope="row">
                         {accountId}
                       </TableCell>
-                      {asset?.derivation?.utxo && (
+                      {asset?.type === AssetType.UTXO && (
                         <TableCell>{index}</TableCell>
                       )}
                     </>
@@ -156,6 +168,7 @@ const Asset: NextPageWithLayout = () => {
                       to={{
                         pathname: "/assets/[assetId]/details",
                         query: {
+                          ...pythonServerUrlParams,
                           assetId: asset?.id as string,
                           path: wallet.pathParts.join(","),
                           address: wallet.address,
@@ -175,6 +188,7 @@ const Asset: NextPageWithLayout = () => {
                       to={{
                         pathname: "/assets/[assetId]/withdraw",
                         query: {
+                          ...pythonServerUrlParams,
                           assetId: asset?.id as string,
                           address: wallet.address,
                           privateKey: wallet.privateKey,

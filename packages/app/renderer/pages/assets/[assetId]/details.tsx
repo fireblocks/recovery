@@ -7,6 +7,7 @@ import {
   Button,
   AssetId,
 } from "shared";
+import { pythonServerUrlParams } from "../../../lib/pythonClient";
 import { deserializePath, serializePath } from "../../../lib/bip44";
 import { useWorkspace } from "../../../context/Workspace";
 
@@ -43,6 +44,7 @@ const WalletDetails = () => {
             to={{
               pathname: "/assets/[assetId]/withdraw",
               query: {
+                ...pythonServerUrlParams,
                 assetId: asset?.id as string,
                 address: address as string,
                 privateKey: privateKey as string,

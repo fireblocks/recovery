@@ -5,54 +5,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { recoverKeysInput } from "../lib/schemas";
+import { recoverKeys } from "../lib/pythonClient";
 import { Layout } from "../components/Layout";
 import { UploadWell } from "../components/UploadWell";
 import { TextField, Button } from "shared";
-import {
-  Box,
-  Grid,
-  Typography,
-  // FormGroup,
-  // FormControl,
-  // FormLabel,
-  // FormControlLabel,
-  // RadioGroup,
-  // Radio,
-  // Checkbox,
-} from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import { readFileToBase64 } from "../lib/readFile";
 
 type FormData = z.infer<typeof recoverKeysInput>;
-
-type RecoverKeysResponse = {
-  xprv: string;
-  fprv: string;
-  xpub: string;
-  fpub: string;
-};
-
-const recoverKeys = async (formData: FormData) => {
-  // TODO: USE DYNAMIC PORT
-  const res = await fetch(
-    "http://localhost:8000/recover-keys?recover-prv=true",
-    {
-      method: "POST",
-      body: JSON.stringify({
-        zip: formData.zip,
-        passphrase: formData.passphrase,
-        "rsa-key": formData.rsaKey,
-        "rsa-key-passphrase": formData.rsaKeyPassphrase,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-
-  const keyData = (await res.json()) as RecoverKeysResponse;
-
-  return keyData;
-};
 
 const Recover: NextPageWithLayout = () => {
   const router = useRouter();
@@ -93,7 +53,6 @@ const Recover: NextPageWithLayout = () => {
       <Typography variant="h1">
         {verifyOnly ? "Verify Recovery Kit" : "Recover Private Keys"}
       </Typography>
-
       <Typography
         variant="body1"
         color={(theme) => theme.palette.error.main}
@@ -104,38 +63,6 @@ const Recover: NextPageWithLayout = () => {
         only be done in a disaster recovery scenario. Do not recover private
         keys for usual business operations.
       </Typography>
-
-      {/* <FormControl>
-        <FormLabel
-          htmlFor="recoveryMethod"
-          sx={{
-            fontSize: "14px",
-            fontWeight: 600,
-            color: "#000000",
-            marginBottom: "0.5rem",
-          }}
-        >
-          Recovery Method
-        </FormLabel>
-        <RadioGroup
-          id="recoveryMethod"
-          defaultValue="drs"
-          name="recoveryMethod"
-          row
-        >
-          <FormControlLabel
-            value="drs"
-            control={<Radio />}
-            label="Disaster Recovery System"
-          />
-          <FormControlLabel
-            value="xprv"
-            control={<Radio />}
-            label="Extended Private Keys"
-          />
-        </RadioGroup>
-      </FormControl> */}
-
       <Grid container spacing={2}>
         <Grid item xs={6}>
           <Grid container spacing={2} justifyContent="space-between">
@@ -192,7 +119,6 @@ const Recover: NextPageWithLayout = () => {
           />
         </Grid>
       </Grid>
-
       <Grid
         container
         spacing={2}
