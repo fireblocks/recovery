@@ -3,81 +3,145 @@ import * as ecc from "tiny-secp256k1";
 import ECPairFactory from "ecpair";
 import { fromHex } from "uint8array-tools";
 import { BaseWallet } from "../BaseWallet";
-import axios from "axios";
+import { AddressSummary, FullUTXO, UTXOSummary } from "./types";
 
 export class Bitcoin implements BaseWallet {
-  private static ECPair = ECPairFactory(ecc);
+  private static readonly ECPair = ECPairFactory(ecc);
 
-  private readonly network: Network;
+  private static readonly satsPerBtc = 100000000;
 
-  private readonly isTestnet: boolean;
-
-  private readonly baseUrl: string;
+  private static readonly digits = [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+  ];
 
   private readonly legacy: boolean;
 
+  private readonly network: Network;
+
+  private readonly baseUrl: string;
+
   constructor(private readonly address: string, isTestnet: boolean) {
-    // Only legacy addresses have uper case chars. If by chnace there is no upper case letter (possible), then we also check for tb1 (definite segwit) or for bc1
+    // Only legacy addresses have upper case chars. If by chance there is no upper case letter (possible), then we also check for tb1 (definite segwit) or for bc1
     this.legacy = !address.startsWith("tb1") && !address.startsWith("bc1");
+
     for (let i = 0; i < address.length; i++) {
+      const char = address.charAt(i);
+
       this.legacy =
         this.legacy ||
-        (address.charAt(i) === address.charAt(i).toUpperCase() &&
-          !["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(
-            address.charAt(i)
-          ));
+        (char === char.toUpperCase() && !Bitcoin.digits.includes(char));
     }
+
     this.network = networks[isTestnet ? "testnet" : "bitcoin"];
-    this.isTestnet = isTestnet;
+
     this.baseUrl = isTestnet
       ? "https://blockstream.info/testnet/api"
       : "https://blockstream.info/api";
   }
 
+  private async _request(path: string, init?: RequestInit) {
+    const res = await fetch(`${this.baseUrl}${path}`, init);
+
+    return res;
+  }
+
+  private async _requestJson<T>(path: string, init?: RequestInit) {
+    const res = await this._request(path, init);
+
+    const data = await res.json();
+
+    return data as T;
+  }
+
   private async _getAddressUTXOs() {
-    const addressRes = await fetch(
-      `${this.baseUrl}/address/${this.address}/utxo`
+    const utxoSummary = await this._requestJson<UTXOSummary[]>(
+      `/address/${this.address}/utxo`
     );
 
-    return (await addressRes.json()) as UTXOSummary[];
+    return utxoSummary;
   }
 
-  public async _getAddressBalance() {
-    const addressRes = await fetch(`${this.baseUrl}/address/${this.address}`);
+  private async _getAddressBalance() {
+    const addressSummary = await this._requestJson<AddressSummary>(
+      `/address/${this.address}`
+    );
 
-    const addressJson = (await addressRes.json()) as AddressSummary;
-    return addressJson;
+    return addressSummary;
   }
 
-  public async _getSegwitInfo(txHash: string, index: number) {
-    const utxo = (await (
-      await fetch(`${this.baseUrl}/tx/${txHash}`)
-    ).json()) as FullUTXO;
-    const { scriptpubkey, value } = utxo.vout[index];
-    return {
-      scriptpubkey,
-      value,
-    };
-  }
+  private async _getFeeRate() {
+    const feeEstimate = await this._requestJson<{ [key: string]: string }>(
+      "/fee-estimates"
+    );
 
-  public async _getNonSegwitInfo(txHash: string) {
-    const rawTx = await (
-      await fetch(`${this.baseUrl}/tx/${txHash}/raw`)
-    ).arrayBuffer();
-    return { nonWitnessUtxo: Buffer.from(rawTx) };
-  }
+    console.info({ feeEstimate });
 
-  public async _getFeeRate() {
-    const feeRes = await fetch(`${this.baseUrl}/fee-estimates`);
+    const feeRate = feeEstimate["3"];
 
-    const feeRate = (await feeRes.json())["3"];
     return feeRate;
+  }
+
+  private async _addSegwitInput(tx: Psbt, utxo: UTXOSummary) {
+    const txHash = utxo.txid;
+    const index = utxo.vout;
+
+    const fullUTxo = await this._requestJson<FullUTXO>(`/tx/${txHash}`);
+
+    const { scriptpubkey, value } = fullUTxo.vout[index];
+
+    tx.addInput({
+      hash: utxo.txid,
+      index: utxo.vout,
+      witnessUtxo: {
+        script: Buffer.from(scriptpubkey, "hex"),
+        value: value,
+      },
+    });
+
+    return tx;
+  }
+
+  private async _addNonSegwitInput(tx: Psbt, utxo: UTXOSummary) {
+    const txHash = utxo.txid;
+
+    const rawTxRes = await this._request(`/tx/${txHash}/raw`);
+
+    const rawTx = await rawTxRes.arrayBuffer();
+
+    const nonWitnessUtxo = new Uint8Array(rawTx) as Buffer;
+
+    tx.addInput({
+      hash: utxo.txid,
+      index: utxo.vout,
+      nonWitnessUtxo,
+    });
+
+    return tx;
+  }
+
+  private static _satsToBtc(sats: number) {
+    return sats / Bitcoin.satsPerBtc;
+  }
+
+  private static _btcToSats(btc: number) {
+    return btc * Bitcoin.satsPerBtc;
   }
 
   public async getBalance() {
     const { chain_stats } = await this._getAddressBalance();
+
     const balance = chain_stats.funded_txo_sum - chain_stats.spent_txo_sum;
-    return balance;
+
+    return Bitcoin._satsToBtc(balance);
   }
 
   public async sendTransaction(
@@ -86,18 +150,21 @@ export class Bitcoin implements BaseWallet {
     amount: number
   ) {
     if (this.legacy && (to.startsWith("tb1") || to.startsWith("bc1"))) {
-      return "Can't transfer from legacy to segwit.";
+      throw new Error("Can't transfer from legacy address to SegWit address.");
     }
 
-    const satAmount = amount * 100000000;
+    const satAmount = Bitcoin._btcToSats(amount * 100000000);
     const tx = new Psbt({ network: this.network });
     const utxos = await this._getAddressUTXOs();
 
     for (let i = 0; i < utxos.length; i++) {
       const utxo = utxos[i];
-      this.legacy
-        ? await this.addNonSegwitInput(tx, utxo)
-        : await this.addSegwitInput(tx, utxo);
+
+      if (this.legacy) {
+        await this._addNonSegwitInput(tx, utxo);
+      } else {
+        await this._addSegwitInput(tx, utxo);
+      }
     }
 
     const feeRate = await this._getFeeRate();
@@ -108,8 +175,11 @@ export class Bitcoin implements BaseWallet {
     const fee = parseInt(feeRate) * Math.ceil(vbytes);
     const actualAmount = satAmount - fee;
     const balance = await this.getBalance();
-    if (actualAmount > balance) {
-      return `Insufficient funds, tried to move ${satAmount} satoshi (after fee: ${actualAmount} satoshi) - current account balance is ${balance}.`;
+
+    if (actualAmount > Bitcoin._btcToSats(balance)) {
+      throw new Error(
+        `Insufficient funds. Tried to move ${satAmount} satoshi (after fee: ${actualAmount} satoshi) - current account balance is ${balance}.`
+      );
     }
 
     tx.addOutput({
@@ -118,118 +188,17 @@ export class Bitcoin implements BaseWallet {
     });
 
     const signer = Bitcoin.ECPair.fromPrivateKey(
-      Buffer.from(privateKeyHex, "hex")
+      fromHex(privateKeyHex) as Buffer
     );
     tx.signAllInputs(signer);
     tx.finalizeAllInputs();
 
-    // Broadcast
-    try {
-      const txBroadcast = await axios({
-        method: "POST",
-        url: `${this.baseUrl}/tx`,
-        data: tx.extractTransaction().toHex(),
-      });
-      const txHash = txBroadcast.data as string;
-      return txHash;
-    } catch (e) {
-      return `${e}`;
-    }
-  }
-
-  public async addSegwitInput(tx: Psbt, utxo: UTXOSummary) {
-    const { scriptpubkey, value } = await this._getSegwitInfo(
-      utxo.txid,
-      utxo.vout
-    );
-    tx.addInput({
-      hash: utxo.txid,
-      index: utxo.vout,
-      witnessUtxo: {
-        script: Buffer.from(scriptpubkey, "hex"),
-        value: value,
-      },
+    const txBroadcast = await this._requestJson<{ data: string }>("/tx", {
+      method: "POST",
+      body: tx.extractTransaction().toHex(),
     });
+
+    const txHash = txBroadcast.data as string;
+    return txHash;
   }
-
-  public async addNonSegwitInput(tx: Psbt, utxo: UTXOSummary) {
-    const { nonWitnessUtxo } = await this._getNonSegwitInfo(utxo.txid);
-    tx.addInput({
-      hash: utxo.txid,
-      index: utxo.vout,
-      nonWitnessUtxo,
-    });
-  }
-}
-
-interface AddressSummary {
-  address: string;
-  chain_stats: {
-    funded_txo_count: number;
-    funded_txo_sum: number;
-    spent_txo_count: number;
-    spent_txo_sum: number;
-    tx_count: number;
-  };
-  mempool_stats: {
-    funded_txo_count: number;
-    funded_txo_sum: number;
-    spent_txo_count: number;
-    spent_txo_sum: number;
-    tx_count: number;
-  };
-}
-
-interface FullUTXO {
-  txid: string;
-  version: number;
-  locktime: number;
-  vin: [
-    {
-      txid: string;
-      vout: number;
-      prevout: {
-        scriptpubkey: string;
-        scriptpubkey_asm: string;
-        scriptpubkey_type: string;
-        scriptpubkey_address: string;
-        value: number;
-      };
-      scriptsig: string;
-      scriptsig_asm: string;
-      witness: [string];
-      is_coinbase: boolean;
-      sequence: number;
-    }
-  ];
-  vout: [
-    {
-      scriptpubkey: string;
-      scriptpubkey_asm: string;
-      scriptpubkey_type: string;
-      scriptpubkey_address: string;
-      value: number;
-    }
-  ];
-  size: number;
-  weight: number;
-  fee: number;
-  status: {
-    confirmed: boolean;
-    block_height?: number;
-    block_hash?: string;
-    block_time?: number;
-  };
-}
-
-interface UTXOSummary {
-  txid: string;
-  vout: number;
-  status: {
-    confirmed: boolean;
-    block_height?: number;
-    block_hash?: string;
-    block_time?: number;
-  };
-  value: number;
 }

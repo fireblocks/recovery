@@ -2481,26 +2481,26 @@
   dependencies:
     remove-accents "0.4.2"
 
-"@tanstack/query-core@4.20.2":
-  version "4.20.2"
-  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-4.20.2.tgz#147f7dc7eecd0e21fea4926c0dd16163a8170ef9"
-  integrity sha512-50tydwMY+fZuSPHiW+mdMQHSgjR9+3xXDoLBPt1tJWyF0mZDjMetlBxLWNaFb/Aid/ml0ZE5nRUW7CZCtwzpHQ==
+"@tanstack/query-core@4.20.4":
+  version "4.20.4"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-4.20.4.tgz#1f7975a2db26a8bc2f382bad8a44cd422c846b17"
+  integrity sha512-lhLtGVNJDsJ/DyZXrLzekDEywQqRVykgBqTmkv0La32a/RleILXy6JMLBb7UmS3QCatg/F/0N9/5b0i5j6IKcA==
 
-"@tanstack/react-query-devtools@^4.20.3":
-  version "4.20.3"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-query-devtools/-/react-query-devtools-4.20.3.tgz#28333789f3ef774d0e08ddadc9462713c4824555"
-  integrity sha512-PbwoM5yZLGMTHmWktc6e/OK8IkFs3ENJy4KkoNwtBw+dq8oIRpevLlkiNBaWpHMf7HK/Wk/GwbgeMrLbpNH+6Q==
+"@tanstack/react-query-devtools@^4.20.4":
+  version "4.20.4"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query-devtools/-/react-query-devtools-4.20.4.tgz#a58c742faacc03a0735006eb30e6a1f215957310"
+  integrity sha512-4e4wOmqAYjLS1RQ7gRBLCk3koCjbOfCMvbxS3CPCAN5+FLBemLAvoYvFJ/i/7DPsIsltGwsnd7YAFFGMzdSx7A==
   dependencies:
     "@tanstack/match-sorter-utils" "^8.7.0"
     superjson "^1.10.0"
     use-sync-external-store "^1.2.0"
 
-"@tanstack/react-query@^4.20.3":
-  version "4.20.3"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-4.20.3.tgz#a076481201b78363b544735535a314e913767427"
-  integrity sha512-vx1cDiod0q80fVG+ZVCmZDE8hTiiosuwJPEKA6o8k1zG+siQXnSE0BTsyXasNhvpXnsbCbWzp8XkCszNw2DHNQ==
+"@tanstack/react-query@^4.20.4":
+  version "4.20.4"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-4.20.4.tgz#562b34fb919adea884eccaba2b5be50e8ba7fb16"
+  integrity sha512-SJRxx13k/csb9lXAJfycgVA1N/yU/h3bvRNWP0+aHMfMjmbyX82FdoAcckDBbOdEyAupvb0byelNHNeypCFSyA==
   dependencies:
-    "@tanstack/query-core" "4.20.2"
+    "@tanstack/query-core" "4.20.4"
     use-sync-external-store "^1.2.0"
 
 "@tootallnate/once@2":

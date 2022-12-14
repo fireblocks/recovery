@@ -36,7 +36,7 @@ type Props = {
 };
 
 export const SettingsProvider = ({ children }: Props) => {
-  const [settings, setSettings] = useState(defaultValue);
+  const [settings, setSettings] = useState<Settings>(defaultValue);
 
   useEffect(() => {
     ipcRenderer

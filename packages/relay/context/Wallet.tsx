@@ -167,8 +167,6 @@ export const WalletProvider = ({ children }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  console.info("WalletProvider", wallet);
-
   const value: IWalletContext = {
     assetId: wallet.assetId,
     address: wallet.address,
