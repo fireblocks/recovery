@@ -1,7 +1,7 @@
 import { Network, networks, Psbt } from "bitcoinjs-lib";
 import * as ecc from "tiny-secp256k1";
 import ECPairFactory from "ecpair";
-import { fromHex } from "uint8array-tools";
+import { Buffer } from "buffer";
 import { BaseWallet } from "../BaseWallet";
 import { AddressSummary, FullUTXO, UTXOSummary } from "./types";
 
@@ -79,7 +79,7 @@ export class Bitcoin implements BaseWallet {
   }
 
   private async _getFeeRate() {
-    const feeEstimate = await this._requestJson<{ [key: string]: string }>(
+    const feeEstimate = await this._requestJson<{ [key: string]: number }>(
       "/fee-estimates"
     );
 
@@ -117,7 +117,7 @@ export class Bitcoin implements BaseWallet {
 
     const rawTx = await rawTxRes.arrayBuffer();
 
-    const nonWitnessUtxo = new Uint8Array(rawTx) as Buffer;
+    const nonWitnessUtxo = Buffer.from(rawTx);
 
     tx.addInput({
       hash: utxo.txid,
@@ -153,7 +153,7 @@ export class Bitcoin implements BaseWallet {
       throw new Error("Can't transfer from legacy address to SegWit address.");
     }
 
-    const satAmount = Bitcoin._btcToSats(amount * 100000000);
+    const satAmount = Bitcoin._btcToSats(amount);
     const tx = new Psbt({ network: this.network });
     const utxos = await this._getAddressUTXOs();
 
@@ -168,15 +168,16 @@ export class Bitcoin implements BaseWallet {
     }
 
     const feeRate = await this._getFeeRate();
-    const vbytes = this.legacy
+
+    const vBytes = this.legacy
       ? 148 * utxos.length + 34 + 10
       : 68 * utxos.length + 31 + 10.5;
 
-    const fee = parseInt(feeRate) * Math.ceil(vbytes);
-    const actualAmount = satAmount - fee;
-    const balance = await this.getBalance();
+    const fee = feeRate * Math.ceil(vBytes);
+    const actualAmount = Math.ceil(satAmount - fee);
+    const balance = Bitcoin._btcToSats(await this.getBalance());
 
-    if (actualAmount > Bitcoin._btcToSats(balance)) {
+    if (fee > satAmount || actualAmount > balance) {
       throw new Error(
         `Insufficient funds. Tried to move ${satAmount} satoshi (after fee: ${actualAmount} satoshi) - current account balance is ${balance}.`
       );
@@ -188,17 +189,20 @@ export class Bitcoin implements BaseWallet {
     });
 
     const signer = Bitcoin.ECPair.fromPrivateKey(
-      fromHex(privateKeyHex) as Buffer
+      Buffer.from(privateKeyHex, "hex")
     );
     tx.signAllInputs(signer);
     tx.finalizeAllInputs();
 
-    const txBroadcast = await this._requestJson<{ data: string }>("/tx", {
+    const txHex = tx.extractTransaction().toHex();
+
+    const txBroadcastRes = await this._request("/tx", {
       method: "POST",
-      body: tx.extractTransaction().toHex(),
+      body: txHex,
     });
 
-    const txHash = txBroadcast.data as string;
+    const txHash = await txBroadcastRes.text();
+
     return txHash;
   }
 }
