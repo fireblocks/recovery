@@ -71,7 +71,6 @@ const Withdraw = () => {
         id="pin"
         label="PIN"
         value={relayUrlQuery.data?.pin}
-        enableCopy
         isMonospace
         formControlProps={{ sx: { marginTop: "1em" } }}
       />
