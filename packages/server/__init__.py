@@ -274,30 +274,6 @@ def get_wif_impl():
     return helper.to_import_format()
 
 
-# ======================================= Create transaction API
-
-
-@app.route("/create-tx", methods=["POST"])
-def create_tx():
-    try:
-        res = create_tx_impl()
-    except Exception as e:
-        res = app.response_class(response=json.dumps({"reason": str(e)}), status=500)
-    return res
-
-
-def create_tx_impl():
-    helper, _, _, _, _, _, _, _, _, legacy = unpack_request()
-    tx_req = request.json
-    qr = get_parameter("qr", "False") in ["True", "true"]
-    kwargs = {"legacy": legacy}
-    res: TxResponse = helper.create_tx(TxRequest.from_json(tx_req), **kwargs)
-    if qr:
-        return {"img": res.qr}
-    else:
-        return {"tx": res.tx}
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         prog="Recovery Utility", description="Fireblocks workspace recovery utility"

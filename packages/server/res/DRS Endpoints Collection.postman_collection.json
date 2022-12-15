@@ -182,52 +182,6 @@
         }
       },
       "response": []
-    },
-    {
-      "name": "Create Tx",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n    \"to\":\"<ADDRESS TO SEND THE FUNDS TO>\",\n    \"amount\":\"<VALUE TO SEND IN BASE ASSET>\",\n    \"memo\":\"<MEMO TO ADD IF APPLICABLE>\",\n    \"abi\":\"<THE CONTRACT ABI IF APPLICABLE>\",\n    \"contract_call_params\": [\n        {\n            \"key\":\"<THE NAME OF THE ARGUMENT CORRESPONDING TO THE ABI>\",\n            \"value\":\"<THE VALUE OF THE ARGUMENT>\"\n        }\n    ],\n    \"fee\":{\n        \"rate\": \"<FOR UTXO / NOT EVM>, ONLY THIS OR THE TWO GAS ITEMS, NOT BOTH\",\n        \"gasPrice\":\"<GAS PRICE TO USE>\",\n        \"gasLimit\":\"<MAX GAS TO USE>\"\n    }\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:8080/create-tx?asset=&account=&change=&index=&qr=",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["create-tx"],
-          "query": [
-            {
-              "key": "asset",
-              "value": ""
-            },
-            {
-              "key": "account",
-              "value": ""
-            },
-            {
-              "key": "change",
-              "value": ""
-            },
-            {
-              "key": "index",
-              "value": ""
-            },
-            {
-              "key": "qr",
-              "value": ""
-            }
-          ]
-        }
-      },
-      "response": []
     }
   ]
 }

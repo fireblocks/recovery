@@ -44,7 +44,7 @@ export const requestHandler: Parameters<
     if (!err && mimeType !== null) {
       next({
         mimeType,
-        charset: charset(mimeExt),
+        charset: charset(mimeExt) ?? undefined,
         data,
       });
     } else {

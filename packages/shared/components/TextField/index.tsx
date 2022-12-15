@@ -68,7 +68,7 @@ const Input = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export type Props = Omit<InputBaseProps, "error"> & {
+export type TextFieldProps = Omit<InputBaseProps, "error"> & {
   id: string;
   error?: ReactNode;
   helpText?: ReactNode;
@@ -80,7 +80,7 @@ export type Props = Omit<InputBaseProps, "error"> & {
   formControlProps?: FormControlProps;
 };
 
-export const TextField = forwardRef<HTMLInputElement, Props>(
+export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
   (
     {
       id,

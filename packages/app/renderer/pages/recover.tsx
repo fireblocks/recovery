@@ -1,11 +1,13 @@
 import { useRouter } from "next/router";
 import type { NextPageWithLayout } from "./_app";
+import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { recoverKeysInput } from "../lib/schemas";
 import { recoverKeys } from "../lib/pythonClient";
+import { useWorkspace } from "../context/Workspace";
 import { Layout } from "../components/Layout";
 import { UploadWell } from "../components/UploadWell";
 import { TextField, Button } from "shared";
@@ -17,12 +19,26 @@ type FormData = z.infer<typeof recoverKeysInput>;
 const Recover: NextPageWithLayout = () => {
   const router = useRouter();
 
+  const { resetWorkspace } = useWorkspace();
+
+  const [recoveryError, setRecoveryError] = useState<string | undefined>(
+    undefined
+  );
+
   const verifyOnly = router.query.verifyOnly === "true";
 
   const recoverMutation = useMutation({
-    mutationFn: recoverKeys,
-    onSuccess: () =>
-      router.push(verifyOnly ? "/keys?verifyOnly=true" : "/assets"),
+    mutationFn: async (variables: FormData) => recoverKeys(variables),
+    onSuccess: () => {
+      resetWorkspace(true);
+
+      router.push(verifyOnly ? "/keys?verifyOnly=true" : "/assets");
+    },
+    onError: (error) => {
+      console.error(error);
+
+      setRecoveryError((error as Error).message);
+    },
   });
 
   const {
@@ -45,6 +61,7 @@ const Recover: NextPageWithLayout = () => {
 
   return (
     <Box
+      height="100%"
       component="form"
       display="flex"
       flexDirection="column"
@@ -53,16 +70,32 @@ const Recover: NextPageWithLayout = () => {
       <Typography variant="h1">
         {verifyOnly ? "Verify Recovery Kit" : "Recover Private Keys"}
       </Typography>
-      <Typography
-        variant="body1"
-        color={(theme) => theme.palette.error.main}
-        paragraph
-      >
-        Recovering private keys exposes your Fireblocks extended private keys
-        and derived asset private keys to this system&apos;s memory. This should
-        only be done in a disaster recovery scenario. Do not recover private
-        keys for usual business operations.
-      </Typography>
+      {verifyOnly ? (
+        <>
+          <Typography variant="body1" paragraph>
+            Verify a Recovery Kit to ensure that you can access your Fireblocks
+            assets in a disaster scenario.
+          </Typography>
+          <Typography variant="body1" paragraph>
+            Check that the recovered Fireblocks extended public keys match the
+            keys in your Fireblocks Console Settings.
+          </Typography>
+          <Typography variant="body1" paragraph>
+            This does not expose your private keys.
+          </Typography>
+        </>
+      ) : (
+        <Typography
+          variant="body1"
+          color={(theme) => theme.palette.error.main}
+          paragraph
+        >
+          Using private key recovery exposes your private keys to this system.
+          Only do this in a disaster recovery scenario, and then move your
+          assets to other secure wallets. Use the Fireblocks Console, APIs, and
+          SDKs for standard operations.
+        </Typography>
+      )}
       <Grid container spacing={2}>
         <Grid item xs={6}>
           <Grid container spacing={2} justifyContent="space-between">
@@ -126,6 +159,15 @@ const Recover: NextPageWithLayout = () => {
         justifyContent="flex-end"
         marginTop="auto"
       >
+        <Grid item flex="1">
+          <Typography
+            variant="body1"
+            fontWeight="600"
+            color={(theme) => theme.palette.error.main}
+          >
+            {recoveryError}
+          </Typography>
+        </Grid>
         <Grid item>
           <Button
             type="submit"
@@ -141,7 +183,7 @@ const Recover: NextPageWithLayout = () => {
 };
 
 Recover.getLayout = (page) => (
-  <Layout hideNavigation hideSidebar>
+  <Layout showBack hideSidebar>
     {page}
   </Layout>
 );

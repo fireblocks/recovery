@@ -1,5 +1,5 @@
 import "webrtc-adapter";
-import { useState, useRef, useId, useMemo, useEffect } from "react";
+import { useState, useRef, useId, useCallback, useEffect } from "react";
 import QrScanner from "qr-scanner";
 import {
   Box,
@@ -17,17 +17,6 @@ import {
 } from "@mui/icons-material";
 
 export type ScanResult = QrScanner.ScanResult;
-
-type QrCodeScannerOptions = {
-  onDecodeError?: (error: Error | string) => void;
-  calculateScanRegion?: (video: HTMLVideoElement) => QrScanner.ScanRegion;
-  preferredCamera?: QrScanner.FacingMode | QrScanner.DeviceId;
-  maxScansPerSecond?: number;
-  highlightScanRegion?: boolean;
-  highlightCodeOutline?: boolean;
-  overlay?: HTMLDivElement;
-  returnDetailedScanResult?: true;
-};
 
 type Props = {
   onDecode: (result: QrScanner.ScanResult) => void;
@@ -56,17 +45,6 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
     zIndex: "2",
   };
 
-  const scannerOptions = useMemo<QrCodeScannerOptions>(
-    () => ({
-      onDecodeError: () => undefined,
-      preferredCamera,
-      highlightScanRegion: true,
-      highlightCodeOutline: true,
-      returnDetailedScanResult: true,
-    }),
-    [preferredCamera]
-  );
-
   const handleCameraChange = async (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -91,45 +69,49 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
     }
   };
 
-  useEffect(() => {
-    const startScanner = async () => {
-      try {
-        if (!videoRef.current || !(await QrScanner.hasCamera())) {
-          return;
-        }
-
-        qrScannerRef.current = new QrScanner(
-          videoRef.current,
-          onDecode,
-          scannerOptions
-        );
-
-        await qrScannerRef.current.start();
-
-        const cameras = await QrScanner.listCameras(true);
-
-        const flash = (await qrScannerRef.current.hasFlash())
-          ? qrScannerRef.current.isFlashOn()
-          : undefined;
-
-        setCameras(cameras);
-        setFlash(flash);
-
-        setIsLoading(false);
-      } catch (error) {
-        console.error(error);
+  const startScanner = useCallback(async () => {
+    try {
+      if (!videoRef.current || !(await QrScanner.hasCamera())) {
+        return;
       }
-    };
 
+      setIsLoading(true);
+
+      qrScannerRef.current = new QrScanner(videoRef.current, onDecode, {
+        onDecodeError: () => undefined,
+        preferredCamera,
+        highlightScanRegion: true,
+        highlightCodeOutline: true,
+        returnDetailedScanResult: true,
+      });
+
+      await qrScannerRef.current.start();
+
+      const cameras = await QrScanner.listCameras(true);
+
+      const flash = (await qrScannerRef.current.hasFlash())
+        ? qrScannerRef.current.isFlashOn()
+        : undefined;
+
+      setCameras(cameras);
+      setFlash(flash);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [onDecode, preferredCamera]);
+
+  const stopScanner = () => {};
+
+  useEffect(() => {
     void startScanner();
 
-    return () => {
-      if (qrScannerRef.current) {
-        qrScannerRef.current.destroy();
-        qrScannerRef.current = null;
-      }
-    };
-  }, [onDecode, scannerOptions]);
+    if (qrScannerRef.current) {
+      qrScannerRef.current.destroy();
+      qrScannerRef.current = null;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Box

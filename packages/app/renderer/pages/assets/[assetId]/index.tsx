@@ -6,7 +6,9 @@ import {
   TextField,
   Button,
   getAssetInfo,
+  AssetId,
   AssetType,
+  AssetIcon,
 } from "shared";
 import {
   Box,
@@ -63,6 +65,47 @@ const Asset: NextPageWithLayout = () => {
 
     download(csv, filename, "text/plain");
   };
+
+  if (!currentAssetWallets.length) {
+    return (
+      <Grid
+        container
+        spacing={2}
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        height="100%"
+      >
+        <Grid item>
+          <AssetIcon assetId={asset?.id as AssetId} sx={{ fontSize: "5em" }} />
+        </Grid>
+        <Grid item>
+          <Typography variant="h1">Recover {asset?.name} Wallets</Typography>
+        </Grid>
+        <Grid item>
+          <Typography paragraph variant="body1">
+            Make withdrawals or import your keys into other wallets.
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Button
+            color="primary"
+            component={NextLinkComposed}
+            to={{
+              pathname: "/assets/[assetId]/add",
+              query: {
+                ...pythonServerUrlParams,
+                assetId: asset?.id as string,
+              },
+            }}
+            target="_blank"
+          >
+            Add Wallets
+          </Button>
+        </Grid>
+      </Grid>
+    );
+  }
 
   return (
     <Box height="100%" display="flex" flexDirection="column">

@@ -10,7 +10,7 @@ const Index: NextPageWithLayout = () => {
       <Grid item xs={6}>
         <LogoHero
           title="Recovery Utility"
-          description="Recover Fireblocks private keys and assets, verify a recovery kit, or build keys to set up a new recovery kit."
+          description="Recover Fireblocks assets and keys in a disaster, verify a Recovery Kit, or generate keys to set up a new Recovery Kit."
         />
       </Grid>
       <Grid item xs={6}>

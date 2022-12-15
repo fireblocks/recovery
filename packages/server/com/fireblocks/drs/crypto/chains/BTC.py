@@ -53,9 +53,6 @@ class BitcoinRecovery(EcDSARecovery):
             f"44,{self.coin_id},{self.account},{self.change},{self.address_index}",
         )
 
-    def create_tx(self, txRequest: TxRequest, **kwargs) -> TxResponse:
-        pass
-
     @staticmethod
     def public_key_verification(
         extended_pub: str,

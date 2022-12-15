@@ -2,14 +2,11 @@ import {
   app,
   protocol,
   session,
-  ipcMain,
   BrowserWindow,
   BrowserWindowConstructorOptions,
 } from "electron";
 import isDev from "electron-is-dev";
 import log from "electron-log";
-import fs from "fs";
-import path from "path";
 import installExtension, {
   REACT_DEVELOPER_TOOLS,
 } from "electron-devtools-installer";
@@ -109,7 +106,7 @@ async function createWindow() {
   if (isDev) {
     win.loadURL(`${selfHost}?${encodedUrlParams}`);
   } else {
-    win.loadURL(`${scheme}://rse/index.html?${encodedUrlParams}`);
+    win.loadURL(`${scheme}://./index.html?${encodedUrlParams}`);
   }
 
   win.webContents.on("did-finish-load", () => {

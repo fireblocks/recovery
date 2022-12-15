@@ -3,13 +3,16 @@ import { Box, Grid } from "@mui/material";
 import { Key, Settings } from "@mui/icons-material";
 import { Logo, Button, Link, NextLinkComposed } from "shared";
 import { AssetsIcon } from "./components/Icons";
+import { useWorkspace } from "../../../../context/Workspace";
 
 type Props = {
-  hideNavigation: boolean;
+  showBack: boolean;
 };
 
-export const Header = ({ hideNavigation }: Props) => {
+export const Header = ({ showBack }: Props) => {
   const router = useRouter();
+
+  const { isRecovered } = useWorkspace();
 
   const isActive = (pathname: string) => router.pathname.startsWith(pathname);
 
@@ -52,13 +55,14 @@ export const Header = ({ hideNavigation }: Props) => {
             </Grid>
           </Grid>
         </Grid>
-        {hideNavigation ? (
+        {!!showBack && (
           <Grid item>
             <Button variant="text" onClick={router.back}>
               Back
             </Button>
           </Grid>
-        ) : (
+        )}
+        {!!isRecovered && (
           <>
             <Grid item>
               <Button

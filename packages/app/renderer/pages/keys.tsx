@@ -25,14 +25,16 @@ const Verify: NextPageWithLayout = () => {
 
   return (
     <Box>
-      <Typography variant="h1">Extended Keys</Typography>
+      <Typography variant="h1">
+        Extended {verifyOnly ? "Public " : ""}Keys
+      </Typography>
+      <Typography variant="body1" paragraph>
+        Check that the recovered Fireblocks extended public keys match the keys
+        in your Fireblocks Console Settings.
+      </Typography>
       <Typography variant="body1" paragraph>
         The public keys and private keys of all of wallets in this workspace are
         derived from the extended public keys and private keys.
-      </Typography>
-      <Typography variant="body1" paragraph>
-        Check that the recovered Fireblocks master public keys match the keys in
-        your Fireblocks Console Settings.
       </Typography>
       <Grid container spacing={2}>
         <Grid item xs={12}>
@@ -47,7 +49,7 @@ const Verify: NextPageWithLayout = () => {
             endAdornment={
               <InputAdornment position="end">
                 <CheckCircle color="success" sx={{ marginRight: "0.25rem" }} />
-                Verified
+                Valid
               </InputAdornment>
             }
           />
@@ -63,7 +65,7 @@ const Verify: NextPageWithLayout = () => {
             endAdornment={
               <InputAdornment position="end">
                 <CheckCircle color="success" sx={{ marginRight: "0.25rem" }} />
-                Verified
+                Valid
               </InputAdornment>
             }
           />
@@ -101,7 +103,7 @@ const Verify: NextPageWithLayout = () => {
 };
 
 Verify.getLayout = (page, router) => (
-  <Layout hideNavigation={router.query.verifyOnly === "true"} hideSidebar>
+  <Layout showBack={router.query.verifyOnly === "true"} hideSidebar>
     {page}
   </Layout>
 );

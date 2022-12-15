@@ -4,8 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { deriveKeysInput } from "../../../lib/schemas";
-import { Box, Grid, Typography } from "@mui/material";
-import { AssetId, AssetModel, AssetIcon, Button, TextField } from "shared";
+import { Box, Grid, Typography, InputBaseProps, SxProps } from "@mui/material";
+import { AssetId, AssetType, AssetIcon, Button, TextField } from "shared";
 import { deserializePath } from "../../../lib/bip44";
 import { addWallets } from "../../../lib/ipc/addWallets";
 import { closeWindow } from "../../../lib/ipc/closeWindow";
@@ -13,16 +13,24 @@ import { useWorkspace } from "../../../context/Workspace";
 
 type FormData = z.infer<typeof deriveKeysInput>;
 
-const LEFT_STYLE_PROPS = {
-  borderTopRightRadius: "0",
-  borderBottomRightRadius: "0",
-};
-
-const RIGHT_STYLE_PROPS = {
-  borderLeft: "0",
-  borderTopLeftRadius: "0",
-  borderBottomLeftRadius: "0",
-};
+const textFieldProps = (textFieldRight = false): InputBaseProps => ({
+  type: "number",
+  autoComplete: "off",
+  autoCapitalize: "off",
+  spellCheck: false,
+  size: "small",
+  inputProps: { min: 0, step: 1 },
+  sx: textFieldRight
+    ? {
+        borderLeft: "0",
+        borderTopLeftRadius: "0",
+        borderBottomLeftRadius: "0",
+      }
+    : {
+        borderTopRightRadius: "0",
+        borderBottomRightRadius: "0",
+      },
+});
 
 const AddWallets = () => {
   const { asset, currentAssetWallets } = useWorkspace();
@@ -100,58 +108,38 @@ const AddWallets = () => {
           <Typography variant="h2">Vault Account ID</Typography>
           <Box display="flex" alignItems="center">
             <TextField
+              {...textFieldProps()}
+              {...register("accountIdStart", { valueAsNumber: true })}
               id="accountIdStart"
-              type="number"
-              inputProps={{ min: 0, step: 1 }}
               label="Start"
               error={errors.accountIdStart?.message}
-              autoComplete="off"
-              autoCapitalize="off"
-              spellCheck={false}
-              {...register("accountIdStart", { valueAsNumber: true })}
-              sx={LEFT_STYLE_PROPS}
             />
             <TextField
+              {...textFieldProps(true)}
+              {...register("accountIdEnd", { valueAsNumber: true })}
               id="accountIdEnd"
-              type="number"
-              inputProps={{ min: 0, step: 1 }}
               label="End"
               error={errors.accountIdEnd?.message}
-              autoComplete="off"
-              autoCapitalize="off"
-              spellCheck={false}
-              {...register("accountIdEnd", { valueAsNumber: true })}
-              sx={RIGHT_STYLE_PROPS}
             />
           </Box>
         </Grid>
-        {asset?.model === AssetModel.UTXO ? (
+        {asset?.type === AssetType.UTXO ? (
           <Grid item xs={6}>
-            <Typography variant="h2">Index (Deposit Addresses)</Typography>
+            <Typography variant="h2">Deposit Addresses (Index)</Typography>
             <Box display="flex" alignItems="center">
               <TextField
+                {...textFieldProps()}
+                {...register("indexStart", { valueAsNumber: true })}
                 id="indexStart"
-                type="number"
-                inputProps={{ min: 0, step: 1 }}
                 label="Start"
                 error={errors.indexStart?.message}
-                autoComplete="off"
-                autoCapitalize="off"
-                spellCheck={false}
-                {...register("indexStart", { valueAsNumber: true })}
-                sx={LEFT_STYLE_PROPS}
               />
               <TextField
+                {...textFieldProps(true)}
+                {...register("indexEnd", { valueAsNumber: true })}
                 id="indexEnd"
-                type="number"
-                inputProps={{ min: 0, step: 1 }}
                 label="End"
                 error={errors.indexEnd?.message}
-                autoComplete="off"
-                autoCapitalize="off"
-                spellCheck={false}
-                {...register("indexEnd", { valueAsNumber: true })}
-                sx={RIGHT_STYLE_PROPS}
               />
             </Box>
           </Grid>

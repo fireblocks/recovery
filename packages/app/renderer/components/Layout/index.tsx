@@ -9,7 +9,7 @@ import { useConnectionTest } from "../../context/ConnectionTest";
 type Props = {
   children: ReactNode;
   hideHeader?: boolean;
-  hideNavigation?: boolean;
+  showBack?: boolean;
   hideSidebar?: boolean;
 };
 
@@ -18,7 +18,7 @@ const area = (...areas: string[]) => `"${areas.join(" ")}"`;
 export const Layout = ({
   children,
   hideHeader = false,
-  hideNavigation = false,
+  showBack = false,
   hideSidebar = false,
 }: Props) => {
   const { isOnline } = useConnectionTest();
@@ -63,7 +63,7 @@ export const Layout = ({
           This machine is connected to a network. Please disconnect.
         </Box>
       )}
-      {!hideHeader && <Header hideNavigation={hideNavigation} />}
+      {!hideHeader && <Header showBack={showBack} />}
       {!hideSidebar && <Sidebar />}
       <Box component="main" gridArea="main" padding="1em" overflow="auto">
         {children}

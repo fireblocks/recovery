@@ -58,15 +58,6 @@ class BaseRecovery:
         """
         raise NotImplementedError("Not implemented on base class")
 
-    def create_tx(self, txRequest: TxRequest, **kwargs) -> TxResponse:
-        """
-        Create a transaction and sign it
-        :param txRequest: The transaction request itself
-        :param kwargs: Additional arguments
-        :return A transaction response
-        """
-        raise NotImplementedError("Not implemented on base class")
-
     @staticmethod
     def public_key_verification(
         extended_pub: str,

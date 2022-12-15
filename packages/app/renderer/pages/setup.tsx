@@ -342,9 +342,9 @@ const Setup: NextPageWithLayout = () => {
             <Avatar>5</Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="Verify recovery kit."
+            primary="Verify Recovery Kit."
             primaryTypographyProps={{ variant: "h2" }}
-            secondary="Use Recovery Utility to verify your recovery kit. Check that the recovered Fireblocks master public keys match the keys in your Fireblocks Console Settings. The public keys and private keys of all of wallets in this workspace are derived from the extended public keys and private keys."
+            secondary="Use Recovery Utility to verify that your recovery system can restore access to your Fireblocks assets in a disaster scenario. Check that the recovered Fireblocks extended public keys match the keys in your Fireblocks Console Settings. The public keys and private keys of all of wallets in this workspace are derived from the extended public keys and private keys."
           />
         </ListItem>
         <ListItem sx={{ paddingLeft: "4.5rem" }}>
@@ -368,7 +368,7 @@ const Setup: NextPageWithLayout = () => {
 };
 
 Setup.getLayout = (page) => (
-  <Layout hideNavigation hideSidebar>
+  <Layout showBack hideSidebar>
     {page}
   </Layout>
 );

@@ -26,7 +26,7 @@ class EdDSARecovery(BaseRecovery, ABC):
         - private_key, public_key - the int that represents the private and public key correspondingly.
         - prv_hex, pub_hex - the hex representation of the private and public keys correspondingly.
 
-        :param fprv: The fireblocks format extended private key that has been retrieved by the hard key recovery kit.
+        :param fprv: The fireblocks format extended private key that has been retrieved by the hard key Recovery Kit.
         :param coin_type: (optional) Choose one of the coins as shown in Derivation class
         :param account: (optional) Vault account. Leave empty if default vault.
         :param change: (optional)

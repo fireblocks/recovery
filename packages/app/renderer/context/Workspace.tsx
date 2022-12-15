@@ -25,6 +25,7 @@ export type Wallet = {
 const splitPath = (path: string) => path.split(",").map((p) => parseInt(p));
 
 interface IWorkspaceContext {
+  isRecovered: boolean;
   asset?: AssetInfo;
   pathParts: number[];
   address?: string;
@@ -34,9 +35,11 @@ interface IWorkspaceContext {
   isTestnet?: boolean;
   wallets: Wallet[];
   currentAssetWallets: Wallet[];
+  resetWorkspace: (isRecovered: boolean) => void;
 }
 
 const defaultValue: IWorkspaceContext = {
+  isRecovered: false,
   asset: undefined,
   pathParts: [],
   address: undefined,
@@ -46,6 +49,7 @@ const defaultValue: IWorkspaceContext = {
   isTestnet: undefined,
   wallets: [],
   currentAssetWallets: [],
+  resetWorkspace: () => undefined,
 };
 
 const Context = createContext(defaultValue);
@@ -121,6 +125,19 @@ export const WorkspaceProvider = ({ children }: Props) => {
 
   const asset = assetId ? getAssetInfo(assetId) : undefined;
 
+  const [isRecovered, setIsRecovered] = useState(false);
+  const [wallets, setWallets] = useState(defaultValue.wallets);
+
+  const currentAssetWallets = useMemo(
+    () => wallets.filter((wallet) => wallet.assetId === assetId),
+    [assetId, wallets]
+  );
+
+  const resetWorkspace = (isRecovered: boolean) => {
+    setIsRecovered(isRecovered);
+    setWallets(defaultValue.wallets);
+  };
+
   const pathParts = typeof _path === "string" ? splitPath(_path) : [];
   const address = typeof _address === "string" ? _address : undefined;
   const publicKey = typeof _publicKey === "string" ? _publicKey : undefined;
@@ -130,13 +147,6 @@ export const WorkspaceProvider = ({ children }: Props) => {
     typeof _isTestnet === "string"
       ? !["false", "0"].includes(_isTestnet.toLowerCase())
       : undefined;
-
-  const [wallets, setWallets] = useState(defaultValue.wallets);
-
-  const currentAssetWallets = useMemo(
-    () => wallets.filter((wallet) => wallet.assetId === assetId),
-    [assetId, wallets]
-  );
 
   useEffect(() => {
     const handleAddWallets = (event: IpcRendererEvent, data: Wallet[]) =>
@@ -150,6 +160,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
   }, []);
 
   const value: IWorkspaceContext = {
+    isRecovered,
     asset,
     pathParts,
     address,
@@ -159,6 +170,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
     isTestnet,
     wallets,
     currentAssetWallets,
+    resetWorkspace,
   };
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

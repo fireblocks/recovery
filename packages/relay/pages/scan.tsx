@@ -11,11 +11,11 @@ const Scan: NextPageWithLayout = () => {
 
   const [scanError, setScanError] = useState<string | undefined>(undefined);
 
-  const onQrDecode = async ({ data }: ScanResult) => {
+  const onQrDecode = ({ data }: ScanResult) => {
     try {
-      await handleRelayUrl(data);
-
       setScanError(undefined);
+
+      handleRelayUrl(data);
     } catch {
       setScanError("Invalid Recovery Relay URL in QR code");
     }
