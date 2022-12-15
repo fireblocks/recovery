@@ -35,68 +35,60 @@ define(["./workbox-c5ed321c"], function (e) {
     e.precacheAndRoute(
       [
         {
-          url: "/_next/static/Q8qtRnUdapWOhLVpHz2XV/_buildManifest.js",
-          revision: "4e05c3d1accff435ffe0364a11aa7c0f",
+          url: "/_next/static/chunks/135-4d58898f5091dc90.js",
+          revision: "4d58898f5091dc90",
         },
         {
-          url: "/_next/static/Q8qtRnUdapWOhLVpHz2XV/_ssgManifest.js",
-          revision: "b6652df95db52feb4daf4eca35380933",
+          url: "/_next/static/chunks/75-91d2f0a53bc227c5.js",
+          revision: "91d2f0a53bc227c5",
         },
         {
-          url: "/_next/static/chunks/135-8513234efb1003f2.js",
-          revision: "8513234efb1003f2",
-        },
-        {
-          url: "/_next/static/chunks/75-8112e90617e8bfd0.js",
-          revision: "8112e90617e8bfd0",
-        },
-        {
-          url: "/_next/static/chunks/867-1cd3d761ac91f205.js",
-          revision: "1cd3d761ac91f205",
+          url: "/_next/static/chunks/867-03ce5019babd6b34.js",
+          revision: "03ce5019babd6b34",
         },
         {
           url: "/_next/static/chunks/894.ad308eeced611376.js",
           revision: "ad308eeced611376",
         },
         {
-          url: "/_next/static/chunks/framework-22108eb722d84e59.js",
-          revision: "22108eb722d84e59",
+          url: "/_next/static/chunks/framework-93435e5523790c31.js",
+          revision: "93435e5523790c31",
         },
         {
-          url: "/_next/static/chunks/main-b39210bdc1f23313.js",
-          revision: "b39210bdc1f23313",
+          url: "/_next/static/chunks/main-d7a6f4dabea15a50.js",
+          revision: "d7a6f4dabea15a50",
         },
         {
-          url: "/_next/static/chunks/pages/%5BassetId%5D-aa2c00e5aefeb0e8.js",
-          revision: "aa2c00e5aefeb0e8",
+          url: "/_next/static/chunks/pages/%5BassetId%5D-f888361baafb29af.js",
+          revision: "f888361baafb29af",
         },
         {
-          url: "/_next/static/chunks/pages/_app-a23d38775028600a.js",
-          revision: "a23d38775028600a",
+          url: "/_next/static/chunks/pages/_app-1b039dae465b49f2.js",
+          revision: "1b039dae465b49f2",
         },
         {
           url: "/_next/static/chunks/pages/_error-15a0bbaa3c2350f1.js",
           revision: "15a0bbaa3c2350f1",
         },
         {
-          url: "/_next/static/chunks/pages/index-c7ce2214c2d9f425.js",
-          revision: "c7ce2214c2d9f425",
+          url: "/_next/static/chunks/pages/index-da5545d880f0fda7.js",
+          revision: "da5545d880f0fda7",
         },
         {
-          url: "/_next/static/chunks/pages/scan-ad8985f0c38da2f8.js",
-          revision: "ad8985f0c38da2f8",
+          url: "/_next/static/chunks/pages/scan-823d179ec63b368a.js",
+          revision: "823d179ec63b368a",
         },
         {
           url: "/_next/static/chunks/polyfills-c67a75d1b6f99dc8.js",
           revision: "837c0df77fd5009c9e46d446188ecfd0",
         },
         {
-          url: "/_next/static/chunks/webpack-b2f37eed66ce330d.js",
-          revision: "b2f37eed66ce330d",
+          url: "/_next/static/chunks/webpack-49de99a366683517.js",
+          revision: "49de99a366683517",
         },
         {
-          url: "/_next/static/css/046d97a581924d1d.css",
-          revision: "046d97a581924d1d",
+          url: "/_next/static/css/a00dbe2957107383.css",
+          revision: "a00dbe2957107383",
         },
         {
           url: "/_next/static/media/417bab58bb26dfa1.p.woff2",
@@ -107,8 +99,16 @@ define(["./workbox-c5ed321c"], function (e) {
           revision: "a4e544720f822d386bc450e8496d441b",
         },
         {
+          url: "/_next/static/s11zwGJ8tpABRynLjrK1o/_buildManifest.js",
+          revision: "6bb68abfefbc6806c6e9223c88d96e1c",
+        },
+        {
+          url: "/_next/static/s11zwGJ8tpABRynLjrK1o/_ssgManifest.js",
+          revision: "b6652df95db52feb4daf4eca35380933",
+        },
+        {
           url: "/_next/static/wasm/2b043d267177fbc0.wasm",
-          revision: "Q8qtRnUdapWOhLVpHz2XV",
+          revision: "s11zwGJ8tpABRynLjrK1o",
         },
         {
           url: "/icons/180x180.png",
