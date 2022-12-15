@@ -4,21 +4,25 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { deriveKeysInput } from "../../../lib/schemas";
-import {
-  Box,
-  Grid,
-  Typography,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
-} from "@mui/material";
-import { AssetId, AssetType, AssetIcon, Button, TextField } from "shared";
+import { Box, Grid, Typography } from "@mui/material";
+import { AssetId, AssetModel, AssetIcon, Button, TextField } from "shared";
 import { deserializePath } from "../../../lib/bip44";
 import { addWallets } from "../../../lib/ipc/addWallets";
 import { closeWindow } from "../../../lib/ipc/closeWindow";
 import { useWorkspace } from "../../../context/Workspace";
 
 type FormData = z.infer<typeof deriveKeysInput>;
+
+const LEFT_STYLE_PROPS = {
+  borderTopRightRadius: "0",
+  borderBottomRightRadius: "0",
+};
+
+const RIGHT_STYLE_PROPS = {
+  borderLeft: "0",
+  borderTopLeftRadius: "0",
+  borderBottomLeftRadius: "0",
+};
 
 const AddWallets = () => {
   const { asset, currentAssetWallets } = useWorkspace();
@@ -39,6 +43,13 @@ const AddWallets = () => {
     return greatestAccountId + 1;
   }, [currentAssetWallets]);
 
+  const defaultValues = {
+    accountIdStart: defaultAccountIdStart,
+    accountIdEnd: defaultAccountIdStart,
+    indexStart: 0,
+    indexEnd: 0,
+  };
+
   const {
     register,
     handleSubmit,
@@ -46,26 +57,15 @@ const AddWallets = () => {
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(deriveKeysInput),
-    defaultValues: {
-      accountIdStart: defaultAccountIdStart,
-      accountIdEnd: defaultAccountIdStart,
-      indexStart: 0,
-      indexEnd: 0,
-    },
+    defaultValues,
   });
 
-  const values = watch();
+  const { accountIdStart, accountIdEnd, indexStart, indexEnd } = watch();
 
-  const newWalletCount = useMemo(() => {
-    const { accountIdStart, accountIdEnd, indexStart, indexEnd } = values;
-
-    const accountCount = accountIdEnd - accountIdStart + 1;
-    const indexCount = indexEnd - indexStart + 1;
-
-    const total = accountCount * indexCount;
-
-    return isNaN(total) ? 0 : total;
-  }, [values]);
+  const accountCount = accountIdEnd - accountIdStart + 1;
+  const indexCount = indexEnd - indexStart + 1;
+  const total = accountCount * indexCount;
+  const newWalletCount = isNaN(total) ? 0 : total;
 
   const onSubmit = async (formData: FormData) => {
     addWallets({
@@ -97,75 +97,63 @@ const AddWallets = () => {
       </Grid>
       <Grid container spacing={2}>
         <Grid item xs={6}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Typography variant="h2" marginBottom="0">
-                Vault Account ID
-              </Typography>
-            </Grid>
-            <Grid item xs={6}>
+          <Typography variant="h2">Vault Account ID</Typography>
+          <Box display="flex" alignItems="center">
+            <TextField
+              id="accountIdStart"
+              type="number"
+              inputProps={{ min: 0, step: 1 }}
+              label="Start"
+              error={errors.accountIdStart?.message}
+              autoComplete="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              {...register("accountIdStart", { valueAsNumber: true })}
+              sx={LEFT_STYLE_PROPS}
+            />
+            <TextField
+              id="accountIdEnd"
+              type="number"
+              inputProps={{ min: 0, step: 1 }}
+              label="End"
+              error={errors.accountIdEnd?.message}
+              autoComplete="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              {...register("accountIdEnd", { valueAsNumber: true })}
+              sx={RIGHT_STYLE_PROPS}
+            />
+          </Box>
+        </Grid>
+        {asset?.model === AssetModel.UTXO ? (
+          <Grid item xs={6}>
+            <Typography variant="h2">Index (Deposit Addresses)</Typography>
+            <Box display="flex" alignItems="center">
               <TextField
-                id="accountIdStart"
+                id="indexStart"
                 type="number"
                 inputProps={{ min: 0, step: 1 }}
                 label="Start"
-                error={errors.accountIdStart?.message}
+                error={errors.indexStart?.message}
                 autoComplete="off"
                 autoCapitalize="off"
                 spellCheck={false}
-                {...register("accountIdStart", { valueAsNumber: true })}
+                {...register("indexStart", { valueAsNumber: true })}
+                sx={LEFT_STYLE_PROPS}
               />
-            </Grid>
-            <Grid item xs={6}>
               <TextField
-                id="accountIdEnd"
+                id="indexEnd"
                 type="number"
                 inputProps={{ min: 0, step: 1 }}
                 label="End"
-                error={errors.accountIdEnd?.message}
+                error={errors.indexEnd?.message}
                 autoComplete="off"
                 autoCapitalize="off"
                 spellCheck={false}
-                {...register("accountIdEnd", { valueAsNumber: true })}
+                {...register("indexEnd", { valueAsNumber: true })}
+                sx={RIGHT_STYLE_PROPS}
               />
-            </Grid>
-          </Grid>
-        </Grid>
-        {asset?.type === AssetType.UTXO ? (
-          <Grid item xs={6}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Typography variant="h2" marginBottom="0">
-                  Index
-                </Typography>
-              </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  id="indexStart"
-                  type="number"
-                  inputProps={{ min: 0, step: 1 }}
-                  label="Start"
-                  error={errors.indexStart?.message}
-                  autoComplete="off"
-                  autoCapitalize="off"
-                  spellCheck={false}
-                  {...register("indexStart", { valueAsNumber: true })}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  id="indexEnd"
-                  type="number"
-                  inputProps={{ min: 0, step: 1 }}
-                  label="End"
-                  error={errors.indexEnd?.message}
-                  autoComplete="off"
-                  autoCapitalize="off"
-                  spellCheck={false}
-                  {...register("indexEnd", { valueAsNumber: true })}
-                />
-              </Grid>
-            </Grid>
+            </Box>
           </Grid>
         ) : (
           <>

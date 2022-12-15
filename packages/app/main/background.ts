@@ -259,7 +259,7 @@ app.on("web-contents-created", (event, contents) => {
       if (url.includes("/add")) {
         return {
           action: "allow",
-          overrideBrowserWindowOptions: getWindowOptions(500, 440),
+          overrideBrowserWindowOptions: getWindowOptions(500, 340),
         };
       }
 
