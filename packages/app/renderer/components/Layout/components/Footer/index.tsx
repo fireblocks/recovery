@@ -13,8 +13,7 @@ export const Footer = (props: Props) => (
     <Typography variant="body2" color="text.secondary">
       Fireblocks
       {" © "}
-      {new Date().getFullYear()}. All Rights Reserved. NMLS Registration Number:
-      2066055
+      {new Date().getFullYear()}. NMLS Registration Number: 2066055
     </Typography>
   </Box>
 );
