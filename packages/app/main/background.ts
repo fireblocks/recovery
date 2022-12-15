@@ -28,9 +28,9 @@ process.on("exit", pythonServer.kill);
 process.on("uncaughtException", pythonServer.kill);
 process.on("unhandledRejection", pythonServer.kill);
 
-let loadUrl = isDev
+const loadUrl = isDev
   ? async (win: BrowserWindow, params?: string) =>
-      win.loadURL(`{SELF_HOST}${params ? `?${params}` : ""}`)
+      win.loadURL(`${SELF_HOST}${params ? `?${params}` : ""}`)
   : registerFileProtocol({ directory: PROTOCOL, scheme: PROTOCOL });
 
 // Keep a global reference of the window object, if you don't, the window will
