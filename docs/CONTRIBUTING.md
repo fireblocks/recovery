@@ -6,8 +6,10 @@ This project is a monorepo using [Yarn workspaces](https://classic.yarnpkg.com/l
 
 ```
 📦packages      Workspaces
- ┣ 📂app        Electron app
- ┗ 📂server    Python DRS server
+ ┣ 📂app          Recovery Utility Electron app
+ ┣ 📂relay        Recovery Relay browser-based wallet client
+ ┣ 📂server       Python key recovery and derivation server
+ ┗ 📂shared       Shared browser components and utilities
 ```
 
 ## Prerequisites
