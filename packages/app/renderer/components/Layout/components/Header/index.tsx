@@ -7,9 +7,10 @@ import { useWorkspace } from "../../../../context/Workspace";
 
 type Props = {
   showBack: boolean;
+  hideNavigation: boolean;
 };
 
-export const Header = ({ showBack }: Props) => {
+export const Header = ({ hideNavigation, showBack }: Props) => {
   const router = useRouter();
 
   const { isRecovered } = useWorkspace();
@@ -62,7 +63,7 @@ export const Header = ({ showBack }: Props) => {
             </Button>
           </Grid>
         )}
-        {!!isRecovered && (
+        {!!isRecovered && !hideNavigation && (
           <>
             <Grid item>
               <Button

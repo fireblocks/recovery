@@ -1,11 +1,13 @@
+import type { GetStaticProps, GetStaticPaths } from "next";
 import Head from "next/head";
 import { Box, Grid, Typography } from "@mui/material";
 import {
+  assetIds,
+  AssetId,
   AssetIcon,
   NextLinkComposed,
   TextField,
   Button,
-  AssetId,
 } from "shared";
 import { pythonServerUrlParams } from "../../../lib/pythonClient";
 import { deserializePath, serializePath } from "../../../lib/bip44";
@@ -130,3 +132,12 @@ const WalletDetails = () => {
 };
 
 export default WalletDetails;
+
+export const getStaticProps: GetStaticProps = async ({ params }) => ({
+  props: {},
+});
+
+export const getStaticPaths: GetStaticPaths = async () => ({
+  paths: assetIds.map((assetId) => ({ params: { assetId } })),
+  fallback: false,
+});

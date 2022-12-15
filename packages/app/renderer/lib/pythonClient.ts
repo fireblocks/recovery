@@ -63,7 +63,9 @@ export const recoverKeys = async (input: z.infer<typeof recoverKeysInput>) => {
     );
 
     return keys;
-  } catch {
+  } catch (error) {
+    console.error(error);
+
     throw new Error("Key recovery failed");
   }
 };

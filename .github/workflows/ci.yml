@@ -14,7 +14,8 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-12]
+        # os: [ubuntu-latest, windows-latest, macos-12]
+        os: [macos-12]
 
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -39,11 +40,23 @@ jobs:
         working-directory: ./packages/server/res
         run: ./setup.sh
 
-      - name: Build
+      - name: Prepare for app notarization
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          mkdir -p ~/private_keys/
+          echo '${{ secrets.APPLE_API_KEY }}' > ~/private_keys/AuthKey_${{ secrets.APPLE_KEY_ID }}.p8
+
+      - name: Build and release
         run: yarn build
         env:
-          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_ISSUER_ID: ${{ secrets.APPLE_ISSUER_ID }}
+          APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }}
+          CODESIGN_IDENTITY: ${{ secrets.CODESIGN_IDENTITY }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
 
       - uses: actions/upload-artifact@v3
         with:
@@ -65,11 +78,12 @@ jobs:
         with:
           fetch-depth: 2
 
-      - uses: actions/download-artifact@v3
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
         with:
-          path: artifacts
+          node-version: lts/gallium
+          cache: "yarn"
 
-      - name: Create Release Pull Request
+      - name: Version packages
+        id: changesets
         uses: changesets/action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

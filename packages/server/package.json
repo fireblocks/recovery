@@ -2,9 +2,9 @@
   "name": "server",
   "version": "0.0.0",
   "private": true,
-  "main": "__init__.py",
+  "main": "__main__.py",
   "scripts": {
-    "build": "pyinstaller -F -n server __init__.py",
+    "build": "pyinstaller --osx-bundle-identifier com.fireblocks.recovery-utility-server --osx-entitlements-file res/entitlements.plist --codesign-identity \"${CODESIGN_IDENTITY}\" --onefile __main__.py",
     "lint": "pylint .",
     "format": "python -m black ."
   }

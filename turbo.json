@@ -4,12 +4,13 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": [
-        "electron-builder.json",
+        ".next/**",
+        "build/**",
+        "dist/**",
+        "build/**",
         "app/**",
         "renderer/.next/**",
-        "server/build/**",
-        "server/dist/**",
-        "server/__init__.spec"
+        "__main__.spec"
       ],
       "env": ["NODE_ENV", "ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES"]
     },

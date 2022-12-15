@@ -190,3 +190,4 @@ server/res/dependencies
 packages/scripts/.idea
 packages/scripts/venv
 packages/scripts/res/dependencies
+private_keys/

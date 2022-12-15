@@ -102,10 +102,14 @@ const Verify: NextPageWithLayout = () => {
   );
 };
 
-Verify.getLayout = (page, router) => (
-  <Layout showBack={router.query.verifyOnly === "true"} hideSidebar>
-    {page}
-  </Layout>
-);
+Verify.getLayout = (page, router) => {
+  const verifyOnly = router.query.verifyOnly === "true";
+
+  return (
+    <Layout showBack={verifyOnly} hideNavigation={verifyOnly} hideSidebar>
+      {page}
+    </Layout>
+  );
+};
 
 export default Verify;

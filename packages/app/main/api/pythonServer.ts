@@ -4,6 +4,9 @@ import path from "path";
 import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig } from "axios";
 import { getPortPromise } from "portfinder";
 
+const CONTENTS_PATH = path.join(__dirname, "..", "..", "..");
+const SERVER_EXECUTABLE_NAME = "__main__";
+
 export class PythonServer {
   private subprocess: execa.ExecaChildProcess | null = null;
 
@@ -15,18 +18,9 @@ export class PythonServer {
    * @returns Python server base URL
    */
   public async spawn() {
-    console.info("Spawning Python server...");
-
     const port = await getPortPromise();
 
-    const baseURL = `http://localhost:${port}`;
-
     const portArgs = ["-p", port.toString()];
-
-    // DEBUGGING
-    // const lsProcess = execa("ls", ["-lah"]);
-    // lsProcess.stderr?.pipe(process.stderr);
-    // lsProcess.stdout?.pipe(process.stdout);
 
     if (isDev) {
       const serverPath = path.join(
@@ -34,14 +28,14 @@ export class PythonServer {
         "..",
         "..",
         "server",
-        "__init__.py"
+        `${SERVER_EXECUTABLE_NAME}.py`
       );
 
       this.subprocess = execa("python", [serverPath, ...portArgs]);
     } else {
       const serverPath = path.join(
-        __dirname,
-        "server",
+        CONTENTS_PATH,
+        SERVER_EXECUTABLE_NAME,
         process.platform === "win32" ? ".exe" : ""
       );
 
@@ -49,12 +43,11 @@ export class PythonServer {
     }
 
     this.subprocess.stderr?.pipe(process.stderr);
-
-    if (process.env.NODE_ENV === "development") {
-      this.subprocess.stdout?.pipe(process.stdout);
-    }
+    this.subprocess.stdout?.pipe(process.stdout);
 
     console.info(`Python server subprocess running on port ${port}`);
+
+    const baseURL = `http://localhost:${port}`;
 
     this.apiClient = axios.create({ baseURL });
 

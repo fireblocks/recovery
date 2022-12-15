@@ -1,7 +1,8 @@
+import type { GetStaticProps, GetStaticPaths } from "next";
 import Head from "next/head";
 import { useQuery } from "@tanstack/react-query";
 import { Box, Typography } from "@mui/material";
-import { theme, AssetIcon, AssetId, TextField } from "shared";
+import { theme, assetIds, AssetId, AssetIcon, TextField } from "shared";
 import { getRelayUrl } from "../../../lib/relayUrl";
 import { useSettings } from "../../../context/Settings";
 import { useWorkspace } from "../../../context/Workspace";
@@ -79,3 +80,12 @@ const Withdraw = () => {
 };
 
 export default Withdraw;
+
+export const getStaticProps: GetStaticProps = async ({ params }) => ({
+  props: {},
+});
+
+export const getStaticPaths: GetStaticPaths = async () => ({
+  paths: assetIds.map((assetId) => ({ params: { assetId } })),
+  fallback: false,
+});

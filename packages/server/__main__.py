@@ -14,7 +14,6 @@ from waitress import serve
 from flask import Flask, request
 from flask_cors import CORS
 from com.fireblocks.drs.crypto.basic import DerivationDetails
-from com.fireblocks.drs.crypto.tx import TxRequest, TxResponse
 from com.fireblocks.drs.infra.global_state import (
     setup_global_state,
     get_data,

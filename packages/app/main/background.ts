@@ -1,24 +1,25 @@
+// Override console.log with electron-log
+import log from "electron-log";
+Object.assign(console, log.functions);
+
 import {
   app,
-  protocol,
   session,
   BrowserWindow,
   BrowserWindowConstructorOptions,
 } from "electron";
 import isDev from "electron-is-dev";
-import log from "electron-log";
 import installExtension, {
   REACT_DEVELOPER_TOOLS,
 } from "electron-devtools-installer";
-import { scheme, requestHandler } from "./protocol";
-import { PythonServer } from "./api/python-server";
+import { registerFileProtocol } from "./helpers";
+import { PythonServer } from "./api/pythonServer";
 import "./ipc";
 
-const port = 8888; // Hardcoded; needs to match webpack.development.js and package.json
-const selfHost = `http://localhost:${port}`;
-
-// Override console.log with electron-log
-Object.assign(console, log.functions);
+const PROTOCOL = "app";
+const PORT = 8888; // Hardcoded; needs to match webpack.development.js and package.json
+const SELF_HOST = `http://localhost:${PORT}`;
+const validOrigins = [SELF_HOST];
 
 export const pythonServer = new PythonServer();
 
@@ -26,6 +27,11 @@ app.on("quit", pythonServer.kill);
 process.on("exit", pythonServer.kill);
 process.on("uncaughtException", pythonServer.kill);
 process.on("unhandledRejection", pythonServer.kill);
+
+let loadUrl = isDev
+  ? async (win: BrowserWindow, params?: string) =>
+      win.loadURL(`{SELF_HOST}${params ? `?${params}` : ""}`)
+  : registerFileProtocol({ directory: PROTOCOL, scheme: PROTOCOL });
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -43,7 +49,7 @@ const getWindowOptions = (
   minHeight: height,
   minWidth: width,
   webPreferences: {
-    devTools: isDev,
+    devTools: true,
     nodeIntegration: true,
     contextIsolation: false,
     plugins: true,
@@ -52,36 +58,22 @@ const getWindowOptions = (
   },
 });
 
+const isValidUrl = (url: string) => {
+  const parsedUrl = new URL(url);
+
+  return (
+    parsedUrl.protocol === `${PROTOCOL}:` ||
+    validOrigins.includes(parsedUrl.origin)
+  );
+};
+
 async function createWindow() {
-  // If you'd like to set up auto-updating for your app,
-  // I'd recommend looking at https://github.com/iffy/electron-updater-example
-  // to use the method most suitable for you.
-  // eg. autoUpdater.checkForUpdatesAndNotify();
-
-  if (!isDev) {
-    // Needs to happen before creating/loading the browser window;
-    // protocol is only used in prod
-    protocol.registerBufferProtocol(
-      scheme,
-      requestHandler
-    ); /* eng-disable PROTOCOL_HANDLER_JS_CHECK */
-  }
-
+  // Start the Python server subprocess
   const pythonServerBaseUrl = await pythonServer.spawn();
 
-  const urlParams = new URLSearchParams({
-    server: pythonServerBaseUrl,
-  });
+  const urlParams = new URLSearchParams({ server: pythonServerBaseUrl });
 
   const encodedUrlParams = urlParams.toString();
-
-  // Use saved config values for configuring your
-  // BrowserWindow, for instance.
-  // NOTE - this config is not passcode protected
-  // and stores plaintext values
-  //let savedConfig = store.mainInitialStore(fs);
-
-  // TODO: Enable nodeIntegration with no contextIsolation in dev. Disable in prod.
 
   // Create the browser window.
   win = new BrowserWindow({
@@ -91,7 +83,7 @@ async function createWindow() {
     minHeight: 680,
     title: "Fireblocks Recovery Utility",
     webPreferences: {
-      devTools: isDev,
+      devTools: true,
       nodeIntegration: true,
       contextIsolation: false,
       plugins: true,
@@ -103,11 +95,7 @@ async function createWindow() {
   });
 
   // Load app
-  if (isDev) {
-    win.loadURL(`${selfHost}?${encodedUrlParams}`);
-  } else {
-    win.loadURL(`${scheme}://./index.html?${encodedUrlParams}`);
-  }
+  void loadUrl(win, encodedUrlParams);
 
   win.webContents.on("did-finish-load", () => {
     win?.setTitle("Fireblocks Recovery Utility");
@@ -156,32 +144,7 @@ async function createWindow() {
         permCallback(false); // Deny
       }
     });
-
-  // https://electronjs.org/docs/tutorial/security#1-only-load-secure-content;
-  // The below code can only run when a scheme and host are defined, I thought
-  // we could use this over _all_ urls
-  // ses.fromPartition(partition).webRequest.onBeforeRequest({urls:["http://localhost./*"]}, (listener) => {
-  //   if (listener.url.indexOf("http://") >= 0) {
-  //     listener.callback({
-  //       cancel: true
-  //     });
-  //   }
-  // });
 }
-
-// Needs to be called before app is ready;
-// gives our scheme access to load relative files,
-// as well as local storage, cookies, etc.
-// https://electronjs.org/docs/api/protocol#protocolregisterschemesasprivilegedcustomschemes
-protocol.registerSchemesAsPrivileged([
-  {
-    scheme,
-    privileges: {
-      standard: true,
-      secure: true,
-    },
-  },
-]);
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -198,14 +161,12 @@ app.on("window-all-closed", () => {
 // https://electronjs.org/docs/tutorial/security#12-disable-or-limit-navigation
 app.on("web-contents-created", (event, contents) => {
   contents.on("will-navigate", (contentsEvent, navigationUrl) => {
-    /* eng-disable LIMIT_NAVIGATION_JS_CHECK  */
     const parsedUrl = new URL(navigationUrl);
-    const validOrigins = [selfHost];
 
     // Log and prevent the app from navigating to a new page if that page's origin is not whitelisted
-    if (!validOrigins.includes(parsedUrl.origin)) {
+    if (!isValidUrl(navigationUrl)) {
       console.error(
-        `The application tried to navigate to the following address: '${parsedUrl}'. This origin is not whitelisted and the attempt to navigate was blocked.`
+        `The application tried to navigate to the following address: '${parsedUrl}'. The origin ${parsedUrl.origin} is not whitelisted and the attempt to navigate was blocked.`
       );
 
       contentsEvent.preventDefault();
@@ -213,11 +174,7 @@ app.on("web-contents-created", (event, contents) => {
   });
 
   contents.on("will-redirect", (contentsEvent, navigationUrl) => {
-    /* eng-disable LIMIT_NAVIGATION_JS_CHECK  */
-    const parsedUrl = new URL(navigationUrl);
-    const validOrigins = [selfHost];
-
-    if (!validOrigins.includes(parsedUrl.origin)) {
+    if (!isValidUrl(navigationUrl)) {
       console.error(
         `The application tried to redirect to the following address: '${navigationUrl}'. This attempt was blocked.`
       );
@@ -226,26 +183,11 @@ app.on("web-contents-created", (event, contents) => {
     }
   });
 
-  // https://electronjs.org/docs/tutorial/security#11-verify-webview-options-before-creation
-  contents.on(
-    "will-attach-webview",
-    (contentsEvent, webPreferences, params) => {
-      // Strip away preload scripts if unused or verify their location is legitimate
-      // delete webPreferences.preload;
-      // delete webPreferences.preloadURL;
-      // Disable Node.js integration
-      // webPreferences.nodeIntegration = false;
-    }
-  );
-
   // https://electronjs.org/docs/tutorial/security#13-disable-or-limit-creation-of-new-windows
   // This code replaces the old "new-window" event handling;
   // https://github.com/electron/electron/pull/24517#issue-447670981
   contents.setWindowOpenHandler(({ url }) => {
-    const parsedUrl = new URL(url);
-    const validOrigins = [selfHost];
-
-    if (validOrigins.includes(parsedUrl.origin)) {
+    if (isValidUrl(url)) {
       if (url.includes("/qr")) {
         return {
           action: "allow",

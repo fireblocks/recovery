@@ -182,8 +182,8 @@ const Recover: NextPageWithLayout = () => {
   );
 };
 
-Recover.getLayout = (page) => (
-  <Layout showBack hideSidebar>
+Recover.getLayout = (page, router) => (
+  <Layout showBack hideNavigation hideSidebar>
     {page}
   </Layout>
 );

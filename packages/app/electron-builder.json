@@ -20,17 +20,24 @@
   "extraFiles": [
     {
       "from": "../server/dist",
-      "filter": ["server", "server.exe"]
+      "filter": ["__main__", "__main__.exe"]
     }
   ],
+  // "afterSign": "electron-builder-notarize",
   "publish": null,
   "mac": {
-    "category": "public.app-category.developer-tools"
+    "target": "zip",
+    "category": "public.app-category.business",
+    "gatekeeperAssess": false,
+    "hardenedRuntime": true,
+    "entitlements": "./entitlements.plist",
+    "entitlementsInherit": "./entitlements.plist"
   },
   "win": {
     "target": "nsis"
   },
   "linux": {
-    "target": "AppImage"
+    "target": "AppImage",
+    "category": "Office"
   }
 }

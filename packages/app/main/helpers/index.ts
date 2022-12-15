@@ -1,2 +1,2 @@
 export { createWindow } from "./create-window";
-export { PythonServer } from "./python-server";
+export { registerFileProtocol } from "./protocol";

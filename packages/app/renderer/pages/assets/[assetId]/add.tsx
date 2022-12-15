@@ -1,3 +1,4 @@
+import type { GetStaticProps, GetStaticPaths } from "next";
 import Head from "next/head";
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
@@ -5,7 +6,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { deriveKeysInput } from "../../../lib/schemas";
 import { Box, Grid, Typography, InputBaseProps, SxProps } from "@mui/material";
-import { AssetId, AssetType, AssetIcon, Button, TextField } from "shared";
+import {
+  assetIds,
+  AssetId,
+  AssetType,
+  AssetIcon,
+  Button,
+  TextField,
+} from "shared";
 import { deserializePath } from "../../../lib/bip44";
 import { addWallets } from "../../../lib/ipc/addWallets";
 import { closeWindow } from "../../../lib/ipc/closeWindow";
@@ -166,3 +174,12 @@ const AddWallets = () => {
 };
 
 export default AddWallets;
+
+export const getStaticProps: GetStaticProps = async ({ params }) => ({
+  props: {},
+});
+
+export const getStaticPaths: GetStaticPaths = async () => ({
+  paths: assetIds.map((assetId) => ({ params: { assetId } })),
+  fallback: false,
+});

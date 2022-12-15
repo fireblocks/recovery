@@ -1,5 +1,7 @@
+import type { GetStaticProps, GetStaticPaths } from "next";
 import type { NextPageWithLayout } from "../../_app";
 import { useState } from "react";
+import { assetIds } from "shared";
 import { Layout } from "../../../components/Layout";
 import {
   NextLinkComposed,
@@ -269,3 +271,12 @@ const Asset: NextPageWithLayout = () => {
 Asset.getLayout = (page) => <Layout>{page}</Layout>;
 
 export default Asset;
+
+export const getStaticProps: GetStaticProps = async ({ params }) => ({
+  props: {},
+});
+
+export const getStaticPaths: GetStaticPaths = async () => ({
+  paths: assetIds.map((assetId) => ({ params: { assetId } })),
+  fallback: false,
+});

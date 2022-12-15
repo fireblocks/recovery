@@ -368,7 +368,7 @@ const Setup: NextPageWithLayout = () => {
 };
 
 Setup.getLayout = (page) => (
-  <Layout showBack hideSidebar>
+  <Layout showBack hideNavigation hideSidebar>
     {page}
   </Layout>
 );
