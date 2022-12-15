@@ -27,20 +27,25 @@ export class Ethereum implements BaseWallet {
   ) {
     const wallet = new Wallet(`0x${privateKeyHex}`, this.provider);
 
-    // const signer = this.provider.getSigner(`0x${privateKeyHex}`);
+    const address = await wallet.getAddress();
 
-    const tx = await wallet.sendTransaction({
+    const signer = wallet.connect(this.provider);
+
+    const nonce = this.provider.getTransactionCount(address, "latest");
+
+    const res = await signer.sendTransaction({
       to,
       value: ethers.utils.parseEther(String(amount)),
-      // TODO: Make this user-configurable
+      nonce,
       gasLimit: "21000",
       maxPriorityFeePerGas: ethers.utils.parseUnits("5", "gwei"),
       maxFeePerGas: ethers.utils.parseUnits("20", "gwei"),
-      nonce: 1,
       type: 2,
       chainId: 1,
     });
 
-    return tx.hash;
+    const txHash = res.hash;
+
+    return txHash;
   }
 }
