@@ -175,7 +175,7 @@ export const ConfirmationModal = ({
           </DialogActions>
         </>
       ) : (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <Box component="form" marginTop="1em" onSubmit={handleSubmit(onSubmit)}>
           <DialogTitle id={headingId} variant="h1">
             Confirm Transaction
           </DialogTitle>
@@ -205,7 +205,7 @@ export const ConfirmationModal = ({
             </Button>
             <Button type="submit">Send Transaction</Button>
           </DialogActions>
-        </form>
+        </Box>
       )}
     </Dialog>
   );

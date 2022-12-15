@@ -139,7 +139,7 @@ export const TextField = forwardRef<HTMLInputElement, Props>(
     };
 
     const onFocus = (event: FocusEvent<HTMLInputElement>) => {
-      if (enableCopy) {
+      if (enableCopy && type !== "password") {
         event.target.select();
       }
 

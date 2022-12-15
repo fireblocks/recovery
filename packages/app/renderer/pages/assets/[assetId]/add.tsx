@@ -99,7 +99,9 @@ const AddWallets = () => {
         <Grid item xs={6}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <Typography variant="h2">Vault Account ID</Typography>
+              <Typography variant="h2" marginBottom="0">
+                Vault Account ID
+              </Typography>
             </Grid>
             <Grid item xs={6}>
               <TextField
@@ -133,7 +135,9 @@ const AddWallets = () => {
           <Grid item xs={6}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <Typography variant="h2">Index</Typography>
+                <Typography variant="h2" marginBottom="0">
+                  Index
+                </Typography>
               </Grid>
               <Grid item xs={6}>
                 <TextField
