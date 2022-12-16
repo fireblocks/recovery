@@ -131,3 +131,5 @@ jobs:
       - name: Create release pull request
         id: changesets
         uses: changesets/action@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
