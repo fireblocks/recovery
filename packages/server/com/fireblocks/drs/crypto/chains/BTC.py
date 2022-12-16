@@ -47,6 +47,7 @@ class BitcoinRecovery(EcDSARecovery):
         else:
             setup("mainnet")
         return DerivationDetails(
+            self.wif,
             self.prv_hex,
             self.pub_hex,
             self.to_address(testnet, legacy),

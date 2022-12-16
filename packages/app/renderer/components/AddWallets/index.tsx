@@ -1,4 +1,4 @@
-import { useState, useMemo, MouseEvent } from "react";
+import { useState, useMemo, MouseEvent, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { TextField, Button, AssetId, AssetType, AssetInfo } from "shared";
 import {
@@ -71,6 +71,7 @@ export const AddWallets = ({ asset, anchorOrigin, transformOrigin }: Props) => {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(deriveKeysInput),
@@ -128,6 +129,9 @@ export const AddWallets = ({ asset, anchorOrigin, transformOrigin }: Props) => {
           borderBottomRightRadius: "0",
         },
   });
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => reset(defaultValues), [asset?.id]);
 
   return (
     <>

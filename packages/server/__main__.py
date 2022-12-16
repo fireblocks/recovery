@@ -134,6 +134,7 @@ def derive_keys_impl():
             )
             res.append(
                 DerivationDetails(
+                    None,
                     "",
                     pub_hex,
                     address,
@@ -235,42 +236,6 @@ def show_extended_keys_impl():
     raise Exception(
         "No extended key entries. Make sure to recover the addresses first."
     )
-
-
-# ======================================= Show Private Key API
-
-
-@app.route("/show-private-key", methods=["GET"])
-def show_private_key():
-    try:
-        res = show_private_key_impl()
-    except Exception as e:
-        res = app.response_class(response=json.dumps({"reason": str(e)}), status=500)
-    return res
-
-
-def show_private_key_impl():
-    helper, *_ = unpack_request()
-    details: DerivationDetails = helper.get_derivation_details(**{})
-    return {"prv": details.prv}
-
-
-# ======================================= Show Private Key API
-
-
-@app.route("/get-wif", methods=["GET"])
-def get_wif():
-    try:
-        res = get_wif_impl()
-    except Exception as e:
-        traceback.print_exc()
-        res = app.response_class(response=json.dumps({"reason": str(e)}), status=500)
-    return res
-
-
-def get_wif_impl():
-    helper, *_ = unpack_request()
-    return helper.to_import_format()
 
 
 if __name__ == "__main__":

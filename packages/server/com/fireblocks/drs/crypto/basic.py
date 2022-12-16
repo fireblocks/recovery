@@ -8,6 +8,12 @@ DERIVATION_PURPOSE = 44
 @dataclasses.dataclass
 class DerivationDetails:
     """
+    The private key in Wallet Import Format
+    """
+
+    wif: str | None
+
+    """
     The private key in hex
     """
 
@@ -40,14 +46,6 @@ class BaseRecovery:
         The purpose of this function is to adjust the address computation based off the coin, as different coins might
         have different derivations.
         :return: the function on implemented classes should return a string representing the address.
-        """
-        raise NotImplementedError("Not implemented on base class")
-
-    def to_import_format(self) -> str:
-        """
-        This method is supposed to be implemented per class, meaning per recovery class.
-        Given an ECDSA key, return a format of the key that will allow the user to import the private key to a different wallet.
-        :return:
         """
         raise NotImplementedError("Not implemented on base class")
 

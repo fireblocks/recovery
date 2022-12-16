@@ -30,6 +30,7 @@ class EthereumRecovery(EcDSARecovery):
 
     def get_derivation_details(self, **kwargs) -> DerivationDetails:
         return DerivationDetails(
+            self.wif,
             self.prv_hex,
             self.pub_hex,
             self.to_address(),

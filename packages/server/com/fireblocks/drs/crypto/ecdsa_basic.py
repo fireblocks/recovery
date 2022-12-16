@@ -50,12 +50,15 @@ class EcDSARecovery(BaseRecovery, ABC):
             byteorder="big",
         )
 
+        # Private key hex
         hex_inter_value = hex(self.private_key)[2:]
         self.prv_hex = (
             f"0{hex_inter_value}"
             if len(hex_inter_value) % 2 != 0
             else f"{hex_inter_value}"
         )
+
+        # Public key hex
         hex_inter_value = hex(self.public_key)[2:]
         self.pub_hex = (
             f"0{hex_inter_value}"
@@ -63,15 +66,14 @@ class EcDSARecovery(BaseRecovery, ABC):
             else f"{hex_inter_value}"
         )
 
-    def to_import_format(self) -> str:
+        # Private key WIF
         # Adding 0x80 byte in front (must) and 0x01 byte in the end (as it corresponds to compressed public key).
-        full_key = "80" + self.prv_hex + "01"
-        # Double SHA256
-        first_hash = hashlib.sha256(binascii.unhexlify(full_key)).hexdigest().encode()
+        full_private_key = "80" + self.prv_hex + "01"
+        full_private_key_bytes = binascii.unhexlify(full_private_key)
+        first_hash = hashlib.sha256(full_private_key_bytes).hexdigest().encode()
         second_hash = hashlib.sha256(first_hash).hexdigest()
-
-        final_key = full_key + second_hash[:8]
-        result_bytes = bytes.fromhex(final_key)
-        base_result = base58.b58encode(result_bytes)
-
-        return base_result.decode()
+        wif_checksum = second_hash[:8]
+        wif_hex = full_private_key + wif_checksum
+        wif_bytes = bytes.fromhex(wif_hex)
+        wif_base_58_bytes = base58.b58encode(wif_bytes)
+        self.wif = wif_base_58_bytes.decode()

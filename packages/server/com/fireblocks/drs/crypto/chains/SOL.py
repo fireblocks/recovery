@@ -30,6 +30,7 @@ class SolanaRecovery(EdDSARecovery):
 
     def get_derivation_details(self, **kwargs) -> DerivationDetails:
         return DerivationDetails(
+            self.wif,
             self.prv_hex,
             self.pub_hex,
             str(self.to_address()),

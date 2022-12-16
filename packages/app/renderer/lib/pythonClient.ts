@@ -94,6 +94,7 @@ export type DeriveKeysInput = {
 };
 
 export type DeriveKeysResponse = {
+  wif: string | undefined;
   prv: string;
   pub: string;
   address: string;
@@ -129,23 +130,4 @@ export const deriveKeys = async ({
   } catch (error) {
     throw new Error("Key derivation failed");
   }
-};
-
-export type GetWifInput = {
-  assetId: string;
-  accountId: number;
-  index: number;
-};
-
-export const getWif = async ({ assetId, accountId, index }: GetWifInput) => {
-  const params = new URLSearchParams({
-    asset: assetId,
-    account: String(accountId),
-    change: "0",
-    index: String(index),
-  });
-
-  const wif = await request(`/get-wif?${params.toString()}`, "text");
-
-  return wif;
 };

@@ -42,8 +42,4 @@ class EdDSARecovery(BaseRecovery, ABC):
         self.prv_hex = hex(self.private_key)[2:]
         self.public_key = int.from_bytes(self.pub_hex, byteorder="little")
         self.pub_hex = self.pub_hex.hex()
-
-    def to_import_format(self) -> str:
-        raise UnsupportedException(
-            "Wallet Import Format is not supported for EdDSA assets."
-        )
+        self.wif = None  # Wallet Import Format is not supported for EdDSA assets

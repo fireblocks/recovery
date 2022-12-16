@@ -1,8 +1,7 @@
 import { AssetId } from "shared/types";
 import { z } from "zod";
-import { getAssetInfo, SigningAlgorithm } from "shared";
 import { Wallet } from "../../context/Workspace";
-import { getWif, deriveKeys, DeriveKeysInput } from "../../lib/pythonClient";
+import { deriveKeys, DeriveKeysInput } from "../../lib/pythonClient";
 import { deriveKeysInput } from "../../lib/schemas";
 
 export type GetWalletsVariables = z.infer<typeof deriveKeysInput> & {
@@ -12,22 +11,12 @@ export type GetWalletsVariables = z.infer<typeof deriveKeysInput> & {
 const getAccountWallets = async (input: DeriveKeysInput) => {
   const { assetId } = input;
 
-  console.info({ input });
-
   const derivations = await deriveKeys(input);
 
   const accountWallets = await Promise.all(
     derivations.map<Promise<Wallet>>(async (data) => {
       const pathParts = data.path.split(",").map((p) => parseInt(p));
       const [purpose, coinType, accountId, change, index] = pathParts;
-
-      let wif: string | undefined;
-
-      if (
-        getAssetInfo(assetId).algorithm !== SigningAlgorithm.MPC_EDDSA_ED25519
-      ) {
-        wif = await getWif({ assetId, accountId, index });
-      }
 
       return {
         assetId,
@@ -36,7 +25,7 @@ const getAccountWallets = async (input: DeriveKeysInput) => {
         addressType: index > 0 ? "Deposit" : "Permanent",
         publicKey: data.pub,
         privateKey: data.prv,
-        wif,
+        wif: data.wif,
       };
     })
   );
