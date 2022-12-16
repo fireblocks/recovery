@@ -40,7 +40,7 @@ jobs:
         working-directory: ./packages/server/res
         run: ./setup.sh
 
-      - name: Prepare for app notarization
+      - name: Prepare for macOS app notarization
         if: startsWith(matrix.os, 'macos')
         env:
           APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
@@ -70,7 +70,7 @@ jobs:
           security import $CERTIFICATE_PATH -P "$CSC_KEY_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
 
-      - name: Build and release
+      - name: Build packages
         run: yarn build
         env:
           APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
@@ -82,24 +82,32 @@ jobs:
           TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
           TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
 
-      - name: Clean up keychain and provisioning profile
-        if: ${{ always() }}
-        run: |
-          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
-          rm ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.mobileprovision
-
-      - uses: actions/upload-artifact@v3
+      - name: Upload Recovery Utility artifact
+        uses: actions/upload-artifact@v3
         with:
           name: Recovery Utility
           path: packages/app/dist/
 
-      - uses: actions/upload-artifact@v3
+      - name: Upload Recovery Utility Server artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Recovery Utility Server
+          path: packages/server/dist/
+
+      - name: Upload Recovery Relay Artifact
+        uses: actions/upload-artifact@v3
         with:
           name: Recovery Relay
           path: packages/relay/out/
 
+      - name: Clean up Apple Developer secrets
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+          rm -rf ~/private_keys/
+
   pr:
-    name: Version Packages
+    name: Version packages
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -114,6 +122,6 @@ jobs:
           node-version: lts/gallium
           cache: "yarn"
 
-      - name: Version packages
+      - name: Create release pull request
         id: changesets
         uses: changesets/action@v1
