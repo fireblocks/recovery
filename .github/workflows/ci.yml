@@ -14,7 +14,8 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-12]
+        # os: [ubuntu-latest, windows-latest, macos-12]
+        os: [windows-latest]
 
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -106,7 +107,7 @@ jobs:
           path: packages/relay/out/
 
       - name: Clean up Apple Developer secrets
-        if: startsWith(matrix.os, 'macos')
+        if: ${{ always() && startsWith(matrix.os, 'macos') }}
         run: |
           security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
           rm -rf ~/private_keys/
