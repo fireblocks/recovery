@@ -33,6 +33,12 @@ jobs:
           node-version: lts/gallium
           cache: "yarn"
 
+      - name: Setup Python environment
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
       - name: Install Node.js dependencies
         run: yarn install --frozen-lockfile
 
