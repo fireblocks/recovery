@@ -3,6 +3,7 @@ import { Box, Grid } from "@mui/material";
 import { Key, Settings } from "@mui/icons-material";
 import { Logo, Button, Link, NextLinkComposed } from "shared";
 import { AssetsIcon } from "./components/Icons";
+import { pythonServerUrlParams } from "../../../../lib/pythonClient";
 import { useWorkspace } from "../../../../context/Workspace";
 
 type Props = {
@@ -71,7 +72,7 @@ export const Header = ({ hideNavigation, showBack }: Props) => {
                 component={NextLinkComposed}
                 to={{
                   pathname: "/assets/[assetId]",
-                  query: { assetId: "BTC" },
+                  query: { ...pythonServerUrlParams, assetId: "BTC" },
                 }}
                 startIcon={<AssetsIcon active={isActive("/assets")} />}
                 color={isActive("/assets") ? "primary" : "secondary"}
@@ -83,7 +84,10 @@ export const Header = ({ hideNavigation, showBack }: Props) => {
               <Button
                 variant="text"
                 component={NextLinkComposed}
-                to="/keys"
+                to={{
+                  pathname: "/keys",
+                  query: pythonServerUrlParams,
+                }}
                 startIcon={<Key />}
                 color={isActive("/keys") ? "primary" : "secondary"}
               >
@@ -94,7 +98,10 @@ export const Header = ({ hideNavigation, showBack }: Props) => {
               <Button
                 variant="text"
                 component={NextLinkComposed}
-                to="/settings"
+                to={{
+                  pathname: "/settings",
+                  query: pythonServerUrlParams,
+                }}
                 startIcon={<Settings />}
                 color={isActive("/settings") ? "primary" : "secondary"}
               >

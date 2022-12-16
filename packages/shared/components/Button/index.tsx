@@ -1,9 +1,12 @@
 import React, { ElementType } from "react";
 import { NextLinkComposedProps } from "../Link";
-import { Button as MuiButton, ButtonProps } from "@mui/material";
+import {
+  Button as MuiButton,
+  ButtonProps as MuiButtonProps,
+} from "@mui/material";
 
-type Props<C extends React.ElementType> = ButtonProps &
-  Partial<NextLinkComposedProps> & {
+export type ButtonProps<C extends ElementType = "button"> = MuiButtonProps &
+  Partial<Omit<NextLinkComposedProps, "onClick">> & {
     component?: C;
   };
 
@@ -11,7 +14,7 @@ export const Button = <C extends ElementType>({
   variant = "contained",
   disabled,
   ...props
-}: Props<C>) => (
+}: ButtonProps<C>) => (
   <MuiButton
     variant={disabled ? "outlined" : variant}
     disabled={disabled}

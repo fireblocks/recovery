@@ -35,6 +35,7 @@ interface IWorkspaceContext {
   isTestnet?: boolean;
   wallets: Wallet[];
   currentAssetWallets: Wallet[];
+  handleAddWallets: (wallets: Wallet[]) => void;
   resetWorkspace: (isRecovered: boolean) => void;
 }
 
@@ -49,6 +50,7 @@ const defaultValue: IWorkspaceContext = {
   isTestnet: undefined,
   wallets: [],
   currentAssetWallets: [],
+  handleAddWallets: () => undefined,
   resetWorkspace: () => undefined,
 };
 
@@ -148,16 +150,8 @@ export const WorkspaceProvider = ({ children }: Props) => {
       ? !["false", "0"].includes(_isTestnet.toLowerCase())
       : undefined;
 
-  useEffect(() => {
-    const handleAddWallets = (event: IpcRendererEvent, data: Wallet[]) =>
-      setWallets((prev) => formatWallets([...prev, ...data]));
-
-    ipcRenderer.on("wallets/add", handleAddWallets);
-
-    return () => {
-      ipcRenderer.removeListener("wallets/add", handleAddWallets);
-    };
-  }, []);
+  const handleAddWallets = (newWallets: Wallet[]) =>
+    setWallets((prev) => formatWallets([...prev, ...newWallets]));
 
   const value: IWorkspaceContext = {
     isRecovered,
@@ -170,6 +164,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
     isTestnet,
     wallets,
     currentAssetWallets,
+    handleAddWallets,
     resetWorkspace,
   };
 

@@ -1,13 +1,12 @@
 import type { GetStaticProps, GetStaticPaths } from "next";
 import type { NextPageWithLayout } from "../../_app";
 import { useState } from "react";
-import { assetIds } from "shared";
-import { Layout } from "../../../components/Layout";
 import {
   NextLinkComposed,
   TextField,
   Button,
   getAssetInfo,
+  assetIds,
   AssetId,
   AssetType,
   AssetIcon,
@@ -31,6 +30,8 @@ import { deserializePath, serializePath } from "../../../lib/bip44";
 import { useWorkspace, Wallet } from "../../../context/Workspace";
 import { csvExport } from "../../../lib/csvExport";
 import { download } from "../../../lib/download";
+import { Layout } from "../../../components/Layout";
+import { AddWallets } from "../../../components/AddWallets";
 
 const Asset: NextPageWithLayout = () => {
   const { asset, wallets, currentAssetWallets } = useWorkspace();
@@ -90,20 +91,19 @@ const Asset: NextPageWithLayout = () => {
           </Typography>
         </Grid>
         <Grid item>
-          <Button
-            color="primary"
-            component={NextLinkComposed}
-            to={{
-              pathname: "/assets/[assetId]/add",
-              query: {
-                ...pythonServerUrlParams,
-                assetId: asset?.id as string,
-              },
-            }}
-            target="_blank"
-          >
-            Add Wallets
-          </Button>
+          {!!asset && (
+            <AddWallets
+              asset={asset}
+              anchorOrigin={{
+                vertical: "center",
+                horizontal: "center",
+              }}
+              transformOrigin={{
+                vertical: "center",
+                horizontal: "center",
+              }}
+            />
+          )}
         </Grid>
       </Grid>
     );
@@ -133,20 +133,19 @@ const Asset: NextPageWithLayout = () => {
               </Button>
             </Grid>
             <Grid item>
-              <Button
-                color="primary"
-                component={NextLinkComposed}
-                to={{
-                  pathname: "/assets/[assetId]/add",
-                  query: {
-                    ...pythonServerUrlParams,
-                    assetId: asset?.id as string,
-                  },
-                }}
-                target="_blank"
-              >
-                Add
-              </Button>
+              {!!asset && (
+                <AddWallets
+                  asset={asset}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right",
+                  }}
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                />
+              )}
             </Grid>
           </Grid>
         </Grid>

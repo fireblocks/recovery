@@ -1,8 +1,9 @@
 import type { NextPageWithLayout } from "./_app";
 import type { ReactElement } from "react";
-import { Layout } from "../components/Layout";
 import { LogoHero, Button, NextLinkComposed } from "shared";
 import { Grid } from "@mui/material";
+import { Layout } from "../components/Layout";
+import { pythonServerUrlParams } from "../lib/pythonClient";
 
 const Index: NextPageWithLayout = () => {
   return (
@@ -21,7 +22,10 @@ const Index: NextPageWithLayout = () => {
               variant="outlined"
               fullWidth
               component={NextLinkComposed}
-              to="/setup"
+              to={{
+                pathname: "/setup",
+                query: pythonServerUrlParams,
+              }}
             >
               Setup Recovery Kit
             </Button>
@@ -32,7 +36,13 @@ const Index: NextPageWithLayout = () => {
               variant="outlined"
               fullWidth
               component={NextLinkComposed}
-              to="/recover?verifyOnly=true"
+              to={{
+                pathname: "/recover",
+                query: {
+                  ...pythonServerUrlParams,
+                  verifyOnly: true,
+                },
+              }}
             >
               Verify Recovery Kit
             </Button>
@@ -43,7 +53,10 @@ const Index: NextPageWithLayout = () => {
               color="primary"
               fullWidth
               component={NextLinkComposed}
-              to="/recover"
+              to={{
+                pathname: "/recover",
+                query: pythonServerUrlParams,
+              }}
             >
               Recover Private Keys
             </Button>

@@ -28,8 +28,10 @@ const Recover: NextPageWithLayout = () => {
   const verifyOnly = router.query.verifyOnly === "true";
 
   const recoverMutation = useMutation({
-    mutationFn: async (variables: FormData) => recoverKeys(variables),
+    mutationFn: recoverKeys,
     onSuccess: () => {
+      setRecoveryError(undefined);
+
       resetWorkspace(true);
 
       router.push(verifyOnly ? "/keys?verifyOnly=true" : "/assets");

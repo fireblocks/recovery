@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { AssetIcon, NextLinkComposed, assets } from "shared";
 import { useRouter } from "next/router";
+import { pythonServerUrlParams } from "../../../../lib/pythonClient";
 
 export const Sidebar = () => {
   const router = useRouter();
@@ -28,7 +29,7 @@ export const Sidebar = () => {
               selected={selectedAssetId === id}
               to={{
                 pathname: "/assets/[assetId]",
-                query: { assetId: id },
+                query: { ...pythonServerUrlParams, assetId: id },
               }}
             >
               <ListItemIcon sx={{ minWidth: "42px" }}>
