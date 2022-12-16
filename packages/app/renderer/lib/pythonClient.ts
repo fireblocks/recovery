@@ -2,7 +2,7 @@ import { z } from "zod";
 import { AssetId } from "shared";
 import { recoverKeysInput } from "./schemas";
 
-export const pythonServerUrlParams = { server: "" };
+export const pythonServerUrlParams = { server: "http://localhost:8000" };
 
 if (typeof window !== "undefined") {
   const urlParams = new URLSearchParams(window.location.search);
