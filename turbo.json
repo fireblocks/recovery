@@ -7,7 +7,7 @@
         ".next/**",
         "build/**",
         "dist/**",
-        "build/**",
+        "out/**",
         "app/**",
         "renderer/.next/**",
         "__main__.spec"
@@ -21,7 +21,15 @@
       "outputs": []
     },
     "format": {
-      "outputs": ["main/**", "renderer/**", "*.py"]
+      "outputs": [
+        "main/**",
+        "renderer/**",
+        "components/**",
+        "context/**",
+        "lib/**",
+        "pages/**",
+        "*.py"
+      ]
     },
     "dev": {
       "cache": false
