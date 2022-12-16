@@ -1,6 +1,6 @@
 import type { GetStaticProps, GetStaticPaths } from "next";
 import type { NextPageWithLayout } from "../../_app";
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 import {
   NextLinkComposed,
   TextField,
@@ -23,6 +23,7 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  Checkbox,
 } from "@mui/material";
 import { Key, ArrowUpward } from "@mui/icons-material";
 import { pythonServerUrlParams } from "../../../lib/pythonClient";
@@ -34,11 +35,39 @@ import { Layout } from "../../../components/Layout";
 import { AddWallets } from "../../../components/AddWallets";
 
 const Asset: NextPageWithLayout = () => {
-  const { asset, wallets, currentAssetWallets } = useWorkspace();
+  const { asset, wallets, currentAssetWallets, handleDeleteWallets } =
+    useWorkspace();
 
   const [showPaths, setShowPaths] = useState(false);
 
   const toggleShowPaths = () => setShowPaths((prev) => !prev);
+
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [addressDeletionQueueMap, setAddressDeletionQueueMap] = useState<
+    Record<string, boolean>
+  >({});
+
+  const onToggleSelectWallet = (
+    event: ChangeEvent<HTMLInputElement>,
+    checked: boolean
+  ) => {
+    const address = event.target.value;
+
+    setAddressDeletionQueueMap((prev) => ({ ...prev, [address]: checked }));
+  };
+
+  const onToggleEditing = () => setIsEditing((prev) => !prev);
+
+  const onDeleteWallets = () => {
+    const addressesToDelete = Object.keys(addressDeletionQueueMap).filter(
+      (address) => addressDeletionQueueMap[address]
+    );
+
+    handleDeleteWallets(addressesToDelete);
+
+    setAddressDeletionQueueMap({});
+  };
 
   const onExportCsv = async () => {
     const data = wallets.map((wallet) => {
@@ -122,18 +151,37 @@ const Asset: NextPageWithLayout = () => {
         </Grid>
         <Grid item>
           <Grid container spacing={2} alignItems="center">
+            {!isEditing && (
+              <Grid item>
+                <Button variant="text" onClick={toggleShowPaths}>
+                  {showPaths ? "Hide" : "Show"} Paths
+                </Button>
+              </Grid>
+            )}
+            {!isEditing && (
+              <Grid item>
+                <Button variant="text" onClick={onExportCsv}>
+                  Export
+                </Button>
+              </Grid>
+            )}
+            {isEditing && (
+              <Grid item>
+                <Button variant="text" color="error" onClick={onDeleteWallets}>
+                  Delete
+                </Button>
+              </Grid>
+            )}
             <Grid item>
-              <Button variant="text" onClick={toggleShowPaths}>
-                {showPaths ? "Hide" : "Show"} Paths
+              <Button
+                variant={isEditing ? "contained" : "text"}
+                onClick={onToggleEditing}
+              >
+                {isEditing ? "Done" : "Edit"}
               </Button>
             </Grid>
-            <Grid item>
-              <Button variant="text" onClick={onExportCsv}>
-                Export
-              </Button>
-            </Grid>
-            <Grid item>
-              {!!asset && (
+            {!!asset && !isEditing && (
+              <Grid item>
                 <AddWallets
                   asset={asset}
                   anchorOrigin={{
@@ -145,8 +193,8 @@ const Asset: NextPageWithLayout = () => {
                     horizontal: "right",
                   }}
                 />
-              )}
-            </Grid>
+              </Grid>
+            )}
           </Grid>
         </Grid>
       </Grid>
@@ -154,6 +202,7 @@ const Asset: NextPageWithLayout = () => {
         <Table aria-label={`${asset?.name} wallets`} size="small">
           <TableHead>
             <TableRow>
+              {isEditing && <TableCell>Select</TableCell>}
               {showPaths ? (
                 <TableCell>Path</TableCell>
               ) : (
@@ -165,8 +214,12 @@ const Asset: NextPageWithLayout = () => {
                 </>
               )}
               <TableCell>Address</TableCell>
-              <TableCell align="center">Keys</TableCell>
-              <TableCell align="center">Withdraw</TableCell>
+              {!isEditing && (
+                <>
+                  <TableCell align="center">Keys</TableCell>
+                  <TableCell align="center">Withdraw</TableCell>
+                </>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -192,6 +245,19 @@ const Asset: NextPageWithLayout = () => {
                     "&:last-child td, &:last-child th": { border: 0 },
                   }}
                 >
+                  {isEditing && (
+                    <TableCell>
+                      <Checkbox
+                        color="error"
+                        value={wallet.address}
+                        checked={
+                          addressDeletionQueueMap[wallet.address] ?? false
+                        }
+                        inputProps={{ "aria-label": "Select to delete" }}
+                        onChange={onToggleSelectWallet}
+                      />
+                    </TableCell>
+                  )}
                   {showPaths ? (
                     <TableCell component="th" scope="row">
                       {serializedPath}
@@ -218,45 +284,49 @@ const Asset: NextPageWithLayout = () => {
                       isMonospace
                     />
                   </TableCell>
-                  <TableCell align="center">
-                    <IconButton
-                      aria-label="Show keys"
-                      component={NextLinkComposed}
-                      to={{
-                        pathname: "/assets/[assetId]/details",
-                        query: {
-                          ...pythonServerUrlParams,
-                          assetId: asset?.id as string,
-                          path: wallet.pathParts.join(","),
-                          address: wallet.address,
-                          publicKey: wallet.publicKey,
-                          privateKey: wallet.privateKey,
-                          wif: wallet.wif,
-                        },
-                      }}
-                      target="_blank"
-                    >
-                      <Key />
-                    </IconButton>
-                  </TableCell>
-                  <TableCell align="center">
-                    <IconButton
-                      aria-label="Withdraw"
-                      component={NextLinkComposed}
-                      to={{
-                        pathname: "/assets/[assetId]/withdraw",
-                        query: {
-                          ...pythonServerUrlParams,
-                          assetId: asset?.id as string,
-                          address: wallet.address,
-                          privateKey: wallet.privateKey,
-                        },
-                      }}
-                      target="_blank"
-                    >
-                      <ArrowUpward />
-                    </IconButton>
-                  </TableCell>
+                  {!isEditing && (
+                    <>
+                      <TableCell align="center">
+                        <IconButton
+                          aria-label="Show keys"
+                          component={NextLinkComposed}
+                          to={{
+                            pathname: "/assets/[assetId]/details",
+                            query: {
+                              ...pythonServerUrlParams,
+                              assetId: asset?.id as string,
+                              path: wallet.pathParts.join(","),
+                              address: wallet.address,
+                              publicKey: wallet.publicKey,
+                              privateKey: wallet.privateKey,
+                              wif: wallet.wif,
+                            },
+                          }}
+                          target="_blank"
+                        >
+                          <Key />
+                        </IconButton>
+                      </TableCell>
+                      <TableCell align="center">
+                        <IconButton
+                          aria-label="Withdraw"
+                          component={NextLinkComposed}
+                          to={{
+                            pathname: "/assets/[assetId]/withdraw",
+                            query: {
+                              ...pythonServerUrlParams,
+                              assetId: asset?.id as string,
+                              address: wallet.address,
+                              privateKey: wallet.privateKey,
+                            },
+                          }}
+                          target="_blank"
+                        >
+                          <ArrowUpward />
+                        </IconButton>
+                      </TableCell>
+                    </>
+                  )}
                 </TableRow>
               );
             })}

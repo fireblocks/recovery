@@ -36,6 +36,7 @@ interface IWorkspaceContext {
   wallets: Wallet[];
   currentAssetWallets: Wallet[];
   handleAddWallets: (wallets: Wallet[]) => void;
+  handleDeleteWallets: (addresses: string[]) => void;
   resetWorkspace: (isRecovered: boolean) => void;
 }
 
@@ -51,6 +52,7 @@ const defaultValue: IWorkspaceContext = {
   wallets: [],
   currentAssetWallets: [],
   handleAddWallets: () => undefined,
+  handleDeleteWallets: () => undefined,
   resetWorkspace: () => undefined,
 };
 
@@ -153,6 +155,13 @@ export const WorkspaceProvider = ({ children }: Props) => {
   const handleAddWallets = (newWallets: Wallet[]) =>
     setWallets((prev) => formatWallets([...prev, ...newWallets]));
 
+  const handleDeleteWallets = (addresses: string[]) =>
+    setWallets((prev) =>
+      formatWallets(
+        prev.filter((wallet) => !addresses.includes(wallet.address))
+      )
+    );
+
   const value: IWorkspaceContext = {
     isRecovered,
     asset,
@@ -165,6 +174,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
     wallets,
     currentAssetWallets,
     handleAddWallets,
+    handleDeleteWallets,
     resetWorkspace,
   };
 
