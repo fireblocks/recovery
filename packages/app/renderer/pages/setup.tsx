@@ -144,6 +144,7 @@ const Setup: NextPageWithLayout = () => {
       component="form"
       display="flex"
       flexDirection="column"
+      marginBottom="2em"
       onSubmit={handleSubmit(onGenerateRsaKeypair)}
     >
       <Typography variant="h1">Setup Recovery Kit</Typography>
@@ -159,7 +160,7 @@ const Setup: NextPageWithLayout = () => {
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="Set up the offline recovery machine."
+            primary="Set up the offline recovery machine"
             primaryTypographyProps={{ variant: "h2" }}
             secondary={
               <>
@@ -170,15 +171,15 @@ const Setup: NextPageWithLayout = () => {
                       color={machineSetupColor}
                       fontWeight={isOnline ? 600 : undefined}
                     >
-                      Offline and air-gapped.{" "}
+                      Offline and air-gapped
                       {isOnline &&
-                        "This machine is connected to a network. Please disconnect."}
+                        ". This machine is connected to a network. Please disconnect."}
                     </Typography>
                   </li>
-                  <li>Accessible only by necessary, authorized personnel,</li>
-                  <li>Protected with a very strong password,</li>
-                  <li>Encrypted on all partitions, and</li>
-                  <li>Stored in a safe box when not in use.</li>
+                  <li>Accessible only by necessary, authorized personnel</li>
+                  <li>Protected with a very strong password</li>
+                  <li>Encrypted on all partitions</li>
+                  <li>Stored in a safe box when not in use</li>
                 </ol>
               </>
             }
@@ -200,7 +201,7 @@ const Setup: NextPageWithLayout = () => {
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="Generate the recovery keypair and checksum."
+            primary="Generate the recovery keypair and checksum"
             primaryTypographyProps={{ variant: "h2" }}
             secondary={
               <>
@@ -268,7 +269,7 @@ const Setup: NextPageWithLayout = () => {
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="Send the recovery public key to Fireblocks."
+            primary="Send the recovery public key to Fireblocks"
             primaryTypographyProps={{ variant: "h2" }}
             secondary="Send the recovery public key and its checksum to Fireblocks Support. Once Fireblocks Support receives the key, you are contacted to perform an integrity check on the key and verify it has not been tampered with."
           />
@@ -315,7 +316,7 @@ const Setup: NextPageWithLayout = () => {
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="Download the offline key recovery package."
+            primary="Download the offline key recovery package"
             primaryTypographyProps={{ variant: "h2" }}
             secondary={
               <>
@@ -342,7 +343,7 @@ const Setup: NextPageWithLayout = () => {
             <Avatar>5</Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="Verify Recovery Kit."
+            primary="Verify Recovery Kit"
             primaryTypographyProps={{ variant: "h2" }}
             secondary="Use Recovery Utility to verify that your recovery system can restore access to your Fireblocks assets in a disaster scenario. Check that the recovered Fireblocks extended public keys match the keys in your Fireblocks Console Settings. The public keys and private keys of all of wallets in this workspace are derived from the extended public keys and private keys."
           />
