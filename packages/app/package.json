@@ -2,7 +2,7 @@
   "name": "recovery-utility",
   "description": "Fireblocks workspace recovery utility",
   "author": "Fireblocks (https://www.fireblocks.com)",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "main": "app/background.js",
   "scripts": {
@@ -21,7 +21,7 @@
     "electron-log": "^4.4.8",
     "electron-store": "^8.1.0",
     "portfinder": "^1.0.32",
-    "server": "^0.1.0",
+    "server": "^0.2.0",
     "zod": "^3.20.2"
   },
   "devDependencies": {
@@ -73,7 +73,7 @@
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.40.0",
-    "shared": "^0.1.0",
+    "shared": "^0.1.1",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.4"
   }
