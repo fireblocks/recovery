@@ -1,16 +1,15 @@
-# Contributing
+# 🔨 Contributing
 
 ## Packages
 
-This project is a monorepo using [Yarn workspaces](https://classic.yarnpkg.com/lang/en/docs/workspaces/).
+This project is a monorepo using [Yarn workspaces](https://classic.yarnpkg.com/lang/en/docs/workspaces/) for package and JavaScript dependency management and [Turborepo](https://turbo.build/repo) for running development and build scripts.
 
-```
-📦packages      Workspaces
- ┣ 📂app          Recovery Utility Electron app
- ┣ 📂relay        Recovery Relay browser-based wallet client
- ┣ 📂server       Python key recovery and derivation server
- ┗ 📂shared       Shared browser components and utilities
-```
+Check out the README for each package:
+
+- [**`packages/app/`**](packages/app/): Recovery Utility: Desktop app
+- [**`packages/relay/`**](packages/relay/): Recovery Relay: browser-based wallet client
+- [**`packages/server/`**](packages/server/): Key Recovery and Derivation Server
+- [**`packages/shared/`**](packages/shared/): Shared frontend components and utilities
 
 ## Prerequisites
 
@@ -40,23 +39,11 @@ This project is a monorepo using [Yarn workspaces](https://classic.yarnpkg.com/l
    ./packages/server/res/setup.sh
    ```
 
-3. Start the Python DRS server and Electron development app:
-
-   ```sh
-   yarn dev
-   ```
-
-4. Build the Python DRS server and Electron app for production, compiling for the current development platform:
-
-   ```sh
-   yarn build
-   ```
-
 ## Development Scripts
 
 ### Develop
 
-To develop all apps and packages, run the following command:
+Run all `dev` scripts. This starts Recovery Utility (which spawns the Python server) and Recovery Relay in development mode.
 
 ```
 yarn dev
@@ -64,7 +51,7 @@ yarn dev
 
 ### Build
 
-To build all apps and packages, run the following command:
+Run all `build` scripts. Build Recovery Utility, the Python DRS server, and Recovery Relay for production. Recovery Utility and the DRS server are compiled only for the development machine's architecture.
 
 ```
 yarn build

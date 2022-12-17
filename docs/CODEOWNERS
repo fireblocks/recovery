@@ -1,7 +1,13 @@
 * @fireblocks-solutions-engineering
 
-[Electron App]
-packages/app/ @fireblocks-solutions-engineering @gburry-fireblocks @Burry @slava23
+[Recovery Utility]
+packages/app/ @fireblocks-solutions-engineering @Burry @gburry-fireblocks
+
+[Recovery Relay]
+packages/relay/ @fireblocks-solutions-engineering @Burry @gburry-fireblocks
+
+[Shared JS]
+packages/shared/ @fireblocks-solutions-engineering @Burry @gburry-fireblocks
 
 [Python DRS Server]
-packages/server/ @fireblocks-solutions-engineering @agoltzman @dlevitan @eraneshel @hhorta @IMaluntsev @slava23 @ylevi
+packages/server/ @fireblocks-solutions-engineering @agoltzman
