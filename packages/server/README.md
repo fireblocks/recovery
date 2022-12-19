@@ -8,7 +8,7 @@ The server module is compiled to an executable by [PyInstaller](https://pyinstal
 
 ## HTTP Endpoints
 
-[⬇️ Postman Collection](res/DRS Endpoints Collection.postman_collection.json)
+⬇️ [Postman Collection](res/DRS%20Endpoints%20Collection.postman_collection.json)
 
 #### `/recover-keys`
 
