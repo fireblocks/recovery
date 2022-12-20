@@ -1,15 +1,28 @@
 # 🔨 Contributing
 
+This repository contains two applications ([Recovery Utility](../packages/app/) and [Recovery Relay](../packages/relay/)) and two internal dependencies ([Key Recovery and Derivation Server](../packages/server/) and [shared frontend components and utilities](../packages/shared/)). [Recovery Utility](../packages/app/) is a cross-platform [Electron](https://www.electronjs.org/) app compiled for macOS, Windows, and Linux. Its window UI, along with Recovery Relay, are built with [React](https://reactjs.org/) on the [Next.js](https://nextjs.org/) framework, using [Material UI](https://mui.com/material-ui/getting-started/overview/) components.
+
+[Recovery Utility](../packages/app/) includes the compiled [Key Recovery and Derivation Server](../server) in its [contents](https://www.electron.build/configuration/contents.html#extrafiles), spawns it as a child process, and interfaces with it using HTTP requests to restore a workspace's extended private/public keys and to derive wallets' addresses and their private/public keys.
+
+[Recovery Utility](../packages/app/) is intended to be run on an offline, air-gapped machine. It uses a companion web app, [Recovery Relay](../packages/relay/), to check wallet balances and initiate transactions from recovered wallets. The withdrawal process is as follows:
+
+1. The user opens the withdrawal window from Recovery Utility.
+2. Recovery Utility generates a cryptographically-secure encryption PIN and [a unique Recovery Relay URL](../packages/app/renderer/lib/relayUrl.ts) with hash parameters containing the wallet's address and AES-encrypted private key.
+3. The user scans the Recovery Relay URL QR code from an internet-connected device.
+4. On the internet-connected device, the user fills out transaction details, then enters the encryption PIN to decrypt the wallet's private key and create/sign a transaction. All transaction logic is performed in the browser and then broadcast via RPC to a blockchain node. **Recovery Relay does not send any private key materials to a server.**
+
+Recovery Relay can be hosted on any static file server, and Fireblocks maintains an instance hosted on Vercel at [fbrelay.app](https://fbrelay.app). Users can set a custom Recovery Relay URL in Recovery Utility's settings, after recovering their private keys.
+
 ## Packages
 
 This project is a monorepo using [Yarn workspaces](https://classic.yarnpkg.com/lang/en/docs/workspaces/) for package and JavaScript dependency management and [Turborepo](https://turbo.build/repo) for running development and build scripts.
 
 Check out the README for each package:
 
-- [**`packages/app/`**](../packages/app/): Recovery Utility: Desktop app
-- [**`packages/relay/`**](../packages/relay/): Recovery Relay: browser-based wallet client
-- [**`packages/server/`**](../packages/server/): Key Recovery and Derivation Server
-- [**`packages/shared/`**](../packages/shared/): Shared frontend components and utilities
+- [**`packages/app/`**](../packages/app/): Recovery Utility: desktop app (Electron + Next.js)
+- [**`packages/relay/`**](../packages/relay/): Recovery Relay: browser-based transaction client (Next.js)
+- [**`packages/server/`**](../packages/server/): Key Recovery and Derivation Server (compiled Python)
+- [**`packages/shared/`**](../packages/shared/): Shared frontend components and utilities (TypeScript)
 
 ## Prerequisites
 
@@ -51,7 +64,7 @@ yarn dev
 
 ### Build
 
-Run all `build` scripts. Build Recovery Utility, the Python DRS server, and Recovery Relay for production. Recovery Utility and the DRS server are compiled only for the development machine's architecture.
+Run all `build` scripts. Build Recovery Utility, the Python Key Recovery and Derivation server, and Recovery Relay for production. Recovery Utility and the server are compiled only for the development machine's architecture.
 
 ```
 yarn build
