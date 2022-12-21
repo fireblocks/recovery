@@ -41,7 +41,7 @@ const Verify: NextPageWithLayout = () => {
           <Typography variant="h2">Public Keys</Typography>
           <TextField
             id="xpub"
-            label="XPUB"
+            label="XPUB (ECDSA)"
             value={data.xpub}
             disabled={isLoading}
             enableCopy
@@ -57,7 +57,7 @@ const Verify: NextPageWithLayout = () => {
         <Grid item xs={12}>
           <TextField
             id="fpub"
-            label="FPUB"
+            label="FPUB (Ed25519)"
             value={data.fpub}
             disabled={isLoading}
             enableCopy
@@ -77,7 +77,7 @@ const Verify: NextPageWithLayout = () => {
               <TextField
                 id="xprv"
                 type="password"
-                label="XPRV"
+                label="XPRV (ECDSA)"
                 value={data.xprv}
                 disabled={isLoading}
                 enableCopy
@@ -88,7 +88,7 @@ const Verify: NextPageWithLayout = () => {
               <TextField
                 id="fprv"
                 type="password"
-                label="FPRV"
+                label="FPRV (Ed25519)"
                 value={data.fprv}
                 disabled={isLoading}
                 enableCopy
