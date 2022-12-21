@@ -1,10 +1,10 @@
 export const getEncryptionKey = async (
-  passphraseBytes: BufferSource,
-  saltBytes: BufferSource
+  passphrase: BufferSource,
+  salt: BufferSource
 ) => {
   const keyMaterial = await window.crypto.subtle.importKey(
     "raw",
-    passphraseBytes,
+    passphrase,
     "PBKDF2",
     false,
     ["deriveBits", "deriveKey"]
@@ -13,7 +13,7 @@ export const getEncryptionKey = async (
   const key = await window.crypto.subtle.deriveKey(
     {
       name: "PBKDF2",
-      salt: saltBytes,
+      salt,
       iterations: 100000,
       hash: "SHA-256",
     },

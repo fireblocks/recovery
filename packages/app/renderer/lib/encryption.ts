@@ -1,4 +1,5 @@
 import { encode } from "base64-arraybuffer";
+import { getEncryptionKey } from "shared";
 
 export const encryptString = async (message: string, passphrase: string) => {
   const messageBytes = new TextEncoder().encode(message);
@@ -9,29 +10,7 @@ export const encryptString = async (message: string, passphrase: string) => {
 
   const salt = window.crypto.getRandomValues(new Uint8Array(16));
 
-  const keyMaterial = await window.crypto.subtle.importKey(
-    "raw",
-    passphraseBytes,
-    "PBKDF2",
-    false,
-    ["deriveBits", "deriveKey"]
-  );
-
-  const key = await window.crypto.subtle.deriveKey(
-    {
-      name: "PBKDF2",
-      salt,
-      iterations: 100000,
-      hash: "SHA-256",
-    },
-    keyMaterial,
-    {
-      name: "AES-GCM",
-      length: 256,
-    },
-    true,
-    ["encrypt"]
-  );
+  const key = await getEncryptionKey(passphraseBytes, salt);
 
   const encryptedMessageBytes = await window.crypto.subtle.encrypt(
     { iv, name: "AES-GCM" },

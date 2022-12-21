@@ -1,5 +1,5 @@
-import { getEncryptionKey } from "shared";
 import { decode } from "base64-arraybuffer";
+import { getEncryptionKey } from "shared";
 
 export const decryptString = async (
   encryptedPayloadBase64: string,
