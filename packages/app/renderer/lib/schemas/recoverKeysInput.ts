@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { nonEmptyString, rsaKeyPassphrase } from "./scalars";
+import { nonEmptyString } from "./scalars";
 
 export const recoverKeysInput = z.object({
   zip: nonEmptyString().describe(
@@ -7,5 +7,5 @@ export const recoverKeysInput = z.object({
   ),
   passphrase: nonEmptyString().describe("Recovery passphrase"),
   rsaKey: nonEmptyString().describe("RSA private key"),
-  rsaKeyPassphrase: rsaKeyPassphrase(),
+  rsaKeyPassphrase: z.string().trim().describe("RSA private key passphrase"),
 });

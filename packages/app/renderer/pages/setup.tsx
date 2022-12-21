@@ -37,7 +37,7 @@ type Keypair = {
 const createBlobUri = (content: string) =>
   URL.createObjectURL(new Blob([content], { type: "text/plain" }));
 
-const generateRsaKeypair = (formData: FormData) =>
+const generateRsaKeypair = (passphrase: string) =>
   new Promise<Keypair>((resolve, reject) =>
     pki.rsa.generateKeyPair({ bits: 4096, workers: 2 }, (err, keypair) => {
       if (err) {
@@ -46,15 +46,9 @@ const generateRsaKeypair = (formData: FormData) =>
 
       const { privateKey, publicKey } = keypair;
 
-      let privateKeyPem: string | undefined;
-
-      if (formData.passphrase) {
-        privateKeyPem = pki.encryptRsaPrivateKey(privateKey, "password", {
-          algorithm: "aes128",
-        });
-      }
-
-      privateKeyPem = pki.privateKeyToPem(privateKey);
+      const privateKeyPem = pki.encryptRsaPrivateKey(privateKey, "password", {
+        algorithm: "aes128",
+      });
 
       const publicKeyPem = pki.publicKeyToPem(publicKey);
 
@@ -121,8 +115,12 @@ const Setup: NextPageWithLayout = () => {
     }
   };
 
-  const onGenerateRsaKeypair = async (formData: FormData) => {
-    const keypair = await generateRsaKeypair(formData);
+  const onGenerateRsaKeypair = async ({ passphrase }: FormData) => {
+    if (!passphrase?.trim()) {
+      return;
+    }
+
+    const keypair = await generateRsaKeypair(passphrase);
 
     setRsaKeypair(keypair);
 
@@ -134,10 +132,16 @@ const Setup: NextPageWithLayout = () => {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(generateRsaKeypairInput),
+    defaultValues: {
+      passphrase: "",
+    },
   });
+
+  const hasPassphrase = !!watch("passphrase")?.trim();
 
   return (
     <Box
@@ -233,7 +237,7 @@ const Setup: NextPageWithLayout = () => {
                 type="submit"
                 color="primary"
                 fullWidth
-                disabled={activeStep < 2}
+                disabled={!hasPassphrase || activeStep < 2}
               >
                 Generate Recovery Keypair
               </Button>

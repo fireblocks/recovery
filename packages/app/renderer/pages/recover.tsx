@@ -51,6 +51,12 @@ const Recover: NextPageWithLayout = () => {
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(recoverKeysInput),
+    defaultValues: {
+      zip: "",
+      rsaKey: "",
+      passphrase: "",
+      rsaKeyPassphrase: "",
+    },
   });
 
   const onDropBackupZip = async (file: File) =>
