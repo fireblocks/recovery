@@ -209,12 +209,16 @@ const Setup: NextPageWithLayout = () => {
             primaryTypographyProps={{ variant: "h2" }}
             secondary={
               <>
-                The recovery keypair is used for encrypting Fireblocks key
-                shares and decrypting them in an offline environment. The
-                checksum is used to verify the integrity of the recovery public
-                key.{" "}
-                <Typography fontWeight={600}>
-                  Store your recovery private key in a secure location!
+                <Typography variant="body1" paragraph>
+                  The recovery keypair is used for encrypting Fireblocks key
+                  shares and decrypting them in a disaster scenario. The
+                  checksum is used to verify the integrity of the recovery
+                  public key.
+                </Typography>
+                <Typography fontWeight={600} paragraph>
+                  Store your recovery private key and its passphrase redundantly
+                  in a secure location! You will need them to recover your
+                  Fireblocks assets.
                 </Typography>
               </>
             }
@@ -226,7 +230,7 @@ const Setup: NextPageWithLayout = () => {
               <TextField
                 id="rsaKeyPassphrase"
                 type="password"
-                label="RSA Key Passphrase"
+                label="Recovery Private Key Passphrase"
                 error={errors.passphrase?.message}
                 disabled={activeStep < 2}
                 {...register("passphrase")}
@@ -320,23 +324,24 @@ const Setup: NextPageWithLayout = () => {
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="Download the offline key recovery package"
+            primary="Download and secure the Recovery Kit"
             primaryTypographyProps={{ variant: "h2" }}
             secondary={
               <>
                 <Typography variant="body1" paragraph>
                   After the integrity check on the public key is complete, an
-                  encrypted key backup ZIP file containing both your key shares
-                  and Fireblocks key shares is generated. Your key shares are
-                  encrypted using the recovery passphrase entered during the
-                  owner&apos;s mobile setup. The Fireblocks key shares are
-                  encrypted using your public key.
+                  encrypted key backup ZIP file (&quot;Recovery Kit&quot;)
+                  containing both your key shares and Fireblocks key shares is
+                  generated. Your key shares are encrypted using the recovery
+                  passphrase entered during the owner&apos;s mobile app setup.
+                  The Fireblocks key shares are encrypted using your recovery
+                  public key.
                 </Typography>
-                <Typography variant="body1" paragraph>
-                  You will receive a time-limited link to download the backup
-                  file. Download the package and store it safely and
-                  redundantly. Preferably it should be stored separately from
-                  the machine that stores the recovery private key.
+                <Typography fontWeight={600}>
+                  Store your Recovery Kit redundantly in a secure location,
+                  preferably not on the same machine that stores the recovery
+                  private key! You will need it to recover your Fireblocks
+                  assets.
                 </Typography>
               </>
             }
@@ -345,6 +350,31 @@ const Setup: NextPageWithLayout = () => {
         <ListItem sx={{ alignItems: "flex-start" }}>
           <ListItemAvatar>
             <Avatar>5</Avatar>
+          </ListItemAvatar>
+          <ListItemText
+            primary="Check your key recovery materials"
+            primaryTypographyProps={{ variant: "h2" }}
+            secondary={
+              <>
+                <Typography variant="body1" paragraph>
+                  Ensure that you have securely and redundantly stored all key
+                  recovery materials to prepare for a disaster recovery. All of
+                  the following materials must be accessible to recover your
+                  Fireblocks assets:
+                </Typography>
+                <ol>
+                  <li>Recovery private key</li>
+                  <li>Recovery private key passphrase</li>
+                  <li>Recovery Kit .ZIP file</li>
+                  <li>Owner&apos;s mobile app recovery passphrase</li>
+                </ol>
+              </>
+            }
+          />
+        </ListItem>
+        <ListItem sx={{ alignItems: "flex-start" }}>
+          <ListItemAvatar>
+            <Avatar>6</Avatar>
           </ListItemAvatar>
           <ListItemText
             primary="Verify Recovery Kit"
