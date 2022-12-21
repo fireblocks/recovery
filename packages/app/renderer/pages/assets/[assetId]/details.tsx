@@ -4,6 +4,7 @@ import { Box, Grid, Typography } from "@mui/material";
 import {
   assetIds,
   AssetId,
+  SigningAlgorithm,
   AssetIcon,
   NextLinkComposed,
   TextField,
@@ -108,6 +109,11 @@ const WalletDetails = () => {
             type="password"
             label="Private Key"
             value={privateKey}
+            helpText={
+              asset?.algorithm === SigningAlgorithm.MPC_EDDSA_ED25519
+                ? `${asset.name} private keys are specific to Fireblocks and can only be used in Recovery Utility.`
+                : undefined
+            }
             enableQr
             enableCopy
             isMonospace

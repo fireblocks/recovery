@@ -3,7 +3,7 @@ import type { NextPageWithLayout } from "./_app";
 import { useQuery } from "@tanstack/react-query";
 import { getExtendedKeys } from "../lib/pythonClient";
 import { Layout } from "../components/Layout";
-import { TextField } from "shared";
+import { monospaceFontFamily, TextField } from "shared";
 import { Box, Grid, Typography, InputAdornment } from "@mui/material";
 import { CheckCircle } from "@mui/icons-material";
 
@@ -36,6 +36,18 @@ const Verify: NextPageWithLayout = () => {
         The public keys and private keys of all of wallets in this workspace are
         derived from the extended public keys and private keys.
       </Typography>
+      <Typography variant="body1" paragraph>
+        ECDSA extended keys (
+        <Typography component="span" fontFamily={monospaceFontFamily}>
+          xpub/xprv
+        </Typography>
+        ) can be used with wallet software that imports BIP32 extended private
+        keys. Fireblocks Ed25519 extended keys (
+        <Typography component="span" fontFamily={monospaceFontFamily}>
+          fpub/fprv
+        </Typography>
+        ) are Fireblocks-specific and can only be used by Recovery Utility.
+      </Typography>
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Typography variant="h2">Public Keys</Typography>
@@ -57,7 +69,7 @@ const Verify: NextPageWithLayout = () => {
         <Grid item xs={12}>
           <TextField
             id="fpub"
-            label="FPUB (Ed25519)"
+            label="FPUB (Fireblocks Ed25519)"
             value={data.fpub}
             disabled={isLoading}
             enableCopy
@@ -88,7 +100,7 @@ const Verify: NextPageWithLayout = () => {
               <TextField
                 id="fprv"
                 type="password"
-                label="FPRV (Ed25519)"
+                label="FPRV (Fireblocks Ed25519)"
                 value={data.fprv}
                 disabled={isLoading}
                 enableCopy
