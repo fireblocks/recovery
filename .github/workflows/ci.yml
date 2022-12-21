@@ -17,10 +17,6 @@ jobs:
         # os: [ubuntu-latest, windows-latest, macos-12]
         os: [windows-latest]
 
-    env:
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
-
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -44,7 +40,10 @@ jobs:
 
       - name: Install Python dependencies
         working-directory: ./packages/server/res
-        run: ./setup.sh
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          ./setup.sh
 
       - name: Prepare for macOS app notarization
         if: startsWith(matrix.os, 'macos')
