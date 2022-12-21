@@ -64,7 +64,7 @@ const WalletDetails = () => {
         <Grid item xs={6}>
           <TextField
             id="path"
-            label="HD Path"
+            label="BIP44 Path"
             value={serializePath(pathParts)}
             enableCopy
             isMonospace

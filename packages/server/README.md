@@ -20,7 +20,7 @@ Recovers Fireblocks extended private/public keys from a complete set of recovery
 
 Here are the four types of keys that are returned from valid recovery materials:
 
-|             | ECDSA (BIP32) | Ed25519 |
+|             | ECDSA (BIP44) | Ed25519 |
 | ----------- | ------------- | ------- |
 | Private Key | `xprv`        | `fprv`  |
 | Public Key  | `xpub`        | `fpub`  |
@@ -50,8 +50,8 @@ Here are the four types of keys that are returned from valid recovery materials:
 
 ```json
 {
-  "xprv": "BIP32 extended private key",
-  "fprv": "BIP32 extended public key",
+  "xprv": "BIP44 extended private key",
+  "fprv": "BIP44 extended public key",
   "xpub": "Ed25519 extended private key",
   "fpub": "Ed25519 extended public key"
 }
@@ -75,7 +75,7 @@ After the extended private keys have been cached from a prior request to `/recov
 
 - `change: number`
 
-  BIP32 change address index. For Fireblocks wallets, this is always 0.
+  BIP44 change address index. For Fireblocks wallets, this is always 0.
 
 - `index_start: number`
 
@@ -111,7 +111,7 @@ After the extended private keys have been cached from a prior request to `/recov
   "prv": "hexadecimal private key",
   "pub": "hexadecimal public key",
   "address": "wallet address",
-  "path": "comma-delimited BIP32 derivation path"
+  "path": "comma-delimited BIP44 derivation path"
 }
 ```
 
@@ -127,8 +127,8 @@ No query parameters or JSON body.
 
 ```json
 {
-  "xprv": "BIP32 extended private key",
-  "fprv": "BIP32 extended public key",
+  "xprv": "BIP44 extended private key",
+  "fprv": "BIP44 extended public key",
   "xpub": "Ed25519 extended private key",
   "fpub": "Ed25519 extended public key"
 }

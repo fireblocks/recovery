@@ -46,7 +46,7 @@ const fields: FieldInfo<Row>[] = [
     value: "tag",
   },
   {
-    label: "HD Path",
+    label: "BIP44 Path",
     value: "hdPath",
   },
 ];
