@@ -1,5 +1,18 @@
 # server
 
+## 0.2.1
+
+### Patch Changes
+
+- - Add algorithm labels to extended key fields
+  - Replace references to BIP32 paths with BIP44 paths
+  - Add more notices about key material storage in set up
+  - Add notice that Ed25519/EdDSA keys are Fireblocks proprietary
+  - Make RSA passphrase field mandatory in set up, optional in recovery
+  - Update documentation
+  - Refactoring
+  - CI fixes
+
 ## 0.2.0
 
 ### Minor Changes
