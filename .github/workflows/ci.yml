@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         # TODO: Add OS "windows-latest" once EV certificate code signing is configured
-        os: [ubuntu-latest, macos-12]
+        os: [ubuntu-latest, macos-latest]
 
     steps:
       - name: Check out code
@@ -34,12 +34,12 @@ jobs:
         with:
           cache: pip
 
-      - name: Install Node.js dependencies
-        run: yarn install --frozen-lockfile
+      - name: Install Automake
+        if: startsWith(matrix.os, 'macos')
+        run: brew install automake
 
-      - name: Install Python dependencies
-        working-directory: ./packages/server/res
-        run: ./setup.sh
+      - name: Install Node.js & Python dependencies
+        run: yarn install --frozen-lockfile
 
       - name: Prepare for macOS app notarization
         if: startsWith(matrix.os, 'macos')
@@ -124,11 +124,6 @@ jobs:
         run: |
           security delete-keychain "$KEYCHAIN_PATH"
           rm -rf "$CSC_PATH" "$APPLE_KEY_DIR_PATH"
-
-      - name: Print notarization-error.log (temporary)
-        if: ${{ startsWith(matrix.os, 'macos') && always() }}
-        run: |
-          cat packages/app/notarization-error.log
 
   pr:
     name: Version packages
