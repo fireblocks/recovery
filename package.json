@@ -15,7 +15,7 @@
     "packages/*"
   ],
   "scripts": {
-    "prepare": "is-ci || husky install",
+    "prepare": "python -m pip install --upgrade pip && python -m pip install -r packages/server/res/requirements.txt && (is-ci || husky install)",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
