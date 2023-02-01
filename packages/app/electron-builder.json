@@ -23,7 +23,7 @@
       "filter": ["__main__", "__main__.exe"]
     }
   ],
-  // "afterSign": "electron-builder-notarize",
+  "afterSign": "electron-builder-notarize",
   "publish": null,
   "mac": {
     "target": "zip",

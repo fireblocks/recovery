@@ -191,3 +191,4 @@ packages/scripts/.idea
 packages/scripts/venv
 packages/scripts/res/dependencies
 private_keys/
+/local-build.sh
