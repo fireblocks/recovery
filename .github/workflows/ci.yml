@@ -103,11 +103,10 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Recovery Utility
-          path: packages/app/dist/
-          # TODO: Only upload ZIPs and binaries
-          # path: |
-          #   packages/app/dist/*.zip
-          #   packages/app/dist/*.exe
+          path: |
+            packages/app/dist/*.AppImage
+            packages/app/dist/*.exe
+            packages/app/dist/*.zip
 
       - name: Upload Recovery Relay artifact
         uses: actions/upload-artifact@v3
