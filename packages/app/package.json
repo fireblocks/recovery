@@ -9,7 +9,7 @@
     "postinstall": "electron-builder install-app-deps",
     "audit": "npx electronegativity -i ./ -x LimitNavigationGlobalCheck,PermissionRequestHandlerGlobalCheck",
     "dev": "nextron dev",
-    "build": "nextron build || echo notarization-error.log",
+    "build": "nextron build",
     "release": "nextron build --publish always",
     "lint": "next lint --fix renderer",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
