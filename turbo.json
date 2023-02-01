@@ -12,7 +12,21 @@
         "renderer/.next/**",
         "__main__.spec"
       ],
-      "env": ["NODE_ENV", "ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES"]
+      "env": [
+        "NODE_ENV",
+        "ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES",
+        "APPLE_ID",
+        "APPLE_ID_PASSWORD",
+        "APPLE_TEAM_ID",
+        "APPLE_API_KEY",
+        "APPLE_API_KEY_ID",
+        "APPLE_API_KEY_ISSUER",
+        "APPLE_KEYCHAIN",
+        "APPLE_KEYCHAIN_PROFILE",
+        "CODESIGN_IDENTITY",
+        "CSC_LINK",
+        "CSC_KEY_PASSWORD"
+      ]
     },
     "lint": {
       "outputs": []
