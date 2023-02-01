@@ -4,7 +4,7 @@
   "private": true,
   "main": "__main__.py",
   "scripts": {
-    "build": "python3 -m PyInstaller --osx-bundle-identifier com.fireblocks.recovery-utility-server --osx-entitlements-file res/entitlements.plist --codesign-identity \"${CODESIGN_IDENTITY}\" --onefile __main__.py",
+    "build": "./build.sh",
     "lint": "pylint .",
     "format": "python -m black ."
   }

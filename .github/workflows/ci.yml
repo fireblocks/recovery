@@ -14,8 +14,9 @@ jobs:
 
     strategy:
       matrix:
-        # TODO: Support OS "windows-latest" once EV certificate code signing is configured
-        os: [ubuntu-latest, macos-12]
+        # TODO: Add OS "windows-latest" once EV certificate code signing is configured
+        # os: [ubuntu-latest, macos-12]
+        os: [macos-12]
 
     steps:
       - name: Check out code
@@ -56,25 +57,18 @@ jobs:
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
         run: |
           # Set temporary environment variables
-          KEYCHAIN_PROFILE="notarization"
           KEYCHAIN_PASSWORD="$(openssl rand -base64 12)"
           KEYCHAIN_PATH="$RUNNER_TEMP/code-signing.keychain-db"
           CERTIFICATE_PATH="$RUNNER_TEMP/build_certificate.p12"
-          APPLE_API_KEY_PATH="~/private_keys/AuthKey_$APPLE_API_KEY_ID.p8"
+          APPLE_API_KEY_PATH="$HOME/private_keys/AuthKey_$APPLE_API_KEY_ID.p8"
 
           # Create code signing Keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
-          # Write code signing certificate
-          echo -n "$CSC_LINK" | base64 --decode --output "$CERTIFICATE_PATH"
-
-          # Import code signing certificate to Keychain
-          security import "$CERTIFICATE_PATH" -P "$CSC_KEY_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
-
           # Write App Store Connect API key for Notary service
-          mkdir -p ~/private_keys/
+          mkdir -p "$HOME/private_keys"
           echo -n "$APPLE_API_KEY" > "$APPLE_API_KEY_PATH"
 
           # Import Notary service credentials to Keychain
@@ -83,17 +77,20 @@ jobs:
             -d="$APPLE_API_KEY_ID" \
             -i="$APPLE_API_KEY_ISSUER" \
             --keychain="$KEYCHAIN_PATH" \
-            "$KEYCHAIN_PROFILE"
+            notarization
 
-          # Export Keychain environment variables
-          echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> $GITHUB_OUTPUT
-          echo "KEYCHAIN_PROFILE=$KEYCHAIN_PROFILE" >> $GITHUB_OUTPUT
+          # Write code signing certificate
+          echo -n "$CSC_LINK" | base64 --decode --output "$CERTIFICATE_PATH"
+
+          # Import code signing certificate to Keychain
+          security import "$CERTIFICATE_PATH" -P "$CSC_KEY_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security list-keychain -d user -s "$KEYCHAIN_PATH"
 
       - name: Build packages
         run: yarn build
         env:
-          APPLE_KEYCHAIN: ${{ steps.prep-notarization.outputs.KEYCHAIN_PATH }}
-          APPLE_KEYCHAIN_PROFILE: ${{ steps.prep-notarization.outputs.KEYCHAIN_PROFILE }}
+          APPLE_KEYCHAIN: "$RUNNER_TEMP/code-signing.keychain-db"
+          APPLE_KEYCHAIN_PROFILE: notarization
           CODESIGN_IDENTITY: ${{ secrets.CODESIGN_IDENTITY }}
           CSC_LINK: ${{ startsWith(matrix.os, 'macos') && secrets.CSC_LINK || '' }}
           CSC_KEY_PASSWORD: ${{ startsWith(matrix.os, 'macos') && secrets.CSC_KEY_PASSWORD || '' }}
@@ -114,11 +111,14 @@ jobs:
 
       - name: Clean up Apple Developer secrets
         if: ${{ startsWith(matrix.os, 'macos') && always() }}
-        env:
-          KEYCHAIN_PATH: ${{ steps.prep-notarization.outputs.KEYCHAIN_PATH }}
         run: |
-          security delete-keychain "$KEYCHAIN_PATH"
-          rm -rf ~/private_keys/
+          security delete-keychain "$RUNNER_TEMP/code-signing.keychain-db"
+          rm -rf "$HOME/private_keys"
+
+      - name: Print notarization-error.log
+        if: ${{ startsWith(matrix.os, 'macos') && always() }}
+        run: |
+          cat packages/app/notarization-error.log
 
   pr:
     name: Version packages
