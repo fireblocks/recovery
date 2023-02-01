@@ -4,23 +4,17 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { pythonServerUrlParams } from "../../lib/pythonClient";
 
-const Wallets: NextPageWithLayout = () => {
+const Accounts: NextPageWithLayout = () => {
   const router = useRouter();
 
   useEffect(() => {
-    router.push({
-      pathname: "/assets/[assetId]",
-      query: {
-        ...pythonServerUrlParams,
-        assetId: "BTC",
-      },
-    });
+    router.push({ pathname: "/accounts/vault", query: pythonServerUrlParams });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return null;
 };
 
-Wallets.getLayout = (page) => <Layout>{page}</Layout>;
+Accounts.getLayout = (page) => <Layout>{page}</Layout>;
 
-export default Wallets;
+export default Accounts;

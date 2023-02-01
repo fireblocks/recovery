@@ -32,12 +32,12 @@
 
 ## 🧰 Tools
 
-### 🆕 Setup Recovery Kit
+### 🆕 Set Up Recovery Kit
 
 Generate an RSA keypair and checksum for a new Recovery Kit. If you already have your backup .zip, RSA keypair with passphrase, and owner's mobile app passphrase, then you can skip this and proceed to Verify Recovery Kit.
 
 <p align="center">
-  <img width="49.15%" src="docs/img/setup.png" alt="Setup Recovery Kit" />
+  <img width="49.15%" src="docs/img/setup.png" alt="Set Up Recovery Kit" />
 </p>
 
 ### ✅ Verify Recovery Kit

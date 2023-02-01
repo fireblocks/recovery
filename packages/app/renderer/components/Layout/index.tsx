@@ -1,8 +1,6 @@
 import { ReactNode } from "react";
 import { Box } from "@mui/material";
 import { Header } from "./components/Header";
-import { Sidebar } from "./components/Sidebar";
-import { Footer } from "./components/Footer";
 import { CloudOutlined } from "@mui/icons-material";
 import { useConnectionTest } from "../../context/ConnectionTest";
 
@@ -11,42 +9,23 @@ type Props = {
   showBack?: boolean;
   hideHeader?: boolean;
   hideNavigation?: boolean;
-  hideSidebar?: boolean;
 };
-
-const area = (...areas: string[]) => `"${areas.join(" ")}"`;
 
 export const Layout = ({
   children,
   showBack = false,
   hideHeader = false,
   hideNavigation = false,
-  hideSidebar = false,
 }: Props) => {
   const { isOnline } = useConnectionTest();
-
-  const areaWithSidebar = (mainArea: string) =>
-    area(hideSidebar ? mainArea : "sidebar", mainArea);
-
-  const gridTemplateAreas: string[] = [];
-
-  if (isOnline) {
-    gridTemplateAreas.push(area("notice", "notice"));
-  }
-
-  gridTemplateAreas.push(
-    area("header", "header"),
-    areaWithSidebar("main"),
-    areaWithSidebar("footer")
-  );
 
   return (
     <Box
       height="100%"
       display="grid"
-      gridTemplateColumns="200px calc(100vw - 200px)"
-      gridTemplateRows={`${isOnline ? "min-content " : ""}64px 1fr min-content`}
-      gridTemplateAreas={gridTemplateAreas.join(" ")}
+      gridTemplateColumns="100vw"
+      gridTemplateRows={`${isOnline ? "min-content " : ""}64px 1fr`}
+      gridTemplateAreas={`${isOnline ? '"notice" ' : ""} "header" "main"`}
     >
       {isOnline && (
         <Box
@@ -68,11 +47,9 @@ export const Layout = ({
       {!hideHeader && (
         <Header showBack={showBack} hideNavigation={hideNavigation} />
       )}
-      {!hideSidebar && <Sidebar />}
       <Box component="main" gridArea="main" padding="1em" overflow="auto">
         {children}
       </Box>
-      <Footer />
     </Box>
   );
 };

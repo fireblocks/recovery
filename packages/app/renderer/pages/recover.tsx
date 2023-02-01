@@ -13,13 +13,14 @@ import { UploadWell } from "../components/UploadWell";
 import { TextField, Button } from "shared";
 import { Box, Grid, Typography } from "@mui/material";
 import { readFileToBase64 } from "../lib/readFile";
+import { pythonServerUrlParams } from "../lib/pythonClient";
 
 type FormData = z.infer<typeof recoverKeysInput>;
 
 const Recover: NextPageWithLayout = () => {
   const router = useRouter();
 
-  const { resetWorkspace } = useWorkspace();
+  const { restoreVaultAccounts, setIsRecovered } = useWorkspace();
 
   const [recoveryError, setRecoveryError] = useState<string | undefined>(
     undefined
@@ -28,18 +29,29 @@ const Recover: NextPageWithLayout = () => {
   const verifyOnly = router.query.verifyOnly === "true";
 
   const recoverMutation = useMutation({
-    mutationFn: recoverKeys,
+    mutationFn: async (formData: FormData) => {
+      await recoverKeys(formData);
+
+      setIsRecovered(true);
+
+      if (formData.backupCsv) {
+        void restoreVaultAccounts(formData.backupCsv);
+      }
+    },
     onSuccess: () => {
       setRecoveryError(undefined);
 
-      resetWorkspace(true);
-
-      router.push(verifyOnly ? "/keys?verifyOnly=true" : "/assets");
+      router.push({
+        pathname: verifyOnly ? "/keys?verifyOnly=true" : "/accounts/vault",
+        query: pythonServerUrlParams,
+      });
     },
     onError: (error) => {
       console.error(error);
 
-      setRecoveryError((error as Error).message);
+      setRecoveryError(
+        error instanceof Error ? error.message : (error as string)
+      );
     },
   });
 
@@ -52,18 +64,37 @@ const Recover: NextPageWithLayout = () => {
   } = useForm<FormData>({
     resolver: zodResolver(recoverKeysInput),
     defaultValues: {
-      zip: "",
+      backupCsv: null,
+      backupZip: "",
       rsaKey: "",
       passphrase: "",
       rsaKeyPassphrase: "",
     },
   });
 
+  const [backupCsv, backupZip, rsaKey] = watch([
+    "backupCsv",
+    "backupZip",
+    "rsaKey",
+  ]);
+
   const onDropBackupZip = async (file: File) =>
-    setValue("zip", await readFileToBase64(file));
+    setValue("backupZip", await readFileToBase64(file));
 
   const onDropRsaPrivateKey = async (file: File) =>
     setValue("rsaKey", await readFileToBase64(file));
+
+  const onDropVaultAddressesCsv = async (file: File) => {
+    try {
+      setValue("backupCsv", file);
+    } catch (error) {
+      setRecoveryError(
+        error instanceof Error ? error.message : (error as string)
+      );
+
+      setValue("backupCsv", null);
+    }
+  };
 
   const onSubmit = (formData: FormData) => recoverMutation.mutate(formData);
 
@@ -105,60 +136,55 @@ const Recover: NextPageWithLayout = () => {
         </Typography>
       )}
       <Grid container spacing={2}>
-        <Grid item xs={6}>
-          <Grid container spacing={2} justifyContent="space-between">
-            <Grid item>
-              <Typography variant="h3">Recovery Kit</Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant="h3">.ZIP</Typography>
-            </Grid>
-          </Grid>
+        <Grid item xs={verifyOnly ? 6 : 4}>
           <UploadWell
-            hasFile={!!watch("zip")}
-            error={errors.zip?.message}
+            label="Recovery Kit"
+            error={errors.backupZip?.message}
+            hasFile={!!backupZip}
             accept={{ "application/zip": [".zip"] }}
             disabled={recoverMutation.isLoading}
             onDrop={onDropBackupZip}
           />
-        </Grid>
-        <Grid item xs={6}>
-          <Grid container spacing={2} justifyContent="space-between">
-            <Grid item>
-              <Typography variant="h3">RSA Private Key</Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant="h3">.PEM / .KEY</Typography>
-            </Grid>
-          </Grid>
-          <UploadWell
-            hasFile={!!watch("rsaKey")}
-            error={errors.rsaKey?.message}
-            accept={{ "application/x-pem-file": [".key", ".pem"] }}
-            disabled={recoverMutation.isLoading}
-            onDrop={onDropRsaPrivateKey}
-          />
-        </Grid>
-        <Grid item xs={6}>
           <TextField
             id="passphrase"
             type="password"
-            label="Mobile App Passphrase"
+            label="Mobile App Recovery Passphrase"
+            helpText="Set by the workspace owner in onboarding"
             error={errors.passphrase?.message}
             disabled={recoverMutation.isLoading}
             {...register("passphrase")}
           />
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={verifyOnly ? 6 : 4}>
+          <UploadWell
+            label="Recovery Private Key"
+            error={errors.rsaKey?.message}
+            hasFile={!!rsaKey}
+            accept={{ "application/x-pem-file": [".key", ".pem"] }}
+            disabled={recoverMutation.isLoading}
+            onDrop={onDropRsaPrivateKey}
+          />
           <TextField
             id="rsaKeyPassphrase"
             type="password"
-            label="RSA Key Passphrase"
+            label="Recovery Private Key Passphrase"
             error={errors.rsaKeyPassphrase?.message}
             disabled={recoverMutation.isLoading}
             {...register("rsaKeyPassphrase")}
           />
         </Grid>
+        {!verifyOnly && (
+          <Grid item xs={4}>
+            <UploadWell
+              label="Exported Addresses (Optional)"
+              error={errors.backupCsv?.message}
+              hasFile={!!backupCsv}
+              accept={{ "text/csv": [".csv"] }}
+              disabled={recoverMutation.isLoading}
+              onDrop={onDropVaultAddressesCsv}
+            />
+          </Grid>
+        )}
       </Grid>
       <Grid
         container
@@ -191,7 +217,7 @@ const Recover: NextPageWithLayout = () => {
 };
 
 Recover.getLayout = (page, router) => (
-  <Layout showBack hideNavigation hideSidebar>
+  <Layout showBack hideNavigation>
     {page}
   </Layout>
 );

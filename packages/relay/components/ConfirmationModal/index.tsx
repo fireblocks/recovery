@@ -116,6 +116,7 @@ export const ConfirmationModal = ({
       aria-labelledby={headingId}
       aria-describedby={descriptionId}
       maxWidth="sm"
+      sx={{ borderRadius: "16px" }}
       open={isOpen}
       onClose={onClose}
       {...props}

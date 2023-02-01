@@ -27,7 +27,7 @@ const Index: NextPageWithLayout = () => {
                 query: pythonServerUrlParams,
               }}
             >
-              Setup Recovery Kit
+              Set Up Recovery Kit
             </Button>
           </Grid>
           <Grid item xs={12}>
@@ -67,10 +67,6 @@ const Index: NextPageWithLayout = () => {
   );
 };
 
-Index.getLayout = (page: ReactElement) => (
-  <Layout hideHeader hideSidebar>
-    {page}
-  </Layout>
-);
+Index.getLayout = (page: ReactElement) => <Layout hideHeader>{page}</Layout>;
 
 export default Index;

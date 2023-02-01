@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { Box, Grid } from "@mui/material";
 import { Key, Settings } from "@mui/icons-material";
 import { Logo, Button, Link, NextLinkComposed } from "shared";
-import { AssetsIcon } from "./components/Icons";
+import { AccountsIcon, AssetsIcon, KeyIcon } from "../../../Icons";
 import { pythonServerUrlParams } from "../../../../lib/pythonClient";
 import { useWorkspace } from "../../../../context/Workspace";
 
@@ -71,6 +71,20 @@ export const Header = ({ hideNavigation, showBack }: Props) => {
                 variant="text"
                 component={NextLinkComposed}
                 to={{
+                  pathname: "/accounts/vault",
+                  query: { ...pythonServerUrlParams },
+                }}
+                startIcon={<AccountsIcon active={isActive("/accounts")} />}
+                color={isActive("/accounts") ? "primary" : "secondary"}
+              >
+                Accounts
+              </Button>
+            </Grid>
+            {/* <Grid item>
+              <Button
+                variant="text"
+                component={NextLinkComposed}
+                to={{
                   pathname: "/assets/[assetId]",
                   query: { ...pythonServerUrlParams, assetId: "BTC" },
                 }}
@@ -79,7 +93,7 @@ export const Header = ({ hideNavigation, showBack }: Props) => {
               >
                 Assets
               </Button>
-            </Grid>
+            </Grid> */}
             <Grid item>
               <Button
                 variant="text"
@@ -88,7 +102,7 @@ export const Header = ({ hideNavigation, showBack }: Props) => {
                   pathname: "/keys",
                   query: pythonServerUrlParams,
                 }}
-                startIcon={<Key />}
+                startIcon={<KeyIcon active={isActive("/keys")} />}
                 color={isActive("/keys") ? "primary" : "secondary"}
               >
                 Keys

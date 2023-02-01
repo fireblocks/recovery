@@ -41,6 +41,7 @@ export const theme = createTheme({
     },
     background: {
       default: "#F6F6F6",
+      paper: "#F6F6F6",
     },
     text: {
       primary: "#747382",
@@ -93,7 +94,10 @@ export const theme = createTheme({
           borderRadius: "10px",
           textTransform: "none",
         },
-        contained: { boxShadow: "0px 9px 25px 1px rgb(1 22 45 / 8%);" },
+        contained: {
+          backgroundColor: "#FFF",
+          boxShadow: "0px 9px 25px 1px rgb(1 22 45 / 8%);",
+        },
         containedPrimary: {
           backgroundColor: "#4287F5",
           background:

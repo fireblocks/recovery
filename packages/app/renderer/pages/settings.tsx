@@ -68,6 +68,6 @@ const Settings: NextPageWithLayout = () => {
   );
 };
 
-Settings.getLayout = (page) => <Layout hideSidebar>{page}</Layout>;
+Settings.getLayout = (page) => <Layout>{page}</Layout>;
 
 export default Settings;

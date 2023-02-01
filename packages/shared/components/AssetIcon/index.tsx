@@ -41,18 +41,20 @@ type Props = Omit<SvgIconProps, "width" | "height"> & {
 };
 
 export const AssetIcon = ({ assetId, ...props }: Props) => {
-  if (!assetId) {
+  const iconData = iconDataMap[assetId];
+
+  if (!iconData) {
     return (
       <SvgIcon {...rootProps()} {...props}>
         <g transform="translate(.5 .5)">
-          <circle fill="#0348A2" cx="13.5" cy="7.5" r="7.5" />
-          <circle fill="#89B2FF" cx="7.5" cy="13.5" r="7.5" />
+          <circle fill="#595C98" cx="13.5" cy="7.5" r="7.5" />
+          <circle fill="#595C98" opacity="0.5" cx="7.5" cy="13.5" r="7.5" />
         </g>
       </SvgIcon>
     );
   }
 
-  const { path, width, height } = iconDataMap[assetId];
+  const { path, width, height } = iconData;
 
   return (
     <SvgIcon {...rootProps(width, height)} {...props}>

@@ -67,7 +67,7 @@ export const recoverKeys = async (input: RecoverKeysInput) => {
       {
         method: "POST",
         body: JSON.stringify({
-          zip: input.zip,
+          zip: input.backupZip,
           passphrase: input.passphrase,
           "rsa-key": input.rsaKey,
           "rsa-key-passphrase": input.rsaKeyPassphrase,

@@ -29,13 +29,12 @@ import { Key, ArrowUpward } from "@mui/icons-material";
 import { pythonServerUrlParams } from "../../../lib/pythonClient";
 import { deserializePath, serializePath } from "../../../lib/bip44";
 import { useWorkspace, Wallet } from "../../../context/Workspace";
-import { csvExport } from "../../../lib/csvExport";
+import { csvExport, ParsedRow } from "../../../lib/csv";
 import { download } from "../../../lib/download";
 import { Layout } from "../../../components/Layout";
-import { AddWallets } from "../../../components/AddWallets";
 
 const Asset: NextPageWithLayout = () => {
-  const { asset, wallets, currentAssetWallets, handleDeleteWallets } =
+  const { asset, vaultAccounts, currentAssetWallets, handleDeleteWallets } =
     useWorkspace();
 
   const [showPaths, setShowPaths] = useState(false);
@@ -69,24 +68,56 @@ const Asset: NextPageWithLayout = () => {
     setAddressDeletionQueueMap({});
   };
 
-  const onExportCsv = async () => {
-    const data = wallets.map((wallet) => {
-      const { accountId } = deserializePath(wallet.pathParts);
+  const onExportCsv = () => {
+    const data = vaultAccounts.reduce((acc, account) => {
+      const rows = account.wallets.reduce((_rows, wallet) => {
+        const walletRows = wallet.derivations.map((derivation) => {
+          return {
+            accountName: account.name,
+            accountId: account.id,
+            assetId: wallet.assetId,
+            assetName: getAssetInfo(wallet.assetId)?.name ?? wallet.assetId,
+            address: derivation.address,
+            addressType: derivation.type,
+            addressDescription: derivation.description,
+            tag: derivation.tag,
+            pathParts: derivation.pathParts,
+            publicKey: derivation.publicKey,
+            // privateKey: derivation.privateKey,
+          };
+        });
 
-      return {
-        // accountName: "",
-        accountId,
-        assetId: wallet.assetId,
-        assetName: getAssetInfo(wallet.assetId)?.name ?? wallet.assetId,
-        address: wallet.address,
-        addressType: wallet.addressType,
-        // addressDescription: "",
-        // tag: "",
-        hdPath: ["m", ...wallet.pathParts].join(" / "),
-      };
-    });
+        return [..._rows, ...walletRows];
+      }, [] as ParsedRow[]);
 
-    const csv = await csvExport(data);
+      return [...acc, ...rows];
+    }, [] as ParsedRow[]);
+
+    // const data = vaultAccounts
+    //   .map((account) => account.wallets)
+    //   .flat()
+    //   .map((wallet) =>
+    //     wallet.addresses.map((address) => {
+    //       const { accountId } = deserializePath(address.pathParts);
+
+    //       return {
+    //         accountName: account.name,
+    //         accountId,
+    //         assetId: wallet.assetId,
+    //         assetName: getAssetInfo(wallet.assetId)?.name ?? wallet.assetId,
+    //         address: address.address,
+    //         addressType: address.type,
+    //         addressDescription: address.description,
+    //         tag: address.tag,
+    //         hdPath: ["m", ...address.pathParts].join(" / "),
+    //         publicKey: address.publicKey,
+    //         // privateKey: address.privateKey,
+    //         // privateKeyWif: address.wif,
+    //       };
+    //     })
+    //   );
+
+    const csv = csvExport(data);
 
     const timestamp = new Date()
       .toISOString()
@@ -120,7 +151,7 @@ const Asset: NextPageWithLayout = () => {
           </Typography>
         </Grid>
         <Grid item>
-          {!!asset && (
+          {/* {!!asset && (
             <AddWallets
               asset={asset}
               anchorOrigin={{
@@ -132,7 +163,7 @@ const Asset: NextPageWithLayout = () => {
                 horizontal: "center",
               }}
             />
-          )}
+          )} */}
         </Grid>
       </Grid>
     );
@@ -180,7 +211,7 @@ const Asset: NextPageWithLayout = () => {
                 {isEditing ? "Done" : "Edit"}
               </Button>
             </Grid>
-            {!!asset && !isEditing && (
+            {/* {!!asset && !isEditing && (
               <Grid item>
                 <AddWallets
                   asset={asset}
@@ -194,7 +225,7 @@ const Asset: NextPageWithLayout = () => {
                   }}
                 />
               </Grid>
-            )}
+            )} */}
           </Grid>
         </Grid>
       </Grid>
@@ -223,7 +254,7 @@ const Asset: NextPageWithLayout = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {currentAssetWallets.map((wallet, arrayIndex) => {
+            {/* {currentAssetWallets.map((wallet, arrayIndex) => {
               const serializedPath = serializePath(wallet.pathParts);
               const path = deserializePath(wallet.pathParts);
 
@@ -329,7 +360,7 @@ const Asset: NextPageWithLayout = () => {
                   )}
                 </TableRow>
               );
-            })}
+            })} */}
           </TableBody>
         </Table>
       </TableContainer>

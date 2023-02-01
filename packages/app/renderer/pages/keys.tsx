@@ -118,7 +118,7 @@ Verify.getLayout = (page, router) => {
   const verifyOnly = router.query.verifyOnly === "true";
 
   return (
-    <Layout showBack={verifyOnly} hideNavigation={verifyOnly} hideSidebar>
+    <Layout showBack={verifyOnly} hideNavigation={verifyOnly}>
       {page}
     </Layout>
   );

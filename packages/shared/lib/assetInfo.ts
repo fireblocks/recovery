@@ -27,14 +27,24 @@ export const assetsInfo: Record<AssetId, AssetInfo> = {
   },
 };
 
-export const getAssetInfo = (assetId?: string) => {
-  if (!assetId) {
-    throw new Error(`Unsupported asset: ${assetId}}`);
+export const getAssetInfo = (assetId?: string): AssetInfo => {
+  const _assetId = assetId || "Unknown";
+
+  const baseAssetId = _assetId.split("_TEST")[0] as AssetId;
+
+  const assetInfo = assetsInfo[baseAssetId];
+
+  if (!assetInfo) {
+    return {
+      id: _assetId as AssetId,
+      name: _assetId,
+      type: AssetType.ACCOUNT,
+      algorithm: SigningAlgorithm.MPC_ECDSA_SECP256K1,
+      getExplorerUrl: () => "",
+    };
   }
 
-  const normalizedAssetId = assetId.split("_TEST")[0] as AssetId;
-
-  return assetsInfo[normalizedAssetId];
+  return assetInfo;
 };
 
 export const assetIds = Object.keys(assetsInfo) as AssetId[];

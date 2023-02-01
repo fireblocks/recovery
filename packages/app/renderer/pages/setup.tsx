@@ -151,7 +151,9 @@ const Setup: NextPageWithLayout = () => {
       marginBottom="2em"
       onSubmit={handleSubmit(onGenerateRsaKeypair)}
     >
-      <Typography variant="h1">Setup Recovery Kit</Typography>
+      <Typography variant="h1" marginY={0}>
+        Set Up Recovery Kit
+      </Typography>
       <List sx={{ width: "100%" }} dense disablePadding>
         <ListItem sx={{ alignItems: "flex-start" }}>
           <ListItemAvatar>
@@ -406,7 +408,7 @@ const Setup: NextPageWithLayout = () => {
 };
 
 Setup.getLayout = (page) => (
-  <Layout showBack hideNavigation hideSidebar>
+  <Layout showBack hideNavigation>
     {page}
   </Layout>
 );

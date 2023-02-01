@@ -1,22 +1,32 @@
-import { useDropzone } from "react-dropzone";
-import { Box, FormHelperText, Typography } from "@mui/material";
+import { useId, ReactNode } from "react";
+import { useDropzone, Accept } from "react-dropzone";
+import { Box, Grid, FormHelperText, Typography } from "@mui/material";
 import { FileUpload, CheckCircle, Cancel } from "@mui/icons-material";
 
 type Props = {
+  label?: ReactNode;
+  error?: ReactNode;
   hasFile?: boolean;
-  error?: string;
-  accept?: { [key: string]: string[] };
+  accept?: Accept;
   disabled?: boolean;
   onDrop: (file: File) => void;
 };
 
 export const UploadWell = ({
-  hasFile,
+  label,
   error,
+  hasFile,
   accept,
   disabled,
   onDrop: _onDrop,
 }: Props) => {
+  const labelId = useId();
+
+  const extensions = Object.values(accept || {})
+    .flat()
+    .join(" / ")
+    .toUpperCase();
+
   const onDropAccepted = (files: File[]) => _onDrop(files[0]);
 
   const { getRootProps, getInputProps, isDragAccept, isDragReject } =
@@ -30,7 +40,7 @@ export const UploadWell = ({
   const isActive = hasFile || isDragAccept;
 
   let InputIcon = FileUpload;
-  let inputText = "Drag & drop or select file";
+  let inputText: ReactNode = "Drop or select file";
 
   if (isActive) {
     InputIcon = CheckCircle;
@@ -51,8 +61,25 @@ export const UploadWell = ({
 
   return (
     <Box marginBottom={error ? "0" : "23px"} {...getRootProps()}>
+      {(!!label || !!extensions) && (
+        <Grid container spacing={2} justifyContent="space-between">
+          {!!label && (
+            <Grid item>
+              <Typography id={labelId} variant="h3">
+                {label}
+              </Typography>
+            </Grid>
+          )}
+          {!!extensions && (
+            <Grid item>
+              <Typography variant="h3">{extensions}</Typography>
+            </Grid>
+          )}
+        </Grid>
+      )}
       <Box
-        paddingX="3rem"
+        aria-labelledby={label ? labelId : undefined}
+        paddingX="2rem"
         paddingY="1.5rem"
         textAlign="center"
         color={(theme) => (isActive ? "#FFFFFF" : theme.palette.text.primary)}
