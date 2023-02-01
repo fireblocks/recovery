@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         # TODO: Add OS "windows-latest" once EV certificate code signing is configured
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-12]
 
     steps:
       - name: Check out code
@@ -34,12 +34,10 @@ jobs:
         with:
           cache: pip
 
-      - name: Install Automake
-        if: startsWith(matrix.os, 'macos')
-        run: brew install automake
-
-      - name: Install Node.js & Python dependencies
-        run: yarn install --frozen-lockfile
+      - name: Install dependencies
+        run: |
+          brew install automake
+          yarn install --frozen-lockfile
 
       - name: Prepare for macOS app notarization
         if: startsWith(matrix.os, 'macos')
@@ -82,10 +80,12 @@ jobs:
           security import "$CSC_PATH" -P "$CSC_KEY_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
           security list-keychain -d user -s "$KEYCHAIN_PATH"
 
+          # Delete code signing certificate
+          rm -rf "$CSC_PATH"
+
           # Set persistent environment variables
           echo "KEYCHAIN_PROFILE=$KEYCHAIN_PROFILE" >> $GITHUB_ENV
           echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> $GITHUB_ENV
-          echo "CSC_PATH=$CSC_PATH" >> $GITHUB_ENV
           echo "APPLE_KEY_DIR_PATH=$APPLE_KEY_DIR_PATH" >> $GITHUB_ENV
 
       - name: Build packages
@@ -119,11 +119,10 @@ jobs:
         if: ${{ startsWith(matrix.os, 'macos') && always() }}
         env:
           KEYCHAIN_PATH: ${{ env.KEYCHAIN_PATH }}
-          CSC_PATH: ${{ env.CSC_PATH }}
           APPLE_KEY_DIR_PATH: ${{ env.APPLE_KEY_DIR_PATH }}
         run: |
           security delete-keychain "$KEYCHAIN_PATH"
-          rm -rf "$CSC_PATH" "$APPLE_KEY_DIR_PATH"
+          rm -rf "$APPLE_KEY_DIR_PATH"
 
   pr:
     name: Version packages
