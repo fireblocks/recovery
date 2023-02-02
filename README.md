@@ -70,4 +70,6 @@ See [CONTRIBUTING](docs/CONTRIBUTING.md)
 
 [MIT License](LICENSE)
 
-Fireblocks © 2022. NMLS Registration Number: 2066055
+[![FOSSA Status](https://app.fossa.com/api/projects/custom%2B9027%2Ffireblocks%2Frecovery-utility.svg?type=large)](https://app.fossa.com/projects/custom%2B9027%2Ffireblocks%2Frecovery-utility?ref=badge_large)
+
+Fireblocks © 2022
