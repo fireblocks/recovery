@@ -20,6 +20,7 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "turbo run format",
+    "scan": "fossa analyze",
     "changeset": "changeset"
   },
   "devDependencies": {

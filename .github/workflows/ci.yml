@@ -121,10 +121,27 @@ jobs:
           security delete-keychain "$KEYCHAIN_PATH"
           rm -rf "$APPLE_KEY_DIR_PATH"
 
+  fossa-scan:
+    name: Compliance & security check
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: FOSSA scan
+        uses: fossas/fossa-action@main
+        with:
+          api-key: ${{ secrets.FOSSA_API_KEY }}
+          branch: ${{ github.head_ref || github.ref_name }}
+          run-tests: false
+
   pr:
     name: Version packages
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, fossa-scan]
     steps:
       - name: Check out code
         uses: actions/checkout@v3
