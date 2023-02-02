@@ -6,14 +6,21 @@ on:
 
 jobs:
   build:
-    name: Build on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.runs-on }}
     timeout-minutes: 20
 
     strategy:
       matrix:
-        # TODO: Add OS "windows-latest" once EV certificate code signing is configured
-        os: [ubuntu-latest, macos-12]
+        include:
+          - os: Ubuntu (x86-64)
+            runs-on: ubuntu-latest
+          - os: macOS 12 (x86-64)
+            runs-on: macos-12
+          - os: macOS 13 (ARM64)
+            runs-on: [self-hosted, macos-13, ARM64]
+          # - os-name: Windows (x86-64)
+          #   runs-on: windows-latest
 
     steps:
       - name: Check out code
@@ -22,12 +29,16 @@ jobs:
           fetch-depth: 2
 
       - name: Setup Node.js environment
+        # setup-node stalls on self-hosted runner
+        if: ${{ !contains(matrix.runs-on, 'ARM64') }}
         uses: actions/setup-node@v3
         with:
           node-version: lts/gallium
           cache: yarn
 
       - name: Setup Python environment
+        # setup-python's hosted binaries don't yet include ARM64
+        if: ${{ !contains(matrix.runs-on, 'ARM64') }}
         uses: actions/setup-python@v4
         with:
           cache: pip
@@ -74,7 +85,7 @@ jobs:
             "$KEYCHAIN_PROFILE"
 
           # Write code signing certificate
-          echo -n "$CSC_LINK" | base64 --decode --output "$CSC_PATH"
+          echo -n "$CSC_LINK" | base64 -d -o "$CSC_PATH"
 
           # Import code signing certificate to Keychain
           security import "$CSC_PATH" -P "$CSC_KEY_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
@@ -99,10 +110,10 @@ jobs:
           TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
           TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
 
-      - name: Upload Recovery Utility artifact
+      - name: Upload Recovery Utility ${{ matrix.os }} artifact
         uses: actions/upload-artifact@v3
         with:
-          name: Recovery Utility
+          name: Recovery Utility ${{ matrix.os }}
           path: |
             packages/app/dist/*.AppImage
             packages/app/dist/*.exe
