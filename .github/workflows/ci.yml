@@ -32,10 +32,12 @@ jobs:
         with:
           cache: pip
 
-      - name: Install dependencies
-        run: |
-          brew install automake
-          yarn install --frozen-lockfile
+      - name: Install Automake
+        if: startsWith(matrix.os, 'macos')
+        run: brew install automake
+
+      - name: Install Node.js & Python dependencies
+        run: yarn install --frozen-lockfile
 
       - name: Prepare for macOS app notarization
         if: startsWith(matrix.os, 'macos')
