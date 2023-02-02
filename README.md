@@ -68,8 +68,8 @@ See [CONTRIBUTING](docs/CONTRIBUTING.md)
 
 ## ⚖️ Legal
 
+[Copyright © 2022 Fireblocks](https://www.fireblocks.com)
+
 [MIT License](LICENSE)
 
 [![FOSSA Status](https://app.fossa.com/api/projects/custom%2B9027%2Ffireblocks%2Frecovery-utility.svg?type=large)](https://app.fossa.com/projects/custom%2B9027%2Ffireblocks%2Frecovery-utility?ref=badge_large)
-
-Fireblocks © 2022

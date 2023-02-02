@@ -1,13 +1,13 @@
 * @fireblocks-solutions-engineering
 
-[Recovery Utility]
+# Recovery Utility
 packages/app/ @fireblocks-solutions-engineering @Burry @gburry-fireblocks
 
-[Recovery Relay]
+# Recovery Relay
 packages/relay/ @fireblocks-solutions-engineering @Burry @gburry-fireblocks
 
-[Shared JS]
+# Shared JS
 packages/shared/ @fireblocks-solutions-engineering @Burry @gburry-fireblocks
 
-[Python DRS Server]
+# Python DRS Server
 packages/server/ @fireblocks-solutions-engineering @agoltzman
