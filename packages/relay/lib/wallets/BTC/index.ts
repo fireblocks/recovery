@@ -1,48 +1,39 @@
-import { Network, networks, Psbt } from "bitcoinjs-lib";
-import * as ecc from "tiny-secp256k1";
-import ECPairFactory from "ecpair";
+import { Network, networks, payments, Psbt } from "bitcoinjs-lib";
 import { Buffer } from "buffer";
-import { BaseWallet } from "../BaseWallet";
 import { AddressSummary, FullUTXO, UTXOSummary } from "./types";
+import { ECDSAWallet } from "../ECDSAWallet";
+import { hash160 } from "bitcoinjs-lib/src/crypto";
+import { bech32 } from "bech32";
 
-export class Bitcoin implements BaseWallet {
-  private static readonly ECPair = ECPairFactory(ecc);
-
+export class Bitcoin extends ECDSAWallet {
   private static readonly satsPerBtc = 100000000;
-
-  private static readonly digits = [
-    "0",
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-  ];
-
-  private readonly legacy: boolean;
-
   private readonly network: Network;
-
   private readonly baseUrl: string;
+  private readonly address: string;
 
-  constructor(private readonly address: string, isTestnet: boolean) {
-    // Only legacy addresses have upper case chars. If by chance there is no upper case letter (possible), then we also check for tb1 (definite segwit) or for bc1
-    this.legacy = !address.startsWith("tb1") && !address.startsWith("bc1");
+  constructor(
+    xpub: string,
+    account: number,
+    changeIndex: number = 0,
+    accountIndex: number = 0,
+    isTestnet: boolean = false,
+    private isLegacy: boolean
+  ) {
+    super(xpub, isTestnet ? 1 : 0, account, changeIndex, accountIndex);
 
-    for (let i = 0; i < address.length; i++) {
-      const char = address.charAt(i);
-
-      this.legacy =
-        this.legacy ||
-        (char === char.toUpperCase() && !Bitcoin.digits.includes(char));
+    if (!isLegacy) {
+      const pubKeyHash = hash160(Buffer.from(this.publicKey, "hex"));
+      this.address = bech32.encode(
+        isTestnet ? "tb" : "bc",
+        bech32.toWords(pubKeyHash)
+      );
+    } else {
+      this.address = payments.p2pkh({
+        pubkey: Buffer.from(this.publicKey, "hex"),
+      }).address!;
     }
 
     this.network = networks[isTestnet ? "testnet" : "bitcoin"];
-
     this.baseUrl = isTestnet
       ? "https://blockstream.info/testnet/api"
       : "https://blockstream.info/api";
@@ -50,15 +41,12 @@ export class Bitcoin implements BaseWallet {
 
   private async _request(path: string, init?: RequestInit) {
     const res = await fetch(`${this.baseUrl}${path}`, init);
-
     return res;
   }
 
   private async _requestJson<T>(path: string, init?: RequestInit) {
     const res = await this._request(path, init);
-
     const data = await res.json();
-
     return data as T;
   }
 
@@ -66,7 +54,6 @@ export class Bitcoin implements BaseWallet {
     const utxoSummary = await this._requestJson<UTXOSummary[]>(
       `/address/${this.address}/utxo`
     );
-
     return utxoSummary;
   }
 
@@ -74,7 +61,6 @@ export class Bitcoin implements BaseWallet {
     const addressSummary = await this._requestJson<AddressSummary>(
       `/address/${this.address}`
     );
-
     return addressSummary;
   }
 
@@ -82,49 +68,37 @@ export class Bitcoin implements BaseWallet {
     const feeEstimate = await this._requestJson<{ [key: string]: number }>(
       "/fee-estimates"
     );
-
     console.info({ feeEstimate });
-
     const feeRate = feeEstimate["3"];
-
     return feeRate;
   }
 
-  private async _addSegwitInput(tx: Psbt, utxo: UTXOSummary) {
-    const txHash = utxo.txid;
-    const index = utxo.vout;
-
+  private async _addSegwitInput(tx: Psbt, utxo: UTXO) {
+    const txHash = utxo.txHash;
+    const index = utxo.index;
     const fullUTxo = await this._requestJson<FullUTXO>(`/tx/${txHash}`);
-
     const { scriptpubkey, value } = fullUTxo.vout[index];
-
     tx.addInput({
-      hash: utxo.txid,
-      index: utxo.vout,
+      hash: utxo.txHash,
+      index: utxo.index,
       witnessUtxo: {
         script: Buffer.from(scriptpubkey, "hex"),
         value: value,
       },
     });
-
     return tx;
   }
 
-  private async _addNonSegwitInput(tx: Psbt, utxo: UTXOSummary) {
-    const txHash = utxo.txid;
-
+  private async _addNonSegwitInput(tx: Psbt, utxo: UTXO) {
+    const txHash = utxo.txHash;
     const rawTxRes = await this._request(`/tx/${txHash}/raw`);
-
     const rawTx = await rawTxRes.arrayBuffer();
-
     const nonWitnessUtxo = Buffer.from(rawTx);
-
     tx.addInput({
-      hash: utxo.txid,
-      index: utxo.vout,
+      hash: utxo.txHash,
+      index: utxo.index,
       nonWitnessUtxo,
     });
-
     return tx;
   }
 
@@ -136,43 +110,55 @@ export class Bitcoin implements BaseWallet {
     return btc * Bitcoin.satsPerBtc;
   }
 
-  public async getBalance() {
-    const { chain_stats } = await this._getAddressBalance();
-
-    const balance = chain_stats.funded_txo_sum - chain_stats.spent_txo_sum;
-
-    return Bitcoin._satsToBtc(balance);
+  public async prepare(publicAddr: string): Promise<AccountData> {
+    const balance = await this.getBalance();
+    const utxos = await this._getAddressUTXOs();
+    return {
+      balance,
+      utxos: utxos.map((utxo: UTXOSummary) => {
+        return {
+          txHash: utxo.txid,
+          confirmed: utxo.status.confirmed,
+          index: utxo.vout,
+          value: utxo.value,
+        } as UTXO;
+      }),
+    };
   }
 
-  public async sendTransaction(
-    privateKeyHex: string,
+  public async generateTx(
+    from: string,
     to: string,
-    amount: number
-  ) {
-    if (this.legacy && (to.startsWith("tb1") || to.startsWith("bc1"))) {
-      throw new Error("Can't transfer from legacy address to SegWit address.");
-    }
+    amount: number,
+    memo?: string | undefined,
+    utxos?: UTXO[] | undefined,
+    additionalParameters?: Map<string, object> | undefined
+  ): Promise<TxPayload> {
+    const utxosToUse: UTXO[] =
+      utxos !== undefined
+        ? utxos!
+        : (await this._getAddressUTXOs()).map((utxo: UTXOSummary) => {
+            return {
+              txHash: utxo.txid,
+              confirmed: utxo.status.confirmed,
+              index: utxo.vout,
+              value: utxo.value,
+            } as UTXO;
+          });
 
-    const satAmount = Bitcoin._btcToSats(amount);
     const tx = new Psbt({ network: this.network });
-    const utxos = await this._getAddressUTXOs();
 
-    for (let i = 0; i < utxos.length; i++) {
-      const utxo = utxos[i];
-
-      if (this.legacy) {
-        await this._addNonSegwitInput(tx, utxo);
-      } else {
-        await this._addSegwitInput(tx, utxo);
-      }
+    for (let i = 0; i < utxosToUse.length; i++) {
+      await (this.isLegacy
+        ? this._addSegwitInput(tx, utxosToUse[i])
+        : this._addNonSegwitInput(tx, utxosToUse[i]));
     }
 
     const feeRate = await this._getFeeRate();
-
-    const vBytes = this.legacy
-      ? 148 * utxos.length + 34 + 10
-      : 68 * utxos.length + 31 + 10.5;
-
+    const satAmount = Bitcoin._btcToSats(amount);
+    const vBytes = this.isLegacy
+      ? 148 * utxosToUse.length + 34 + 10
+      : 68 * utxosToUse.length + 31 + 10.5;
     const fee = feeRate * Math.ceil(vBytes);
     const actualAmount = Math.ceil(satAmount - fee);
     const balance = Bitcoin._btcToSats(await this.getBalance());
@@ -188,14 +174,25 @@ export class Bitcoin implements BaseWallet {
       value: actualAmount,
     });
 
-    const signer = Bitcoin.ECPair.fromPrivateKey(
-      Buffer.from(privateKeyHex, "hex")
-    );
-    tx.signAllInputs(signer);
-    tx.finalizeAllInputs();
+    return {
+      tx: tx.toHex(),
+      derivationPath: [
+        44,
+        this.coinId,
+        this.account,
+        this.changeIndex,
+        this.addressIndex,
+      ],
+    };
+  }
 
-    const txHex = tx.extractTransaction().toHex();
-
+  public async broadcastTx(
+    txHex: string,
+    signature: RawSignature,
+    customUrl?: string | undefined
+  ): Promise<string> {
+    // BTC Tx are automatically signed and resulting hex is signed, so no need to do anything special.
+    const tx = Psbt.fromHex(txHex, { network: this.network });
     const txBroadcastRes = await this._request("/tx", {
       method: "POST",
       body: txHex,
@@ -204,5 +201,11 @@ export class Bitcoin implements BaseWallet {
     const txHash = await txBroadcastRes.text();
 
     return txHash;
+  }
+
+  public async getBalance() {
+    const { chain_stats } = await this._getAddressBalance();
+    const balance = chain_stats.funded_txo_sum - chain_stats.spent_txo_sum;
+    return Bitcoin._satsToBtc(balance);
   }
 }

@@ -116,7 +116,7 @@ const invert = (number: bigint, modulo = CURVE.P) => {
  * @param Q x, y coordinates of point Q
  * @returns array of two bigints
  */
-const edwards = (
+export const edwards = (
   P: readonly [bigint, bigint],
   Q: readonly [bigint, bigint]
 ): readonly [bigint, bigint] => {
@@ -153,6 +153,22 @@ export const scalarMult = (e: bigint): readonly [bigint, bigint] => {
   return Q;
 };
 
+export const fbksScalarMult = (
+  P: readonly [bigint, bigint],
+  e: bigint
+): readonly [bigint, bigint] => {
+  if (e === _0n) {
+    return [_0n, _1n];
+  }
+
+  let Q = fbksScalarMult(P, e / _2n);
+  Q = edwards(Q, Q);
+  if ((e & _1n) !== BigInt(false)) {
+    Q = edwards(Q, P);
+  }
+  return Q;
+};
+
 /**
  * Serialize a point P to a byte array.
  *
@@ -166,3 +182,48 @@ export const serialize = (P: readonly [bigint, bigint]) => {
 
   return numberToBytesLE(number);
 };
+
+export const decodePoint = (point: bigint) => {
+  let y = BigInt(0);
+  for (let i = 0; i < 255; i++) {
+    y += BigInt(2 ** i) * bit(point, i);
+  }
+  let x = xrecover(y);
+  if (BigInt(x & _1n) != bit(point, 255)) {
+    x = x - CURVE.P;
+  }
+
+  const P: [bigint, bigint] = [x, y];
+  if (!isOnCurve(P)) {
+    throw new Error("Point is not on curve.");
+  }
+
+  return P;
+};
+
+const xrecover = (y: bigint) => {
+  const xx = y * (y - BigInt(1)) * invert(CURVE.d * y * (y + BigInt(1)));
+  let x = xx ** BigInt((CURVE.P + BigInt(3)) / BigInt(8)) % CURVE.P; // BigInt automatically floors
+  if ((x * x - xx) % CURVE.P !== _0n) {
+    x = (x * (BigInt(2) ** ((CURVE.P - _1n) / BigInt(4)) % CURVE.P)) % CURVE.P;
+  }
+
+  if (x % _2n !== _0n) {
+    x = CURVE.P - x;
+  }
+
+  return x;
+};
+
+const bit = (P: bigint, offset: number) => {
+  const i = Math.floor(offset / 8);
+  return (P >> BigInt(i % 8)) & BigInt(1);
+};
+
+const isOnCurve = (P: [bigint, bigint]) => {
+  const [x, y] = P;
+  return (-x * x + y * y - _1n - CURVE.d * x * x * y * y) % CURVE.P === _0n; // -x mod works?
+};
+
+const By = BigInt(4) * invert(BigInt(5));
+export const B: [bigint, bigint] = [xrecover(By), By];
