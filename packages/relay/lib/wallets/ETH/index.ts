@@ -9,8 +9,6 @@ import {
 export class Ethereum extends ECDSAWallet {
   private readonly provider: ethers.providers.JsonRpcProvider;
 
-  private readonly address: string;
-
   constructor(
     xpub: string,
     account: number,
@@ -29,7 +27,7 @@ export class Ethereum extends ECDSAWallet {
   }
 
   public async getBalance() {
-    const wei = await this.provider.getBalance(this.address);
+    const wei = await this.provider.getBalance(this.address!);
 
     const balance = ethers.utils.formatEther(wei);
 
@@ -52,7 +50,7 @@ export class Ethereum extends ECDSAWallet {
     additionalParameters?: Map<string, object> | undefined
   ): Promise<TxPayload> {
     const nonce = await this.provider.getTransactionCount(
-      this.address,
+      this.address!,
       "latest"
     );
     // Should we use maxGasPrice? i.e. EIP1559.

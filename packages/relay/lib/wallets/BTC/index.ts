@@ -9,7 +9,6 @@ export class Bitcoin extends ECDSAWallet {
   private static readonly satsPerBtc = 100000000;
   private readonly network: Network;
   private readonly baseUrl: string;
-  private readonly address: string;
 
   constructor(
     xpub: string,

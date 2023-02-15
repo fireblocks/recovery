@@ -1,4 +1,10 @@
 export abstract class BaseWallet {
+  protected address: string | undefined;
+
+  public getAddress(): string | undefined {
+    return this.address;
+  }
+
   public abstract getBalance(): Promise<number>;
 
   public abstract prepare(publicAddr: string): Promise<AccountData>;

@@ -7,8 +7,6 @@ export class Solana extends EDDSAWallet {
 
   private readonly web3PubKey: web3.PublicKey;
 
-  private readonly address: string;
-
   constructor(
     fpub: string,
     account: number,
