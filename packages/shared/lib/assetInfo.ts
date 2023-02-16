@@ -6,6 +6,7 @@ export const assetsInfo: Record<AssetId, AssetInfo> = {
     name: "Bitcoin",
     type: AssetType.UTXO,
     algorithm: SigningAlgorithm.MPC_ECDSA_SECP256K1,
+    utxoUsage: true,
     getExplorerUrl: (locator, type) =>
       `https://blockstream.info/${type}/${locator}`,
   },
@@ -14,6 +15,7 @@ export const assetsInfo: Record<AssetId, AssetInfo> = {
     name: "Ethereum",
     type: AssetType.ACCOUNT,
     algorithm: SigningAlgorithm.MPC_ECDSA_SECP256K1,
+    utxoUsage: false,
     getExplorerUrl: (locator, type) =>
       `https://etherscan.io/${type}/${locator}`,
   },
@@ -22,6 +24,7 @@ export const assetsInfo: Record<AssetId, AssetInfo> = {
     name: "Solana",
     type: AssetType.ACCOUNT,
     algorithm: SigningAlgorithm.MPC_EDDSA_ED25519,
+    utxoUsage: false,
     getExplorerUrl: (locator, type) =>
       `https://explorer.solana.com/${type}/${locator}`,
   },
@@ -40,6 +43,7 @@ export const getAssetInfo = (assetId?: string): AssetInfo => {
       name: _assetId,
       type: AssetType.ACCOUNT,
       algorithm: SigningAlgorithm.MPC_ECDSA_SECP256K1,
+      utxoUsage: false,
       getExplorerUrl: () => "",
     };
   }

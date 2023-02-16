@@ -1,3 +1,5 @@
+import { AccountData, RawSignature, TxPayload, UTXO } from "./types";
+
 export abstract class BaseWallet {
   protected address: string | undefined;
 
@@ -7,10 +9,9 @@ export abstract class BaseWallet {
 
   public abstract getBalance(): Promise<number>;
 
-  public abstract prepare(publicAddr: string): Promise<AccountData>;
+  public abstract prepare(): Promise<AccountData>;
 
   public abstract generateTx(
-    from: string,
     to: string,
     amount: number,
     memo?: string,

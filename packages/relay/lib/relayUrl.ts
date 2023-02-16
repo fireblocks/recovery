@@ -13,7 +13,6 @@ export const decodeUrl = (url = window.location.href) => {
 export type ParsedUrlParams = {
   assetId: AssetId;
   address: string;
-  encryptedPrivateKey: string;
   isTestnet: boolean;
   walletInstance: BaseWallet;
 };
@@ -32,7 +31,7 @@ export const parseUrlParams = (assetId: AssetId, encodedParams: string) => {
 
     const decompressedParams = JSONCrush.uncrush(compressedParams);
 
-    const { adr: address, prv: encryptedPrivateKey } = JSON.parse(
+    const { xpub, account, changeIndex, addressIndex, isLegacy } = JSON.parse(
       decompressedParams
     ) as RelayUrlParameters;
 
@@ -42,12 +41,18 @@ export const parseUrlParams = (assetId: AssetId, encodedParams: string) => {
 
     const WalletClass = WalletClasses[baseAsset as AssetId];
 
-    const walletInstance = new WalletClass(address, isTestnet);
+    const walletInstance = new WalletClass(
+      xpub,
+      account,
+      changeIndex,
+      addressIndex,
+      isTestnet,
+      isLegacy
+    );
 
     const parsedParams: ParsedUrlParams = {
       assetId,
-      address,
-      encryptedPrivateKey,
+      address: walletInstance.getAddress()!,
       isTestnet,
       walletInstance,
     };

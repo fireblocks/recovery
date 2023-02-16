@@ -5,6 +5,7 @@ import {
   parse,
   UnsignedTransaction,
 } from "@ethersproject/transactions";
+import { AccountData, UTXO, TxPayload, RawSignature } from "../types";
 
 export class Ethereum extends ECDSAWallet {
   private readonly provider: ethers.providers.JsonRpcProvider;
@@ -34,7 +35,7 @@ export class Ethereum extends ECDSAWallet {
     return Number(balance);
   }
 
-  public async prepare(publicAddr: string): Promise<AccountData> {
+  public async prepare(): Promise<AccountData> {
     const balance = await this.getBalance();
     return {
       balance,
@@ -42,7 +43,6 @@ export class Ethereum extends ECDSAWallet {
   }
 
   public async generateTx(
-    from: string,
     to: string,
     amount: number,
     memo?: string | undefined,

@@ -11,6 +11,7 @@ import {
   bytesToNumberLE,
 } from "../bytes";
 import { sha } from "../sha";
+import bigInt from "big-integer";
 
 /**
  * ed25519 is Twisted Edwards curve with equation of
@@ -203,9 +204,17 @@ export const decodePoint = (point: bigint) => {
 
 const xrecover = (y: bigint) => {
   const xx = y * (y - BigInt(1)) * invert(CURVE.d * y * (y + BigInt(1)));
-  let x = xx ** BigInt((CURVE.P + BigInt(3)) / BigInt(8)) % CURVE.P; // BigInt automatically floors
+  let xTmp = bigInt(xx).modPow(
+    bigInt((CURVE.P + BigInt(3)) / _8n),
+    bigInt(CURVE.P)
+  );
+  let x = BigInt(xTmp.toString());
   if ((x * x - xx) % CURVE.P !== _0n) {
-    x = (x * (BigInt(2) ** ((CURVE.P - _1n) / BigInt(4)) % CURVE.P)) % CURVE.P;
+    let tmp = bigInt("2").modPow(
+      bigInt((CURVE.P - _1n) / BigInt(4)),
+      bigInt(CURVE.P)
+    );
+    x = (x * BigInt(tmp.toString())) % CURVE.P;
   }
 
   if (x % _2n !== _0n) {

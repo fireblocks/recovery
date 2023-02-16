@@ -20,6 +20,7 @@ export type AssetInfo = {
   name: string;
   type: AssetType;
   algorithm: SigningAlgorithm;
+  utxoUsage: boolean;
   getExplorerUrl: (locator: string, type: "tx" | "address") => string;
 };
 
@@ -27,6 +28,9 @@ export type AssetInfo = {
  * Relay URL parameters with optionally encrypted private key
  */
 export type RelayUrlParameters = {
-  adr: string;
-  prv: string;
+  xpub: string;
+  account: number;
+  changeIndex: number;
+  addressIndex: number;
+  isLegacy: boolean;
 };

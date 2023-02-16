@@ -1,23 +1,23 @@
-type UTXO = {
+export type UTXO = {
   txHash: string;
   index: number;
   value: number;
   confirmed: boolean;
 };
 
-type AccountData = {
+export type AccountData = {
   balance: number;
   utxos?: UTXO[];
 };
 
-type TxParamsRequest = {
+export type TxParamsRequest = {
   assetId: string;
   hdPath: string[];
   xpub: string;
   chainId?: number;
 };
 
-type TxParamsResponse = {
+export type TxParamsResponse = {
   fromAddress: string;
   balance: string;
   fee: string;
@@ -30,12 +30,12 @@ type TxParamsResponse = {
   blockhash?: string;
 };
 
-type TxPayload = {
+export type TxPayload = {
   derivationPath: [number, number, number, number, number];
   tx: string;
 };
 
-type RawSignature = {
+export type RawSignature = {
   r: string;
   s: string;
   v: number;

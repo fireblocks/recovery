@@ -14,6 +14,7 @@ import {
   InputLabel,
   CircularProgress,
 } from "@mui/material";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import {
   AssetIcon,
   TextField,
@@ -28,10 +29,11 @@ import {
 import { useWallet } from "../../context/Wallet";
 import { Logo } from "../../components/Logo";
 import { ConfirmationModal } from "../../components/ConfirmationModal";
+import { AccountData, UTXO } from "../../lib/wallets/types";
 
 type FormData = z.infer<typeof transactionInput>;
 
-type TxMutationVariables = FormData & { privateKey: string };
+type TxMutationVariables = FormData;
 
 const defaultValues: FormData = {
   to: "",
@@ -105,39 +107,49 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }) => {
     },
   });
 
+  const prepareQueryKey = ["prepare"];
+
+  const prepareQuery = useQuery({
+    queryKey: prepareQueryKey,
+    enabled: !!walletInstance,
+    queryFn: async () => {
+      const prepare = await walletInstance?.prepare();
+
+      return prepare;
+    },
+    onSuccess: (prepare: AccountData) => {
+      if (prepare.utxos) {
+        setValue("utxos", []);
+      }
+      setValue("amount", Math.min(prepare.balance, values.amount));
+    },
+  });
+
   const txMutation = useMutation({
     mutationFn: async (variables: TxMutationVariables) => {
       if (!walletInstance) {
         throw new Error("No wallet instance found");
       }
 
-      const { privateKey, to, amount } = variables;
+      const { to, amount, utxos, memo } = variables;
 
-      const txHash = await walletInstance.sendTransaction(
-        privateKey,
+      const txPayload = await walletInstance.generateTx(
         to,
-        amount
+        amount,
+        memo,
+        utxos
       );
 
-      return txHash;
+      return txPayload;
     },
-    onSuccess: (txHash) => {
-      setTxHash(txHash);
-
-      handleTransaction({
-        state: "success",
-        to: values.to,
-        amount: values.amount,
-        hash: txHash,
-      });
-
-      queryClient.setQueryData(balanceQueryKey, (balance: number | undefined) =>
-        typeof balance === "number"
-          ? Math.max(balance - values.amount, 0)
-          : balance
-      );
-
-      setTimeout(balanceQuery.refetch, 1000);
+    onSuccess: (txPayload) => {
+      // setTxHash(txHash);
+      // queryClient.setQueryData(balanceQueryKey, (balance: number | undefined) =>
+      //   typeof balance === "number"
+      //     ? Math.max(balance - values.amount, 0)
+      //     : balance
+      // );
+      // setTimeout(balanceQuery.refetch, 1000);
     },
     onError: (error: Error) => {
       console.error(error);
@@ -155,8 +167,8 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }) => {
 
   const onSubmit = () => setIsConfirmationModalOpen(true);
 
-  const onConfirmTransaction = (privateKey: string) =>
-    txMutation.mutate({ privateKey, to: values.to, amount: values.amount });
+  const onConfirmTransaction = () =>
+    txMutation.mutate({ to: values.to, amount: values.amount });
 
   return (
     <Box
@@ -212,44 +224,42 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }) => {
           </Typography>
         </Grid>
         <Grid item xs={12}>
-          <Grid
-            container
-            spacing={2}
-            alignItems="flex-end"
-            justifyContent="space-between"
-            height="72px"
-          >
-            <Grid item flex="1">
-              <InputLabel
-                shrink
-                htmlFor={balanceId}
-                sx={{
-                  fontSize: "18px",
-                  fontWeight: 600,
-                  color: "#000000",
-                }}
-              >
-                Balance
-              </InputLabel>
-              {balanceQuery.isLoading ? (
-                <CircularProgress size="24px" />
-              ) : (
+          {prepareQuery.isLoading ? (
+            <CircularProgress size="24px" />
+          ) : (
+            <Grid
+              container
+              spacing={2}
+              alignItems="flex-end"
+              justifyContent="space-between"
+              height="72px"
+            >
+              <Grid item flex="1">
+                <InputLabel
+                  shrink
+                  htmlFor={balanceId}
+                  sx={{
+                    fontSize: "18px",
+                    fontWeight: 600,
+                    color: "#000000",
+                  }}
+                >
+                  Balance
+                </InputLabel>
                 <Typography
                   id={balanceId}
                   noWrap
                   fontFamily={
-                    balanceQuery.isError ? undefined : monospaceFontFamily
+                    prepareQuery.isError ? undefined : monospaceFontFamily
                   }
                   sx={{ userSelect: "text", cursor: "default" }}
                 >
-                  {balanceQuery.isError
+                  {prepareQuery.isError
                     ? "Could not get balance"
-                    : `${balanceQuery.data} ${asset?.id}`}
+                    : `${prepareQuery.data.balance} ${asset?.id}`}
                 </Typography>
-              )}
-            </Grid>
-            {!!addressUrl && (
-              <Grid item>
+              </Grid>
+              <Grid item flex="1">
                 <Button
                   id={addressExplorerId}
                   variant="outlined"
@@ -261,8 +271,8 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }) => {
                   Open Explorer
                 </Button>
               </Grid>
-            )}
-          </Grid>
+            </Grid>
+          )}
         </Grid>
         {/* <Grid item xs={12}>
           <Divider sx={{ margin: "1em 0" }} />
@@ -302,10 +312,77 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }) => {
             {...register("amount", { valueAsNumber: true })}
           />
         </Grid>
+        <Grid item xs={12}>
+          <TextField
+            id="memo"
+            label="Memo or Tag field (when applicable)"
+            error={errors.to?.message}
+            disabled={txMutation.isLoading}
+            autoComplete="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            isMonospace
+            {...register("memo")}
+          />
+        </Grid>
+        {prepareQuery.isError
+          ? "Could not check UTXO data"
+          : prepareQuery.data &&
+            prepareQuery.data.utxos && (
+              <Grid item flex="1">
+                Available UTXOs
+                <DataGrid
+                  rows={prepareQuery.data.utxos.map((utxo, idx) => {
+                    return {
+                      id: idx,
+                      tx: utxo.txHash,
+                      value: `${utxo.value} ${asset.id}`,
+                      confirmed: `${utxo.confirmed ? "Yes" : "No"}`,
+                    };
+                  })}
+                  columns={
+                    [
+                      {
+                        field: "tx",
+                        headerName: "Tx Hash",
+                        type: "string",
+                        editable: false,
+                        sortable: false,
+                      },
+                      {
+                        field: "value",
+                        headerName: "UTXO Value",
+                        type: "string",
+                        editable: false,
+                        sortable: true,
+                      },
+                      {
+                        field: "confirmed",
+                        headerName: "UTXO Confirmed",
+                        type: "boolean",
+                        editable: false,
+                        sortable: true,
+                      },
+                    ] as GridColDef[]
+                  }
+                  pageSize={100}
+                  rowsPerPageOptions={[100]}
+                  checkboxSelection
+                  onSelectionModelChange={(newSelectionModel) => {
+                    let utxos: UTXO[] = [];
+                    (newSelectionModel as number[]).forEach((utxoIdx) => {
+                      const utxo = prepareQuery.data.utxos![utxoIdx];
+                      utxos.push(utxo);
+                    });
+                    setValue("utxos", utxos);
+                  }}
+                />
+              </Grid>
+            )}
         <Grid item xs={12} display="flex" justifyContent="flex-end">
           <Button
             type="submit"
-            disabled={balanceQuery.isLoading || txMutation.isLoading}
+            disabled={prepareQuery.isLoading || txMutation.isLoading}
           >
             Send
           </Button>

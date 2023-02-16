@@ -4,6 +4,7 @@ import { AddressSummary, FullUTXO, UTXOSummary } from "./types";
 import { ECDSAWallet } from "../ECDSAWallet";
 import { hash160 } from "bitcoinjs-lib/src/crypto";
 import { bech32 } from "bech32";
+import { UTXO, AccountData, TxPayload, RawSignature } from "../types";
 
 export class Bitcoin extends ECDSAWallet {
   private static readonly satsPerBtc = 100000000;
@@ -109,7 +110,7 @@ export class Bitcoin extends ECDSAWallet {
     return btc * Bitcoin.satsPerBtc;
   }
 
-  public async prepare(publicAddr: string): Promise<AccountData> {
+  public async prepare(): Promise<AccountData> {
     const balance = await this.getBalance();
     const utxos = await this._getAddressUTXOs();
     return {
@@ -119,14 +120,13 @@ export class Bitcoin extends ECDSAWallet {
           txHash: utxo.txid,
           confirmed: utxo.status.confirmed,
           index: utxo.vout,
-          value: utxo.value,
+          value: Bitcoin._satsToBtc(utxo.value),
         } as UTXO;
       }),
     };
   }
 
   public async generateTx(
-    from: string,
     to: string,
     amount: number,
     memo?: string | undefined,

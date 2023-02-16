@@ -1,6 +1,7 @@
 import * as web3 from "@solana/web3.js";
 import { EDDSAWallet } from "../EDDSAWallet";
 import { encode } from "bs58";
+import { RawSignature, AccountData, UTXO, TxPayload } from "../types";
 
 export class Solana extends EDDSAWallet {
   private readonly connection: web3.Connection;
@@ -52,7 +53,7 @@ export class Solana extends EDDSAWallet {
     return txHash;
   }
 
-  public async prepare(publicAddr: string): Promise<AccountData> {
+  public async prepare(): Promise<AccountData> {
     const accountBalance = await this.getBalance();
     return {
       balance: accountBalance,
@@ -60,7 +61,6 @@ export class Solana extends EDDSAWallet {
   }
 
   public async generateTx(
-    from: string,
     to: string,
     amount: number,
     memo?: string | undefined,

@@ -59,7 +59,6 @@ type WalletData = {
 
 type IWalletContext = WalletData & {
   handleRelayUrl: (encodedPayload: string) => void;
-  handleDecryptPrivateKey: (passphrase: string) => Promise<string>;
   handleTransaction: (tx: Transaction) => void;
 };
 
@@ -74,7 +73,6 @@ const defaultWalletData: WalletData = {
 const defaultValue: IWalletContext = {
   ...defaultWalletData,
   handleRelayUrl: async () => undefined,
-  handleDecryptPrivateKey: async () => "",
   handleTransaction: () => undefined,
 };
 
@@ -86,10 +84,6 @@ type Props = {
 
 export const WalletProvider = ({ children }: Props) => {
   const router = useRouter();
-
-  const encryptedPrivateKeyRef = useRef<string | null>(
-    initialUrlParams?.encryptedPrivateKey ?? null
-  );
 
   const [wallet, setWallet] = useState<WalletData>(defaultWalletData);
 
@@ -116,38 +110,13 @@ export const WalletProvider = ({ children }: Props) => {
 
       const parsedParams = parseUrlParams(assetId, encodedParams);
 
-      encryptedPrivateKeyRef.current = parsedParams.encryptedPrivateKey;
-
       setWalletFromUrlParams(parsedParams);
 
       router.push("/[assetId]", `/${assetId}`);
     } catch (error) {
-      encryptedPrivateKeyRef.current = null;
-
       console.error(error);
 
       throw new Error("Invalid relay URL");
-    }
-  };
-
-  const handleDecryptPrivateKey = async (passphrase: string) => {
-    if (!encryptedPrivateKeyRef.current) {
-      throw new Error("No encrypted private key provided");
-    }
-
-    try {
-      const privateKey = await decryptString(
-        encryptedPrivateKeyRef.current,
-        passphrase
-      );
-
-      setWallet((prev) => ({ ...prev, state: "ready" }));
-
-      return privateKey;
-    } catch (error) {
-      console.error(error);
-
-      throw new Error("Invalid passphrase");
     }
   };
 
@@ -174,7 +143,6 @@ export const WalletProvider = ({ children }: Props) => {
     transactions: wallet.transactions,
     walletInstance: wallet.walletInstance,
     handleRelayUrl,
-    handleDecryptPrivateKey,
     handleTransaction,
   };
 

@@ -35,7 +35,7 @@ type Props = Omit<DialogProps, "open" | "onClose" | "onSubmit"> & {
   toAddress: string;
   txUrl?: string;
   onClose: () => void;
-  onSubmit: (privateKey: string) => void;
+  onSubmit: () => void;
 };
 
 export const ConfirmationModal = ({
@@ -51,8 +51,6 @@ export const ConfirmationModal = ({
   onSubmit: _onSubmit,
   ...props
 }: Props) => {
-  const { handleDecryptPrivateKey } = useWallet();
-
   const headingId = useId();
   const descriptionId = useId();
 
@@ -74,13 +72,7 @@ export const ConfirmationModal = ({
 
   const onSubmit = async (formData: FormData) => {
     try {
-      setDecryptionError(undefined);
-
-      const privateKey = await handleDecryptPrivateKey(formData.pin);
-
-      reset();
-
-      _onSubmit(privateKey);
+      _onSubmit();
     } catch {
       setDecryptionError("Invalid PIN");
 
