@@ -25,12 +25,10 @@ export type AssetInfo = {
 };
 
 /**
- * Relay URL parameters with optionally encrypted private key
+ * Relay URL parameters
  */
 export type RelayUrlParameters = {
+  assetId: AssetId;
+  accountId: number;
   xpub: string;
-  account: number;
-  changeIndex: number;
-  addressIndex: number;
-  isLegacy: boolean;
 };

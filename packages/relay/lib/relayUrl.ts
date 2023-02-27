@@ -1,13 +1,11 @@
 import JSONCrush from "jsoncrush";
-import { assetIds, AssetId, RelayUrlParameters } from "shared";
+import { AssetId, RelayUrlParameters } from "shared";
 import { BaseWallet, WalletClasses } from "./wallets";
 
 export const decodeUrl = (url = window.location.href) => {
-  const [href, encodedParams] = url.split("#");
+  const encodedParams = url.split("#")[1];
 
-  const assetId = assetIds.find((assetId) => href.includes(`/${assetId}`));
-
-  return { assetId, encodedParams: encodedParams as string | undefined };
+  return encodedParams as string | undefined;
 };
 
 export type ParsedUrlParams = {
@@ -17,12 +15,8 @@ export type ParsedUrlParams = {
   walletInstance: BaseWallet;
 };
 
-export const parseUrlParams = (assetId: AssetId, encodedParams: string) => {
+export const parseUrlParams = (encodedParams: string) => {
   try {
-    if (!assetId) {
-      throw new Error("Invalid asset ID in URL");
-    }
-
     if (!encodedParams) {
       throw new Error("No wallet data in URL");
     }
@@ -31,7 +25,7 @@ export const parseUrlParams = (assetId: AssetId, encodedParams: string) => {
 
     const decompressedParams = JSONCrush.uncrush(compressedParams);
 
-    const { xpub, account, changeIndex, addressIndex, isLegacy } = JSON.parse(
+    const { assetId, xpub, accountId } = JSON.parse(
       decompressedParams
     ) as RelayUrlParameters;
 
@@ -43,11 +37,14 @@ export const parseUrlParams = (assetId: AssetId, encodedParams: string) => {
 
     const walletInstance = new WalletClass(
       xpub,
-      account,
-      changeIndex,
-      addressIndex,
+      accountId,
+      // changeIndex,
+      // addressIndex,
+      0,
+      0,
       isTestnet,
-      isLegacy
+      // isLegacy
+      false
     );
 
     const parsedParams: ParsedUrlParams = {

@@ -27,7 +27,7 @@
    - Encrypted on all partitions
    - Stored in a safe box when not in use
 2. Install the latest [release](/release) of [Recovery Utility](packages/app) on the offline recovery machine.
-3. **(Optional)** Install the latest [release](/release) of [Recovery Relay](packages/relay) on a web server. Recovery Relay is a companion web app that creates transactions from recovered wallets. Fireblocks hosts an instance at [fbrelay.app](https://fbrelay.app), but you can host your own instance and set its URL in Recovery Utility's Settings tab.
+3. **(Optional)** Install the latest [release](/release) of [Recovery Relay](packages/relay) on a web server. Recovery Relay is a companion web app that creates transactions from recovered wallets. Fireblocks hosts an instance at [relay.fireblocks.solutions](https://relay.fireblocks.solutions), but you can host your own instance and set its URL in Recovery Utility's Settings tab.
 4. Open Recovery Utility to use one of the following tools...
 
 ## 🧰 Tools

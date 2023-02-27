@@ -49,21 +49,17 @@ export const deriveWallet = async ({
     legacy: false,
   };
 
-  const wallet: Wallet = {
-    assetId,
-    isTestnet,
-    derivations: await deriveAddresses(input),
-  };
+  const derivations = await deriveAddresses(input);
 
   // Get additional legacy addresses for Bitcoin
-  if (assetId === "BTC") {
+  if (assetId.includes("BTC")) {
     const legacyWallets = await deriveAddresses({
       ...input,
       legacy: true,
     });
 
-    wallet.derivations.push(...legacyWallets);
+    derivations.push(...legacyWallets);
   }
 
-  return wallet;
+  return derivations;
 };

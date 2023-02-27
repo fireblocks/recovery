@@ -27,7 +27,8 @@ export const RecoverWalletModal = ({
 }: Props) => {
   const { vaultAccounts, restoreWallet } = useWorkspace();
 
-  const account = vaultAccounts.find((account) => account.id === accountId);
+  const account =
+    typeof accountId === "number" ? vaultAccounts.get(accountId) : undefined;
 
   const [assetId, setAssetId] = useState<string | null>(null);
 

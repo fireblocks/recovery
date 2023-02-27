@@ -9,19 +9,18 @@ import {
 } from "react";
 import { AssetId } from "shared";
 import { decodeUrl, parseUrlParams, ParsedUrlParams } from "../lib/relayUrl";
-import { decryptString } from "../lib/decryption";
 import { BaseWallet } from "../lib/wallets";
 
 let initialUrlParams: ParsedUrlParams | undefined;
 
 if (typeof window !== "undefined") {
-  const { assetId, encodedParams } = decodeUrl();
+  const encodedParams = decodeUrl();
 
   window.location.hash = "";
 
-  if (assetId && encodedParams) {
+  if (encodedParams) {
     try {
-      initialUrlParams = parseUrlParams(assetId, encodedParams);
+      initialUrlParams = parseUrlParams(encodedParams);
     } catch {
       console.info("No wallet data in URL");
     }
@@ -98,21 +97,15 @@ export const WalletProvider = ({ children }: Props) => {
 
   const handleRelayUrl = (url: string) => {
     try {
-      const { assetId, encodedParams } = decodeUrl(url);
-
-      if (!assetId) {
-        throw new Error("Invalid asset ID in URL");
-      }
+      const encodedParams = decodeUrl(url);
 
       if (!encodedParams) {
         throw new Error("No wallet data in URL");
       }
 
-      const parsedParams = parseUrlParams(assetId, encodedParams);
+      const parsedParams = parseUrlParams(encodedParams);
 
       setWalletFromUrlParams(parsedParams);
-
-      router.push("/[assetId]", `/${assetId}`);
     } catch (error) {
       console.error(error);
 
@@ -129,8 +122,6 @@ export const WalletProvider = ({ children }: Props) => {
   useEffect(() => {
     if (initialUrlParams) {
       setWalletFromUrlParams(initialUrlParams);
-    } else if (decodeUrl().assetId) {
-      router.push("/");
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

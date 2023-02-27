@@ -2,7 +2,6 @@ import {
   createContext,
   useContext,
   useState,
-  useMemo,
   ReactNode,
   Dispatch,
   SetStateAction,
@@ -10,9 +9,9 @@ import {
 import { useRouter } from "next/router";
 import produce from "immer";
 import { getAssetInfo, assetsInfo, AssetInfo, AssetId } from "shared";
-import { deserializePath } from "../lib/bip44";
 import { csvImport, ParsedRow } from "../lib/csv";
 import { deriveWallet } from "../lib/deriveWallet";
+import { ExtendedKeysResponse } from "../lib/pythonClient";
 
 export type Derivation = {
   pathParts: number[];
@@ -36,13 +35,13 @@ export type Wallet = {
 export type VaultAccount = {
   id: number;
   name: string;
-  wallets: Wallet[];
+  wallets: Map<AssetId, Wallet>;
 };
 
 const splitPath = (path: string) => path.split(",").map((p) => parseInt(p));
 
 interface IWorkspaceContext {
-  isRecovered: boolean;
+  extendedKeys?: ExtendedKeysResponse;
   asset?: AssetInfo;
   pathParts: number[];
   address?: string;
@@ -50,24 +49,16 @@ interface IWorkspaceContext {
   privateKey?: string;
   wif?: string;
   isTestnet?: boolean;
-
-  vaultAccounts: VaultAccount[];
+  vaultAccounts: Map<number, VaultAccount>;
   restoreVaultAccounts: (csvFile: File) => Promise<void>;
   restoreVaultAccount: (name: string) => number;
   restoreWallet: (accountId: number, assetId: string) => void;
-
-  /** @deprecated */
-  currentAssetWallets: Wallet[];
-  setIsRecovered: Dispatch<SetStateAction<boolean>>;
-  /** @deprecated */
-  handleAddWallets: (wallets: Wallet[]) => void;
-  /** @deprecated */
-  handleDeleteWallets: (addresses: string[]) => void;
-  resetWorkspace: (isRecovered: boolean) => void;
+  setExtendedKeys: Dispatch<SetStateAction<ExtendedKeysResponse | undefined>>;
+  reset: () => void;
 }
 
 const defaultValue: IWorkspaceContext = {
-  isRecovered: false,
+  extendedKeys: undefined,
   asset: undefined,
   pathParts: [],
   address: undefined,
@@ -75,15 +66,12 @@ const defaultValue: IWorkspaceContext = {
   privateKey: undefined,
   wif: undefined,
   isTestnet: undefined,
-  vaultAccounts: [],
+  vaultAccounts: new Map(),
   restoreVaultAccounts: async () => undefined,
   restoreVaultAccount: () => 0,
   restoreWallet: () => undefined,
-  currentAssetWallets: [],
-  setIsRecovered: () => undefined,
-  handleAddWallets: () => undefined,
-  handleDeleteWallets: () => undefined,
-  resetWorkspace: () => undefined,
+  setExtendedKeys: () => undefined,
+  reset: () => undefined,
 };
 
 const Context = createContext(defaultValue);
@@ -159,98 +147,118 @@ export const WorkspaceProvider = ({ children }: Props) => {
 
   const asset = assetId ? getAssetInfo(assetId) : undefined;
 
-  const [isRecovered, setIsRecovered] = useState(false);
+  const [extendedKeys, setExtendedKeys] = useState<
+    ExtendedKeysResponse | undefined
+  >();
 
   const [vaultAccounts, setVaultAccounts] = useState(
     defaultValue.vaultAccounts
   );
 
-  const handleImportedVaultAccount = async (row: ParsedRow) => {
-    const assetId = row.assetId as AssetId;
-
-    const derivation: Derivation = {
-      pathParts: row.pathParts,
-      address: row.address,
-      type: row.addressType,
-      description: row.addressDescription,
-      tag: row.tag,
-      publicKey: row.publicKey,
-      privateKey: row.privateKey,
-      wif: row.privateKeyWif,
-    };
-
-    let wallet: Wallet = {
-      assetId,
-      isTestnet: row.assetId.includes("_TEST"),
-      derivations: [derivation],
-    };
-
-    // TODO: Derive wallets after importing so we can batch indices
-    // TODO: Handle testnet assets
-    if (
-      (!derivation.publicKey || !derivation.privateKey) &&
-      assetsInfo[assetId]
-    ) {
-      console.info("Deriving wallet", {
-        assetId,
-        accountId: row.accountId,
-        indexStart: row.pathParts[4],
-        indexEnd: row.pathParts[4],
-      });
-
-      wallet = await deriveWallet({
-        assetId,
-        accountId: row.accountId,
-        indexStart: row.pathParts[4],
-        indexEnd: row.pathParts[4],
-      });
-    }
-
-    setVaultAccounts(
-      produce((draft) => {
-        const accountIndex = draft.findIndex(
-          (account) => account.id === row.accountId
-        );
-
-        if (accountIndex > 0) {
-          const walletIndex = draft[accountIndex].wallets.findIndex(
-            (wallet) => wallet.assetId === row.assetId
-          );
-
-          if (walletIndex > 0) {
-            draft[accountIndex].wallets[walletIndex].derivations.push(
-              derivation
-            );
-          } else {
-            draft[accountIndex].wallets.push(wallet);
-          }
-        } else {
-          draft.push({
-            id: row.accountId,
-            name: row.accountName ?? `Account ${row.accountId}`,
-            wallets: [wallet],
-          });
-        }
-      })
-    );
-  };
-
   const restoreVaultAccounts = async (csvFile: File) => {
+    const tmpAccounts = new Map<number, VaultAccount>();
+
+    const handleRow = (parsedRow: ParsedRow) => {
+      const assetId = parsedRow.assetId as AssetId;
+
+      const isTestnet = assetId.includes("TEST");
+
+      const derivation: Derivation = {
+        pathParts: parsedRow.pathParts,
+        address: parsedRow.address,
+        type: parsedRow.addressType,
+        description: parsedRow.addressDescription,
+        tag: parsedRow.tag,
+        publicKey: parsedRow.publicKey,
+        privateKey: parsedRow.privateKey,
+        wif: parsedRow.privateKeyWif,
+      };
+
+      const wallet: Wallet = {
+        assetId,
+        isTestnet,
+        derivations: [derivation],
+      };
+
+      const account = tmpAccounts.get(parsedRow.accountId);
+
+      if (account) {
+        const existingWallet = account.wallets.get(assetId);
+
+        if (existingWallet) {
+          existingWallet.derivations.push(derivation);
+
+          existingWallet.derivations.sort((a, b) => {
+            if (a.pathParts[4] > b.pathParts[4]) {
+              return 1;
+            }
+
+            if (a.pathParts[4] < b.pathParts[4]) {
+              return -1;
+            }
+
+            return 0;
+          });
+
+          account.wallets.set(assetId, existingWallet);
+        } else {
+          account.wallets.set(assetId, wallet);
+        }
+      } else {
+        tmpAccounts.set(parsedRow.accountId, {
+          id: parsedRow.accountId,
+          name: parsedRow.accountName ?? `Account ${parsedRow.accountId}`,
+          wallets: new Map<AssetId, Wallet>([[assetId, wallet]]),
+        });
+      }
+    };
+
     setVaultAccounts(defaultValue.vaultAccounts);
 
-    void csvImport(csvFile, handleImportedVaultAccount);
+    await csvImport(csvFile, handleRow);
+
+    for (const [accountId, account] of tmpAccounts) {
+      for (const [assetId, wallet] of account.wallets) {
+        if (!assetsInfo[assetId]) {
+          continue;
+        }
+
+        const indexStart = wallet.derivations[0].pathParts[4];
+        const indexEnd =
+          wallet.derivations[wallet.derivations.length - 1].pathParts[4];
+
+        wallet.derivations = await deriveWallet({
+          assetId,
+          accountId,
+          indexStart,
+          indexEnd,
+        });
+
+        account.wallets.set(assetId, wallet);
+
+        tmpAccounts.set(accountId, account);
+      }
+    }
+
+    setVaultAccounts(tmpAccounts);
   };
 
   const restoreVaultAccount = (name: string) => {
-    let accountId = vaultAccounts.length;
+    let accountId = vaultAccounts.size;
 
     setVaultAccounts(
       produce((draft) => {
         if (accountId > 0) {
-          accountId = Math.max(...draft.map((account) => account.id)) + 1;
+          const accountIds = Array.from(draft.keys());
+
+          accountId = Math.max(...accountIds) + 1;
         }
 
-        draft.push({ id: accountId, name, wallets: [] });
+        draft.set(accountId, {
+          id: accountId,
+          name,
+          wallets: new Map<AssetId, Wallet>(),
+        });
       })
     );
 
@@ -260,15 +268,13 @@ export const WorkspaceProvider = ({ children }: Props) => {
   const restoreWallet = (accountId: number, assetId: string) => {
     setVaultAccounts(
       produce((draft) => {
-        const account = draft.find((account) => account.id === accountId);
+        const account = draft.get(accountId);
 
         if (account) {
-          const wallet = account.wallets.find(
-            (wallet) => wallet.assetId === assetId
-          );
+          const wallet = account.wallets.get(assetId as AssetId);
 
           if (!wallet) {
-            account.wallets.push({
+            account.wallets.set(assetId as AssetId, {
               assetId: assetId as AssetId,
               isTestnet: assetId.includes("_TEST"),
               derivations: [],
@@ -277,21 +283,6 @@ export const WorkspaceProvider = ({ children }: Props) => {
         }
       })
     );
-  };
-
-  const currentAssetWallets = useMemo(
-    () =>
-      vaultAccounts
-        .map(({ wallets }) =>
-          wallets.filter((wallet) => wallet.assetId === assetId)
-        )
-        .flat(),
-    [assetId, vaultAccounts]
-  );
-
-  const resetWorkspace = (isRecovered: boolean) => {
-    setIsRecovered(isRecovered);
-    setVaultAccounts(defaultValue.vaultAccounts);
   };
 
   const pathParts = typeof _path === "string" ? splitPath(_path) : [];
@@ -304,22 +295,13 @@ export const WorkspaceProvider = ({ children }: Props) => {
       ? !["false", "0"].includes(_isTestnet.toLowerCase())
       : undefined;
 
-  // const handleAddWallets = (newWallets: Wallet[]) =>
-  //   setWallets((prev) => formatWallets([...prev, ...newWallets]));
-
-  // const handleDeleteWallets = (addresses: string[]) =>
-  //   setWallets((prev) =>
-  //     formatWallets(
-  //       prev.filter((wallet) => !addresses.includes(wallet.address))
-  //     )
-  //   );
-
-  const handleAddWallets = (newWallets: Wallet[]) => undefined;
-
-  const handleDeleteWallets = (addresses: string[]) => undefined;
+  const reset = () => {
+    setExtendedKeys(undefined);
+    setVaultAccounts(defaultValue.vaultAccounts);
+  };
 
   const value: IWorkspaceContext = {
-    isRecovered,
+    extendedKeys,
     asset,
     pathParts,
     address,
@@ -331,14 +313,15 @@ export const WorkspaceProvider = ({ children }: Props) => {
     restoreVaultAccounts,
     restoreVaultAccount,
     restoreWallet,
-    currentAssetWallets,
-    setIsRecovered,
-    handleAddWallets,
-    handleDeleteWallets,
-    resetWorkspace,
+    setExtendedKeys,
+    reset,
   };
 
-  console.info({ value });
+  console.info("Workspace", {
+    extendedKeys,
+    asset,
+    vaultAccounts,
+  });
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 };

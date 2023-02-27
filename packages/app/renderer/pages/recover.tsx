@@ -20,7 +20,7 @@ type FormData = z.infer<typeof recoverKeysInput>;
 const Recover: NextPageWithLayout = () => {
   const router = useRouter();
 
-  const { restoreVaultAccounts, setIsRecovered } = useWorkspace();
+  const { restoreVaultAccounts, setExtendedKeys } = useWorkspace();
 
   const [recoveryError, setRecoveryError] = useState<string | undefined>(
     undefined
@@ -29,17 +29,15 @@ const Recover: NextPageWithLayout = () => {
   const verifyOnly = router.query.verifyOnly === "true";
 
   const recoverMutation = useMutation({
-    mutationFn: async (formData: FormData) => {
-      await recoverKeys(formData);
-
-      setIsRecovered(true);
-
-      if (formData.backupCsv) {
-        void restoreVaultAccounts(formData.backupCsv);
-      }
-    },
-    onSuccess: () => {
+    mutationFn: async (formData: FormData) => recoverKeys(formData, verifyOnly),
+    onSuccess: (extendedKeys, { backupCsv }) => {
       setRecoveryError(undefined);
+
+      setExtendedKeys(extendedKeys);
+
+      if (backupCsv) {
+        void restoreVaultAccounts(backupCsv);
+      }
 
       router.push({
         pathname: verifyOnly ? "/keys?verifyOnly=true" : "/accounts/vault",

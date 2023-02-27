@@ -11,7 +11,7 @@ This repository contains two applications ([Recovery Utility](../packages/app/) 
 3. The user scans the Recovery Relay URL QR code from an internet-connected device.
 4. On the internet-connected device, the user fills out transaction details, then enters the encryption PIN to decrypt the wallet's private key and create/sign a transaction. All transaction logic is performed in the browser and then broadcast via RPC to a blockchain node. **Recovery Relay does not send any private key materials to a server.**
 
-Recovery Relay can be hosted on any static file server, and Fireblocks maintains an instance hosted on Vercel at [fbrelay.app](https://fbrelay.app). Users can set a custom Recovery Relay URL in Recovery Utility's settings, after recovering their private keys.
+Recovery Relay can be hosted on any static file server, and Fireblocks maintains an instance hosted on Vercel at [relay.fireblocks.solutions](https://relay.fireblocks.solutions). Users can set a custom Recovery Relay URL in Recovery Utility's settings, after recovering their private keys.
 
 ## Packages
 

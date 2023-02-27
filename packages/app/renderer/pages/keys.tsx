@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
 import type { NextPageWithLayout } from "./_app";
-import { useQuery } from "@tanstack/react-query";
-import { getExtendedKeys } from "../lib/pythonClient";
+import { useWorkspace } from "../context/Workspace";
 import { Layout } from "../components/Layout";
 import { monospaceFontFamily, TextField } from "shared";
 import { Box, Grid, Typography, InputAdornment } from "@mui/material";
@@ -10,18 +9,9 @@ import { CheckCircle } from "@mui/icons-material";
 const Verify: NextPageWithLayout = () => {
   const router = useRouter();
 
-  const verifyOnly = router.query.verifyOnly === "true";
+  const { extendedKeys } = useWorkspace();
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["extendedKeys"],
-    queryFn: getExtendedKeys,
-    initialData: {
-      xprv: "",
-      fprv: "",
-      xpub: "",
-      fpub: "",
-    },
-  });
+  const verifyOnly = router.query.verifyOnly === "true";
 
   return (
     <Box>
@@ -54,8 +44,7 @@ const Verify: NextPageWithLayout = () => {
           <TextField
             id="xpub"
             label="XPUB (ECDSA)"
-            value={data.xpub}
-            disabled={isLoading}
+            value={extendedKeys?.xpub ?? ""}
             enableCopy
             isMonospace
             endAdornment={
@@ -70,8 +59,7 @@ const Verify: NextPageWithLayout = () => {
           <TextField
             id="fpub"
             label="FPUB (Fireblocks Ed25519)"
-            value={data.fpub}
-            disabled={isLoading}
+            value={extendedKeys?.fpub ?? ""}
             enableCopy
             isMonospace
             endAdornment={
@@ -82,32 +70,30 @@ const Verify: NextPageWithLayout = () => {
             }
           />
         </Grid>
-        {!verifyOnly && (
-          <>
-            <Grid item xs={12}>
-              <Typography variant="h2">Private Keys</Typography>
-              <TextField
-                id="xprv"
-                type="password"
-                label="XPRV (ECDSA)"
-                value={data.xprv}
-                disabled={isLoading}
-                enableCopy
-                isMonospace
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                id="fprv"
-                type="password"
-                label="FPRV (Fireblocks Ed25519)"
-                value={data.fprv}
-                disabled={isLoading}
-                enableCopy
-                isMonospace
-              />
-            </Grid>
-          </>
+        {!!extendedKeys?.xprv && (
+          <Grid item xs={12}>
+            <Typography variant="h2">Private Keys</Typography>
+            <TextField
+              id="xprv"
+              type="password"
+              label="XPRV (ECDSA)"
+              value={extendedKeys.xprv}
+              enableCopy
+              isMonospace
+            />
+          </Grid>
+        )}
+        {!!extendedKeys?.fprv && (
+          <Grid item xs={12}>
+            <TextField
+              id="fprv"
+              type="password"
+              label="FPRV (Fireblocks Ed25519)"
+              value={extendedKeys.fprv}
+              enableCopy
+              isMonospace
+            />
+          </Grid>
         )}
       </Grid>
     </Box>

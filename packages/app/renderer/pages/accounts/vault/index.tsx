@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import type { NextPageWithLayout } from "../../_app";
 import { useMemo, useState } from "react";
-import { Button } from "shared";
+import { AssetId, Button } from "shared";
 import { Box, Grid, Typography, Breadcrumbs } from "@mui/material";
 import {
   GridToolbarQuickFilter,
@@ -70,7 +70,7 @@ const GridToolbar = ({ onClickAddAccount }: GridToolbarProps) => (
 const Vault: NextPageWithLayout = () => {
   const router = useRouter();
 
-  const { vaultAccounts } = useWorkspace();
+  const { asset, extendedKeys, vaultAccounts } = useWorkspace();
 
   const [isRecoverAccountModalOpen, setIsRecoverAccountModalOpen] =
     useState(false);
@@ -83,16 +83,10 @@ const Vault: NextPageWithLayout = () => {
   const [withdrawalAccountId, setWithdrawalAccountId] = useState<
     number | undefined
   >(undefined);
-  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
 
-  const handleOpenWithdrawModal = (accountId: number) => {
-    setWithdrawalAccountId(accountId);
-    setIsWithdrawModalOpen(true);
-  };
-  const handleCloseWithdrawModal = () => {
-    setWithdrawalAccountId(undefined);
-    setIsWithdrawModalOpen(false);
-  };
+  const handleOpenWithdrawModal = (_accountId: number) =>
+    setWithdrawalAccountId(_accountId);
+  const handleCloseWithdrawModal = () => setWithdrawalAccountId(undefined);
 
   const columns = useMemo<GridColumns<Row>>(
     () => [
@@ -171,12 +165,12 @@ const Vault: NextPageWithLayout = () => {
 
   const rows = useMemo<GridRowsProp<Row>>(
     () =>
-      vaultAccounts.map((account) => ({
-        accountId: account.id,
+      Array.from(vaultAccounts).map(([accountId, account]) => ({
+        accountId,
         name: account.name,
         balance: undefined,
-        addresses: account.wallets
-          .flatMap((wallet) => wallet.derivations)
+        addresses: Array.from(account.wallets)
+          .flatMap(([_, wallet]) => wallet.derivations)
           .map((derivation) => derivation.address),
       })),
     [vaultAccounts]
@@ -184,7 +178,7 @@ const Vault: NextPageWithLayout = () => {
 
   return (
     <>
-      {vaultAccounts.length ? (
+      {vaultAccounts.size ? (
         <DataGrid<Row>
           heading={
             <>
@@ -260,14 +254,13 @@ const Vault: NextPageWithLayout = () => {
           </Grid>
         </Grid>
       )}
-
       <RecoverAccountModal
         open={isRecoverAccountModalOpen}
         onClose={handleCloseRecoverAccountModal}
       />
       <WithdrawModal
         accountId={withdrawalAccountId}
-        open={isWithdrawModalOpen}
+        open={typeof withdrawalAccountId === "number"}
         onClose={handleCloseWithdrawModal}
       />
     </>

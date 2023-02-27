@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import {
   Typography,
   Box,
@@ -18,6 +17,7 @@ import {
   getAssetInfo,
   AssetInfo,
   AssetIcon,
+  SigningAlgorithm,
 } from "shared";
 import { BaseModal } from "../BaseModal";
 import { getRelayUrl } from "../../../lib/relayUrl";
@@ -27,24 +27,26 @@ import { VaultAccountIcon } from "../../../components/Icons";
 import { QrCode } from "../../../components/QrCode";
 
 type Props = {
-  assetId?: string;
+  assetId?: AssetId;
   accountId?: number;
   open: boolean;
   onClose: VoidFunction;
 };
 
-export const WithdrawModal = ({
-  assetId: _assetId,
-  accountId: _accountId,
-  open,
-  onClose,
-}: Props) => {
+export const WithdrawModal = ({ assetId, accountId, open, onClose }: Props) => {
   const { relayBaseUrl } = useSettings();
 
-  const { vaultAccounts } = useWorkspace();
+  const { asset: _asset, extendedKeys, vaultAccounts } = useWorkspace();
+
+  const _assetId = assetId ?? _asset?.id;
+
+  const vaultAccountsArray = useMemo(
+    () => Array.from(vaultAccounts.values()),
+    [vaultAccounts]
+  );
 
   const [account, setAccount] = useState<VaultAccount | undefined>(() =>
-    vaultAccounts.find((account) => account.id === _accountId)
+    typeof accountId === "number" ? vaultAccounts.get(accountId) : undefined
   );
 
   const onChangeAccount = (newAccount: VaultAccount | null) =>
@@ -57,39 +59,25 @@ export const WithdrawModal = ({
   const onChangeAsset = (newAsset: AssetInfo | null) =>
     setAsset(newAsset ?? undefined);
 
-  const wallet = account?.wallets.find(
-    (wallet) => wallet.assetId === asset?.id
-  );
+  const relayUrl = useMemo(() => {
+    if (!asset || !extendedKeys || typeof account?.id !== "number") {
+      return "";
+    }
 
-  // TODO: Sent xpub to server to get all addresses
-  const derivation = wallet?.derivations[0];
-  const address = derivation?.address;
-  const privateKey = derivation?.privateKey;
+    const xpub =
+      asset.algorithm === SigningAlgorithm.MPC_EDDSA_ED25519
+        ? extendedKeys.fpub
+        : extendedKeys.xpub;
 
-  const relayUrlQuery = useQuery({
-    queryKey: ["relayUrl", address, privateKey, relayBaseUrl],
-    enabled: !!asset?.id && !!address && !!privateKey,
-    staleTime: Infinity,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    queryFn: async () => {
-      const random = window.crypto.getRandomValues(new Uint32Array(1))[0];
-
-      const pin = (random % 1000000).toString().padStart(6, "0");
-
-      const relayUrl = await getRelayUrl({
-        baseUrl: relayBaseUrl,
-        pin,
-        data: {
-          assetId: asset?.id as AssetId,
-          address: address as string,
-          privateKey: privateKey as string,
-        },
-      });
-
-      return { pin, relayUrl };
-    },
-  });
+    return getRelayUrl({
+      baseUrl: relayBaseUrl,
+      data: {
+        assetId: asset.id,
+        accountId: account.id,
+        xpub,
+      },
+    });
+  }, [asset, account, extendedKeys, relayBaseUrl]);
 
   return (
     <BaseModal open={open} onClose={onClose} title="New Withdrawal">
@@ -106,6 +94,7 @@ export const WithdrawModal = ({
                 value={(asset ?? { id: "" }) as AssetInfo}
                 options={assets}
                 getOptionLabel={(option) => option.id}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
                 renderInput={(params) => (
                   <TextField {...params} fullWidth label="Asset" />
                 )}
@@ -152,7 +141,7 @@ export const WithdrawModal = ({
                 // blurOnSelect
                 // includeInputInList
                 value={(account ?? { name: "" }) as VaultAccount}
-                options={vaultAccounts}
+                options={vaultAccountsArray}
                 getOptionLabel={(option) => option.name}
                 renderInput={(params) => (
                   <TextField {...params} fullWidth label="From" />
@@ -204,18 +193,9 @@ export const WithdrawModal = ({
         <Grid item xs={6}>
           <Box>
             <QrCode
-              data={relayUrlQuery.data?.relayUrl}
+              data={relayUrl}
               title="Open with an online device"
               bgColor={theme.palette.background.default}
-            />
-            <TextField
-              type="password"
-              id="pin"
-              label="PIN"
-              value={relayUrlQuery.data?.pin}
-              // isMonospace
-              // formControlProps={{ sx: { marginTop: "1em" } }}
-              sx={{ marginTop: "1em" }}
             />
           </Box>
         </Grid>

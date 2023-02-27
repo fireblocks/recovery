@@ -10,7 +10,7 @@ import {
   GridRowsProp,
 } from "@mui/x-data-grid";
 import { Add, NavigateNext } from "@mui/icons-material";
-import { useWorkspace, Derivation } from "../../../../context/Workspace";
+import { useWorkspace } from "../../../../context/Workspace";
 import { Layout } from "../../../../components/Layout";
 import {
   DepositAddressesIcon,
@@ -25,7 +25,7 @@ import { KeysModal } from "../../../../components/Modals/KeysModal";
 import { WithdrawModal } from "../../../../components/Modals/WithdrawModal";
 
 type Row = {
-  assetId: string;
+  assetId: AssetId;
   balance?: number;
   addresses: string[];
   // keys: boolean;
@@ -87,13 +87,11 @@ const VaultAccount: NextPageWithLayout = () => {
       ? parseInt(router.query.accountId)
       : undefined;
 
-  const vaultAccount = vaultAccounts.find(
-    (account) => account.id === accountId
-  );
+  const vaultAccount =
+    typeof accountId === "number" ? vaultAccounts.get(accountId) : undefined;
 
   const newAssets = assets.filter(
-    (asset) =>
-      !vaultAccount?.wallets.find((wallet) => wallet.assetId === asset.id)
+    (asset) => !vaultAccount?.wallets.get(asset.id)
   );
 
   const [isRestoreWalletModalOpen, setIsRestoreWalletModalOpen] =
@@ -114,18 +112,12 @@ const VaultAccount: NextPageWithLayout = () => {
   const handleCloseKeysModal = () => setIsKeysModalOpen(false);
 
   const [withdrawalAssetId, setWithdrawalAssetId] = useState<
-    string | undefined
+    AssetId | undefined
   >(undefined);
-  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
 
-  const handleOpenWithdrawModal = (assetId: string) => {
+  const handleOpenWithdrawModal = (assetId: AssetId) =>
     setWithdrawalAssetId(assetId);
-    setIsWithdrawModalOpen(true);
-  };
-  const handleCloseWithdrawModal = () => {
-    setWithdrawalAssetId(undefined);
-    setIsWithdrawModalOpen(false);
-  };
+  const handleCloseWithdrawModal = () => setWithdrawalAssetId(undefined);
 
   const columns = useMemo<GridColumns<Row>>(
     () => [
@@ -225,16 +217,18 @@ const VaultAccount: NextPageWithLayout = () => {
     []
   );
 
-  const rows = useMemo<GridRowsProp<Row>>(
-    () =>
-      (vaultAccount?.wallets ?? []).map((wallet) => ({
-        assetId: wallet.assetId,
-        balance: wallet.balance,
-        addresses: wallet.derivations.map(({ address }) => address),
-        // keys: wallet.keys
-      })),
-    [vaultAccount]
-  );
+  const rows = useMemo<GridRowsProp<Row>>(() => {
+    if (!vaultAccount?.wallets.size) {
+      return [];
+    }
+
+    return Array.from(vaultAccount.wallets).map(([assetId, wallet]) => ({
+      assetId,
+      balance: wallet.balance,
+      addresses: wallet.derivations.map(({ address }) => address),
+      // keys: wallet.keys
+    }));
+  }, [vaultAccount]);
 
   return (
     <>
@@ -305,7 +299,7 @@ const VaultAccount: NextPageWithLayout = () => {
       <WithdrawModal
         assetId={withdrawalAssetId}
         accountId={accountId}
-        open={isWithdrawModalOpen}
+        open={typeof withdrawalAssetId === "string"}
         onClose={handleCloseWithdrawModal}
       />
     </>

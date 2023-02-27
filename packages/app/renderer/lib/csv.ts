@@ -100,7 +100,7 @@ const parseRow = (row: CsvRow) => {
 
 export const csvImport = async (
   csvFile: File,
-  handleRow: (row: ParsedRow) => Promise<void>
+  handleRow: (row: ParsedRow) => void
 ) =>
   new Promise<void>((resolve, reject) =>
     parse<CsvRow>(csvFile, {
@@ -116,7 +116,7 @@ export const csvImport = async (
 
         const row = parseRow(data);
 
-        void handleRow(row);
+        handleRow(row);
       },
       complete: () => resolve(),
     })

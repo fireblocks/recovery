@@ -37,6 +37,8 @@ const request = async <
   }
 };
 
+export type RecoverKeysInput = z.infer<typeof recoverKeysInput>;
+
 export type ExtendedKeysResponse = {
   xprv: string;
   fprv: string;
@@ -44,25 +46,13 @@ export type ExtendedKeysResponse = {
   fpub: string;
 };
 
-export const getExtendedKeys = async () => {
+export const recoverKeys = async (
+  input: RecoverKeysInput,
+  verifyOnly: boolean
+) => {
   try {
     const keys = await request<ExtendedKeysResponse>(
-      `/show-extended-keys`,
-      "json"
-    );
-
-    return keys;
-  } catch {
-    throw new Error("Failed to get extended keys");
-  }
-};
-
-type RecoverKeysInput = z.infer<typeof recoverKeysInput>;
-
-export const recoverKeys = async (input: RecoverKeysInput) => {
-  try {
-    const keys = await request<ExtendedKeysResponse>(
-      `/recover-keys?recover-prv=true`,
+      `/recover-keys${verifyOnly ? "" : "?recover-prv=true"}`,
       "json",
       {
         method: "POST",

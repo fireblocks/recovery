@@ -14,7 +14,7 @@ type Props = {
 export const Header = ({ hideNavigation, showBack }: Props) => {
   const router = useRouter();
 
-  const { isRecovered } = useWorkspace();
+  const { extendedKeys, reset } = useWorkspace();
 
   const isActive = (pathname: string) => router.pathname.startsWith(pathname);
 
@@ -35,6 +35,7 @@ export const Header = ({ hideNavigation, showBack }: Props) => {
             <Grid item>
               <Link
                 href="/"
+                onClick={reset}
                 sx={{ color: (theme) => theme.palette.primary.main }}
               >
                 <Logo width={130} />
@@ -43,6 +44,7 @@ export const Header = ({ hideNavigation, showBack }: Props) => {
             <Grid item>
               <Link
                 href="/"
+                onClick={reset}
                 underline="none"
                 sx={{
                   color: (theme) => theme.palette.text.secondary,
@@ -64,7 +66,7 @@ export const Header = ({ hideNavigation, showBack }: Props) => {
             </Button>
           </Grid>
         )}
-        {!!isRecovered && !hideNavigation && (
+        {!!extendedKeys && !hideNavigation && (
           <>
             <Grid item>
               <Button

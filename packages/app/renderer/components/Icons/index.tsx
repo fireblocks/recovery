@@ -52,13 +52,13 @@ export const DepositAddressesIcon = ({ active, ...props }: Props) => (
   <SvgIcon xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 21" {...props}>
     <path
       fill={active ? ACTIVE_FILL : "#545360"}
-      fill-rule="evenodd"
+      fillRule="evenodd"
       d="M19.629 7.5H5.125V9h14.504V7.5Z"
       clip-rule="evenodd"
     />
     <path
       fill={active ? ACTIVE_FILL_LIGHT : "#B8B7C3"}
-      fill-rule="evenodd"
+      fillRule="evenodd"
       d="M5.125 13.5h10.2V12h-10.2v1.5Z"
       clip-rule="evenodd"
     />
@@ -71,7 +71,7 @@ export const KeyIcon = ({ active, ...props }: Props) => (
   <SvgIcon xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 22" {...props}>
     <g
       fill={active ? theme.palette.primary.main : "currentColor"}
-      fill-rule="nonzero"
+      fillRule="nonzero"
     >
       <path d="M15.505 4.164a.818.818 0 1 0 .578 1.395.818.818 0 0 0-.578-1.395Z" />
       <path d="M18.33 2.156A5.617 5.617 0 0 0 14.33.5c-1.51 0-2.93.588-3.998 1.656a5.594 5.594 0 0 0-1.62 3.357 5.686 5.686 0 0 0 .706 3.444L.008 18.37l2.11 2.109 1.102-1.102 1.196 1.196 1.972-1.971-1.197-1.197 1.477-1.477 1.197 1.197 1.971-1.972-1.196-1.196 2.889-2.89a5.687 5.687 0 0 0 3.444.707 5.594 5.594 0 0 0 3.357-1.62 5.617 5.617 0 0 0 1.656-3.998c0-1.51-.588-2.93-1.656-3.999Zm-1.414 4.235c-.389.39-.9.584-1.41.584a1.99 1.99 0 0 1-1.412-.584 1.997 1.997 0 0 1 0-2.821 1.997 1.997 0 0 1 2.822 0 1.997 1.997 0 0 1 0 2.821Z" />
