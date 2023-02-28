@@ -54,13 +54,13 @@ export const DepositAddressesIcon = ({ active, ...props }: Props) => (
       fill={active ? ACTIVE_FILL : "#545360"}
       fillRule="evenodd"
       d="M19.629 7.5H5.125V9h14.504V7.5Z"
-      clip-rule="evenodd"
+      clipRule="evenodd"
     />
     <path
       fill={active ? ACTIVE_FILL_LIGHT : "#B8B7C3"}
       fillRule="evenodd"
       d="M5.125 13.5h10.2V12h-10.2v1.5Z"
-      clip-rule="evenodd"
+      clipRule="evenodd"
     />
     <circle cx="2.125" cy="8.25" r=".75" fill="#545360" />
     <circle cx="2.125" cy="12.75" r=".75" fill="#C4C4C4" />
