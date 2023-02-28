@@ -88,8 +88,6 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }) => {
 
   const values = watch();
 
-  const queryClient = useQueryClient();
-
   const balanceQueryKey = ["balance", address];
 
   const balanceQuery = useQuery({

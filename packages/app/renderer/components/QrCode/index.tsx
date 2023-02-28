@@ -7,9 +7,17 @@ type Props = BoxProps & {
   title?: string;
   bgColor?: string;
   fgColor?: string;
+  showRawData?: boolean;
 };
 
-export const QrCode = ({ data, title, bgColor, fgColor, ...props }: Props) => (
+export const QrCode = ({
+  data,
+  title,
+  bgColor,
+  fgColor,
+  showRawData = true,
+  ...props
+}: Props) => (
   <Box
     height="100%"
     display="flex"
@@ -32,15 +40,17 @@ export const QrCode = ({ data, title, bgColor, fgColor, ...props }: Props) => (
             width: "100%",
           }}
         />
-        <TextField
-          id="qrCodeData"
-          label={title}
-          value={data}
-          fullWidth
-          enableCopy
-          isMonospace
-          formControlProps={{ sx: { margin: "1em 0 0 0" } }}
-        />
+        {showRawData && (
+          <TextField
+            id="qrCodeData"
+            label={title}
+            value={data}
+            fullWidth
+            enableCopy
+            isMonospace
+            formControlProps={{ sx: { margin: "1em 0 0 0" } }}
+          />
+        )}
       </>
     ) : (
       <Box

@@ -20,6 +20,7 @@ import {
   ListItemAvatar,
   Avatar,
 } from "@mui/material";
+import { ChecksumModal } from "../components/Modals/ChecksumModal";
 
 type FormData = z.infer<typeof generateRsaKeypairInput>;
 
@@ -31,7 +32,6 @@ type BlobData = {
 type Keypair = {
   privateKey: BlobData;
   publicKey: BlobData;
-  checksum: BlobData;
 };
 
 const createBlobUri = (content: string) =>
@@ -52,8 +52,6 @@ const generateRsaKeypair = (passphrase: string) =>
 
       const publicKeyPem = pki.publicKeyToPem(publicKey);
 
-      const checksum = md.md5.create().update(publicKeyPem).digest().toHex();
-
       resolve({
         privateKey: {
           data: privateKeyPem,
@@ -63,10 +61,6 @@ const generateRsaKeypair = (passphrase: string) =>
           data: publicKeyPem,
           uri: createBlobUri(publicKeyPem),
         },
-        checksum: {
-          data: checksum,
-          uri: createBlobUri(checksum),
-        },
       });
     })
   );
@@ -74,17 +68,26 @@ const generateRsaKeypair = (passphrase: string) =>
 const Setup: NextPageWithLayout = () => {
   const { isOnline } = useConnectionTest();
 
+  const machineSetupColor = isOnline ? "error" : "success";
+
   const [activeStep, setActiveStep] = useState<2 | 3 | 4 | 5>(2);
 
   const [rsaKeypair, setRsaKeypair] = useState<Keypair | null>(null);
 
+  const [isChecksumModalOpen, setIsChecksumModalOpen] = useState(false);
+
+  const onOpenChecksumModal = () => {
+    setActiveStep(5);
+
+    setIsChecksumModalOpen(true);
+  };
+
+  const onCloseChecksumModal = () => setIsChecksumModalOpen(false);
+
   const downloadedFilesRef = useRef({
     privateKey: false,
     publicKey: false,
-    checksum: false,
   });
-
-  const machineSetupColor = isOnline ? "error" : "success";
 
   useEffect(
     () => () => {
@@ -104,11 +107,7 @@ const Setup: NextPageWithLayout = () => {
 
     const downloadedFiles = downloadedFilesRef.current;
 
-    if (
-      downloadedFiles.privateKey &&
-      downloadedFiles.publicKey &&
-      downloadedFiles.checksum
-    ) {
+    if (downloadedFiles.privateKey && downloadedFiles.publicKey) {
       setActiveStep(4);
     } else if (downloadedFiles.privateKey) {
       setActiveStep(3);
@@ -151,9 +150,7 @@ const Setup: NextPageWithLayout = () => {
       marginBottom="2em"
       onSubmit={handleSubmit(onGenerateRsaKeypair)}
     >
-      <Typography variant="h1" marginY={0}>
-        Set Up Recovery Kit
-      </Typography>
+      <Typography variant="h1">Set Up Recovery Kit</Typography>
       <List sx={{ width: "100%" }} dense disablePadding>
         <ListItem sx={{ alignItems: "flex-start" }}>
           <ListItemAvatar>
@@ -207,15 +204,13 @@ const Setup: NextPageWithLayout = () => {
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="Generate the recovery keypair and checksum"
+            primary="Generate the recovery keypair"
             primaryTypographyProps={{ variant: "h2" }}
             secondary={
               <>
                 <Typography variant="body1" paragraph>
                   The recovery keypair is used for encrypting Fireblocks key
-                  shares and decrypting them in a disaster scenario. The
-                  checksum is used to verify the integrity of the recovery
-                  public key.
+                  shares and decrypting them in a disaster scenario.
                 </Typography>
                 <Typography fontWeight={600} paragraph>
                   Store your recovery private key and its passphrase redundantly
@@ -281,7 +276,7 @@ const Setup: NextPageWithLayout = () => {
           <ListItemText
             primary="Send the recovery public key to Fireblocks"
             primaryTypographyProps={{ variant: "h2" }}
-            secondary="Send the recovery public key and its checksum to Fireblocks Support. Once Fireblocks Support receives the key, you are contacted to perform an integrity check on the key and verify it has not been tampered with."
+            secondary="Upload the recovery public key to the Fireblocks Console > Settings > Key backup and recovery."
           />
         </ListItem>
         <ListItem sx={{ paddingLeft: "4.5rem" }}>
@@ -299,17 +294,39 @@ const Setup: NextPageWithLayout = () => {
                 Download Public Key
               </Button>
             </Grid>
+          </Grid>
+        </ListItem>
+        <ListItem sx={{ alignItems: "flex-start" }}>
+          <ListItemAvatar>
+            <Avatar
+              sx={{
+                background: (theme) =>
+                  activeStep > 4
+                    ? theme.palette.success.main
+                    : activeStep === 4
+                    ? theme.palette.primary.main
+                    : undefined,
+              }}
+            >
+              4
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText
+            primary="Approve the recovery public key"
+            primaryTypographyProps={{ variant: "h2" }}
+            secondary="Use the Fireblocks Mobile app to approve the recovery public key."
+          />
+        </ListItem>
+        <ListItem sx={{ paddingLeft: "4.5rem" }}>
+          <Grid container spacing={2}>
             <Grid item xs={6}>
               <Button
                 color="primary"
                 fullWidth
-                disabled={activeStep < 3}
-                onClick={() => onDownload("checksum")}
-                component="a"
-                href={rsaKeypair?.checksum.uri ?? ""}
-                download="fb-recovery-pub.md5"
+                disabled={activeStep < 4}
+                onClick={onOpenChecksumModal}
               >
-                Download Checksum
+                Start Approval
               </Button>
             </Grid>
           </Grid>
@@ -319,10 +336,10 @@ const Setup: NextPageWithLayout = () => {
             <Avatar
               sx={{
                 background: (theme) =>
-                  activeStep === 4 ? theme.palette.primary.main : undefined,
+                  activeStep === 5 ? theme.palette.primary.main : undefined,
               }}
             >
-              4
+              5
             </Avatar>
           </ListItemAvatar>
           <ListItemText
@@ -351,7 +368,7 @@ const Setup: NextPageWithLayout = () => {
         </ListItem>
         <ListItem sx={{ alignItems: "flex-start" }}>
           <ListItemAvatar>
-            <Avatar>5</Avatar>
+            <Avatar>6</Avatar>
           </ListItemAvatar>
           <ListItemText
             primary="Check your key recovery materials"
@@ -376,7 +393,7 @@ const Setup: NextPageWithLayout = () => {
         </ListItem>
         <ListItem sx={{ alignItems: "flex-start" }}>
           <ListItemAvatar>
-            <Avatar>6</Avatar>
+            <Avatar>7</Avatar>
           </ListItemAvatar>
           <ListItemText
             primary="Verify Recovery Kit"
@@ -395,7 +412,7 @@ const Setup: NextPageWithLayout = () => {
                   pathname: "/recover",
                   query: { ...pythonServerUrlParams, verifyOnly: true },
                 }}
-                disabled={activeStep < 4}
+                disabled={activeStep < 5}
               >
                 Verify Recovery Kit
               </Button>
@@ -403,6 +420,11 @@ const Setup: NextPageWithLayout = () => {
           </Grid>
         </ListItem>
       </List>
+      <ChecksumModal
+        publicKey={rsaKeypair?.publicKey.data ?? ""}
+        open={isChecksumModalOpen}
+        onClose={onCloseChecksumModal}
+      />
     </Box>
   );
 };

@@ -317,11 +317,9 @@ export const WorkspaceProvider = ({ children }: Props) => {
     reset,
   };
 
-  console.info("Workspace", {
-    extendedKeys,
-    asset,
-    vaultAccounts,
-  });
+  if (typeof window !== "undefined") {
+    console.info("Vault Accounts", vaultAccounts);
+  }
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 };

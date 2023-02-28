@@ -15,6 +15,7 @@ import { useWorkspace, VaultAccount } from "../../../context/Workspace";
 import { Layout } from "../../../components/Layout";
 import { VaultAccountIcon, WithdrawIcon } from "../../../components/Icons";
 import { DataGrid } from "../../../components/DataGrid";
+import { ExportModal } from "../../../components/Modals/ExportModal";
 import { RecoverAccountModal } from "../../../components/Modals/RecoverAccountModal";
 import { WithdrawModal } from "../../../components/Modals/WithdrawModal";
 
@@ -25,9 +26,15 @@ type Row = {
   addresses: string[];
 };
 
-type GridToolbarProps = { onClickAddAccount: VoidFunction };
+type GridToolbarProps = {
+  onClickExport: VoidFunction;
+  onClickAddAccount: VoidFunction;
+};
 
-const GridToolbar = ({ onClickAddAccount }: GridToolbarProps) => (
+const GridToolbar = ({
+  onClickExport,
+  onClickAddAccount,
+}: GridToolbarProps) => (
   <>
     <GridToolbarQuickFilter
       placeholder="Account Name or Address"
@@ -49,7 +56,12 @@ const GridToolbar = ({ onClickAddAccount }: GridToolbarProps) => (
       }}
     />
     <Box>
-      <Button variant="text" size="small" sx={{ marginRight: "1rem" }}>
+      <Button
+        variant="text"
+        size="small"
+        sx={{ marginRight: "1rem" }}
+        onClick={onClickExport}
+      >
         Export
       </Button>
       {/* <Button variant="text" size="small" sx={{ marginRight: "1rem" }}>
@@ -71,6 +83,11 @@ const Vault: NextPageWithLayout = () => {
   const router = useRouter();
 
   const { asset, extendedKeys, vaultAccounts } = useWorkspace();
+
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+
+  const handleOpenExportModal = () => setIsExportModalOpen(true);
+  const handleCloseExportModal = () => setIsExportModalOpen(false);
 
   const [isRecoverAccountModalOpen, setIsRecoverAccountModalOpen] =
     useState(false);
@@ -203,6 +220,7 @@ const Vault: NextPageWithLayout = () => {
             toolbar: {
               children: (
                 <GridToolbar
+                  onClickExport={handleOpenExportModal}
                   onClickAddAccount={handleOpenRecoverAccountModal}
                 />
               ),
@@ -254,6 +272,7 @@ const Vault: NextPageWithLayout = () => {
           </Grid>
         </Grid>
       )}
+      <ExportModal open={isExportModalOpen} onClose={handleCloseExportModal} />
       <RecoverAccountModal
         open={isRecoverAccountModalOpen}
         onClose={handleCloseRecoverAccountModal}
