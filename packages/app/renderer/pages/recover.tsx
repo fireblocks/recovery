@@ -40,8 +40,11 @@ const Recover: NextPageWithLayout = () => {
       }
 
       router.push({
-        pathname: verifyOnly ? "/keys?verifyOnly=true" : "/accounts/vault",
-        query: pythonServerUrlParams,
+        pathname: verifyOnly ? "/keys" : "/accounts/vault",
+        query: {
+          ...pythonServerUrlParams,
+          verifyOnly: verifyOnly ? "true" : undefined,
+        },
       });
     },
     onError: (error) => {
