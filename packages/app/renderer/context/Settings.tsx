@@ -17,6 +17,7 @@ interface ISettingsContext extends Settings {
 
 const defaultValue: ISettingsContext = {
   relayBaseUrl: "",
+  idleMinutes: 10,
   saveSettings: async () => undefined,
 };
 

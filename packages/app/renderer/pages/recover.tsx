@@ -30,13 +30,13 @@ const Recover: NextPageWithLayout = () => {
 
   const recoverMutation = useMutation({
     mutationFn: async (formData: FormData) => recoverKeys(formData, verifyOnly),
-    onSuccess: (extendedKeys, { backupCsv }) => {
+    onSuccess: async (extendedKeys, { backupCsv }) => {
       setRecoveryError(undefined);
 
       setExtendedKeys(extendedKeys);
 
       if (backupCsv) {
-        void restoreVaultAccounts(backupCsv);
+        await restoreVaultAccounts(backupCsv);
       }
 
       router.push({

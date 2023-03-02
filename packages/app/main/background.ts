@@ -132,7 +132,8 @@ async function createWindow() {
       partition
     ) /* eng-disable PERMISSION_REQUEST_HANDLER_JS_CHECK */
     .setPermissionRequestHandler((webContents, permission, permCallback) => {
-      const allowedPermissions: string[] = []; // Full list here: https://developer.chrome.com/extensions/declare_permissions#manifest
+      // Full list here: https://developer.chrome.com/extensions/declare_permissions#manifest
+      const allowedPermissions: string[] = ["idle"];
 
       if (allowedPermissions.includes(permission)) {
         permCallback(true); // Approve permission request
@@ -192,20 +193,6 @@ app.on("web-contents-created", (event, contents) => {
         return {
           action: "allow",
           overrideBrowserWindowOptions: getWindowOptions(300, 418),
-        };
-      }
-
-      if (url.includes("/details")) {
-        return {
-          action: "allow",
-          overrideBrowserWindowOptions: getWindowOptions(500, 528),
-        };
-      }
-
-      if (url.includes("/withdraw")) {
-        return {
-          action: "allow",
-          overrideBrowserWindowOptions: getWindowOptions(300, 642),
         };
       }
     }

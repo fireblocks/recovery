@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useState,
+  useEffect,
   ReactNode,
   Dispatch,
   SetStateAction,
@@ -12,6 +13,8 @@ import { getAssetInfo, assetsInfo, AssetInfo, AssetId } from "shared";
 import { csvImport, ParsedRow } from "../lib/csv";
 import { deriveWallet } from "../lib/deriveWallet";
 import { ExtendedKeysResponse } from "../lib/pythonClient";
+import { initIdleDetector } from "../lib/idleDetector";
+import { useSettings } from "./Settings";
 
 export type Derivation = {
   pathParts: number[];
@@ -131,6 +134,7 @@ type Props = {
 
 export const WorkspaceProvider = ({ children }: Props) => {
   const {
+    push,
     query: {
       assetId: _assetId,
       path: _path,
@@ -141,6 +145,8 @@ export const WorkspaceProvider = ({ children }: Props) => {
       isTestnet: _isTestnet,
     },
   } = useRouter();
+
+  const { idleMinutes } = useSettings();
 
   const assetId =
     typeof _assetId === "string" ? (_assetId as AssetId) : undefined;
@@ -298,7 +304,25 @@ export const WorkspaceProvider = ({ children }: Props) => {
   const reset = () => {
     setExtendedKeys(undefined);
     setVaultAccounts(defaultValue.vaultAccounts);
+    push("/");
   };
+
+  useEffect(() => {
+    let abortController: AbortController | undefined;
+
+    const _initIdleDetector = async () => {
+      abortController = await initIdleDetector(reset, idleMinutes);
+    };
+
+    _initIdleDetector();
+
+    return () => abortController?.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idleMinutes]);
+
+  if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
+    console.info("Vault Accounts", vaultAccounts);
+  }
 
   const value: IWorkspaceContext = {
     extendedKeys,
@@ -316,10 +340,6 @@ export const WorkspaceProvider = ({ children }: Props) => {
     setExtendedKeys,
     reset,
   };
-
-  if (typeof window !== "undefined") {
-    console.info("Vault Accounts", vaultAccounts);
-  }
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 };

@@ -11,7 +11,7 @@ import { Box, Grid, Typography } from "@mui/material";
 type FormData = z.infer<typeof settingsInput>;
 
 const Settings: NextPageWithLayout = () => {
-  const { relayBaseUrl, saveSettings } = useSettings();
+  const { idleMinutes, relayBaseUrl, saveSettings } = useSettings();
 
   const {
     register,
@@ -20,6 +20,7 @@ const Settings: NextPageWithLayout = () => {
   } = useForm<FormData>({
     resolver: zodResolver(settingsInput),
     defaultValues: {
+      idleMinutes,
       relayBaseUrl,
     },
   });
@@ -34,6 +35,22 @@ const Settings: NextPageWithLayout = () => {
       onSubmit={handleSubmit(onSubmit)}
     >
       <Typography variant="h1">Settings</Typography>
+
+      <Typography variant="h2">Auto-Lock</Typography>
+
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <TextField
+            id="idleMinutes"
+            type="number"
+            label="Idle Minutes"
+            placeholder={defaultSettings.idleMinutes.toString()}
+            helpText="Automatically lock the app after a period of inactivity."
+            error={errors.idleMinutes?.message}
+            {...register("idleMinutes", { valueAsNumber: true })}
+          />
+        </Grid>
+      </Grid>
 
       <Typography variant="h2">Fireblocks Recovery Relay</Typography>
 
