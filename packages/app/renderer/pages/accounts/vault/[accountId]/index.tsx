@@ -10,7 +10,7 @@ import {
   GridRowsProp,
 } from "@mui/x-data-grid";
 import { Add, NavigateNext } from "@mui/icons-material";
-import { useWorkspace } from "../../../../context/Workspace";
+import { useWorkspace, Derivation } from "../../../../context/Workspace";
 import { Layout } from "../../../../components/Layout";
 import {
   DepositAddressesIcon,
@@ -24,11 +24,10 @@ import { AddressesModal } from "../../../../components/Modals/AddressesModal";
 import { KeysModal } from "../../../../components/Modals/KeysModal";
 import { WithdrawModal } from "../../../../components/Modals/WithdrawModal";
 
-type Row = {
+export type Row = {
   assetId: AssetId;
   balance?: number;
-  addresses: string[];
-  // keys: boolean;
+  derivations: Derivation[];
 };
 
 type GridToolbarProps = {
@@ -101,15 +100,15 @@ const VaultAccount: NextPageWithLayout = () => {
   const handleCloseRestoreWalletModal = () =>
     setIsRestoreWalletModalOpen(false);
 
-  const [isAddressesModalOpen, setIsAddressesModalOpen] = useState(false);
+  const [addressesModalRow, setAddressesModalRow] = useState<Row | null>(null);
 
-  const handleOpenAddressesModal = () => setIsAddressesModalOpen(true);
-  const handleCloseAddressesModal = () => setIsAddressesModalOpen(false);
+  const handleOpenAddressesModal = (row: Row) => setAddressesModalRow(row);
+  const handleCloseAddressesModal = () => setAddressesModalRow(null);
 
-  const [isKeysModalOpen, setIsKeysModalOpen] = useState(false);
+  const [keysModalRow, setKeysModalRow] = useState<Row | null>(null);
 
-  const handleOpenKeysModal = () => setIsKeysModalOpen(true);
-  const handleCloseKeysModal = () => setIsKeysModalOpen(false);
+  const handleOpenKeysModal = (row: Row) => setKeysModalRow(row);
+  const handleCloseKeysModal = () => setKeysModalRow(null);
 
   const [withdrawalAssetId, setWithdrawalAssetId] = useState<
     AssetId | undefined
@@ -170,23 +169,20 @@ const VaultAccount: NextPageWithLayout = () => {
         getApplyQuickFilterFn: undefined,
       },
       {
-        field: "addresses",
-        headerName: "Addresses",
+        field: "derivations",
+        headerName: "Derivations",
         sortable: false,
         filterable: false,
         getApplyQuickFilterFn: (search: string) => {
           const lowercaseSearch = search.toLowerCase();
 
           return (params) =>
-            params.row.addresses.some(
-              (address) => address.toLowerCase() === lowercaseSearch
+            params.row.derivations.some(
+              (derivation) =>
+                derivation.address.toLowerCase() === lowercaseSearch
             );
         },
       },
-      // {
-      //   field: 'hasKeys',
-      //   headerName: 'Keys',
-      // },
       {
         field: "actions",
         type: "actions",
@@ -196,20 +192,27 @@ const VaultAccount: NextPageWithLayout = () => {
             key={`addresses-${params.id}`}
             icon={<DepositAddressesIcon />}
             label="Addresses"
-            onClick={handleOpenAddressesModal}
+            onClick={() => handleOpenAddressesModal(params.row)}
+            disabled={!params.row.derivations?.length}
           />,
           // TODO: Disable for non-derived wallets
           <GridActionsCellItem
             key={`keys-${params.id}`}
             icon={<KeyIcon />}
             label="Keys"
-            onClick={handleOpenKeysModal}
+            onClick={() => handleOpenKeysModal(params.row)}
+            disabled={
+              !params.row.derivations?.some(
+                (derivation) => derivation.privateKey
+              )
+            }
           />,
           <GridActionsCellItem
             key={`withdraw-${params.id}`}
             icon={<WithdrawIcon />}
             label="Withdraw"
             onClick={() => handleOpenWithdrawModal(params.row.assetId)}
+            disabled={!params.row.derivations?.length}
           />,
         ],
       },
@@ -225,8 +228,7 @@ const VaultAccount: NextPageWithLayout = () => {
     return Array.from(vaultAccount.wallets).map(([assetId, wallet]) => ({
       assetId,
       balance: wallet.balance,
-      addresses: wallet.derivations.map(({ address }) => address),
-      // keys: wallet.keys
+      derivations: wallet.derivations,
     }));
   }, [vaultAccount]);
 
@@ -235,7 +237,9 @@ const VaultAccount: NextPageWithLayout = () => {
       <DataGrid<Row>
         heading={
           <>
-            <Typography variant="h1">Accounts</Typography>
+            <Typography variant="h1" marginY={0}>
+              Accounts
+            </Typography>
             <Breadcrumbs
               separator={<NavigateNext />}
               sx={{ minHeight: "48px", display: "flex", alignItems: "center" }}
@@ -278,7 +282,7 @@ const VaultAccount: NextPageWithLayout = () => {
             ),
           },
         }}
-        columnVisibilityModel={{ addresses: false }}
+        columnVisibilityModel={{ derivations: false }}
         initialState={{
           sorting: {
             sortModel: [{ field: "assetId", sort: "asc" }],
@@ -292,10 +296,15 @@ const VaultAccount: NextPageWithLayout = () => {
         onClose={handleCloseRestoreWalletModal}
       />
       <AddressesModal
-        open={isAddressesModalOpen}
+        open={!!addressesModalRow}
+        row={addressesModalRow}
         onClose={handleCloseAddressesModal}
       />
-      <KeysModal open={isKeysModalOpen} onClose={handleCloseKeysModal} />
+      <KeysModal
+        open={!!keysModalRow}
+        row={keysModalRow}
+        onClose={handleCloseKeysModal}
+      />
       <WithdrawModal
         assetId={withdrawalAssetId}
         accountId={accountId}
