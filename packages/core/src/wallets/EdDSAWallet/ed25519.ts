@@ -9,8 +9,8 @@ import {
   _255n,
   numberToBytesLE,
   bytesToNumberLE,
-} from "../bytes";
-import { sha } from "../sha";
+  concatBytes,
+} from "./bytes";
 import bigInt from "big-integer";
 
 /**
@@ -41,7 +41,9 @@ export const CURVE = Object.freeze({
   Gy: BigInt(
     "46316835694926478169428394003475163141307993866256225615783033603165251855960"
   ),
-});
+} as const);
+
+export const G = [CURVE.Gx, CURVE.Gy] as const;
 
 /**
  * Get a SHA-512 digest of concatenated byte array messages.
@@ -49,8 +51,13 @@ export const CURVE = Object.freeze({
  * @param messages list of byte arrays
  * @returns byte array of SHA-512 digest
  */
-export const sha512 = async (...messages: Uint8Array[]) =>
-  sha("SHA-512", ...messages);
+export const sha512 = async (...messages: Uint8Array[]) => {
+  const buffer = concatBytes(...messages);
+
+  const digest = await crypto.subtle.digest("SHA-512", buffer);
+
+  return new Uint8Array(digest);
+};
 
 /**
  * Modulo operation.
@@ -133,28 +140,29 @@ export const edwards = (
 };
 
 /**
+ * Perform floor-divison of two bigints (\\).
+ * @param x dividend
+ * @param y divisor
+ * @returns ⌊x/y⌋
+ * @see https://python-reference.readthedocs.io/en/latest/docs/operators/floor_division.html
+ */
+const floorDiv = (x: bigint, y: bigint): bigint => {
+  if (y < 0n) {
+    x = -x;
+    y = -y;
+  }
+
+  return x >= 0n ? x / y : (x - y + 1n) / y;
+};
+
+/**
  * Scalar multiplication of integer by base/generator point (x, y).
  *
+ * @param P x, y coordinates of point P
  * @param e bigint
  * @returns array of two bigints
  */
-export const scalarMult = (e: bigint): readonly [bigint, bigint] => {
-  if (e === _0n) {
-    return [_0n, _1n];
-  }
-
-  let Q = scalarMult(e / _2n);
-
-  Q = edwards(Q, Q);
-
-  if (e & _1n) {
-    return edwards(Q, [CURVE.Gx, CURVE.Gy]);
-  }
-
-  return Q;
-};
-
-export const fbksScalarMult = (
+export const scalarMult = (
   P: readonly [bigint, bigint],
   e: bigint
 ): readonly [bigint, bigint] => {
@@ -162,11 +170,14 @@ export const fbksScalarMult = (
     return [_0n, _1n];
   }
 
-  let Q = fbksScalarMult(P, e / _2n);
+  let Q = scalarMult(P, floorDiv(e, _2n));
+
   Q = edwards(Q, Q);
-  if ((e & _1n) !== BigInt(false)) {
-    Q = edwards(Q, P);
+
+  if (e & _1n) {
+    return edwards(Q, P);
   }
+
   return Q;
 };
 
@@ -184,36 +195,44 @@ export const serialize = (P: readonly [bigint, bigint]) => {
   return numberToBytesLE(number);
 };
 
-export const decodePoint = (point: bigint) => {
+export const decodePoint = (point: Uint8Array) => {
   let y = BigInt(0);
+
   for (let i = 0; i < 255; i++) {
     y += BigInt(2 ** i) * bit(point, i);
   }
-  let x = xrecover(y);
+
+  let x = xRecover(y);
+
   if (BigInt(x & _1n) != bit(point, 255)) {
-    x = x - CURVE.P;
+    x = CURVE.P - x;
   }
 
   const P: [bigint, bigint] = [x, y];
+
   if (!isOnCurve(P)) {
-    throw new Error("Point is not on curve.");
+    throw new Error("Point is not on curve");
   }
 
   return P;
 };
 
-const xrecover = (y: bigint) => {
-  const xx = y * (y - BigInt(1)) * invert(CURVE.d * y * (y + BigInt(1)));
+const xRecover = (y: bigint) => {
+  const xx = (y * y - _1n) * invert(CURVE.d * y * y + _1n);
+
   let xTmp = bigInt(xx).modPow(
-    bigInt((CURVE.P + BigInt(3)) / _8n),
+    bigInt(floorDiv(CURVE.P + BigInt(3), _8n)),
     bigInt(CURVE.P)
   );
+
   let x = BigInt(xTmp.toString());
+
   if ((x * x - xx) % CURVE.P !== _0n) {
-    let tmp = bigInt("2").modPow(
+    const tmp = bigInt("2").modPow(
       bigInt((CURVE.P - _1n) / BigInt(4)),
       bigInt(CURVE.P)
     );
+
     x = (x * BigInt(tmp.toString())) % CURVE.P;
   }
 
@@ -224,15 +243,13 @@ const xrecover = (y: bigint) => {
   return x;
 };
 
-const bit = (P: bigint, offset: number) => {
+const bit = (P: Uint8Array, offset: number) => {
   const i = Math.floor(offset / 8);
-  return (P >> BigInt(i % 8)) & BigInt(1);
+  const b = P[i];
+  return BigInt((b >> offset % 8) & 1);
 };
 
 const isOnCurve = (P: [bigint, bigint]) => {
   const [x, y] = P;
   return (-x * x + y * y - _1n - CURVE.d * x * x * y * y) % CURVE.P === _0n; // -x mod works?
 };
-
-const By = BigInt(4) * invert(BigInt(5));
-export const B: [bigint, bigint] = [xrecover(By), By];

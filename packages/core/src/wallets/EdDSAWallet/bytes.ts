@@ -1,3 +1,5 @@
+import crypto from "crypto";
+
 // Be friendly to bad ECMAScript parsers by not using bigint literals like 123n
 export const _0n = BigInt(0);
 export const _1n = BigInt(1);
@@ -70,13 +72,41 @@ export const numberToBytesLE = (number: bigint) => {
 };
 
 /**
+ * Convert a bigint to a 32-byte long byte array in big-endian order.
+ *
+ * @param number bigint
+ * @returns 32-byte long byte array in big-endian order
+ */
+export const numberToBytesBE = (number: bigint) => {
+  const array = new Uint8Array(32);
+
+  let bigint = BigInt(number);
+
+  for (let i = array.length - 1; i >= 0; i--) {
+    array[i] = Number(bigint & _0xffn);
+    bigint >>= _8n;
+  }
+
+  return array;
+};
+
+/**
+ * Convert a number to a 4-byte long byte array in big-endian order.
+ *
+ * @param number number
+ * @returns 4-byte long byte array in big-endian order
+ */
+export const numberTo4BytesBE = (number: number) =>
+  Buffer.from([number >> 24, number >> 16, number >> 8, number]);
+
+/**
  * Get a byte array of cryptographically-secure random bytes.
  *
  * @param length length of byte array
  * @returns byte array
  */
 export const randomBytes = (length = 32) =>
-  window.crypto.getRandomValues(new Uint8Array(length));
+  crypto.getRandomValues(new Uint8Array(length));
 
 /**
  * Concatenate a list of byte arrays.

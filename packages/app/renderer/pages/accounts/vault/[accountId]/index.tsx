@@ -225,11 +225,18 @@ const VaultAccount: NextPageWithLayout = () => {
       return [];
     }
 
-    return Array.from(vaultAccount.wallets).map(([assetId, wallet]) => ({
-      assetId,
-      balance: wallet.balance,
-      derivations: wallet.derivations,
-    }));
+    return (
+      Array.from(vaultAccount.wallets)
+        .map(([assetId, wallet]) => ({
+          assetId,
+          balance: wallet.balance,
+          derivations: wallet.derivations,
+        }))
+        // TODO: Make this a user setting
+        .filter((row) =>
+          row.derivations.some((derivation) => derivation.privateKey)
+        )
+    );
   }, [vaultAccount]);
 
   return (

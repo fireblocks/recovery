@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { ECDSAWallet } from "../ECDSAWallet";
+import { Ethereum as BaseEthereum } from "recovery-core";
 import {
   serialize,
   parse,
@@ -7,28 +7,31 @@ import {
 } from "@ethersproject/transactions";
 import { AccountData, UTXO, TxPayload, RawSignature } from "../types";
 
-export class Ethereum extends ECDSAWallet {
+export class Ethereum extends BaseEthereum {
   private readonly provider: ethers.providers.JsonRpcProvider;
 
   constructor(
     xpub: string,
     account: number,
-    changeIndex: number = 0,
-    addressIndex: number = 0,
-    isTestnet: boolean = false
+    changeIndex: number,
+    addressIndex: number,
+    isTestnet = false
   ) {
-    super(xpub, isTestnet ? 1 : 60, account, changeIndex, addressIndex);
-    const cluster = isTestnet ? "rinkeby" : "mainnet";
+    super({
+      xpub,
+      assetId: "ETH",
+      path: { account, changeIndex, addressIndex },
+      isTestnet,
+    });
+
+    const cluster = isTestnet ? "goerli" : "mainnet";
     const endpoint = `https://${cluster}.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161`;
 
     this.provider = new ethers.providers.JsonRpcProvider(endpoint);
-    this.address = ethers.utils.HDNode.fromExtendedKey(xpub).derivePath(
-      `m/44/${this.coinId}/${this.account}/${this.changeIndex}/${this.addressIndex}`
-    ).address;
   }
 
   public async getBalance() {
-    const wei = await this.provider.getBalance(this.address!);
+    const wei = await this.provider.getBalance(this.data.address);
 
     const balance = ethers.utils.formatEther(wei);
 
@@ -50,13 +53,13 @@ export class Ethereum extends ECDSAWallet {
     additionalParameters?: Map<string, object> | undefined
   ): Promise<TxPayload> {
     const nonce = await this.provider.getTransactionCount(
-      this.address!,
+      this.data.address,
       "latest"
     );
     // Should we use maxGasPrice? i.e. EIP1559.
     const gasPrice = (await this.provider.getFeeData()).gasPrice;
     const tx = {
-      from: this.address,
+      from: this.data.address,
       to,
       nonce,
       gasLimit: additionalParameters
@@ -66,17 +69,17 @@ export class Ethereum extends ECDSAWallet {
         ? additionalParameters!.get("GAS-PRICE")
         : gasPrice,
       value: amount,
-      chainId: this.coinId === 1 ? 5 : 1,
+      chainId: this.data.path.coinType === 1 ? 5 : 1,
     };
 
     const unsignedTx = serialize(tx as UnsignedTransaction);
     return {
       derivationPath: [
         44,
-        this.account,
-        this.coinId,
-        this.changeIndex,
-        this.addressIndex,
+        this.data.path.account,
+        this.data.path.coinType,
+        this.data.path.changeIndex,
+        this.data.path.addressIndex,
       ],
       tx: unsignedTx,
     };

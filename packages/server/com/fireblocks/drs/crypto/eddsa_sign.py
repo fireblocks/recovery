@@ -1,6 +1,8 @@
 import hashlib
 import hmac
 import base58
+import binascii
+import json
 import Crypto.Random as Random
 from com.fireblocks.drs.crypto import ed25519
 
@@ -68,8 +70,11 @@ def eddsa_derive(fkey, derivation_path):
         is_private = False
     else:
         raise Exception(fkey + " is not valid FPRV nor FPUB")
+
     chaincode = decoded_key[13:45]
+
     priv = int.from_bytes(decoded_key[46:], byteorder="big")
+
     if is_private:
         pub = ed25519.scalarmult(ed25519.B, priv)
     else:
@@ -82,7 +87,10 @@ def eddsa_derive(fkey, derivation_path):
         )
     if not is_private:
         priv = None
-    return priv, _ed25519_serialize(pub)
+
+    serializedPub = _ed25519_serialize(pub)
+
+    return priv, serializedPub
 
 
 def fprv_eddsa_sig(fprv, derivation_path, message):

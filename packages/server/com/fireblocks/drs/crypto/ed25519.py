@@ -1,4 +1,5 @@
 import hashlib
+import binascii
 
 b = 256
 q = 2**255 - 19
@@ -55,8 +56,10 @@ def edwards(P, Q):
 def scalarmult(P, e):
     if e == 0:
         return [0, 1]
+
     Q = scalarmult(P, e // 2)
     Q = edwards(Q, Q)
+
     if int(e) & 1:
         Q = edwards(Q, P)
     return Q

@@ -61,7 +61,6 @@
     "eslint-config-prettier": "^8.6.0",
     "eslint-config-turbo": "^0.0.9",
     "execa": "^5.1.1",
-    "immer": "^9.0.19",
     "jsoncrush": "^1.1.8",
     "next": "^13.2.1",
     "next-transpile-modules": "^10.0.0",

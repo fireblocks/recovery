@@ -1,12 +1,10 @@
-import { Network, networks, payments, Psbt } from "bitcoinjs-lib";
+import { Network, networks, Psbt } from "bitcoinjs-lib";
 import { Buffer } from "buffer";
 import { AddressSummary, FullUTXO, UTXOSummary } from "./types";
-import { ECDSAWallet } from "../ECDSAWallet";
-import { hash160 } from "bitcoinjs-lib/src/crypto";
-import { bech32 } from "bech32";
+import { Bitcoin as BaseBitcoin } from "recovery-core";
 import { UTXO, AccountData, TxPayload, RawSignature } from "../types";
 
-export class Bitcoin extends ECDSAWallet {
+export class Bitcoin extends BaseBitcoin {
   private static readonly satsPerBtc = 100000000;
   private readonly network: Network;
   private readonly baseUrl: string;
@@ -14,24 +12,18 @@ export class Bitcoin extends ECDSAWallet {
   constructor(
     xpub: string,
     account: number,
-    changeIndex: number = 0,
-    accountIndex: number = 0,
-    isTestnet: boolean = false,
-    private isLegacy: boolean
+    changeIndex: number,
+    addressIndex: number,
+    isTestnet = false,
+    isLegacy = false
   ) {
-    super(xpub, isTestnet ? 1 : 0, account, changeIndex, accountIndex);
-
-    if (!isLegacy) {
-      const pubKeyHash = hash160(Buffer.from(this.publicKey, "hex"));
-      this.address = bech32.encode(
-        isTestnet ? "tb" : "bc",
-        bech32.toWords(pubKeyHash)
-      );
-    } else {
-      this.address = payments.p2pkh({
-        pubkey: Buffer.from(this.publicKey, "hex"),
-      }).address!;
-    }
+    super({
+      xpub,
+      assetId: "BTC",
+      path: { account, changeIndex, addressIndex },
+      isTestnet,
+      isLegacy,
+    });
 
     this.network = networks[isTestnet ? "testnet" : "bitcoin"];
     this.baseUrl = isTestnet
@@ -52,14 +44,14 @@ export class Bitcoin extends ECDSAWallet {
 
   private async _getAddressUTXOs() {
     const utxoSummary = await this._requestJson<UTXOSummary[]>(
-      `/address/${this.address}/utxo`
+      `/address/${this.data.address}/utxo`
     );
     return utxoSummary;
   }
 
   private async _getAddressBalance() {
     const addressSummary = await this._requestJson<AddressSummary>(
-      `/address/${this.address}`
+      `/address/${this.data.address}`
     );
     return addressSummary;
   }
@@ -148,14 +140,14 @@ export class Bitcoin extends ECDSAWallet {
     const tx = new Psbt({ network: this.network });
 
     for (let i = 0; i < utxosToUse.length; i++) {
-      await (this.isLegacy
+      await (this.data.isLegacy
         ? this._addSegwitInput(tx, utxosToUse[i])
         : this._addNonSegwitInput(tx, utxosToUse[i]));
     }
 
     const feeRate = await this._getFeeRate();
     const satAmount = Bitcoin._btcToSats(amount);
-    const vBytes = this.isLegacy
+    const vBytes = this.data.isLegacy
       ? 148 * utxosToUse.length + 34 + 10
       : 68 * utxosToUse.length + 31 + 10.5;
     const fee = feeRate * Math.ceil(vBytes);
@@ -177,10 +169,10 @@ export class Bitcoin extends ECDSAWallet {
       tx: tx.toHex(),
       derivationPath: [
         44,
-        this.coinId,
-        this.account,
-        this.changeIndex,
-        this.addressIndex,
+        this.data.path.coinType,
+        this.data.path.account,
+        this.data.path.changeIndex,
+        this.data.path.addressIndex,
       ],
     };
   }

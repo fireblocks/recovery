@@ -2,7 +2,6 @@ import { useRouter } from "next/router";
 import {
   createContext,
   useContext,
-  useRef,
   useState,
   useEffect,
   ReactNode,
@@ -92,7 +91,7 @@ export const WalletProvider = ({ children }: Props) => {
       assetId: params.assetId,
       address: params.address,
       isTestnet: params.isTestnet,
-      walletInstance: params.walletInstance,
+      walletInstance: params.walletInstance as unknown as BaseWallet, // TODO: Fix types, remove BaseWallet
     }));
 
   const handleRelayUrl = (url: string) => {

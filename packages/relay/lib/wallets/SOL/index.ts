@@ -1,9 +1,8 @@
 import * as web3 from "@solana/web3.js";
-import { EDDSAWallet } from "../EDDSAWallet";
-import { encode } from "bs58";
+import { Solana as BaseSolana } from "recovery-core";
 import { RawSignature, AccountData, UTXO, TxPayload } from "../types";
 
-export class Solana extends EDDSAWallet {
+export class Solana extends BaseSolana {
   private readonly connection: web3.Connection;
 
   private readonly web3PubKey: web3.PublicKey;
@@ -12,18 +11,24 @@ export class Solana extends EDDSAWallet {
     fpub: string,
     account: number,
     changeIndex: number,
-    accountIndex: number,
-    private isTestnet: boolean = false
+    addressIndex: number,
+    isTestnet = false
   ) {
-    super(fpub, isTestnet ? 1 : 501, account, changeIndex, accountIndex);
+    super({
+      fpub,
+      assetId: "SOL",
+      path: { account, changeIndex, addressIndex },
+      isTestnet,
+    });
 
     const endpoint = isTestnet
       ? web3.clusterApiUrl("devnet")
       : "https://try-rpc.mainnet.solana.blockdaemon.tech";
 
     this.connection = new web3.Connection(endpoint, "confirmed");
-    this.web3PubKey = new web3.PublicKey(Buffer.from(this.publicKey, "hex"));
-    this.address = encode(Buffer.from(this.publicKey, "hex"));
+    this.web3PubKey = new web3.PublicKey(
+      Buffer.from(this.data.publicKey, "hex")
+    );
   }
 
   public async getBalance() {
@@ -107,10 +112,10 @@ export class Solana extends EDDSAWallet {
     return {
       derivationPath: [
         44,
-        this.coinId,
-        this.account,
-        this.changeIndex,
-        this.addressIndex,
+        this.data.path.coinType,
+        this.data.path.account,
+        this.data.path.changeIndex,
+        this.data.path.addressIndex,
       ],
       tx: serializedTx.toString("hex"),
     };

@@ -8,7 +8,6 @@ import {
   SetStateAction,
 } from "react";
 import { useRouter } from "next/router";
-import produce from "immer";
 import { getAssetInfo, assetsInfo, AssetInfo, AssetId } from "shared";
 import { csvImport, ParsedRow } from "../lib/csv";
 import { deriveWallet } from "../lib/deriveWallet";
@@ -252,43 +251,49 @@ export const WorkspaceProvider = ({ children }: Props) => {
   const restoreVaultAccount = (name: string) => {
     let accountId = vaultAccounts.size;
 
-    setVaultAccounts(
-      produce((draft) => {
-        if (accountId > 0) {
-          const accountIds = Array.from(draft.keys());
+    setVaultAccounts((prev) => {
+      const _vaultAccounts = new Map(prev);
 
-          accountId = Math.max(...accountIds) + 1;
-        }
+      if (accountId > 0) {
+        const accountIds = Array.from(_vaultAccounts.keys());
 
-        draft.set(accountId, {
-          id: accountId,
-          name,
-          wallets: new Map<AssetId, Wallet>(),
-        });
-      })
-    );
+        accountId = Math.max(...accountIds) + 1;
+      }
+
+      _vaultAccounts.set(accountId, {
+        id: accountId,
+        name,
+        wallets: new Map<AssetId, Wallet>(),
+      });
+
+      return _vaultAccounts;
+    });
 
     return accountId;
   };
 
   const restoreWallet = (accountId: number, assetId: string) => {
-    setVaultAccounts(
-      produce((draft) => {
-        const account = draft.get(accountId);
+    setVaultAccounts((prev) => {
+      const _vaultAccounts = new Map(prev);
 
-        if (account) {
-          const wallet = account.wallets.get(assetId as AssetId);
+      const account = _vaultAccounts.get(accountId);
 
-          if (!wallet) {
-            account.wallets.set(assetId as AssetId, {
-              assetId: assetId as AssetId,
-              isTestnet: assetId.includes("_TEST"),
-              derivations: [],
-            });
-          }
+      if (account) {
+        const wallet = account.wallets.get(assetId as AssetId);
+
+        if (!wallet) {
+          account.wallets.set(assetId as AssetId, {
+            assetId: assetId as AssetId,
+            isTestnet: assetId.includes("_TEST"),
+            derivations: [],
+          });
+
+          _vaultAccounts.set(accountId, account);
         }
-      })
-    );
+      }
+
+      return _vaultAccounts;
+    });
   };
 
   const pathParts = typeof _path === "string" ? splitPath(_path) : [];

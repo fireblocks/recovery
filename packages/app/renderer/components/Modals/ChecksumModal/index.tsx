@@ -82,11 +82,9 @@ export const ChecksumModal = ({ publicKey, open, onClose }: Props) => {
         aria-label="Approval method"
       >
         <ToggleButton value={ApprovalMethod.SHORT_KEY}>
-          Input a short key
+          Input short key
         </ToggleButton>
-        <ToggleButton value={ApprovalMethod.QR_CODE}>
-          Scan a QR code
-        </ToggleButton>
+        <ToggleButton value={ApprovalMethod.QR_CODE}>Scan QR code</ToggleButton>
       </ToggleButtonGroup>
       <Box
         marginTop="1em"

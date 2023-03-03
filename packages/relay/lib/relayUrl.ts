@@ -38,20 +38,17 @@ export const parseUrlParams = (encodedParams: string) => {
     const walletInstance = new WalletClass(
       xpub,
       accountId,
-      // changeIndex,
-      // addressIndex,
-      0,
-      0,
+      0, // changeIndex
+      0, // addressIndex
       isTestnet,
-      // isLegacy
-      false
+      false // isLegacy
     );
 
     const parsedParams: ParsedUrlParams = {
       assetId,
-      address: walletInstance.getAddress()!,
+      address: walletInstance.data.address,
       isTestnet,
-      walletInstance,
+      walletInstance: walletInstance as unknown as BaseWallet, // TODO: Fix types, remove BaseWallet
     };
 
     return parsedParams;

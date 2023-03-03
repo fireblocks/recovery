@@ -1,4 +1,5 @@
-import { concatBytes } from "./bytes";
+import { utils } from "ethers";
+import crypto, { webcrypto } from "crypto";
 
 /**
  * Get a SHA digest of concatenated byte array messages.
@@ -8,12 +9,12 @@ import { concatBytes } from "./bytes";
  * @returns byte array of SHA-512 digest
  */
 export const sha = async (
-  algorithm: AlgorithmIdentifier,
+  algorithm: webcrypto.AlgorithmIdentifier,
   ...messages: Uint8Array[]
 ) => {
-  const { buffer } = concatBytes(...messages);
+  const { buffer } = utils.concat(messages);
 
-  const digest = await window.crypto.subtle.digest(algorithm, buffer);
+  const digest = await crypto.subtle.digest(algorithm, buffer);
 
   return new Uint8Array(digest);
 };

@@ -1,5 +1,5 @@
 // @ts-check
-const withTM = require("next-transpile-modules")(["shared"]);
+const withTM = require("next-transpile-modules")(["shared", "recovery-core"]);
 const withPWA = require("next-pwa")({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
