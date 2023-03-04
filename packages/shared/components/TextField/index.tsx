@@ -26,7 +26,7 @@ import {
   Check,
 } from "@mui/icons-material";
 import { NextLinkComposed } from "../Link";
-import { monospaceFontFamily } from "shared";
+import { monospaceFontFamily } from "@fireblocks/recovery-shared";
 
 const Input = styled(InputBase)(({ theme }) => ({
   fontSize: "16px",

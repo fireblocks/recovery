@@ -1,6 +1,6 @@
-# Key Recovery and Derivation Server
+# Key Recovery Server
 
-Python server handling cryptographic operations, called to by [Recovery Utility](../app).
+Python server handling extended key recovery from a Recovery Kit, called to by [Recovery Utility](../app).
 
 ## Build Process
 
@@ -45,83 +45,6 @@ Here are the four types of keys that are returned from valid recovery materials:
   "rsa-key-passphrase": "recovery RSA private key passphrase"
 }
 ```
-
-##### Response
-
-```json
-{
-  "xprv": "BIP44 extended private key",
-  "fprv": "BIP44 extended public key",
-  "xpub": "Ed25519 extended private key",
-  "fpub": "Ed25519 extended public key"
-}
-```
-
-#### `/derive-keys`
-
-After the extended private keys have been cached from a prior request to `/recover-keys?recover-prv=true`, calling `/derive-keys` returns a Fireblocks asset's private/public keys and addresses, derived from an extended private key.
-
-##### Request
-
-###### Query Parameters
-
-- `asset: string`
-
-  Fireblocks Asset ID (e.g. `BTC`, `ETH`, `SOL`)
-
-- `account: number`
-
-  Fireblocks Vault Account ID
-
-- `change: number`
-
-  BIP44 change address index. For Fireblocks wallets, this is always 0.
-
-- `index_start: number`
-
-  Address index range start. 0 derives the wallet's permanent address. All greater numbers derive the wallet's deposit addresses.
-
-- `index_end: number`
-
-  Address index range end.
-
-- `xpub: boolean`
-
-  If true, only derives and returns a wallet's public keys by using the `xpub` or `fpub` extended public keys.
-
-  If false, the `xprv` or `fprv` extended private keys are used to derive wallet private keys, which are returned in the response.
-
-- `testnet: boolean`
-
-  If true, derives a wallet for a testnet account.
-
-  If false, derives a wallet for a mainnet account.
-
-- `legacy: boolean`
-
-  If true and the asset is BTC, returns a legacy address.
-
-  If false and the asset is BTC, returns a Native SegWit address.
-
-##### Response
-
-```json
-{
-  "wif": "(for ECDSA assets) private key in base58-encoded Wallet Import Format",
-  "prv": "hexadecimal private key",
-  "pub": "hexadecimal public key",
-  "address": "wallet address",
-  "path": "comma-delimited BIP44 derivation path"
-}
-```
-
-#### `/show-extended-keys`
-
-Returns the previously-derived and cached extended private/public keys. Throws an exception if a complete set of extended private/public keys has not yet been derived via a request to `/recover-keys?recover-prv=true`.
-
-##### Request
-
-No query parameters or JSON body.
 
 ##### Response
 

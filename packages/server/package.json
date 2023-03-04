@@ -1,5 +1,5 @@
 {
-  "name": "server",
+  "name": "@fireblocks/drs-server",
   "version": "0.2.1",
   "private": true,
   "main": "__main__.py",

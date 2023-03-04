@@ -47,6 +47,9 @@
     },
     "dev": {
       "cache": false
+    },
+    "test": {
+      "outputs": []
     }
   }
 }

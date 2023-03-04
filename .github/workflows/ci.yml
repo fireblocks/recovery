@@ -5,6 +5,27 @@ on:
     branches: [main]
 
 jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: lts/gallium
+          cache: yarn
+
+      - name: Install Node.js dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run tests
+        run: yarn test
+
   build:
     name: Build for ${{ matrix.os }}
     runs-on: ${{ matrix.runs-on }}
@@ -154,7 +175,7 @@ jobs:
   pr:
     name: Version packages
     runs-on: ubuntu-latest
-    needs: [build, fossa-scan]
+    needs: [test, build, fossa-scan]
     steps:
       - name: Check out code
         uses: actions/checkout@v3

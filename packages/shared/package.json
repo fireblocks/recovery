@@ -1,5 +1,5 @@
 {
-  "name": "shared",
+  "name": "@fireblocks/recovery-shared",
   "author": "Fireblocks (https://www.fireblocks.com)",
   "version": "0.1.3",
   "private": true,

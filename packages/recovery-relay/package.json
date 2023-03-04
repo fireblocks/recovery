@@ -1,0 +1,51 @@
+{
+  "name": "@fireblocks/recovery-relay",
+  "description": "Make transactions from your recovered Fireblocks wallets",
+  "author": "Fireblocks (https://www.fireblocks.com)",
+  "homepage": "https://relay.fireblocks.solutions",
+  "version": "0.1.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build && next export",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^2.9.11",
+    "@mui/styles": "^5.11.11",
+    "@solana/web3.js": "^1.73.3",
+    "@tanstack/react-query": "^4.24.10",
+    "@types/bs58check": "^2.1.0",
+    "base58": "^2.0.1",
+    "big-integer": "^1.6.51",
+    "bigint-buffer": "^1.1.5",
+    "bitcoinjs-lib": "^6.1.0",
+    "bs58": "^5.0.0",
+    "bs58check": "^3.0.1",
+    "buffer": "^6.0.3",
+    "ecpair": "^2.1.0",
+    "ethers": "^5.7.2",
+    "jsoncrush": "^1.1.8",
+    "next": "^13.2.3",
+    "next-pwa": "^5.6.0",
+    "next-transpile-modules": "^10.0.0",
+    "qr-scanner": "^1.4.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.43.4",
+    "@fireblocks/wallet-derivation": "^0.0.0",
+    "@fireblocks/recovery-shared": "^0.1.3",
+    "tiny-secp256k1": "^2.2.1",
+    "webrtc-adapter": "^8.2.1",
+    "zod": "^3.20.6"
+  },
+  "devDependencies": {
+    "@types/node": "^18.14.6",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "eslint": "^8.35.0",
+    "eslint-config-next": "^13.2.3",
+    "typescript": "^4.9.5"
+  }
+}
