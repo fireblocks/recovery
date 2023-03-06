@@ -25,8 +25,6 @@ export const pythonServer = new PythonServer();
 
 app.on("quit", pythonServer.kill);
 process.on("exit", pythonServer.kill);
-process.on("uncaughtException", pythonServer.kill);
-process.on("unhandledRejection", pythonServer.kill);
 
 const loadUrl = isDev
   ? async (win: BrowserWindow, params?: string) =>
