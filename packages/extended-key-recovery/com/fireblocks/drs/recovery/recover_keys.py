@@ -1,13 +1,11 @@
 import base64
 import hashlib
 import json
-import binascii
 import struct
 import uuid
 from collections import defaultdict
 from io import BytesIO
 from zipfile import ZipFile
-
 from Crypto.Cipher import PKCS1_OAEP, AES
 from Crypto.PublicKey import RSA
 

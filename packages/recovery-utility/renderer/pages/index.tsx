@@ -7,7 +7,6 @@ import {
 } from "@fireblocks/recovery-shared";
 import { Grid } from "@mui/material";
 import { Layout } from "../components/Layout";
-import { pythonServerUrlParams } from "../lib/pythonClient";
 
 const Index: NextPageWithLayout = () => {
   return (
@@ -26,10 +25,7 @@ const Index: NextPageWithLayout = () => {
               variant="outlined"
               fullWidth
               component={NextLinkComposed}
-              to={{
-                pathname: "/setup",
-                query: pythonServerUrlParams,
-              }}
+              to="/setup"
             >
               Set Up Recovery Kit
             </Button>
@@ -42,10 +38,7 @@ const Index: NextPageWithLayout = () => {
               component={NextLinkComposed}
               to={{
                 pathname: "/recover",
-                query: {
-                  ...pythonServerUrlParams,
-                  verifyOnly: true,
-                },
+                query: { verifyOnly: true },
               }}
             >
               Verify Recovery Kit
@@ -57,10 +50,7 @@ const Index: NextPageWithLayout = () => {
               color="primary"
               fullWidth
               component={NextLinkComposed}
-              to={{
-                pathname: "/recover",
-                query: pythonServerUrlParams,
-              }}
+              to="/recover"
             >
               Recover Private Keys
             </Button>

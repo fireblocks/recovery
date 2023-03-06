@@ -3,8 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { pki, md } from "node-forge";
-import { pythonServerUrlParams } from "../lib/pythonClient";
+import { pki } from "node-forge";
 import { generateRsaKeypairInput } from "../lib/schemas";
 import { download } from "../lib/download";
 import { useConnectionTest } from "../context/ConnectionTest";
@@ -414,7 +413,7 @@ const Setup: NextPageWithLayout = () => {
                 component={NextLinkComposed}
                 to={{
                   pathname: "/recover",
-                  query: { ...pythonServerUrlParams, verifyOnly: true },
+                  query: { verifyOnly: true },
                 }}
                 disabled={activeStep < 5}
               >

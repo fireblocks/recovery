@@ -3,7 +3,6 @@ import { Box, Typography } from "@mui/material";
 import { Button, getAssetInfo, TextField } from "@fireblocks/recovery-shared";
 import { useWorkspace } from "../../../context/Workspace";
 import { BaseModal } from "../BaseModal";
-import { pythonServerUrlParams } from "../../../lib/pythonClient";
 import { Row } from "../../../pages/accounts/vault/[accountId]";
 
 type Props = {

@@ -1,6 +1,6 @@
 {
-  "name": "@fireblocks/drs-server",
-  "version": "0.2.1",
+  "name": "@fireblocks/extended-key-recovery",
+  "version": "0.3.0",
   "private": true,
   "main": "__main__.py",
   "scripts": {

@@ -6,7 +6,6 @@ import { recoverAccountInput } from "../../../lib/schemas";
 import { Button, TextField } from "@fireblocks/recovery-shared";
 import { useWorkspace } from "../../../context/Workspace";
 import { BaseModal } from "../BaseModal";
-import { pythonServerUrlParams } from "../../../lib/pythonClient";
 
 type Props = {
   open: boolean;
@@ -43,7 +42,7 @@ export const RecoverAccountModal = ({ open, onClose: _onClose }: Props) => {
 
     router.push({
       pathname: "/accounts/vault/[accountId]",
-      query: { ...pythonServerUrlParams, accountId },
+      query: { accountId },
     });
   };
 

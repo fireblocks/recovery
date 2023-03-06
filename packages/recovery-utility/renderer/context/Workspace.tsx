@@ -16,8 +16,8 @@ import {
 } from "@fireblocks/recovery-shared";
 import { csvImport, ParsedRow } from "../lib/csv";
 import { deriveWallet } from "../lib/deriveWallet";
-import { ExtendedKeysResponse } from "../lib/pythonClient";
 import { initIdleDetector } from "../lib/idleDetector";
+import { ExtendedKeys } from "../lib/ipc/recoverExtendedKeys";
 import { useSettings } from "./Settings";
 
 export type Derivation = {
@@ -48,7 +48,7 @@ export type VaultAccount = {
 const splitPath = (path: string) => path.split(",").map((p) => parseInt(p));
 
 interface IWorkspaceContext {
-  extendedKeys?: ExtendedKeysResponse;
+  extendedKeys?: ExtendedKeys;
   asset?: AssetInfo;
   pathParts: number[];
   address?: string;
@@ -59,11 +59,11 @@ interface IWorkspaceContext {
   vaultAccounts: Map<number, VaultAccount>;
   restoreVaultAccounts: (
     csvFile: File,
-    extendedKeys: ExtendedKeysResponse
+    extendedKeys: ExtendedKeys
   ) => Promise<void>;
   restoreVaultAccount: (name: string) => number;
   restoreWallet: (accountId: number, assetId: string) => void;
-  setExtendedKeys: Dispatch<SetStateAction<ExtendedKeysResponse | undefined>>;
+  setExtendedKeys: Dispatch<SetStateAction<ExtendedKeys | undefined>>;
   reset: () => void;
 }
 
@@ -160,9 +160,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
 
   const asset = assetId ? getAssetInfo(assetId) : undefined;
 
-  const [extendedKeys, setExtendedKeys] = useState<
-    ExtendedKeysResponse | undefined
-  >();
+  const [extendedKeys, setExtendedKeys] = useState<ExtendedKeys | undefined>();
 
   const [vaultAccounts, setVaultAccounts] = useState(
     defaultValue.vaultAccounts
@@ -170,7 +168,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
 
   const restoreVaultAccounts = async (
     csvFile: File,
-    extendedKeys?: ExtendedKeysResponse
+    extendedKeys?: ExtendedKeys
   ) => {
     const tmpAccounts = new Map<number, VaultAccount>();
 

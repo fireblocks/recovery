@@ -4,11 +4,11 @@ Fireblocks Recovery Utility is a desktop app for Fireblocks hard key recovery se
 
 It is a cross-platform [Electron](https://www.electronjs.org/) app for macOS, Windows, and Linux. The window UI is built with [React](https://reactjs.org/) on the [Next.js](https://nextjs.org/) framework, using [Material UI](https://mui.com/material-ui/getting-started/overview/) components.
 
-[Recovery Utility](../app/) includes the compiled [Key Recovery and Derivation Server](../server/) in its [contents](https://www.electron.build/configuration/contents.html#extrafiles), spawns it as a child process, and interfaces with it using HTTP requests.
+[Recovery Utility](../recovery-utility/) includes the compiled [Extended Key Recovery module](../extended-key-recovery/) in its [contents](https://www.electron.build/configuration/contents.html#extrafiles) and spawns it as a child process to restore a workspace's extended private/public keys.
 
 ## Build Process
 
-Using Turborepo, the [Key Recovery and Derivation Server](../server/) is first compiled to an executable for the development machine's architecture. Then Recovery Utility's renderer process (the Next.js frontend) is transpiled to static HTML/JS/CSS. Finally, the renderer and server are bundled with the Electron main process into an application bundle for the development machine's architecture.
+Using Turborepo, the [Extended Key Recovery module](../extended-key-recovery/) is first compiled to an executable for the development machine's architecture. Then Recovery Utility's renderer process (the Next.js frontend) is transpiled to static HTML/JS/CSS. Finally, the renderer and EKR module are bundled with the Electron main process into an application bundle for the development machine's architecture.
 
 Cross-compilation is not supported. We use GitHub Actions with a matrix job to compile Recovery Utility for each supported architecture (masOS, Windows, and Linux).
 

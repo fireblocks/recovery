@@ -10,7 +10,6 @@ import {
   GridRowsProp,
 } from "@mui/x-data-grid";
 import { Add } from "@mui/icons-material";
-import { pythonServerUrlParams } from "../../../lib/pythonClient";
 import { useWorkspace, VaultAccount } from "../../../context/Workspace";
 import { Layout } from "../../../components/Layout";
 import { VaultAccountIcon, WithdrawIcon } from "../../../components/Icons";
@@ -238,10 +237,7 @@ const Vault: NextPageWithLayout = () => {
           onRowClick={(params) =>
             router.push({
               pathname: `/accounts/vault/[accountId]`,
-              query: {
-                ...pythonServerUrlParams,
-                accountId: params.id,
-              },
+              query: { accountId: params.id },
             })
           }
         />

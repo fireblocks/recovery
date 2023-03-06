@@ -13,18 +13,12 @@ import installExtension, {
   REACT_DEVELOPER_TOOLS,
 } from "electron-devtools-installer";
 import { registerFileProtocol } from "./helpers";
-import { PythonServer } from "./api/pythonServer";
 import "./ipc";
 
 const PROTOCOL = "app";
 const PORT = 8888; // Hardcoded; needs to match webpack.development.js and package.json
 const SELF_HOST = `http://localhost:${PORT}`;
 const validOrigins = [SELF_HOST];
-
-export const pythonServer = new PythonServer();
-
-app.on("quit", pythonServer.kill);
-process.on("exit", pythonServer.kill);
 
 const loadUrl = isDev
   ? async (win: BrowserWindow, params?: string) =>
@@ -66,13 +60,6 @@ const isValidUrl = (url: string) => {
 };
 
 async function createWindow() {
-  // Start the Python server subprocess
-  const pythonServerBaseUrl = await pythonServer.spawn();
-
-  const urlParams = new URLSearchParams({ server: pythonServerBaseUrl });
-
-  const encodedUrlParams = urlParams.toString();
-
   // Create the browser window.
   win = new BrowserWindow({
     width: 800,
@@ -93,7 +80,7 @@ async function createWindow() {
   });
 
   // Load app
-  void loadUrl(win, encodedUrlParams);
+  void loadUrl(win);
 
   win.webContents.on("did-finish-load", () => {
     win?.setTitle("Fireblocks Recovery Utility");

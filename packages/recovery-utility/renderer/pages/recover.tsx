@@ -6,14 +6,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { recoverKeysInput } from "../lib/schemas";
-import { recoverKeys } from "../lib/pythonClient";
 import { useWorkspace } from "../context/Workspace";
 import { Layout } from "../components/Layout";
 import { UploadWell } from "../components/UploadWell";
 import { TextField, Button } from "@fireblocks/recovery-shared";
 import { Box, Grid, Typography } from "@mui/material";
 import { readFileToBase64 } from "../lib/readFile";
-import { pythonServerUrlParams } from "../lib/pythonClient";
+import { recoverExtendedKeys } from "../lib/ipc";
 
 type FormData = z.infer<typeof recoverKeysInput>;
 
@@ -29,7 +28,14 @@ const Recover: NextPageWithLayout = () => {
   const verifyOnly = router.query.verifyOnly === "true";
 
   const recoverMutation = useMutation({
-    mutationFn: async (formData: FormData) => recoverKeys(formData, verifyOnly),
+    mutationFn: async (formData: FormData) =>
+      recoverExtendedKeys({
+        zip: formData.backupZip,
+        mobilePassphrase: formData.passphrase,
+        rsaKey: formData.rsaKey,
+        rsaKeyPassphrase: formData.rsaKeyPassphrase,
+        dangerouslyRecoverPrivateKeys: !verifyOnly,
+      }),
     onSuccess: async (extendedKeys, { backupCsv }) => {
       setRecoveryError(undefined);
 
@@ -41,10 +47,7 @@ const Recover: NextPageWithLayout = () => {
 
       router.push({
         pathname: verifyOnly ? "/keys" : "/accounts/vault",
-        query: {
-          ...pythonServerUrlParams,
-          verifyOnly: verifyOnly ? "true" : undefined,
-        },
+        query: { verifyOnly: verifyOnly ? "true" : undefined },
       });
     },
     onError: (error) => {

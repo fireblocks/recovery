@@ -1,13 +1,16 @@
 * @fireblocks-solutions-engineering
 
 # Recovery Utility
-packages/app/ @fireblocks-solutions-engineering @Burry @gburry-fireblocks
+packages/recovery-utility/ @fireblocks-solutions-engineering @Burry @gburry-fireblocks
 
 # Recovery Relay
-packages/relay/ @fireblocks-solutions-engineering @Burry @gburry-fireblocks
+packages/recovery-relay/ @fireblocks-solutions-engineering @Burry @gburry-fireblocks
 
-# Shared JS
+# Shared frontend components and utilities
 packages/shared/ @fireblocks-solutions-engineering @Burry @gburry-fireblocks
 
-# Python DRS Server
-packages/server/ @fireblocks-solutions-engineering @agoltzman
+# Extended Key Recovery module
+packages/extended-key-recovery/ @fireblocks-solutions-engineering @agoltzman
+
+# Wallet Derivation helpers
+packages/wallet-derivation/ @fireblocks-solutions-engineering @Burry @gburry-fireblocks

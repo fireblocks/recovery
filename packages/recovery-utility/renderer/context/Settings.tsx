@@ -1,4 +1,3 @@
-import { ipcRenderer } from "electron";
 import {
   createContext,
   useContext,
@@ -8,6 +7,7 @@ import {
 } from "react";
 import { z } from "zod";
 import { settingsInput } from "../lib/schemas";
+import { restoreSettings, saveSettings } from "../lib/ipc";
 
 type Settings = z.infer<typeof settingsInput>;
 
@@ -33,20 +33,20 @@ export const SettingsProvider = ({ children }: Props) => {
   const [settings, setSettings] = useState<Settings>(defaultValue);
 
   useEffect(() => {
-    ipcRenderer
-      .invoke("settings/restore")
-      .then((data: Settings) => setSettings((prev) => ({ ...prev, ...data })));
+    restoreSettings().then((settings) =>
+      setSettings((prev) => ({ ...prev, ...settings }))
+    );
   }, []);
 
-  const saveSettings = async (data: Settings) => {
-    await ipcRenderer.invoke("settings/save", data);
+  const _saveSettings = async (settings: Settings) => {
+    await saveSettings(settings);
 
-    setSettings((prev) => ({ ...prev, ...data }));
+    setSettings((prev) => ({ ...prev, ...settings }));
   };
 
   const value: ISettingsContext = {
     ...settings,
-    saveSettings,
+    saveSettings: _saveSettings,
   };
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

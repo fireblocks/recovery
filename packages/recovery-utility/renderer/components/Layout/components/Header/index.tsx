@@ -8,7 +8,6 @@ import {
   NextLinkComposed,
 } from "@fireblocks/recovery-shared";
 import { AccountsIcon, KeyIcon } from "../../../Icons";
-import { pythonServerUrlParams } from "../../../../lib/pythonClient";
 import { useWorkspace } from "../../../../context/Workspace";
 
 type Props = {
@@ -77,10 +76,7 @@ export const Header = ({ hideNavigation, showBack }: Props) => {
               <Button
                 variant="text"
                 component={NextLinkComposed}
-                to={{
-                  pathname: "/accounts/vault",
-                  query: { ...pythonServerUrlParams },
-                }}
+                to="/accounts/vault"
                 startIcon={<AccountsIcon active={isActive("/accounts")} />}
                 color={isActive("/accounts") ? "primary" : "secondary"}
               >
@@ -93,7 +89,7 @@ export const Header = ({ hideNavigation, showBack }: Props) => {
                 component={NextLinkComposed}
                 to={{
                   pathname: "/assets/[assetId]",
-                  query: { ...pythonServerUrlParams, assetId: "BTC" },
+                  query: { assetId: "BTC" },
                 }}
                 startIcon={<AssetsIcon active={isActive("/assets")} />}
                 color={isActive("/assets") ? "primary" : "secondary"}
@@ -105,10 +101,7 @@ export const Header = ({ hideNavigation, showBack }: Props) => {
               <Button
                 variant="text"
                 component={NextLinkComposed}
-                to={{
-                  pathname: "/keys",
-                  query: pythonServerUrlParams,
-                }}
+                to="/keys"
                 startIcon={<KeyIcon active={isActive("/keys")} />}
                 color={isActive("/keys") ? "primary" : "secondary"}
               >
@@ -119,10 +112,7 @@ export const Header = ({ hideNavigation, showBack }: Props) => {
               <Button
                 variant="text"
                 component={NextLinkComposed}
-                to={{
-                  pathname: "/settings",
-                  query: pythonServerUrlParams,
-                }}
+                to="/settings"
                 startIcon={<Settings />}
                 color={isActive("/settings") ? "primary" : "secondary"}
               >

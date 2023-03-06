@@ -1,6 +1,6 @@
 # Fireblocks Recovery Relay
 
-[Recovery Utility](../app/) is intended to be run on an offline, air-gapped machine. It uses a companion web app, [Recovery Relay](./), to check wallet balances and initiate transactions from recovered wallets. The withdrawal process is as follows:
+[Recovery Utility](../recovery-utility/) is intended to be run on an offline, air-gapped machine. It uses a companion web app, [Recovery Relay](./), to check wallet balances and initiate transactions from recovered wallets. The withdrawal process is as follows:
 
 1. The user opens the withdrawal window from Recovery Utility.
 2. Recovery Utility generates a cryptographically-secure encryption PIN and [a unique Recovery Relay URL](../app/renderer/lib/relayUrl.ts) with hash parameters containing the wallet's address and AES-encrypted private key.
