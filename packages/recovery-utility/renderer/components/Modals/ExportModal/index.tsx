@@ -35,30 +35,38 @@ export const ExportModal = ({ open, onClose }: Props) => {
     setIncludePrivateKeys(checked);
 
   const onExportCsv = () => {
-    const data = vaultAccounts.reduce((acc, account) => {
-      const rows = account.wallets.reduce((_rows, wallet) => {
-        const walletRows = wallet.derivations.map((derivation) => {
-          return {
-            accountName: account.name,
-            accountId: account.id,
-            assetId: wallet.assetId,
-            assetName: getAssetInfo(wallet.assetId)?.name ?? wallet.assetId,
-            address: derivation.address,
-            addressType: derivation.type,
-            addressDescription: derivation.description,
-            tag: derivation.tag,
-            pathParts: derivation.pathParts,
-            publicKey: derivation.publicKey,
-            privateKey: includePrivateKeys ? derivation.privateKey : undefined,
-            privateKeyWif: includePrivateKeys ? derivation.wif : undefined,
-          };
-        });
+    const data = Array.from(vaultAccounts).reduce(
+      (acc, [accountId, account]) => {
+        const rows = Array.from(account.wallets).reduce(
+          (_rows, [assetId, wallet]) => {
+            const walletRows = wallet.derivations.map((derivation) => {
+              return {
+                accountName: account.name,
+                accountId,
+                assetId,
+                assetName: getAssetInfo(assetId)?.name ?? assetId,
+                address: derivation.address,
+                addressType: derivation.type,
+                addressDescription: derivation.description,
+                tag: derivation.tag,
+                pathParts: derivation.pathParts,
+                publicKey: derivation.publicKey,
+                privateKey: includePrivateKeys
+                  ? derivation.privateKey
+                  : undefined,
+                privateKeyWif: includePrivateKeys ? derivation.wif : undefined,
+              };
+            });
 
-        return [..._rows, ...walletRows];
-      }, [] as ParsedRow[]);
+            return [..._rows, ...walletRows];
+          },
+          [] as ParsedRow[]
+        );
 
-      return [...acc, ...rows];
-    }, [] as ParsedRow[]);
+        return [...acc, ...rows];
+      },
+      [] as ParsedRow[]
+    );
 
     const csv = csvExport(data);
 

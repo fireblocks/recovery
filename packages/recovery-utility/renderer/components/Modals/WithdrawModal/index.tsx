@@ -74,7 +74,7 @@ export const WithdrawModal = ({ assetId, accountId, open, onClose }: Props) => {
       data: {
         assetId: asset.id,
         accountId: account.id,
-        xpub,
+        xpub: xpub as string,
       },
     });
   }, [asset, account, extendedKeys, relayBaseUrl]);
