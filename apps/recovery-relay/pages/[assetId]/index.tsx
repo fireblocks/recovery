@@ -25,7 +25,7 @@ import {
   AssetId,
 } from "@fireblocks/recovery-shared";
 import type { NextPageWithLayout } from "../_app";
-import { useWallet } from "../../context/Wallet";
+import { useWorkspace } from "../../context/Workspace";
 import { Logo } from "../../components/Logo";
 import { ConfirmationModal } from "../../components/ConfirmationModal";
 import { AccountData, UTXO } from "../../lib/wallets/types";
@@ -47,7 +47,7 @@ type Props = {
 const Wallet: NextPageWithLayout<Props> = ({ assetId }: Props) => {
   const queryClient = useQueryClient();
 
-  const { address, walletInstance, handleTransaction } = useWallet();
+  const { address, walletInstance, handleTransaction } = useWorkspace();
 
   const asset = getAssetInfo(assetId);
   const title = `${asset?.name} Wallet`;

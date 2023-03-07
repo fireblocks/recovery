@@ -5,7 +5,7 @@ import Head from "next/head";
 import { useRouter, NextRouter } from "next/router";
 import type { EmotionCache } from "@emotion/react";
 import { theme, SharedProviders } from "@fireblocks/recovery-shared";
-import { WalletProvider } from "../context/Wallet";
+import { WorkspaceProvider } from "../context/Workspace";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
@@ -32,7 +32,7 @@ export default function App({ Component, emotionCache, pageProps }: AppProps) {
 
   return (
     <SharedProviders emotionCache={emotionCache}>
-      <WalletProvider>
+      <WorkspaceProvider>
         <Head>
           <title>{title}</title>
           <meta
@@ -70,7 +70,7 @@ export default function App({ Component, emotionCache, pageProps }: AppProps) {
         <ErrorBoundary>
           {getLayout(<Component {...pageProps} />, router)}
         </ErrorBoundary>
-      </WalletProvider>
+      </WorkspaceProvider>
     </SharedProviders>
   );
 }

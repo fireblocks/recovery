@@ -6,6 +6,7 @@ export * from "./lib/getInitialDocumentProps";
 
 // Utils
 export * from "./lib/assetInfo";
+export * from "./lib/relayUrl";
 export * from "./lib/stringBytes";
 
 // Theme

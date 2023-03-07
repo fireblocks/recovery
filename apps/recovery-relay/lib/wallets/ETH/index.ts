@@ -9,14 +9,13 @@ export class Ethereum extends BaseEthereum implements BaseWallet {
   constructor(
     xpub: string,
     account: number,
-    changeIndex: number,
     addressIndex: number,
     isTestnet = false
   ) {
     super({
       xpub,
       assetId: "ETH",
-      path: { account, changeIndex, addressIndex },
+      path: { account, addressIndex },
       isTestnet,
     });
 

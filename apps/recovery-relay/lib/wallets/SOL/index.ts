@@ -11,14 +11,13 @@ export class Solana extends BaseSolana implements BaseWallet {
   constructor(
     fpub: string,
     account: number,
-    changeIndex: number,
     addressIndex: number,
     isTestnet = false
   ) {
     super({
       fpub,
       assetId: "SOL",
-      path: { account, changeIndex, addressIndex },
+      path: { account, addressIndex },
       isTestnet,
     });
 

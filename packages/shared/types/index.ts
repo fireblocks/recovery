@@ -24,38 +24,29 @@ export type AssetInfo = {
   getExplorerUrl: (locator: string, type: "tx" | "address") => string;
 };
 
-export type RelayWalletUrlParameters = {
-  xpub?: string;
-  fpub?: string;
-  assetId?: AssetId;
-  accountId?: number;
+export type Derivation = {
+  pathParts: number[];
+  address: string;
+  type: "Permanent" | "Deposit";
+  isTestnet: boolean;
+  isLegacy?: boolean;
+  description?: string;
+  tag?: string;
+  publicKey?: string;
+  privateKey?: string;
+  wif?: string;
 };
 
-/**
- * [AssetId, balance, [account, changeIndex, addressIndex]][]
- */
-export type RelayBalanceUpdateUrlParameters = [
-  AssetId,
-  number,
-  [number, number, number]
-][];
-
-export type RelaySigningUrlParameters = {
+export type Wallet = {
   assetId: AssetId;
-  from: string;
-  to: string;
-  balance: string;
-  amount: number;
-  memo?: string;
-  additionalParameters?: unknown;
-  txHex: string;
+  isTestnet: boolean;
+  balance?: number;
+  balanceUsd?: number;
+  derivations: Map<string, Derivation>;
 };
 
-export type RelayBroadcastUrlParameters = {
-  assetId: string;
-  from: string;
-  to: string;
-  amount: number;
-  txHex: string;
-  signature: string;
+export type VaultAccount = {
+  id: number;
+  name: string;
+  wallets: Map<AssetId, Wallet>;
 };

@@ -15,7 +15,6 @@ export class Bitcoin extends BaseBitcoin implements BaseWallet {
   constructor(
     xpub: string,
     account: number,
-    changeIndex: number,
     addressIndex: number,
     isTestnet = false,
     isLegacy = false
@@ -23,7 +22,7 @@ export class Bitcoin extends BaseBitcoin implements BaseWallet {
     super({
       xpub,
       assetId: "BTC",
-      path: { account, changeIndex, addressIndex },
+      path: { account, addressIndex },
       isTestnet,
       isLegacy,
     });

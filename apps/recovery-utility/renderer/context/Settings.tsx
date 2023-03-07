@@ -7,7 +7,10 @@ import {
 } from "react";
 import { z } from "zod";
 import { settingsInput } from "../lib/schemas";
-import { restoreSettings, saveSettings } from "../lib/ipc";
+import {
+  restoreSettings as ipcRestoreSettings,
+  saveSettings as ipcSaveSettings,
+} from "../lib/ipc";
 
 type Settings = z.infer<typeof settingsInput>;
 
@@ -33,20 +36,20 @@ export const SettingsProvider = ({ children }: Props) => {
   const [settings, setSettings] = useState<Settings>(defaultValue);
 
   useEffect(() => {
-    restoreSettings().then((settings) =>
-      setSettings((prev) => ({ ...prev, ...settings }))
+    ipcRestoreSettings().then((data) =>
+      setSettings((prev) => ({ ...prev, ...data }))
     );
   }, []);
 
-  const _saveSettings = async (settings: Settings) => {
-    await saveSettings(settings);
+  const saveSettings = async (data: Settings) => {
+    await ipcSaveSettings(data);
 
     setSettings((prev) => ({ ...prev, ...settings }));
   };
 
   const value: ISettingsContext = {
     ...settings,
-    saveSettings: _saveSettings,
+    saveSettings,
   };
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

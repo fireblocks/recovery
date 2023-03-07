@@ -1,13 +1,13 @@
-import type { NextPageWithLayout } from "./_app";
 import { useState } from "react";
 import { Link } from "@fireblocks/recovery-shared";
 import { Box, Typography } from "@mui/material";
-import { useWallet } from "../context/Wallet";
+import type { NextPageWithLayout } from "./_app";
+import { useWorkspace } from "../context/Workspace";
 import { Logo } from "../components/Logo";
 import { QrCodeScanner, ScanResult } from "../components/QrCodeScanner";
 
 const Scan: NextPageWithLayout = () => {
-  const { handleRelayUrl } = useWallet();
+  const { handleRelayUrl } = useWorkspace();
 
   const [scanError, setScanError] = useState<string | undefined>(undefined);
 

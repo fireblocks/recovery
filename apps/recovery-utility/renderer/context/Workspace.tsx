@@ -14,39 +14,15 @@ import {
   assetsInfo,
   AssetInfo,
   AssetId,
+  Derivation,
+  Wallet,
+  VaultAccount,
 } from "@fireblocks/recovery-shared";
 import { deriveWallet } from "@fireblocks/wallet-derivation";
 import { csvImport, ParsedRow } from "../lib/csv";
 import { initIdleDetector } from "../lib/idleDetector";
 import { ExtendedKeys } from "../lib/ipc/recoverExtendedKeys";
 import { useSettings } from "./Settings";
-
-export type Derivation = {
-  pathParts: number[];
-  address: string;
-  type: "Permanent" | "Deposit";
-  isTestnet: boolean;
-  isLegacy?: boolean;
-  description?: string;
-  tag?: string;
-  publicKey?: string;
-  privateKey?: string;
-  wif?: string;
-};
-
-export type Wallet = {
-  assetId: AssetId;
-  isTestnet: boolean;
-  balance?: number;
-  balanceUsd?: number;
-  derivations: Map<string, Derivation>;
-};
-
-export type VaultAccount = {
-  id: number;
-  name: string;
-  wallets: Map<AssetId, Wallet>;
-};
 
 interface IWorkspaceContext {
   extendedKeys?: ExtendedKeys;

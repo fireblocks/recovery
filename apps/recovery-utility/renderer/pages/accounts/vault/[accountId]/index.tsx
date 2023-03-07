@@ -1,12 +1,13 @@
 import { useRouter } from "next/router";
 import { useState, useMemo } from "react";
 import {
-  AssetId,
-  AssetIcon,
   Button,
   Link,
   getAssetInfo,
   assets,
+  AssetId,
+  AssetIcon,
+  Derivation,
 } from "@fireblocks/recovery-shared";
 import { Box, Typography, Breadcrumbs } from "@mui/material";
 import {
@@ -17,7 +18,7 @@ import {
 } from "@mui/x-data-grid";
 import { Add, NavigateNext } from "@mui/icons-material";
 import type { NextPageWithLayout } from "../../../_app";
-import { useWorkspace, Derivation } from "../../../../context/Workspace";
+import { useWorkspace } from "../../../../context/Workspace";
 import { Layout } from "../../../../components/Layout";
 import {
   DepositAddressesIcon,

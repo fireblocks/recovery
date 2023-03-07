@@ -10,17 +10,18 @@ import {
   ListItemText,
 } from "@mui/material";
 import {
-  AssetId,
+  AssetIcon,
   assets,
   theme,
   getAssetInfo,
+  getRelayUrl,
+  AssetId,
   AssetInfo,
-  AssetIcon,
+  VaultAccount,
 } from "@fireblocks/recovery-shared";
 import { BaseModal } from "../BaseModal";
-import { getRelayUrl } from "../../../lib/relayUrl";
 import { useSettings } from "../../../context/Settings";
-import { useWorkspace, VaultAccount } from "../../../context/Workspace";
+import { useWorkspace } from "../../../context/Workspace";
 import { VaultAccountIcon } from "../../Icons";
 import { QrCode } from "../../QrCode";
 
@@ -58,19 +59,18 @@ export const WithdrawModal = ({ assetId, accountId, open, onClose }: Props) => {
     setAsset(newAsset ?? undefined);
 
   const relayUrl = useMemo(() => {
-    if (!resolvedAsset || !extendedKeys || typeof account?.id !== "number") {
+    if (!resolvedAsset || !extendedKeys) {
       return "";
     }
 
-    return getRelayUrl({
-      baseUrl: relayBaseUrl,
-      data: {
-        ...extendedKeys,
-        assetId: resolvedAsset.id,
-        accountId: account.id,
-      },
-    });
-  }, [resolvedAsset, extendedKeys, account, relayBaseUrl]);
+    const { xpub, fpub } = extendedKeys;
+
+    return getRelayUrl(
+      "/",
+      { xpub, fpub, assetId: resolvedAssetId, accountId },
+      relayBaseUrl
+    );
+  }, [resolvedAsset, extendedKeys, resolvedAssetId, accountId, relayBaseUrl]);
 
   return (
     <BaseModal open={open} onClose={onClose} title="New Withdrawal">

@@ -1,8 +1,7 @@
 import { Box, Typography } from "@mui/material";
-import { Button, getAssetInfo } from "@fireblocks/recovery-shared";
+import { Button, getAssetInfo, Derivation } from "@fireblocks/recovery-shared";
 import { BaseModal } from "../BaseModal";
 import type { Row } from "../../../pages/accounts/vault/[accountId]";
-import { Derivation } from "../../../context/Workspace";
 
 type Props = {
   open: boolean;

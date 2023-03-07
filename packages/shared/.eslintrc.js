@@ -26,10 +26,14 @@ module.exports = {
     },
   },
   rules: {
-    "import/no-extraneous-dependencies": ["error", { devDependencies: true }],
-    "import/prefer-default-export": "off",
+    "no-underscore-dangle": "off",
+    "no-console": ["warn", { allow: ["warn", "error"] }],
+    "react/react-in-jsx-scope": "off",
+    "react/function-component-definition": "off",
     "react/jsx-props-no-spreading": "off",
     "react/prop-types": "off",
     "react/require-default-props": "off",
+    "import/no-extraneous-dependencies": ["error", { devDependencies: true }],
+    "import/prefer-default-export": "off",
   },
 };
