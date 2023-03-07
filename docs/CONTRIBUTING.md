@@ -1,15 +1,15 @@
-# 🔨 Contributing
+# 🔨 Development
 
-This repository contains a collection of TypeScript/Python apps and packages for:
+This repository contains a collection of TypeScript/Python apps and packages to:
 
-- Recovering extended private/public keys from a Recovery Kit ZIP file, an RSA key, and a Fireblocks workspace owner's mobile recovery passphrase
-- Deriving wallet keys and addresses from
+- Generate an RSA private/public keypair for creating a new Recovery Kit
+- Recover extended private/public keys from a Recovery Kit ZIP file, an RSA key, and a Fireblocks workspace owner's mobile recovery passphrase
+- Derive wallet keys and addresses from extended private/public keys
+- Query wallet balances and perform withdrawals from recovered cold wallets without exposing private keys
 
-two applications ([Recovery Utility](../packages/recovery-utility/) and [Recovery Relay](../packages/recovery-relay/)) and three internal dependencies (the [Extended Key Recovery module](../packages/extended-key-recovery/), the [Wallet Derivation helpers](../packages/wallet-derivation/), and [shared frontend components and utilities](../packages/shared/)). [Recovery Utility](../apps/recovery-utility/) is a cross-platform [Electron](https://www.electronjs.org/) app compiled for macOS, Windows, and Linux. Its window UI, along with Recovery Relay, are built with [React](https://reactjs.org/) on the [Next.js](https://nextjs.org/) framework, using [Material UI](https://mui.com/material-ui/getting-started/overview/) components.
+[Recovery Utility](../apps/recovery-utility/) is intended to be run on an offline, air-gapped machine. It is a cross-platform [Electron](https://www.electronjs.org/) app compiled for macOS, Windows, and Linux. Its window UI, along with Recovery Relay, are built with [React](https://reactjs.org/) on the [Next.js](https://nextjs.org/) framework, using [Material UI](https://mui.com/material-ui/getting-started/overview/) components. It uses a companion web app, [Recovery Relay](../apps/recovery-relay/), to check wallet balances and initiate transactions from recovered wallets.
 
-[Recovery Utility](../packages/recovery-utility/) is intended to be run on an offline, air-gapped machine. It uses a companion web app, [Recovery Relay](../packages/recovery-relay/), to check wallet balances and initiate transactions from recovered wallets.
-
-[Recovery Utility](../packages/recovery-utility/) includes the compiled [Extended Key Recovery module](../extended-key-recovery) in its [contents](https://www.electron.build/configuration/contents.html#extrafiles) and spawns it as a child process to restore a workspace's extended private/public keys. Both [Recovery Utility](../packages/recovery-utility/) and [Recovery Relay](../packages/recovery-relay/) use the [Wallet Derivation helpers](../packages/wallet-derivation/) to derive wallets' addresses and their private/public keys.
+[Recovery Utility](../apps/recovery-utility/) includes the compiled [@fireblocks/extended-key-recovery](../packages/extended-key-recovery) module in its [contents](https://www.electron.build/configuration/contents.html#extrafiles) and spawns it as a child process to restore a workspace's extended private/public keys. Both [Recovery Utility](../apps/recovery-utility/) and [Recovery Relay](../apps/recovery-relay/) use [@fireblocks/wallet-derivation](../packages/wallet-derivation/) to derive wallets' addresses and their private/public keys.
 
 Recovery Relay can be hosted on any static file server, and Fireblocks maintains an instance hosted on Vercel at [relay.fireblocks.solutions](https://relay.fireblocks.solutions). Users can set a custom Recovery Relay URL in Recovery Utility's settings, after recovering their extended private keys.
 
@@ -64,10 +64,18 @@ yarn dev
 
 ### Test
 
-Run all `test` scripts. Currently this only runs unit tests for the [Wallet Derivation helpers](../packages/wallet-derivation/).
+Run all `test` scripts. Currently this only runs unit tests for [@fireblocks/wallet-derivation](../packages/wallet-derivation/).
 
 ```sh
 yarn test
+```
+
+### Lint
+
+Run ESLint and PyLint to check for code formatting errors.
+
+```sh
+yarn lint
 ```
 
 ### Build

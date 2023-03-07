@@ -37,9 +37,9 @@
 3. **(Optional)** [Install the latest release of Recovery Relay](https://github.com/fireblocks/recovery/releases) on a web server. [Recovery Relay](../recovery-relay/) is a companion web app that gets wallet balances and sends transactions without revealing your private keys. Fireblocks hosts an instance at [relay.fireblocks.solutions](https://relay.fireblocks.solutions), but you can host your own instance and set its URL in Recovery Utility's Settings tab.
 4. Open Recovery Utility to use one of the following tools...
 
-## 🧰 Tools
+### 🧰 Tools
 
-### 🆕 Set Up Recovery Kit
+#### 🆕 Set Up Recovery Kit
 
 Generate an RSA keypair and checksum for a new Recovery Kit. If you already have your backup .zip, RSA keypair with passphrase, and owner's mobile app passphrase, then you can skip this and proceed to Verify Recovery Kit.
 
@@ -47,7 +47,7 @@ Generate an RSA keypair and checksum for a new Recovery Kit. If you already have
   <img width="49.15%" src="../../docs/img/setup.png" alt="Set Up Recovery Kit" />
 </p>
 
-### ✅ Verify Recovery Kit
+#### ✅ Verify Recovery Kit
 
 With your Recovery Kit .zip, RSA private key with passphrase, and owner's mobile app passphrase, you can verify your ability to perform a hard key recovery. Recovery Utility uses these materials to generate your workspace's `xpub` and `fpub` extended public keys. Check that the these extended public keys match the keys in your Fireblocks Console Settings.
 
@@ -56,11 +56,11 @@ With your Recovery Kit .zip, RSA private key with passphrase, and owner's mobile
   <img width="49.15%" src="../../docs/img/public-keys.png" alt="Extended Public Keys" />
 </p>
 
-### 🔑 Recover Private Keys
+#### 🔑 Recover Private Keys
 
 With your Recovery Kit .zip, RSA private key with passphrase, and owner's mobile app passphrase, you can recover the extended private keys (`xprv` and `fprv`) of your Fireblocks workspace, derive wallets to recover your assets' private keys, and create transactions by scanning a QR code to the Recovery Relay web app.
 
-#### 🚨 WARNING
+##### 🚨 WARNING
 
 Using private key recovery exposes your private keys to the host machine. Only do this in a disaster recovery scenario, and then move your assets to other secure wallets. Use the Fireblocks Console, APIs, and SDKs for standard operations.
 
@@ -75,9 +75,23 @@ Recovery Utility is a cross-platform [Electron](https://www.electronjs.org/) app
 
 [Recovery Utility](../recovery-utility/) includes the compiled [@fireblocks/extended-key-recovery](../../packages/extended-key-recovery/) module in its [contents](https://www.electron.build/configuration/contents.html#extrafiles) and spawns it as a child process to restore a workspace's extended private/public keys. It uses [@fireblocks/wallet-derivation](../../packages/wallet-derivation/) to derive wallet keys and addresses.
 
+### Scripts
+
+#### Develop
+
+```sh
+yarn dev
+```
+
+#### Build
+
+```sh
+yarn build
+```
+
 ### Build Process
 
-Using Turborepo, the [@fireblocks/extended-key-recovery](../../packages/extended-key-recovery/) module is first compiled to an executable for the development machine's architecture. Then Recovery Utility's renderer process (the Next.js frontend) is transpiled to static HTML/JS/CSS. Finally, the renderer and module are bundled with the Electron main process into an application bundle for the development machine's architecture.
+Using Turborepo the [@fireblocks/extended-key-recovery](../../packages/extended-key-recovery/) module is first compiled to an executable for the development machine's architecture. Then Recovery Utility's renderer process (the Next.js frontend) is transpiled to static HTML/JS/CSS. Finally, the renderer and module are bundled with the Electron main process into an application bundle for the development machine's architecture.
 
 Cross-compilation is not supported. We use GitHub Actions with a matrix job to compile Recovery Utility for each supported architecture (masOS, Windows, and Linux).
 
