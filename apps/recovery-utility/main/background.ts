@@ -77,6 +77,7 @@ async function createWindow() {
     minWidth: 800,
     minHeight: 680,
     title: "Fireblocks Recovery Utility",
+    show: false,
     webPreferences: {
       devTools: true,
       nodeIntegration: true,
@@ -96,22 +97,37 @@ async function createWindow() {
     win?.setTitle("Fireblocks Recovery Utility");
   });
 
+  // Disable reload
+  win.webContents.on("before-input-event", (event, input) => {
+    const key = input.key.toLowerCase();
+
+    if (key === "f5" || (key === "r" && (input.control || input.meta))) {
+      event.preventDefault();
+    }
+  });
+
   // Only do these things when in development
   if (isDev) {
     // Errors are thrown if the dev tools are opened
     // before the DOM is ready
     win.webContents.once("dom-ready", async () => {
-      await installExtension([REACT_DEVELOPER_TOOLS])
+      try {
+        const extensionName = await installExtension([REACT_DEVELOPER_TOOLS]);
         // eslint-disable-next-line no-console
-        .then((name) => console.info(`Added Chrome extension: ${name}`))
-        .catch((err) => console.error("An error occurred: ", err))
-        .finally(() => {
-          // eslint-disable-next-line global-require
-          require("electron-debug")(); // https://github.com/sindresorhus/electron-debug
-          win?.webContents.openDevTools();
-        });
+        console.info(`Added Chrome extension: ${extensionName}`);
+      } catch (error) {
+        console.error("An error occurred: ", error);
+      } finally {
+        // eslint-disable-next-line global-require
+        require("electron-debug")(); // https://github.com/sindresorhus/electron-debug
+        win?.webContents.openDevTools();
+      }
     });
   }
+
+  win.once("ready-to-show", () => {
+    win?.show();
+  });
 
   // Emitted when the window is closed.
   win.on("closed", () => {

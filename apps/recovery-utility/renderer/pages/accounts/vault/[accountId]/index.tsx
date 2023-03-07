@@ -234,7 +234,9 @@ const VaultAccount: NextPageWithLayout = () => {
         .map(([assetId, wallet]) => ({
           assetId,
           balance: wallet.balance,
-          derivations: wallet.derivations,
+          derivations: Array.from(wallet.derivations).map(
+            ([, derivation]) => derivation
+          ),
         }))
         // TODO: Make this a user setting
         .filter((row) =>

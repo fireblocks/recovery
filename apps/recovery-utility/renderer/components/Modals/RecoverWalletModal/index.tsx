@@ -11,6 +11,7 @@ import {
   Button,
   AssetIcon,
   AssetInfo,
+  AssetId,
   assets,
 } from "@fireblocks/recovery-shared";
 import { useWorkspace } from "../../../context/Workspace";
@@ -30,7 +31,7 @@ export const RecoverWalletModal = ({
   open,
   onClose: _onClose,
 }: Props) => {
-  const { vaultAccounts, restoreWallet } = useWorkspace();
+  const { vaultAccounts, addWallet } = useWorkspace();
 
   const account =
     typeof accountId === "number" ? vaultAccounts.get(accountId) : undefined;
@@ -46,8 +47,8 @@ export const RecoverWalletModal = ({
   const onClickAsset = (_assetId: string) => setAssetId(_assetId);
 
   const onClickRecover = () => {
-    if (account?.id && assetId) {
-      restoreWallet(account.id, assetId);
+    if (typeof accountId === "number" && assetId) {
+      addWallet(accountId, assetId as AssetId);
     }
 
     onClose();

@@ -24,22 +24,24 @@ export const ExportModal = ({ open, onClose }: Props) => {
       (acc, [accountId, account]) => {
         const rows = Array.from(account.wallets).reduce(
           (_rows, [assetId, wallet]) => {
-            const walletRows = wallet.derivations.map((derivation) => ({
-              accountName: account.name,
-              accountId,
-              assetId,
-              assetName: getAssetInfo(assetId)?.name ?? assetId,
-              address: derivation.address,
-              addressType: derivation.type,
-              addressDescription: derivation.description,
-              tag: derivation.tag,
-              pathParts: derivation.pathParts,
-              publicKey: derivation.publicKey,
-              privateKey: includePrivateKeys
-                ? derivation.privateKey
-                : undefined,
-              privateKeyWif: includePrivateKeys ? derivation.wif : undefined,
-            }));
+            const walletRows = Array.from(wallet.derivations).map(
+              ([address, derivation]) => ({
+                accountName: account.name,
+                accountId,
+                assetId,
+                assetName: getAssetInfo(assetId)?.name ?? assetId,
+                address,
+                addressType: derivation.type,
+                addressDescription: derivation.description,
+                tag: derivation.tag,
+                pathParts: derivation.pathParts,
+                publicKey: derivation.publicKey,
+                privateKey: includePrivateKeys
+                  ? derivation.privateKey
+                  : undefined,
+                privateKeyWif: includePrivateKeys ? derivation.wif : undefined,
+              })
+            );
 
             return [..._rows, ...walletRows];
           },

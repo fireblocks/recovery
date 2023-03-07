@@ -185,8 +185,8 @@ const Vault: NextPageWithLayout = () => {
         name: account.name,
         balance: undefined,
         addresses: Array.from(account.wallets)
-          .flatMap(([, wallet]) => wallet.derivations)
-          .map((derivation) => derivation.address),
+          .flatMap(([, wallet]) => Array.from(wallet.derivations))
+          .map(([address]) => address),
       })),
     [vaultAccounts]
   );
@@ -227,10 +227,7 @@ const Vault: NextPageWithLayout = () => {
           columnVisibilityModel={{ accountId: false, addresses: false }}
           initialState={{
             sorting: {
-              sortModel: [
-                { field: "name", sort: "asc" },
-                { field: "id", sort: "asc" },
-              ],
+              sortModel: [{ field: "name", sort: "asc" }],
             },
           }}
           onRowClick={(params) =>

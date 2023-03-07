@@ -19,7 +19,7 @@ const defaultValues: FormData = { name: "" };
 export const RecoverAccountModal = ({ open, onClose: _onClose }: Props) => {
   const router = useRouter();
 
-  const { restoreVaultAccount } = useWorkspace();
+  const { addVaultAccount } = useWorkspace();
 
   const {
     register,
@@ -38,7 +38,7 @@ export const RecoverAccountModal = ({ open, onClose: _onClose }: Props) => {
   };
 
   const onSubmit = (formData: FormData) => {
-    const accountId = restoreVaultAccount(formData.name);
+    const accountId = addVaultAccount(formData.name);
 
     router.push({
       pathname: "/accounts/vault/[accountId]",

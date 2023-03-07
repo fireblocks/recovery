@@ -15,8 +15,8 @@ import {
   AssetInfo,
   AssetId,
 } from "@fireblocks/recovery-shared";
+import { deriveWallet } from "@fireblocks/wallet-derivation";
 import { csvImport, ParsedRow } from "../lib/csv";
-import { deriveWallet } from "../lib/deriveWallet";
 import { initIdleDetector } from "../lib/idleDetector";
 import { ExtendedKeys } from "../lib/ipc/recoverExtendedKeys";
 import { useSettings } from "./Settings";
@@ -25,6 +25,7 @@ export type Derivation = {
   pathParts: number[];
   address: string;
   type: "Permanent" | "Deposit";
+  isTestnet: boolean;
   isLegacy?: boolean;
   description?: string;
   tag?: string;
@@ -38,7 +39,7 @@ export type Wallet = {
   isTestnet: boolean;
   balance?: number;
   balanceUsd?: number;
-  derivations: Derivation[];
+  derivations: Map<string, Derivation>;
 };
 
 export type VaultAccount = {
@@ -46,8 +47,6 @@ export type VaultAccount = {
   name: string;
   wallets: Map<AssetId, Wallet>;
 };
-
-// const splitPath = (path: string) => path.split(",").map((p) => parseInt(p, 10));
 
 interface IWorkspaceContext {
   extendedKeys?: ExtendedKeys;
@@ -57,8 +56,12 @@ interface IWorkspaceContext {
     csvFile: File,
     extendedKeys: ExtendedKeys
   ) => Promise<void>;
-  restoreVaultAccount: (name: string) => number;
-  restoreWallet: (accountId: number, assetId: string) => void;
+  addVaultAccount: (name: string) => number;
+  addWallet: (
+    accountId: number,
+    assetId: AssetId,
+    addressIndex?: number
+  ) => void;
   setExtendedKeys: Dispatch<SetStateAction<ExtendedKeys | undefined>>;
   reset: () => void;
 }
@@ -68,8 +71,8 @@ const defaultValue: IWorkspaceContext = {
   asset: undefined,
   vaultAccounts: new Map(),
   restoreVaultAccounts: async () => undefined,
-  restoreVaultAccount: () => 0,
-  restoreWallet: () => undefined,
+  addVaultAccount: () => 0,
+  addWallet: () => undefined,
   setExtendedKeys: () => undefined,
   reset: () => undefined,
 };
@@ -79,55 +82,6 @@ const Context = createContext(defaultValue);
 type Props = {
   children: ReactNode;
 };
-
-// const orderAddresses = (a: Address, b: Address) => {
-//   const aPath = deserializePath(a.pathParts);
-//   const bPath = deserializePath(b.pathParts);
-
-//   // Keep wallets with the same path together
-//   if (aPath.accountId === bPath.accountId && aPath.index === bPath.index) {
-//     const aIsLegacy = a.address[0] === "1";
-//     const bIsLegacy = b.address[0] === "1";
-
-//     if (aIsLegacy && !bIsLegacy) {
-//       return -1;
-//     }
-
-//     if (!aIsLegacy && bIsLegacy) {
-//       return 1;
-//     }
-
-//     return 0;
-//   }
-
-//   if (aPath.accountId > bPath.accountId) {
-//     return 1;
-//   }
-
-//   if (aPath.accountId < bPath.accountId) {
-//     return -1;
-//   }
-
-//   if (aPath.index > bPath.index) {
-//     return 1;
-//   }
-
-//   if (aPath.index < bPath.index) {
-//     return -1;
-//   }
-
-//   return 0;
-// };
-
-// const formatWallets = (wallets: Wallet[]): Wallet[] => {
-//   const uniqueWallets = [
-//     ...new Map(wallets.map((wallet) => [wallet.address, wallet])).values(),
-//   ];
-
-//   const sortedWallets = uniqueWallets.sort(orderWallets);
-
-//   return sortedWallets;
-// };
 
 const testIsLegacy = (assetId: string, address: string) => {
   if (!assetId.startsWith("BTC")) {
@@ -139,53 +93,6 @@ const testIsLegacy = (assetId: string, address: string) => {
   }
 
   return true;
-};
-
-const deriveVaultAccount = (
-  { xprv, fprv }: Pick<ExtendedKeys, "xprv" | "fprv">,
-  account: VaultAccount
-) => {
-  // Convert account.wallets to an array
-  const wallets = [...account.wallets.values()];
-
-  const derivedWalletsMap = wallets.map<[AssetId, Wallet]>((wallet) => {
-    const { assetId, derivations: oldDerivations } = wallet;
-
-    if (!assetsInfo[assetId]) {
-      return [assetId, wallet];
-    }
-
-    const indexStart = oldDerivations[0].pathParts[4];
-    const indexEnd = oldDerivations[oldDerivations.length - 1].pathParts[4];
-
-    const derivations = deriveWallet({
-      xprv,
-      fprv,
-      assetId,
-      accountId: account.id,
-      indexStart,
-      indexEnd,
-    });
-
-    return [assetId, { ...wallet, derivations }];
-  });
-
-  return new Map(derivedWalletsMap);
-};
-
-const deriveAllVaultAccounts = (
-  extendedKeys: Pick<ExtendedKeys, "xprv" | "fprv">,
-  vaultAccounts: Map<number, VaultAccount>
-) => {
-  const accounts = [...vaultAccounts.values()];
-
-  const derivedAccountsMap = accounts.map<[number, VaultAccount]>((account) => {
-    const wallets = deriveVaultAccount(extendedKeys, account);
-
-    return [account.id, { ...account, wallets }];
-  });
-
-  return new Map(derivedAccountsMap);
 };
 
 export const WorkspaceProvider = ({ children }: Props) => {
@@ -204,81 +111,119 @@ export const WorkspaceProvider = ({ children }: Props) => {
     defaultValue.vaultAccounts
   );
 
-  const restoreVaultAccounts = useCallback(
-    async (csvFile: File, { xprv, fprv }: ExtendedKeys) => {
-      const tmpAccounts = new Map<number, VaultAccount>();
+  const addDerivation = useCallback(
+    (
+      derivation: Derivation,
+      accountAssetId: AssetId,
+      accountId: number,
+      accountName?: string
+    ) =>
+      setVaultAccounts((prev) => {
+        const accounts = new Map(prev);
 
+        const newWallet: Wallet = {
+          assetId: accountAssetId,
+          isTestnet: derivation.isTestnet,
+          derivations: new Map([[derivation.address, derivation]]),
+        };
+
+        const account = accounts.get(accountId);
+
+        if (account) {
+          const existingWallet = account.wallets.get(accountAssetId);
+
+          if (existingWallet) {
+            // Account and wallet found, add derivation
+            existingWallet.derivations.set(derivation.address, derivation);
+
+            account.wallets.set(accountAssetId, existingWallet);
+          } else {
+            // Account found, add wallet
+            account.wallets.set(accountAssetId, newWallet);
+          }
+
+          accounts.set(accountId, account);
+        } else {
+          // Account not found, add account and wallet
+          const newAccount: VaultAccount = {
+            id: accountId,
+            name: accountName || `Account ${accountId}`,
+            wallets: new Map([[accountAssetId, newWallet]]),
+          };
+
+          accounts.set(accountId, newAccount);
+        }
+
+        return accounts;
+      }),
+    [setVaultAccounts]
+  );
+
+  const restoreVaultAccounts = useCallback(
+    async (csvFile: File, exKeys: ExtendedKeys) => {
       const handleRow = (parsedRow: ParsedRow) => {
+        const parsedAccountId = parsedRow.accountId;
+
         const parsedAssetId = parsedRow.assetId as AssetId;
 
         const isTestnet = parsedAssetId.includes("TEST");
 
-        const derivation: Derivation = {
-          pathParts: parsedRow.pathParts,
-          address: parsedRow.address,
-          type: parsedRow.addressType,
-          description: parsedRow.addressDescription,
-          tag: parsedRow.tag,
-          publicKey: parsedRow.publicKey,
-          privateKey: parsedRow.privateKey,
-          wif: parsedRow.privateKeyWif,
-          isLegacy: testIsLegacy(parsedAssetId, parsedRow.address),
-        };
+        const isLegacy = testIsLegacy(parsedAssetId, parsedRow.address);
 
-        const wallet: Wallet = {
-          assetId: parsedAssetId,
-          isTestnet,
-          derivations: [derivation],
-        };
+        const parsedIndex = parsedRow.pathParts[4];
 
-        const account = tmpAccounts.get(parsedRow.accountId);
+        let derivation: Derivation;
 
-        if (account) {
-          const existingWallet = account.wallets.get(parsedAssetId);
-
-          if (existingWallet) {
-            existingWallet.derivations.push(derivation);
-
-            existingWallet.derivations.sort((a, b) => {
-              if (a.pathParts[4] > b.pathParts[4]) {
-                return 1;
-              }
-
-              if (a.pathParts[4] < b.pathParts[4]) {
-                return -1;
-              }
-
-              return 0;
-            });
-
-            account.wallets.set(parsedAssetId, existingWallet);
-          } else {
-            account.wallets.set(parsedAssetId, wallet);
-          }
-        } else {
-          tmpAccounts.set(parsedRow.accountId, {
-            id: parsedRow.accountId,
-            name: parsedRow.accountName ?? `Account ${parsedRow.accountId}`,
-            wallets: new Map<AssetId, Wallet>([[parsedAssetId, wallet]]),
+        if (assetsInfo[parsedAssetId]) {
+          derivation = deriveWallet({
+            xprv: exKeys.xprv,
+            fprv: exKeys.fprv,
+            xpub: exKeys.xpub,
+            fpub: exKeys.fpub,
+            assetId: parsedAssetId,
+            path: {
+              account: parsedAccountId,
+              addressIndex: parsedIndex,
+            },
+            isTestnet,
+            isLegacy,
           });
+        } else {
+          derivation = {
+            pathParts: parsedRow.pathParts,
+            address: parsedRow.address,
+            type: parsedRow.addressType,
+            description: parsedRow.addressDescription,
+            tag: parsedRow.tag,
+            publicKey: parsedRow.publicKey,
+            privateKey: parsedRow.privateKey,
+            wif: parsedRow.privateKeyWif,
+            isTestnet,
+            isLegacy,
+          };
         }
+
+        addDerivation(
+          derivation,
+          parsedAssetId,
+          parsedAccountId,
+          parsedRow.accountName
+        );
       };
 
-      setVaultAccounts(defaultValue.vaultAccounts);
-
       await csvImport(csvFile, handleRow);
-
-      setVaultAccounts(deriveAllVaultAccounts({ xprv, fprv }, tmpAccounts));
     },
-    [setVaultAccounts]
+    [addDerivation]
   );
 
-  const restoreVaultAccount = useCallback(
+  const addVaultAccount = useCallback(
     (name: string) => {
       let accountId = vaultAccounts.size;
 
       setVaultAccounts((prev) => {
         const accounts = new Map(prev);
+
+        accountId = accounts.size;
 
         if (accountId > 0) {
           const accountIds = Array.from(accounts.keys());
@@ -286,11 +231,13 @@ export const WorkspaceProvider = ({ children }: Props) => {
           accountId = Math.max(...accountIds) + 1;
         }
 
-        accounts.set(accountId, {
+        const account: VaultAccount = {
           id: accountId,
           name,
           wallets: new Map<AssetId, Wallet>(),
-        });
+        };
+
+        accounts.set(accountId, account);
 
         return accounts;
       });
@@ -300,43 +247,47 @@ export const WorkspaceProvider = ({ children }: Props) => {
     [vaultAccounts.size]
   );
 
-  const restoreWallet = useCallback(
-    (accountId: number, walletAssetId: string) => {
-      if (!extendedKeys?.xprv || !extendedKeys?.fprv) {
-        throw new Error("Extended private keys are not set");
+  const addWallet = useCallback(
+    (accountId: number, accountAssetId: AssetId, addressIndex = 0) => {
+      if (
+        !extendedKeys?.xprv &&
+        !extendedKeys?.xpub &&
+        !extendedKeys?.fprv &&
+        !extendedKeys?.fpub
+      ) {
+        throw new Error("Extended keys are not set");
       }
 
-      const derivations = deriveWallet({
-        xprv: extendedKeys?.xprv,
-        fprv: extendedKeys?.fprv,
-        assetId: walletAssetId as AssetId,
-        accountId,
-        indexStart: 0,
-        indexEnd: 0,
-      });
+      const { xprv, fprv, xpub, fpub } = extendedKeys;
 
-      setVaultAccounts((prev) => {
-        const accounts = new Map(prev);
+      const derivationInput = {
+        xprv,
+        fprv,
+        xpub,
+        fpub,
+        assetId: accountAssetId,
+        path: {
+          account: accountId,
+          addressIndex,
+        },
+        isTestnet: accountAssetId.includes("TEST"),
+        isLegacy: false,
+      };
 
-        const account = accounts.get(accountId);
+      const derivation = deriveWallet(derivationInput);
 
-        if (account) {
-          const wallet = account.wallets.get(assetId as AssetId);
+      addDerivation(derivation, accountAssetId, accountId);
 
-          account.wallets.set(assetId as AssetId, {
-            assetId: walletAssetId as AssetId,
-            isTestnet: walletAssetId.includes("TEST"),
-            ...wallet,
-            derivations,
-          });
+      if (accountAssetId.startsWith("BTC")) {
+        const legacyDerivation = deriveWallet({
+          ...derivationInput,
+          isLegacy: true,
+        });
 
-          accounts.set(accountId, account);
-        }
-
-        return accounts;
-      });
+        addDerivation(legacyDerivation, accountAssetId, accountId);
+      }
     },
-    [assetId, extendedKeys?.fprv, extendedKeys?.xprv]
+    [extendedKeys, addDerivation]
   );
 
   const reset = () => {
@@ -370,8 +321,8 @@ export const WorkspaceProvider = ({ children }: Props) => {
     asset,
     vaultAccounts,
     restoreVaultAccounts,
-    restoreVaultAccount,
-    restoreWallet,
+    addVaultAccount,
+    addWallet,
     setExtendedKeys,
     reset,
   };

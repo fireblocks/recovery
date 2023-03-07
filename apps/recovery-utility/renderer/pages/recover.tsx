@@ -19,7 +19,8 @@ type FormData = z.infer<typeof recoverKeysInput>;
 const Recover: NextPageWithLayout = () => {
   const router = useRouter();
 
-  const { restoreVaultAccounts, setExtendedKeys } = useWorkspace();
+  const { restoreVaultAccounts, addVaultAccount, setExtendedKeys } =
+    useWorkspace();
 
   const [recoveryError, setRecoveryError] = useState<string | undefined>(
     undefined
@@ -41,14 +42,20 @@ const Recover: NextPageWithLayout = () => {
 
       setExtendedKeys(extendedKeys);
 
-      if (backupCsv) {
-        await restoreVaultAccounts(backupCsv, extendedKeys);
-      }
+      if (verifyOnly) {
+        router.push({
+          pathname: "/keys",
+          query: { verifyOnly: "true" },
+        });
+      } else if (backupCsv) {
+        router.push("/accounts/vault");
 
-      router.push({
-        pathname: verifyOnly ? "/keys" : "/accounts/vault",
-        query: { verifyOnly: verifyOnly ? "true" : undefined },
-      });
+        restoreVaultAccounts(backupCsv, extendedKeys);
+      } else {
+        addVaultAccount("Default");
+
+        router.push("/accounts/vault");
+      }
     },
     onError: (error) => {
       console.error(error);
