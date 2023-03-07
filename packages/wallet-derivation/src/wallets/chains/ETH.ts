@@ -1,4 +1,4 @@
-import { Input, AddressInput } from "../../types";
+import { Input } from "../../types";
 import { ECDSAWallet } from "../ECDSAWallet";
 
 export class Ethereum extends ECDSAWallet {
@@ -6,7 +6,7 @@ export class Ethereum extends ECDSAWallet {
     super(input, 60);
   }
 
-  getAddress({ evmAddress }: AddressInput) {
+  protected getAddress(evmAddress?: string) {
     return evmAddress as string;
   }
 }

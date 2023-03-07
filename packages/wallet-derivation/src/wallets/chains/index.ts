@@ -1,3 +1,4 @@
+import { Algorand } from "./ALGO";
 import { Bitcoin } from "./BTC";
 import { Ethereum } from "./ETH";
 import { Solana } from "./SOL";
@@ -18,9 +19,11 @@ export const getWallet = (assetId: string) => {
     case "SOL":
     case "SOL_TEST":
       return Solana;
+    case "ALGO":
+      return Algorand;
     default:
       throw new Error(`Unsupported asset "${assetId}"`);
   }
 };
 
-export { Bitcoin, Ethereum, Solana };
+export { Bitcoin, Ethereum, Solana, Algorand };

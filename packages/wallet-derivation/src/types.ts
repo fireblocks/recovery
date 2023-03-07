@@ -1,11 +1,13 @@
 export type Algorithm = "ECDSA" | "EDDSA";
 
-type HDPath = Readonly<{
+export type HDPath = Readonly<{
   coinType: number;
   account: number;
   changeIndex: number;
   addressIndex: number;
 }>;
+
+export type HDPathParts = [44, number, number, number, number];
 
 type HDPathInput = Partial<HDPath>;
 
@@ -20,27 +22,9 @@ export type Input = Readonly<{
   isLegacy?: boolean;
 }>;
 
-export type DerivationInput = Readonly<{
-  extendedKey: string;
-  pathParts: readonly [number, number, number, number, number];
-}>;
-
-export type AddressInput = Readonly<{
-  publicKey: string;
-  evmAddress?: string;
-}>;
-
-export type Derivation = {
+export type Derivation = Readonly<{
   publicKey: string;
   privateKey?: string;
   wif?: string;
   evmAddress?: string;
-};
-
-export type Wallet = Pick<Input, "assetId" | "isTestnet" | "isLegacy"> & {
-  path: HDPath;
-  address: string;
-  publicKey: string;
-  privateKey?: string;
-  wif?: string;
-};
+}>;

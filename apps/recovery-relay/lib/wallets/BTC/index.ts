@@ -1,12 +1,15 @@
 import { Network, networks, Psbt } from "bitcoinjs-lib";
 import { Buffer } from "buffer";
-import { AddressSummary, FullUTXO, UTXOSummary } from "./types";
 import { Bitcoin as BaseBitcoin } from "@fireblocks/wallet-derivation";
-import { UTXO, AccountData, TxPayload, RawSignature } from "../types";
+import { AddressSummary, FullUTXO, UTXOSummary } from "./types";
+import { UTXO, AccountData, TxPayload } from "../types";
+import { BaseWallet } from "../BaseWallet";
 
-export class Bitcoin extends BaseBitcoin {
+export class Bitcoin extends BaseBitcoin implements BaseWallet {
   private static readonly satsPerBtc = 100000000;
+
   private readonly network: Network;
+
   private readonly baseUrl: string;
 
   constructor(
@@ -44,14 +47,14 @@ export class Bitcoin extends BaseBitcoin {
 
   private async _getAddressUTXOs() {
     const utxoSummary = await this._requestJson<UTXOSummary[]>(
-      `/address/${this.data.address}/utxo`
+      `/address/${this.address}/utxo`
     );
     return utxoSummary;
   }
 
   private async _getAddressBalance() {
     const addressSummary = await this._requestJson<AddressSummary>(
-      `/address/${this.data.address}`
+      `/address/${this.address}`
     );
     return addressSummary;
   }
@@ -66,8 +69,8 @@ export class Bitcoin extends BaseBitcoin {
   }
 
   private async _addSegwitInput(tx: Psbt, utxo: UTXO) {
-    const txHash = utxo.txHash;
-    const index = utxo.index;
+    const { txHash } = utxo;
+    const { index } = utxo;
     const fullUTxo = await this._requestJson<FullUTXO>(`/tx/${txHash}`);
     const { scriptpubkey, value } = fullUTxo.vout[index];
     tx.addInput({
@@ -75,14 +78,14 @@ export class Bitcoin extends BaseBitcoin {
       index: utxo.index,
       witnessUtxo: {
         script: Buffer.from(scriptpubkey, "hex"),
-        value: value,
+        value,
       },
     });
     return tx;
   }
 
   private async _addNonSegwitInput(tx: Psbt, utxo: UTXO) {
-    const txHash = utxo.txHash;
+    const { txHash } = utxo;
     const rawTxRes = await this._request(`/tx/${txHash}/raw`);
     const rawTx = await rawTxRes.arrayBuffer();
     const nonWitnessUtxo = Buffer.from(rawTx);
@@ -107,14 +110,15 @@ export class Bitcoin extends BaseBitcoin {
     const utxos = await this._getAddressUTXOs();
     return {
       balance,
-      utxos: utxos.map((utxo: UTXOSummary) => {
-        return {
-          txHash: utxo.txid,
-          confirmed: utxo.status.confirmed,
-          index: utxo.vout,
-          value: Bitcoin._satsToBtc(utxo.value),
-        } as UTXO;
-      }),
+      utxos: utxos.map(
+        (utxo: UTXOSummary) =>
+          ({
+            txHash: utxo.txid,
+            confirmed: utxo.status.confirmed,
+            index: utxo.vout,
+            value: Bitcoin._satsToBtc(utxo.value),
+          } as UTXO)
+      ),
     };
   }
 
@@ -122,32 +126,34 @@ export class Bitcoin extends BaseBitcoin {
     to: string,
     amount: number,
     memo?: string | undefined,
-    utxos?: UTXO[] | undefined,
-    additionalParameters?: Map<string, object> | undefined
+    utxos?: UTXO[] | undefined
+    // additionalParameters?: Map<string, object> | undefined
   ): Promise<TxPayload> {
     const utxosToUse: UTXO[] =
       utxos !== undefined
         ? utxos!
-        : (await this._getAddressUTXOs()).map((utxo: UTXOSummary) => {
-            return {
-              txHash: utxo.txid,
-              confirmed: utxo.status.confirmed,
-              index: utxo.vout,
-              value: utxo.value,
-            } as UTXO;
-          });
+        : (await this._getAddressUTXOs()).map(
+            (utxo: UTXOSummary) =>
+              ({
+                txHash: utxo.txid,
+                confirmed: utxo.status.confirmed,
+                index: utxo.vout,
+                value: utxo.value,
+              } as UTXO)
+          );
 
     const tx = new Psbt({ network: this.network });
 
-    for (let i = 0; i < utxosToUse.length; i++) {
-      await (this.data.isLegacy
+    for (let i = 0; i < utxosToUse.length; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await (this.isLegacy
         ? this._addSegwitInput(tx, utxosToUse[i])
         : this._addNonSegwitInput(tx, utxosToUse[i]));
     }
 
     const feeRate = await this._getFeeRate();
     const satAmount = Bitcoin._btcToSats(amount);
-    const vBytes = this.data.isLegacy
+    const vBytes = this.isLegacy
       ? 148 * utxosToUse.length + 34 + 10
       : 68 * utxosToUse.length + 31 + 10.5;
     const fee = feeRate * Math.ceil(vBytes);
@@ -167,23 +173,17 @@ export class Bitcoin extends BaseBitcoin {
 
     return {
       tx: tx.toHex(),
-      derivationPath: [
-        44,
-        this.data.path.coinType,
-        this.data.path.account,
-        this.data.path.changeIndex,
-        this.data.path.addressIndex,
-      ],
+      derivationPath: this.pathParts,
     };
   }
 
   public async broadcastTx(
-    txHex: string,
-    signature: RawSignature,
-    customUrl?: string | undefined
+    txHex: string
+    // signature: RawSignature,
+    // customUrl?: string | undefined
   ): Promise<string> {
     // BTC Tx are automatically signed and resulting hex is signed, so no need to do anything special.
-    const tx = Psbt.fromHex(txHex, { network: this.network });
+    // const tx = Psbt.fromHex(txHex, { network: this.network });
     const txBroadcastRes = await this._request("/tx", {
       method: "POST",
       body: txHex,
@@ -195,8 +195,8 @@ export class Bitcoin extends BaseBitcoin {
   }
 
   public async getBalance() {
-    const { chain_stats } = await this._getAddressBalance();
-    const balance = chain_stats.funded_txo_sum - chain_stats.spent_txo_sum;
+    const { chain_stats: chainStats } = await this._getAddressBalance();
+    const balance = chainStats.funded_txo_sum - chainStats.spent_txo_sum;
     return Bitcoin._satsToBtc(balance);
   }
 }

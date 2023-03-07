@@ -1,7 +1,8 @@
 import { Box, Typography } from "@mui/material";
-import { Button, getAssetInfo, TextField } from "@fireblocks/recovery-shared";
+import { Button, getAssetInfo } from "@fireblocks/recovery-shared";
 import { BaseModal } from "../BaseModal";
-import { Row } from "../../../pages/accounts/vault/[accountId]";
+import type { Row } from "../../../pages/accounts/vault/[accountId]";
+import { Derivation } from "../../../context/Workspace";
 
 type Props = {
   open: boolean;
@@ -11,24 +12,24 @@ type Props = {
 
 type AddressProps = {
   type: "Permanent" | "Other";
-  addresses: string[];
+  derivations: Derivation[];
   hasSegwit: boolean;
 };
 
 // TODO: Fix why there are the incorrect addresses displayed, two segwit one legacy
 
-function Addresses({ type, addresses, hasSegwit }: AddressProps) {
+function Addresses({ type, derivations, hasSegwit }: AddressProps) {
   const addressesData = hasSegwit
-    ? addresses.map((address) => ({
+    ? derivations.map(({ address, isLegacy }) => ({
         address,
-        label: address.startsWith("bc1") ? "Segwit" : "Legacy",
+        label: isLegacy ? "Legacy" : "Segwit",
       }))
-    : addresses.map((address) => ({
+    : derivations.map(({ address }) => ({
         address,
         label: null,
       }));
 
-  // Sort address data for legacy on top
+  // Sort addresses to keep legacy on top
   addressesData.sort((a, b) => {
     if (a.label === "Legacy" && b.label === "Segwit") {
       return -1;
@@ -39,6 +40,8 @@ function Addresses({ type, addresses, hasSegwit }: AddressProps) {
     return 0;
   });
 
+  const data = type === "Permanent" ? addressesData : addressesData;
+
   return (
     <Box
       padding="1em"
@@ -47,16 +50,18 @@ function Addresses({ type, addresses, hasSegwit }: AddressProps) {
       sx={{ background: "#FFF" }}
     >
       <Typography variant="h6" textTransform="uppercase" marginTop="0">
-        {type} Address
+        {type} Address{addressesData.length > 1 ? "es" : ""}
       </Typography>
-      {(type === "Permanent" ? addressesData.slice(0, 2) : addressesData).map(
-        ({ address, label }, index) => (
-          <Typography key={index} variant="body1" paragraph>
-            {label ? `${label}: ` : ""}
-            {address}
-          </Typography>
-        )
-      )}
+      {data.map(({ address, label }, index, arr) => (
+        <Typography
+          key={address}
+          variant="body1"
+          paragraph={index + 1 < arr.length}
+        >
+          {label ? `${label}: ` : ""}
+          {address}
+        </Typography>
+      ))}
     </Box>
   );
 }
@@ -64,13 +69,15 @@ function Addresses({ type, addresses, hasSegwit }: AddressProps) {
 export function AddressesModal({ open, row, onClose }: Props) {
   const assetInfo = getAssetInfo(row?.assetId);
 
-  const permamentAddresses = row?.derivations
-    .filter((derivation) => derivation.type === "Permanent")
-    .map((derivation) => derivation.address);
+  const addressCount = row?.derivations.length ?? 0;
 
-  const depositAddresses = row?.derivations
-    .filter((derivation) => derivation.type === "Deposit")
-    .map((derivation) => derivation.address);
+  const permamentDerivations = row?.derivations.filter(
+    (derivation) => derivation.type === "Permanent"
+  );
+
+  const depositDerivations = row?.derivations.filter(
+    (derivation) => derivation.type === "Deposit"
+  );
 
   const hasSegwit = !!row?.assetId.startsWith("BTC");
 
@@ -78,24 +85,24 @@ export function AddressesModal({ open, row, onClose }: Props) {
     <BaseModal
       open={open}
       onClose={onClose}
-      title={`${assetInfo.name} Addresses`}
+      title={`${assetInfo.name} Address${addressCount > 1 ? "es" : ""}`}
       actions={
         <Button variant="text" onClick={onClose}>
           Close
         </Button>
       }
     >
-      {!!permamentAddresses?.length && (
+      {!!permamentDerivations?.length && (
         <Addresses
           type="Permanent"
-          addresses={permamentAddresses}
+          derivations={permamentDerivations}
           hasSegwit={hasSegwit}
         />
       )}
-      {!!depositAddresses?.length && (
+      {!!depositDerivations?.length && (
         <Addresses
           type="Other"
-          addresses={depositAddresses}
+          derivations={depositDerivations}
           hasSegwit={hasSegwit}
         />
       )}

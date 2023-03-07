@@ -1,8 +1,7 @@
-import { useId, useState } from "react";
+import { ReactNode, useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { decryptInput } from "../../lib/schemas";
 import {
   DialogProps,
   Dialog,
@@ -21,7 +20,7 @@ import {
   NextLinkComposed,
   monospaceFontFamily,
 } from "@fireblocks/recovery-shared";
-import { useWallet } from "../../context/Wallet";
+import { decryptInput } from "../../lib/schemas";
 
 type FormData = z.infer<typeof decryptInput>;
 
@@ -60,7 +59,6 @@ export const ConfirmationModal = ({
 
   const {
     register,
-    reset,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({
@@ -70,7 +68,7 @@ export const ConfirmationModal = ({
     },
   });
 
-  const onSubmit = async (formData: FormData) => {
+  const onSubmit = async () => {
     try {
       _onSubmit();
     } catch {
@@ -103,6 +101,104 @@ export const ConfirmationModal = ({
     </DialogContentText>
   );
 
+  let DialogChild: ReactNode;
+
+  if (isLoading) {
+    DialogChild = (
+      <DialogContent
+        sx={{
+          padding: "3rem",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <CircularProgress size="48px" />
+      </DialogContent>
+    );
+  } else if (error) {
+    DialogChild = (
+      <>
+        <DialogTitle id={headingId} variant="h1">
+          Transaction Failed
+        </DialogTitle>
+        <DialogContent sx={{ padding: "1rem" }}>
+          <DialogContentText>{txDescription}</DialogContentText>
+          <Divider sx={{ margin: "1rem 0" }} />
+          <DialogContentText
+            fontFamily={monospaceFontFamily}
+            color={(theme) => theme.palette.error.main}
+            sx={{ whiteSpace: "pre-wrap" }}
+          >
+            {error.message}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ padding: "1rem" }}>
+          <Button onClick={onClose}>Close</Button>
+        </DialogActions>
+      </>
+    );
+  } else if (txUrl) {
+    DialogChild = (
+      <>
+        <DialogTitle id={headingId} variant="h1">
+          Sent Transaction
+        </DialogTitle>
+        <DialogContent sx={{ padding: "1rem" }}>
+          <DialogContentText>{txDescription}</DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ padding: "1rem" }}>
+          <Button variant="outlined" onClick={onClose}>
+            Close
+          </Button>
+          <Button
+            component={NextLinkComposed}
+            to={txUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{ marginLeft: "8px" }}
+          >
+            View Transaction
+          </Button>
+        </DialogActions>
+      </>
+    );
+  } else {
+    DialogChild = (
+      <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+        <DialogTitle id={headingId} variant="h1">
+          Confirm Transaction
+        </DialogTitle>
+        <DialogContent sx={{ padding: "1rem" }}>
+          <DialogContentText>{txDescription}</DialogContentText>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            marginTop="2em"
+          >
+            <TextField
+              id="pin"
+              type="password"
+              label="Private Key PIN"
+              helpText={decryptInput.shape.pin.description}
+              error={errors.pin?.message ?? decryptionError}
+              inputProps={{ minLength: 6, maxLength: 6 }}
+              autoFocus
+              {...register("pin")}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ padding: "1rem" }}>
+          <Button variant="outlined" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit">Send Transaction</Button>
+        </DialogActions>
+      </Box>
+    );
+  }
+
   return (
     <Dialog
       aria-labelledby={headingId}
@@ -113,93 +209,7 @@ export const ConfirmationModal = ({
       onClose={onClose}
       {...props}
     >
-      {isLoading ? (
-        <DialogContent
-          sx={{
-            padding: "3rem",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <CircularProgress size="48px" />
-        </DialogContent>
-      ) : error ? (
-        <>
-          <DialogTitle id={headingId} variant="h1">
-            Transaction Failed
-          </DialogTitle>
-          <DialogContent sx={{ padding: "1rem" }}>
-            <DialogContentText>{txDescription}</DialogContentText>
-            <Divider sx={{ margin: "1rem 0" }} />
-            <DialogContentText
-              fontFamily={monospaceFontFamily}
-              color={(theme) => theme.palette.error.main}
-              sx={{ whiteSpace: "pre-wrap" }}
-            >
-              {error.message}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions sx={{ padding: "1rem" }}>
-            <Button onClick={onClose}>Close</Button>
-          </DialogActions>
-        </>
-      ) : txUrl ? (
-        <>
-          <DialogTitle id={headingId} variant="h1">
-            Sent Transaction
-          </DialogTitle>
-          <DialogContent sx={{ padding: "1rem" }}>
-            <DialogContentText>{txDescription}</DialogContentText>
-          </DialogContent>
-          <DialogActions sx={{ padding: "1rem" }}>
-            <Button variant="outlined" onClick={onClose}>
-              Close
-            </Button>
-            <Button
-              component={NextLinkComposed}
-              to={txUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{ marginLeft: "8px" }}
-            >
-              View Transaction
-            </Button>
-          </DialogActions>
-        </>
-      ) : (
-        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-          <DialogTitle id={headingId} variant="h1">
-            Confirm Transaction
-          </DialogTitle>
-          <DialogContent sx={{ padding: "1rem" }}>
-            <DialogContentText>{txDescription}</DialogContentText>
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              marginTop="2em"
-            >
-              <TextField
-                id="pin"
-                type="password"
-                label="Private Key PIN"
-                helpText={decryptInput.shape.pin.description}
-                error={errors.pin?.message ?? decryptionError}
-                inputProps={{ minLength: 6, maxLength: 6 }}
-                autoFocus
-                {...register("pin")}
-              />
-            </Box>
-          </DialogContent>
-          <DialogActions sx={{ padding: "1rem" }}>
-            <Button variant="outlined" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit">Send Transaction</Button>
-          </DialogActions>
-        </Box>
-      )}
+      {DialogChild}
     </Dialog>
   );
 };

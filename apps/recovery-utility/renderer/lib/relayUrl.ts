@@ -1,9 +1,9 @@
 import JSONCrush from "jsoncrush";
-import { RelayUrlParameters } from "@fireblocks/recovery-shared";
+import { RelayWalletUrlParameters } from "@fireblocks/recovery-shared";
 
 type RelayUrlInput = {
   baseUrl: string;
-  data: RelayUrlParameters;
+  data: RelayWalletUrlParameters;
 };
 
 export const getRelayUrl = ({ baseUrl, data }: RelayUrlInput) => {

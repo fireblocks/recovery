@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
-import { AssetId, Button } from "@fireblocks/recovery-shared";
+import { Button } from "@fireblocks/recovery-shared";
 import { Box, Grid, Typography, Breadcrumbs } from "@mui/material";
 import {
   GridToolbarQuickFilter,
@@ -10,7 +10,7 @@ import {
 } from "@mui/x-data-grid";
 import { Add } from "@mui/icons-material";
 import type { NextPageWithLayout } from "../../_app";
-import { useWorkspace, VaultAccount } from "../../../context/Workspace";
+import { useWorkspace } from "../../../context/Workspace";
 import { Layout } from "../../../components/Layout";
 import { VaultAccountIcon, WithdrawIcon } from "../../../components/Icons";
 import { DataGrid } from "../../../components/DataGrid";
@@ -112,7 +112,7 @@ const Vault: NextPageWithLayout = () => {
         sortable: false,
         filterable: false,
         getApplyQuickFilterFn: undefined,
-        renderCell: (params) => (
+        renderCell: () => (
           <Box
             width={40}
             height={40}
@@ -185,7 +185,7 @@ const Vault: NextPageWithLayout = () => {
         name: account.name,
         balance: undefined,
         addresses: Array.from(account.wallets)
-          .flatMap(([_, wallet]) => wallet.derivations)
+          .flatMap(([, wallet]) => wallet.derivations)
           .map((derivation) => derivation.address),
       })),
     [vaultAccounts]

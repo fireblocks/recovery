@@ -12,19 +12,20 @@ export type GetWalletsVariables = z.infer<typeof deriveKeysInput> & {
   fprv?: string;
   assetId: AssetId;
   isLegacy?: boolean;
+  isTestnet?: boolean;
 };
 
 const getDerivationInputs = ({
   xprv,
   fprv,
-  assetId,
   accountId,
   indexStart,
   indexEnd,
-}: GetWalletsVariables) => {
-  const isTestnet = assetId.includes("TEST");
-
-  return Array.from(
+  assetId,
+  isTestnet,
+  isLegacy,
+}: GetWalletsVariables) =>
+  Array.from(
     { length: indexEnd - indexStart + 1 },
     (_, i) =>
       ({
@@ -36,36 +37,31 @@ const getDerivationInputs = ({
           addressIndex: indexStart + i,
         },
         isTestnet,
-        isLegacy: false,
+        isLegacy,
       } as Input)
   );
-};
 
-export const deriveWallet = async (input: GetWalletsVariables) => {
+export const deriveWallet = (input: GetWalletsVariables) => {
   const inputs = getDerivationInputs(input);
 
   if (input.assetId.startsWith("BTC")) {
     inputs.push(...getDerivationInputs({ ...input, isLegacy: true }));
   }
 
-  const derivations = (
-    await Promise.all(inputs.map(baseDeriveWallet))
-  ).map<Derivation>((data) => ({
-    pathParts: [
-      44,
-      data.path.coinType,
-      data.path.account,
-      data.path.changeIndex,
-      data.path.addressIndex,
-    ],
-    address: data.address,
-    type: data.path.addressIndex > 0 ? "Deposit" : "Permanent",
-    description: undefined,
-    tag: undefined,
-    publicKey: data.publicKey,
-    privateKey: data.privateKey,
-    wif: data.wif,
-  }));
+  const derivations = inputs
+    .map(baseDeriveWallet)
+    .map<Derivation>((wallet) => ({
+      isTestnet: wallet.isTestnet,
+      isLegacy: wallet.isLegacy,
+      pathParts: wallet.pathParts,
+      address: wallet.address,
+      type: wallet.path.addressIndex > 0 ? "Deposit" : "Permanent",
+      description: undefined,
+      tag: undefined,
+      publicKey: wallet.publicKey,
+      privateKey: wallet.privateKey,
+      wif: wallet.wif,
+    }));
 
   return derivations;
 };

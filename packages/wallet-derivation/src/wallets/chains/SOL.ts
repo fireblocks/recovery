@@ -1,5 +1,5 @@
 import { encodeBase58 } from "ethers";
-import { Input, AddressInput } from "../../types";
+import { Input } from "../../types";
 import { EdDSAWallet } from "../EdDSAWallet";
 
 export class Solana extends EdDSAWallet {
@@ -7,7 +7,7 @@ export class Solana extends EdDSAWallet {
     super(input, 501);
   }
 
-  getAddress({ publicKey }: AddressInput) {
-    return encodeBase58(publicKey);
+  protected getAddress() {
+    return encodeBase58(this.publicKey);
   }
 }

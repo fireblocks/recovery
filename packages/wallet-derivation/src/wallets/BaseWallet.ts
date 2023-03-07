@@ -1,83 +1,88 @@
-import {
-  Algorithm,
-  Input,
-  DerivationInput,
-  AddressInput,
-  Derivation,
-  Wallet,
-} from "../types";
+import { Algorithm, HDPath, HDPathParts, Input, Derivation } from "../types";
 
 export abstract class BaseWallet {
-  input: Omit<Input, "xprv"> & { xprv?: never };
+  private internalAddress?: string;
 
-  data: Wallet;
+  private internalEvmAddress?: string;
+
+  public assetId: string;
+
+  public path: HDPath;
+
+  public publicKey: string;
+
+  public privateKey?: string;
+
+  public wif?: string;
+
+  public isTestnet: boolean;
+
+  public isLegacy: boolean;
+
+  public get pathParts(): HDPathParts {
+    return [
+      44,
+      this.path.coinType,
+      this.path.account,
+      this.path.changeIndex,
+      this.path.addressIndex,
+    ];
+  }
+
+  public get address() {
+    if (this.internalAddress) {
+      return this.internalAddress;
+    }
+
+    this.internalAddress = this.getAddress(this.internalEvmAddress);
+
+    this.internalEvmAddress = undefined;
+
+    return this.internalAddress;
+  }
 
   constructor(input: Input, defaultCoinType: number, algorithm: Algorithm) {
-    this.input = { ...input, xprv: undefined, fprv: undefined };
+    this.assetId = input.assetId;
+    this.isLegacy = input.isLegacy ?? false;
+    this.isTestnet = input.isTestnet ?? false;
 
-    const path = {
-      coinType: input.isTestnet ? 1 : defaultCoinType,
+    this.path = {
+      coinType: this.isTestnet ? 1 : defaultCoinType,
       account: 0,
       changeIndex: 0,
       addressIndex: 0,
       ...input.path,
     };
 
-    const pathParts = [
-      44,
-      path.coinType,
-      path.account,
-      path.changeIndex,
-      path.addressIndex,
-    ] as const;
-
     const isXprvDerivation =
       typeof input.xprv === "string" || typeof input.fprv === "string";
 
     const isEdDSA = algorithm === "EDDSA";
 
-    const xprv = isEdDSA ? input.fprv : input.xprv;
+    const xprvKey = isEdDSA ? "fprv" : "xprv";
 
-    const xpub = isEdDSA ? input.fpub : input.xpub;
+    const xpubKey = isEdDSA ? "fpub" : "xpub";
 
-    const extendedKey = isXprvDerivation ? xprv : xpub;
+    const extendedKey = isXprvDerivation ? input[xprvKey] : input[xpubKey];
 
     if (!extendedKey) {
-      throw new Error("Extended key is required (xprv or xpub)");
+      throw new Error(
+        `${algorithm} extended key is required (${xprvKey} or ${xpubKey})`
+      );
     }
 
-    const { publicKey, evmAddress, privateKey, wif } = this.derive({
-      extendedKey,
-      pathParts,
-    });
+    const { publicKey, evmAddress, privateKey, wif } = this.derive(extendedKey);
 
-    const { assetId, isTestnet, isLegacy } = this.input;
-
-    const address = this.getAddress({ publicKey, evmAddress });
-
-    const publicWallet: Wallet = {
-      assetId,
-      path,
-      address,
-      publicKey,
-      isTestnet,
-      isLegacy,
-    };
+    this.publicKey = publicKey;
+    this.internalEvmAddress = evmAddress;
 
     if (isXprvDerivation) {
-      const privateWallet: Wallet = {
-        ...publicWallet,
-        privateKey,
-        wif,
-      };
-
-      this.data = privateWallet;
-    } else {
-      this.data = publicWallet;
+      this.privateKey = privateKey;
+      this.wif = wif;
     }
   }
 
-  abstract derive(derivationInput: DerivationInput): Derivation;
+  protected abstract derive(extendedKey: string): Derivation;
 
-  abstract getAddress(derivation: AddressInput): string;
+  protected abstract getAddress(evmAddress?: string): string;
 }

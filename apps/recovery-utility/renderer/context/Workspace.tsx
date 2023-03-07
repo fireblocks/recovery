@@ -3,6 +3,7 @@ import {
   useContext,
   useState,
   useEffect,
+  useCallback,
   ReactNode,
   Dispatch,
   SetStateAction,
@@ -24,6 +25,7 @@ export type Derivation = {
   pathParts: number[];
   address: string;
   type: "Permanent" | "Deposit";
+  isLegacy?: boolean;
   description?: string;
   tag?: string;
   publicKey?: string;
@@ -45,17 +47,11 @@ export type VaultAccount = {
   wallets: Map<AssetId, Wallet>;
 };
 
-const splitPath = (path: string) => path.split(",").map((p) => parseInt(p));
+// const splitPath = (path: string) => path.split(",").map((p) => parseInt(p, 10));
 
 interface IWorkspaceContext {
   extendedKeys?: ExtendedKeys;
   asset?: AssetInfo;
-  pathParts: number[];
-  address?: string;
-  publicKey?: string;
-  privateKey?: string;
-  wif?: string;
-  isTestnet?: boolean;
   vaultAccounts: Map<number, VaultAccount>;
   restoreVaultAccounts: (
     csvFile: File,
@@ -70,12 +66,6 @@ interface IWorkspaceContext {
 const defaultValue: IWorkspaceContext = {
   extendedKeys: undefined,
   asset: undefined,
-  pathParts: [],
-  address: undefined,
-  publicKey: undefined,
-  privateKey: undefined,
-  wif: undefined,
-  isTestnet: undefined,
   vaultAccounts: new Map(),
   restoreVaultAccounts: async () => undefined,
   restoreVaultAccount: () => 0,
@@ -139,24 +129,72 @@ type Props = {
 //   return sortedWallets;
 // };
 
+const testIsLegacy = (assetId: string, address: string) => {
+  if (!assetId.startsWith("BTC")) {
+    return false;
+  }
+
+  if (address.startsWith("bc1") || address.startsWith("tb1")) {
+    return false;
+  }
+
+  return true;
+};
+
+const deriveVaultAccount = (
+  { xprv, fprv }: Pick<ExtendedKeys, "xprv" | "fprv">,
+  account: VaultAccount
+) => {
+  // Convert account.wallets to an array
+  const wallets = [...account.wallets.values()];
+
+  const derivedWalletsMap = wallets.map<[AssetId, Wallet]>((wallet) => {
+    const { assetId, derivations: oldDerivations } = wallet;
+
+    if (!assetsInfo[assetId]) {
+      return [assetId, wallet];
+    }
+
+    const indexStart = oldDerivations[0].pathParts[4];
+    const indexEnd = oldDerivations[oldDerivations.length - 1].pathParts[4];
+
+    const derivations = deriveWallet({
+      xprv,
+      fprv,
+      assetId,
+      accountId: account.id,
+      indexStart,
+      indexEnd,
+    });
+
+    return [assetId, { ...wallet, derivations }];
+  });
+
+  return new Map(derivedWalletsMap);
+};
+
+const deriveAllVaultAccounts = (
+  extendedKeys: Pick<ExtendedKeys, "xprv" | "fprv">,
+  vaultAccounts: Map<number, VaultAccount>
+) => {
+  const accounts = [...vaultAccounts.values()];
+
+  const derivedAccountsMap = accounts.map<[number, VaultAccount]>((account) => {
+    const wallets = deriveVaultAccount(extendedKeys, account);
+
+    return [account.id, { ...account, wallets }];
+  });
+
+  return new Map(derivedAccountsMap);
+};
+
 export const WorkspaceProvider = ({ children }: Props) => {
-  const {
-    push,
-    query: {
-      assetId: _assetId,
-      path: _path,
-      address: _address,
-      publicKey: _publicKey,
-      privateKey: _privateKey,
-      wif: _wif,
-      isTestnet: _isTestnet,
-    },
-  } = useRouter();
+  const { push, query } = useRouter();
 
   const { idleMinutes } = useSettings();
 
   const assetId =
-    typeof _assetId === "string" ? (_assetId as AssetId) : undefined;
+    typeof query.assetId === "string" ? (query.assetId as AssetId) : undefined;
 
   const asset = assetId ? getAssetInfo(assetId) : undefined;
 
@@ -166,165 +204,140 @@ export const WorkspaceProvider = ({ children }: Props) => {
     defaultValue.vaultAccounts
   );
 
-  const restoreVaultAccounts = async (
-    csvFile: File,
-    extendedKeys?: ExtendedKeys
-  ) => {
-    const tmpAccounts = new Map<number, VaultAccount>();
+  const restoreVaultAccounts = useCallback(
+    async (csvFile: File, { xprv, fprv }: ExtendedKeys) => {
+      const tmpAccounts = new Map<number, VaultAccount>();
 
-    const handleRow = (parsedRow: ParsedRow) => {
-      const assetId = parsedRow.assetId as AssetId;
+      const handleRow = (parsedRow: ParsedRow) => {
+        const parsedAssetId = parsedRow.assetId as AssetId;
 
-      const isTestnet = assetId.includes("TEST");
+        const isTestnet = parsedAssetId.includes("TEST");
 
-      const derivation: Derivation = {
-        pathParts: parsedRow.pathParts,
-        address: parsedRow.address,
-        type: parsedRow.addressType,
-        description: parsedRow.addressDescription,
-        tag: parsedRow.tag,
-        publicKey: parsedRow.publicKey,
-        privateKey: parsedRow.privateKey,
-        wif: parsedRow.privateKeyWif,
-      };
+        const derivation: Derivation = {
+          pathParts: parsedRow.pathParts,
+          address: parsedRow.address,
+          type: parsedRow.addressType,
+          description: parsedRow.addressDescription,
+          tag: parsedRow.tag,
+          publicKey: parsedRow.publicKey,
+          privateKey: parsedRow.privateKey,
+          wif: parsedRow.privateKeyWif,
+          isLegacy: testIsLegacy(parsedAssetId, parsedRow.address),
+        };
 
-      const wallet: Wallet = {
-        assetId,
-        isTestnet,
-        derivations: [derivation],
-      };
+        const wallet: Wallet = {
+          assetId: parsedAssetId,
+          isTestnet,
+          derivations: [derivation],
+        };
 
-      const account = tmpAccounts.get(parsedRow.accountId);
+        const account = tmpAccounts.get(parsedRow.accountId);
 
-      if (account) {
-        const existingWallet = account.wallets.get(assetId);
+        if (account) {
+          const existingWallet = account.wallets.get(parsedAssetId);
 
-        if (existingWallet) {
-          existingWallet.derivations.push(derivation);
+          if (existingWallet) {
+            existingWallet.derivations.push(derivation);
 
-          existingWallet.derivations.sort((a, b) => {
-            if (a.pathParts[4] > b.pathParts[4]) {
-              return 1;
-            }
+            existingWallet.derivations.sort((a, b) => {
+              if (a.pathParts[4] > b.pathParts[4]) {
+                return 1;
+              }
 
-            if (a.pathParts[4] < b.pathParts[4]) {
-              return -1;
-            }
+              if (a.pathParts[4] < b.pathParts[4]) {
+                return -1;
+              }
 
-            return 0;
-          });
+              return 0;
+            });
 
-          account.wallets.set(assetId, existingWallet);
+            account.wallets.set(parsedAssetId, existingWallet);
+          } else {
+            account.wallets.set(parsedAssetId, wallet);
+          }
         } else {
-          account.wallets.set(assetId, wallet);
+          tmpAccounts.set(parsedRow.accountId, {
+            id: parsedRow.accountId,
+            name: parsedRow.accountName ?? `Account ${parsedRow.accountId}`,
+            wallets: new Map<AssetId, Wallet>([[parsedAssetId, wallet]]),
+          });
         }
-      } else {
-        tmpAccounts.set(parsedRow.accountId, {
-          id: parsedRow.accountId,
-          name: parsedRow.accountName ?? `Account ${parsedRow.accountId}`,
-          wallets: new Map<AssetId, Wallet>([[assetId, wallet]]),
-        });
-      }
-    };
+      };
 
-    setVaultAccounts(defaultValue.vaultAccounts);
+      setVaultAccounts(defaultValue.vaultAccounts);
 
-    await csvImport(csvFile, handleRow);
+      await csvImport(csvFile, handleRow);
 
-    for (const [accountId, account] of tmpAccounts) {
-      for (const [assetId, wallet] of account.wallets) {
-        if (!assetsInfo[assetId]) {
-          continue;
+      setVaultAccounts(deriveAllVaultAccounts({ xprv, fprv }, tmpAccounts));
+    },
+    [setVaultAccounts]
+  );
+
+  const restoreVaultAccount = useCallback(
+    (name: string) => {
+      let accountId = vaultAccounts.size;
+
+      setVaultAccounts((prev) => {
+        const accounts = new Map(prev);
+
+        if (accountId > 0) {
+          const accountIds = Array.from(accounts.keys());
+
+          accountId = Math.max(...accountIds) + 1;
         }
 
-        const indexStart = wallet.derivations[0].pathParts[4];
-        const indexEnd =
-          wallet.derivations[wallet.derivations.length - 1].pathParts[4];
-
-        wallet.derivations = await deriveWallet({
-          xprv: extendedKeys?.xprv,
-          fprv: extendedKeys?.fprv,
-          assetId,
-          accountId,
-          indexStart,
-          indexEnd,
+        accounts.set(accountId, {
+          id: accountId,
+          name,
+          wallets: new Map<AssetId, Wallet>(),
         });
 
-        account.wallets.set(assetId, wallet);
-
-        tmpAccounts.set(accountId, account);
-      }
-    }
-
-    setVaultAccounts(tmpAccounts);
-  };
-
-  const restoreVaultAccount = (name: string) => {
-    let accountId = vaultAccounts.size;
-
-    setVaultAccounts((prev) => {
-      const _vaultAccounts = new Map(prev);
-
-      if (accountId > 0) {
-        const accountIds = Array.from(_vaultAccounts.keys());
-
-        accountId = Math.max(...accountIds) + 1;
-      }
-
-      _vaultAccounts.set(accountId, {
-        id: accountId,
-        name,
-        wallets: new Map<AssetId, Wallet>(),
+        return accounts;
       });
 
-      return _vaultAccounts;
-    });
+      return accountId;
+    },
+    [vaultAccounts.size]
+  );
 
-    return accountId;
-  };
-
-  const restoreWallet = async (accountId: number, assetId: string) => {
-    const derivations = await deriveWallet({
-      xprv: extendedKeys?.xprv,
-      fprv: extendedKeys?.fprv,
-      assetId: assetId as AssetId,
-      accountId,
-      indexStart: 0,
-      indexEnd: 0,
-    });
-
-    setVaultAccounts((prev) => {
-      const _vaultAccounts = new Map(prev);
-
-      const account = _vaultAccounts.get(accountId);
-
-      if (account) {
-        const wallet = account.wallets.get(assetId as AssetId);
-
-        // if (!wallet) {
-        account.wallets.set(assetId as AssetId, {
-          assetId: assetId as AssetId,
-          isTestnet: assetId.includes("_TEST"),
-          derivations,
-        });
-
-        _vaultAccounts.set(accountId, account);
-        // }
+  const restoreWallet = useCallback(
+    (accountId: number, walletAssetId: string) => {
+      if (!extendedKeys?.xprv || !extendedKeys?.fprv) {
+        throw new Error("Extended private keys are not set");
       }
 
-      return _vaultAccounts;
-    });
-  };
+      const derivations = deriveWallet({
+        xprv: extendedKeys?.xprv,
+        fprv: extendedKeys?.fprv,
+        assetId: walletAssetId as AssetId,
+        accountId,
+        indexStart: 0,
+        indexEnd: 0,
+      });
 
-  const pathParts = typeof _path === "string" ? splitPath(_path) : [];
-  const address = typeof _address === "string" ? _address : undefined;
-  const publicKey = typeof _publicKey === "string" ? _publicKey : undefined;
-  const privateKey = typeof _privateKey === "string" ? _privateKey : undefined;
-  const wif = typeof _wif === "string" ? _wif : undefined;
-  const isTestnet =
-    typeof _isTestnet === "string"
-      ? !["false", "0"].includes(_isTestnet.toLowerCase())
-      : undefined;
+      setVaultAccounts((prev) => {
+        const accounts = new Map(prev);
+
+        const account = accounts.get(accountId);
+
+        if (account) {
+          const wallet = account.wallets.get(assetId as AssetId);
+
+          account.wallets.set(assetId as AssetId, {
+            assetId: walletAssetId as AssetId,
+            isTestnet: walletAssetId.includes("TEST"),
+            ...wallet,
+            derivations,
+          });
+
+          accounts.set(accountId, account);
+        }
+
+        return accounts;
+      });
+    },
+    [assetId, extendedKeys?.fprv, extendedKeys?.xprv]
+  );
 
   const reset = () => {
     setExtendedKeys(undefined);
@@ -335,29 +348,26 @@ export const WorkspaceProvider = ({ children }: Props) => {
   useEffect(() => {
     let abortController: AbortController | undefined;
 
-    const _initIdleDetector = async () => {
+    const initIdleDetectorHook = async () => {
       abortController = await initIdleDetector(reset, idleMinutes);
     };
 
-    _initIdleDetector();
+    initIdleDetectorHook();
 
     return () => abortController?.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idleMinutes]);
 
   if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
+    // eslint-disable-next-line no-console
     console.info("Vault Accounts", vaultAccounts);
   }
 
-  const value: IWorkspaceContext = {
+  // TODO: Fix
+  // eslint-disable-next-line react/jsx-no-constructed-context-values
+  const value = {
     extendedKeys,
     asset,
-    pathParts,
-    address,
-    publicKey,
-    privateKey,
-    wif,
-    isTestnet,
     vaultAccounts,
     restoreVaultAccounts,
     restoreVaultAccount,

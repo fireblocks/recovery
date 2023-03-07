@@ -6,6 +6,11 @@
   "extraMetadata": {
     "name": "Fireblocks Recovery Utility"
   },
+  "protocols": {
+    "name": "Recovery Relay Responses",
+    "schemes": ["fireblocks-recovery"],
+    "role": "Viewer"
+  },
   "directories": {
     "output": "dist",
     "buildResources": "resources"

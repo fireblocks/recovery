@@ -220,7 +220,7 @@ const Recover: NextPageWithLayout = () => {
   );
 };
 
-Recover.getLayout = (page, router) => (
+Recover.getLayout = (page) => (
   <Layout showBack hideNavigation>
     {page}
   </Layout>

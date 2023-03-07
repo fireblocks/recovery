@@ -1,12 +1,7 @@
+import { BaseWallet as DerivationBaseWallet } from "@fireblocks/wallet-derivation";
 import { AccountData, RawSignature, TxPayload, UTXO } from "./types";
 
-export abstract class BaseWallet {
-  protected address: string | undefined;
-
-  public getAddress(): string | undefined {
-    return this.address;
-  }
-
+export abstract class BaseWallet extends DerivationBaseWallet {
   public abstract getBalance(): Promise<number>;
 
   public abstract prepare(): Promise<AccountData>;

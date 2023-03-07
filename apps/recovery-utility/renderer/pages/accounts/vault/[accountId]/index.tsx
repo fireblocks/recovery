@@ -92,7 +92,7 @@ const VaultAccount: NextPageWithLayout = () => {
 
   const accountId =
     typeof router.query.accountId === "string"
-      ? parseInt(router.query.accountId)
+      ? parseInt(router.query.accountId, 10)
       : undefined;
 
   const vaultAccount =

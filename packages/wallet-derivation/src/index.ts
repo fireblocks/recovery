@@ -1,14 +1,17 @@
-import { Input, Wallet } from "./types";
+import { Input } from "./types";
+import { BaseWallet } from "./wallets/BaseWallet";
 import { getWallet } from "./wallets/chains";
 
-export const deriveWallet = (input: Input): Wallet => {
+export const deriveWallet = (input: Input): BaseWallet => {
   const WalletInstance = getWallet(input.assetId);
 
-  const { data } = new WalletInstance(input);
+  const wallet = new WalletInstance(input);
 
-  return data;
+  return wallet;
 };
+
+export * from "./types";
 
 export * from "./wallets/chains";
 
-export type { Input, Wallet };
+export { BaseWallet };

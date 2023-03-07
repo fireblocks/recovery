@@ -1,8 +1,9 @@
 import * as web3 from "@solana/web3.js";
 import { Solana as BaseSolana } from "@fireblocks/wallet-derivation";
-import { RawSignature, AccountData, UTXO, TxPayload } from "../types";
+import { RawSignature, AccountData, TxPayload } from "../types";
+import { BaseWallet } from "../BaseWallet";
 
-export class Solana extends BaseSolana {
+export class Solana extends BaseSolana implements BaseWallet {
   private readonly connection: web3.Connection;
 
   private readonly web3PubKey: web3.PublicKey;
@@ -26,9 +27,7 @@ export class Solana extends BaseSolana {
       : "https://try-rpc.mainnet.solana.blockdaemon.tech";
 
     this.connection = new web3.Connection(endpoint, "confirmed");
-    this.web3PubKey = new web3.PublicKey(
-      Buffer.from(this.data.publicKey, "hex")
-    );
+    this.web3PubKey = new web3.PublicKey(Buffer.from(this.publicKey, "hex"));
   }
 
   public async getBalance() {
@@ -41,8 +40,8 @@ export class Solana extends BaseSolana {
 
   public async broadcastTx(
     tx: string,
-    sig: RawSignature,
-    _?: string | undefined
+    sig: RawSignature
+    // _?: string | undefined
   ): Promise<string> {
     const unsignedTx = web3.VersionedTransaction.deserialize(
       Buffer.from(tx, "hex")
@@ -67,10 +66,10 @@ export class Solana extends BaseSolana {
 
   public async generateTx(
     to: string,
-    amount: number,
-    memo?: string | undefined,
-    utxos?: UTXO[] | undefined,
-    additionalParameters?: Map<string, object> | undefined
+    amount: number
+    // memo?: string | undefined,
+    // utxos?: UTXO[] | undefined,
+    // additionalParameters?: Map<string, object> | undefined
   ): Promise<TxPayload> {
     const tx: web3.Transaction = new web3.Transaction().add(
       web3.SystemProgram.transfer({
@@ -98,7 +97,10 @@ export class Solana extends BaseSolana {
 
     // Wait for blockhash rotation to give us as much time as possible
     let txBlockHash = (await this.connection.getLatestBlockhash()).blockhash;
+
+    // eslint-disable-next-line no-constant-condition
     while (true) {
+      // eslint-disable-next-line no-await-in-loop
       const currentBlockHash = (await this.connection.getLatestBlockhash())
         .blockhash;
       if (txBlockHash !== currentBlockHash) {
@@ -110,13 +112,7 @@ export class Solana extends BaseSolana {
     tx.recentBlockhash = txBlockHash;
     const serializedTx = tx.serializeMessage();
     return {
-      derivationPath: [
-        44,
-        this.data.path.coinType,
-        this.data.path.account,
-        this.data.path.changeIndex,
-        this.data.path.addressIndex,
-      ],
+      derivationPath: this.pathParts,
       tx: serializedTx.toString("hex"),
     };
   }

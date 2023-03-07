@@ -3,7 +3,7 @@ import { toBigIntBE } from "bigint-buffer";
 import { decode } from "bs58check";
 import { createHmac } from "crypto";
 import { hexlify, toBeHex } from "ethers";
-import { Input, DerivationInput } from "../../types";
+import { Input } from "../../types";
 import { BaseWallet } from "../BaseWallet";
 import {
   hexToNumber,
@@ -59,11 +59,11 @@ export abstract class EdDSAWallet extends BaseWallet {
   }
 
   /**
-   * Derive an address from an fPRV
-   * @param fprv The fireblocks extended private key
+   * Derive an address from an fprv
+   * @param extendedKey The fprv/fpub to derive from
    * @param derivationPath The derivation path to use
    */
-  derive({ extendedKey, pathParts }: DerivationInput) {
+  protected derive(extendedKey: string) {
     const decodedKey = decode(extendedKey);
 
     if (decodedKey.length !== 78) {
@@ -92,7 +92,7 @@ export abstract class EdDSAWallet extends BaseWallet {
       prvKey = _0n;
     }
 
-    [pubKey, prvKey, chainCode] = pathParts.reduce(
+    [pubKey, prvKey, chainCode] = this.pathParts.reduce(
       ([_pubKey, _prvKey, _chainCode], pathPart) =>
         EdDSAWallet.deriveNextKeyLevel(_pubKey, _prvKey, _chainCode, pathPart),
       [pubKey, prvKey, chainCode]
@@ -115,8 +115,12 @@ export abstract class EdDSAWallet extends BaseWallet {
    * @param privateKey hex-encoded private key
    * @returns Fireblocks EdDSA signature
    */
-  static async eddsaSign(message: string | Uint8Array, privateKey: string) {
-    const privateKeyInt = hexToNumber(privateKey);
+  protected async sign(message: string | Uint8Array) {
+    if (!this.privateKey) {
+      throw new Error("Cannot sign without a derived private key");
+    }
+
+    const privateKeyInt = hexToNumber(this.privateKey);
     const privateKeyBytes = numberToBytesLE(privateKeyInt);
     const messagesBytes =
       typeof message === "string" ? Buffer.from(message) : message;

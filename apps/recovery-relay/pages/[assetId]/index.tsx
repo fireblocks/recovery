@@ -1,7 +1,7 @@
 import { GetStaticProps, GetStaticPaths } from "next";
 import Head from "next/head";
 import { useId, useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -45,6 +45,8 @@ type Props = {
 };
 
 const Wallet: NextPageWithLayout<Props> = ({ assetId }: Props) => {
+  const queryClient = useQueryClient();
+
   const { address, walletInstance, handleTransaction } = useWallet();
 
   const asset = getAssetInfo(assetId);
@@ -141,13 +143,13 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }: Props) => {
       return txPayload;
     },
     onSuccess: () => {
-      // setTxHash(txHash);
-      // queryClient.setQueryData(balanceQueryKey, (balance: number | undefined) =>
-      //   typeof balance === "number"
-      //     ? Math.max(balance - values.amount, 0)
-      //     : balance
-      // );
-      // setTimeout(balanceQuery.refetch, 1000);
+      setTxHash(txHash);
+      queryClient.setQueryData(balanceQueryKey, (balance: number | undefined) =>
+        typeof balance === "number"
+          ? Math.max(balance - values.amount, 0)
+          : balance
+      );
+      setTimeout(balanceQuery.refetch, 1000);
     },
     onError: (error: Error) => {
       console.error(error);

@@ -1,14 +1,10 @@
-import { ethers } from "ethers";
+import { providers, utils, UnsignedTransaction } from "ethers";
 import { Ethereum as BaseEthereum } from "@fireblocks/wallet-derivation";
-import {
-  serialize,
-  parse,
-  UnsignedTransaction,
-} from "@ethersproject/transactions";
 import { AccountData, UTXO, TxPayload, RawSignature } from "../types";
+import { BaseWallet } from "../BaseWallet";
 
-export class Ethereum extends BaseEthereum {
-  private readonly provider: ethers.providers.JsonRpcProvider;
+export class Ethereum extends BaseEthereum implements BaseWallet {
+  private readonly provider: providers.JsonRpcProvider;
 
   constructor(
     xpub: string,
@@ -27,13 +23,13 @@ export class Ethereum extends BaseEthereum {
     const cluster = isTestnet ? "goerli" : "mainnet";
     const endpoint = `https://${cluster}.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161`;
 
-    this.provider = new ethers.providers.JsonRpcProvider(endpoint);
+    this.provider = new providers.JsonRpcProvider(endpoint);
   }
 
   public async getBalance() {
-    const wei = await this.provider.getBalance(this.data.address);
+    const wei = await this.provider.getBalance(this.address);
 
-    const balance = ethers.utils.formatEther(wei);
+    const balance = utils.formatEther(wei);
 
     return Number(balance);
   }
@@ -53,13 +49,13 @@ export class Ethereum extends BaseEthereum {
     additionalParameters?: Map<string, object> | undefined
   ): Promise<TxPayload> {
     const nonce = await this.provider.getTransactionCount(
-      this.data.address,
+      this.address,
       "latest"
     );
     // Should we use maxGasPrice? i.e. EIP1559.
-    const gasPrice = (await this.provider.getFeeData()).gasPrice;
+    const { gasPrice } = await this.provider.getFeeData();
     const tx = {
-      from: this.data.address,
+      from: this.address,
       to,
       nonce,
       gasLimit: additionalParameters
@@ -69,28 +65,23 @@ export class Ethereum extends BaseEthereum {
         ? additionalParameters!.get("GAS-PRICE")
         : gasPrice,
       value: amount,
-      chainId: this.data.path.coinType === 1 ? 5 : 1,
+      chainId: this.path.coinType === 1 ? 5 : 1,
     };
 
-    const unsignedTx = serialize(tx as UnsignedTransaction);
+    const unsignedTx = utils.serializeTransaction(tx as UnsignedTransaction);
     return {
-      derivationPath: [
-        44,
-        this.data.path.account,
-        this.data.path.coinType,
-        this.data.path.changeIndex,
-        this.data.path.addressIndex,
-      ],
+      derivationPath: this.pathParts,
       tx: unsignedTx,
     };
   }
+
   public async broadcastTx(
     tx: string,
-    sig: RawSignature,
-    customUrl?: string | undefined
+    sig: RawSignature
+    // customUrl?: string | undefined
   ): Promise<string> {
-    const unsginedTx = parse(Buffer.from(tx, "hex"));
-    const signedTxData = serialize(unsginedTx, {
+    const unsginedTx = utils.parseTransaction(Buffer.from(tx, "hex"));
+    const signedTxData = utils.serializeTransaction(unsginedTx, {
       v: sig.v,
       r: sig.r,
       s: sig.s,

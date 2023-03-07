@@ -1,33 +1,43 @@
 // Override console.log with electron-log
 import log from "electron-log";
-Object.assign(console, log.functions);
 
 import {
   app,
-  session,
   BrowserWindow,
+  session,
   BrowserWindowConstructorOptions,
 } from "electron";
 import isDev from "electron-is-dev";
 import installExtension, {
   REACT_DEVELOPER_TOOLS,
 } from "electron-devtools-installer";
+import path from "path";
 import { registerFileProtocol } from "./helpers";
 import "./ipc";
 
+Object.assign(console, log.functions);
+
+// Keep a global reference of the window object, if you don't, the window will
+// be closed automatically when the JavaScript object is garbage collected.
+// eslint-disable-next-line import/no-mutable-exports
+export let win: BrowserWindow | null = null;
+
 const PROTOCOL = "app";
+const RELAY_RESPONSE_PROTOCOL = "fireblocks-recovery";
 const PORT = 8888; // Hardcoded; needs to match webpack.development.js and package.json
 const SELF_HOST = `http://localhost:${PORT}`;
 const validOrigins = [SELF_HOST];
 
 const loadUrl = isDev
-  ? async (win: BrowserWindow, params?: string) =>
-      win.loadURL(`${SELF_HOST}${params ? `?${params}` : ""}`)
+  ? async (window_ = win, params?: string) =>
+      window_?.loadURL(`${SELF_HOST}${params ? `?${params}` : ""}`)
   : registerFileProtocol({ directory: PROTOCOL, scheme: PROTOCOL });
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-export let win: BrowserWindow | null = null;
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  app.quit();
+}
 
 const getWindowOptions = (
   width: number,
@@ -80,7 +90,7 @@ async function createWindow() {
   });
 
   // Load app
-  void loadUrl(win);
+  loadUrl(win);
 
   win.webContents.on("did-finish-load", () => {
     win?.setTitle("Fireblocks Recovery Utility");
@@ -92,9 +102,11 @@ async function createWindow() {
     // before the DOM is ready
     win.webContents.once("dom-ready", async () => {
       await installExtension([REACT_DEVELOPER_TOOLS])
+        // eslint-disable-next-line no-console
         .then((name) => console.info(`Added Chrome extension: ${name}`))
         .catch((err) => console.error("An error occurred: ", err))
         .finally(() => {
+          // eslint-disable-next-line global-require
           require("electron-debug")(); // https://github.com/sindresorhus/electron-debug
           win?.webContents.openDevTools();
         });
@@ -131,13 +143,6 @@ async function createWindow() {
       }
     });
 }
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on("ready", () => {
-  void createWindow();
-});
 
 // Quit when all windows are closed.
 app.on("window-all-closed", () => {
@@ -190,4 +195,44 @@ app.on("web-contents-created", (event, contents) => {
       action: "deny",
     };
   });
+});
+
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient(RELAY_RESPONSE_PROTOCOL, process.execPath, [
+      path.resolve(process.argv[1]),
+    ]);
+  }
+} else {
+  app.setAsDefaultProtocolClient(RELAY_RESPONSE_PROTOCOL);
+}
+
+const handleUrl = (url: string) => {
+  // eslint-disable-next-line no-console
+  console.info("Handled protocol url:", url);
+};
+
+// macOS & Linux
+app.on("open-url", (event, url) => handleUrl(url));
+
+// Windows
+app.on("second-instance", (event, commandLine) => {
+  // Someone tried to run a second instance, we should focus our window.
+  if (win) {
+    if (win.isMinimized()) {
+      win.restore();
+    }
+    win.focus();
+  }
+
+  const url = commandLine.pop()?.slice(0, -1) ?? "";
+
+  handleUrl(url);
+});
+
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.on("ready", () => {
+  createWindow();
 });

@@ -15,6 +15,7 @@
   "dependencies": {
     "@noble/ed25519": "^1.7.3",
     "@noble/secp256k1": "^1.7.1",
+    "algosdk": "^2.1.0",
     "big-integer": "^1.6.51",
     "bigint-buffer": "^1.1.5",
     "bitcoinjs-lib": "^6.1.0",

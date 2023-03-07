@@ -139,15 +139,15 @@ jobs:
         with:
           name: Recovery Utility ${{ matrix.os }}
           path: |
-            packages/app/dist/*.AppImage
-            packages/app/dist/*.exe
-            packages/app/dist/*.zip
+            apps/recovery-utility/dist/*.AppImage
+            apps/recovery-utility/dist/*.exe
+            apps/recovery-utility/dist/*.zip
 
       - name: Upload Recovery Relay artifact
         uses: actions/upload-artifact@v3
         with:
           name: Recovery Relay
-          path: packages/relay/out/
+          path: apps/recovery-relay/out/
 
       - name: Clean up Apple Developer secrets
         if: ${{ startsWith(matrix.os, 'macos') && always() }}

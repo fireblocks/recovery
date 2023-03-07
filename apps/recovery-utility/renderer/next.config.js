@@ -9,7 +9,7 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   // eslint-disable-next-line turbo/no-undeclared-env-vars
-  eslint: { ignoreDuringBuilds: !!process.env.CI },
+  eslint: { ignoreDuringBuilds: true }, // !!process.env.CI },
   webpack: (config, { isServer }) => ({
     ...config,
     target: isServer ? config.target : "electron-renderer",

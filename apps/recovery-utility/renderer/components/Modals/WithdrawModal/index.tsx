@@ -10,14 +10,12 @@ import {
   ListItemText,
 } from "@mui/material";
 import {
-  // TextField,
   AssetId,
   assets,
   theme,
   getAssetInfo,
   AssetInfo,
   AssetIcon,
-  SigningAlgorithm,
 } from "@fireblocks/recovery-shared";
 import { BaseModal } from "../BaseModal";
 import { getRelayUrl } from "../../../lib/relayUrl";
@@ -36,7 +34,7 @@ type Props = {
 export const WithdrawModal = ({ assetId, accountId, open, onClose }: Props) => {
   const { relayBaseUrl } = useSettings();
 
-  const { asset, extendedKeys, vaultAccounts } = useWorkspace();
+  const { extendedKeys, asset, vaultAccounts } = useWorkspace();
 
   const resolvedAssetId = assetId ?? asset?.id;
 
@@ -64,20 +62,15 @@ export const WithdrawModal = ({ assetId, accountId, open, onClose }: Props) => {
       return "";
     }
 
-    const xpub =
-      resolvedAsset.algorithm === SigningAlgorithm.MPC_EDDSA_ED25519
-        ? extendedKeys.fpub
-        : extendedKeys.xpub;
-
     return getRelayUrl({
       baseUrl: relayBaseUrl,
       data: {
+        ...extendedKeys,
         assetId: resolvedAsset.id,
         accountId: account.id,
-        xpub: xpub as string,
       },
     });
-  }, [resolvedAsset, account, extendedKeys, relayBaseUrl]);
+  }, [resolvedAsset, extendedKeys, account, relayBaseUrl]);
 
   return (
     <BaseModal open={open} onClose={onClose} title="New Withdrawal">
