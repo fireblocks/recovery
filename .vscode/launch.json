@@ -5,10 +5,9 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Nextron: Main",
+      "name": "Recovery Utility: Main",
       "type": "node",
       "request": "attach",
-      "protocol": "inspector",
       "port": 9292,
       "skipFiles": ["<node_internals>/**"],
       "sourceMapPathOverrides": {
@@ -18,7 +17,7 @@
       }
     },
     {
-      "name": "Nextron: Renderer",
+      "name": "Recovery Utility: Renderer",
       "type": "chrome",
       "request": "attach",
       "port": 5858,
@@ -32,9 +31,9 @@
   ],
   "compounds": [
     {
-      "name": "Nextron: All",
+      "name": "Recovery Utility: All",
       "preLaunchTask": "dev",
-      "configurations": ["Nextron: Main", "Nextron: Renderer"]
+      "configurations": ["Recovery Utility: Main", "Recovery Utility: Renderer"]
     }
   ]
 }

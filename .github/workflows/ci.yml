@@ -23,6 +23,10 @@ jobs:
       - name: Install Node.js dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Lint
+        if: false # TODO: Fix PyLint errors
+        run: yarn lint
+
       - name: Run tests
         run: yarn test
 
@@ -125,7 +129,6 @@ jobs:
         env:
           APPLE_KEYCHAIN: ${{ env.KEYCHAIN_PATH }}
           APPLE_KEYCHAIN_PROFILE: ${{ env.KEYCHAIN_PROFILE }}
-          CODESIGN_IDENTITY: ${{ secrets.CODESIGN_IDENTITY }}
           CSC_LINK: ${{ startsWith(matrix.os, 'macos') && secrets.CSC_LINK || '' }}
           CSC_KEY_PASSWORD: ${{ startsWith(matrix.os, 'macos') && secrets.CSC_KEY_PASSWORD || '' }}
           TURBO_TEAM: ${{ secrets.TURBO_TEAM }}

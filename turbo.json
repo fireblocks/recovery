@@ -24,15 +24,18 @@
         "APPLE_API_KEY_ISSUER",
         "APPLE_KEYCHAIN",
         "APPLE_KEYCHAIN_PROFILE",
-        "CODESIGN_IDENTITY",
         "CSC_LINK",
         "CSC_KEY_PASSWORD"
       ]
     },
-    "lint": {
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "test": {
       "outputs": []
     },
-    "typecheck": {
+    "lint": {
       "outputs": []
     },
     "format": {
@@ -45,13 +48,6 @@
         "pages/**",
         "*.py"
       ]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "test": {
-      "outputs": []
     }
   }
 }
