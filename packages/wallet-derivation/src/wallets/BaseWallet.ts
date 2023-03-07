@@ -1,24 +1,43 @@
 import { Algorithm, HDPath, HDPathParts, Input, Derivation } from "../types";
 
 export abstract class BaseWallet {
-  private internalAddress?: string;
-
-  private internalEvmAddress?: string;
-
+  /** Asset ID */
   public assetId: string;
 
+  /** BIP44 path */
   public path: HDPath;
 
+  /** Memo/destination tag */
+  public tag?: string;
+
+  /** Derived public key hexadecimal string */
   public publicKey: string;
 
+  /** Derived private key hexadecimal string */
   public privateKey?: string;
 
+  /** Derived private key in Wallet Import Format (ECDSA) */
   public wif?: string;
 
+  /** Is testnet asset */
   public isTestnet: boolean;
 
+  /** Is legacy derivation (vs. Segwit) */
   public isLegacy: boolean;
 
+  /** Address description */
+  public description?: string;
+
+  /** Encoded address */
+  public address: string;
+
+  /** Balance */
+  public balance?: number;
+
+  /** Last updated date */
+  public lastUpdated?: Date;
+
+  /** BIP44 path parts */
   public get pathParts(): HDPathParts {
     return [
       44,
@@ -29,16 +48,9 @@ export abstract class BaseWallet {
     ];
   }
 
-  public get address() {
-    if (this.internalAddress) {
-      return this.internalAddress;
-    }
-
-    this.internalAddress = this.getAddress(this.internalEvmAddress);
-
-    this.internalEvmAddress = undefined;
-
-    return this.internalAddress;
+  /** Address type */
+  public get type() {
+    return this.path.addressIndex > 0 ? "Deposit" : "Permanent";
   }
 
   constructor(input: Input, defaultCoinType: number, algorithm: Algorithm) {
@@ -74,12 +86,13 @@ export abstract class BaseWallet {
     const { publicKey, evmAddress, privateKey, wif } = this.derive(extendedKey);
 
     this.publicKey = publicKey;
-    this.internalEvmAddress = evmAddress;
 
     if (isXprvDerivation) {
       this.privateKey = privateKey;
       this.wif = wif;
     }
+
+    this.address = this.getAddress(evmAddress);
   }
 
   protected abstract derive(extendedKey: string): Derivation;

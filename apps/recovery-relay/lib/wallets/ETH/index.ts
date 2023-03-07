@@ -31,7 +31,12 @@ export class Ethereum extends BaseEthereum implements BaseWallet {
 
     const balance = utils.formatEther(wei);
 
-    return Number(balance);
+    const ethBalance = Number(balance);
+
+    this.balance = ethBalance;
+    this.lastUpdated = new Date();
+
+    return ethBalance;
   }
 
   public async prepare(): Promise<AccountData> {

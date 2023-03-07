@@ -35,6 +35,9 @@ export class Solana extends BaseSolana implements BaseWallet {
 
     const balance = lamports / web3.LAMPORTS_PER_SOL;
 
+    this.balance = balance;
+    this.lastUpdated = new Date();
+
     return balance;
   }
 

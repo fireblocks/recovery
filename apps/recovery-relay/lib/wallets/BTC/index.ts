@@ -107,6 +107,7 @@ export class Bitcoin extends BaseBitcoin implements BaseWallet {
 
   public async prepare(): Promise<AccountData> {
     const balance = await this.getBalance();
+
     const utxos = await this._getAddressUTXOs();
     return {
       balance,
@@ -197,6 +198,11 @@ export class Bitcoin extends BaseBitcoin implements BaseWallet {
   public async getBalance() {
     const { chain_stats: chainStats } = await this._getAddressBalance();
     const balance = chainStats.funded_txo_sum - chainStats.spent_txo_sum;
-    return Bitcoin._satsToBtc(balance);
+    const btcBalance = Bitcoin._satsToBtc(balance);
+
+    this.balance = btcBalance;
+    this.lastUpdated = new Date();
+
+    return btcBalance;
   }
 }

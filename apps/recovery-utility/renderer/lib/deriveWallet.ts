@@ -4,7 +4,6 @@ import {
   deriveWallet as baseDeriveWallet,
   Input,
 } from "@fireblocks/wallet-derivation";
-import type { Derivation } from "../context/Workspace";
 import { deriveKeysInput } from "./schemas";
 
 export type GetWalletsVariables = z.infer<typeof deriveKeysInput> & {
@@ -48,20 +47,7 @@ export const deriveWallet = (input: GetWalletsVariables) => {
     inputs.push(...getDerivationInputs({ ...input, isLegacy: true }));
   }
 
-  const derivations = inputs
-    .map(baseDeriveWallet)
-    .map<Derivation>((wallet) => ({
-      isTestnet: wallet.isTestnet,
-      isLegacy: wallet.isLegacy,
-      pathParts: wallet.pathParts,
-      address: wallet.address,
-      type: wallet.path.addressIndex > 0 ? "Deposit" : "Permanent",
-      description: undefined,
-      tag: undefined,
-      publicKey: wallet.publicKey,
-      privateKey: wallet.privateKey,
-      wif: wallet.wif,
-    }));
+  const derivations = inputs.map(baseDeriveWallet);
 
   return derivations;
 };
