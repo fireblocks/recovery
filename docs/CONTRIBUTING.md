@@ -1,6 +1,11 @@
 # 🔨 Contributing
 
-This repository contains two applications ([Recovery Utility](../packages/recovery-utility/) and [Recovery Relay](../packages/recovery-relay/)) and three internal dependencies (the [Extended Key Recovery module](../packages/extended-key-recovery/), the [Wallet Derivation helpers](../packages/wallet-derivation/), and [shared frontend components and utilities](../packages/shared/)). [Recovery Utility](../apps/recovery-utility/) is a cross-platform [Electron](https://www.electronjs.org/) app compiled for macOS, Windows, and Linux. Its window UI, along with Recovery Relay, are built with [React](https://reactjs.org/) on the [Next.js](https://nextjs.org/) framework, using [Material UI](https://mui.com/material-ui/getting-started/overview/) components.
+This repository contains a collection of TypeScript/Python apps and packages for:
+
+- Recovering extended private/public keys from a Recovery Kit ZIP file, an RSA key, and a Fireblocks workspace owner's mobile recovery passphrase
+- Deriving wallet keys and addresses from
+
+two applications ([Recovery Utility](../packages/recovery-utility/) and [Recovery Relay](../packages/recovery-relay/)) and three internal dependencies (the [Extended Key Recovery module](../packages/extended-key-recovery/), the [Wallet Derivation helpers](../packages/wallet-derivation/), and [shared frontend components and utilities](../packages/shared/)). [Recovery Utility](../apps/recovery-utility/) is a cross-platform [Electron](https://www.electronjs.org/) app compiled for macOS, Windows, and Linux. Its window UI, along with Recovery Relay, are built with [React](https://reactjs.org/) on the [Next.js](https://nextjs.org/) framework, using [Material UI](https://mui.com/material-ui/getting-started/overview/) components.
 
 [Recovery Utility](../packages/recovery-utility/) is intended to be run on an offline, air-gapped machine. It uses a companion web app, [Recovery Relay](../packages/recovery-relay/), to check wallet balances and initiate transactions from recovered wallets.
 

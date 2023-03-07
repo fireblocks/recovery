@@ -1,6 +1,10 @@
-# Extended Key Recovery
+# @fireblocks/extended-key-recovery
 
-Python module handling extended key recovery from a Recovery Kit, spawned by [Recovery Utility](../recovery-utility). Recovers `xpub` / `fpub` / `xprv` / `fprv` from a complete set of recovery materials.
+Recover extended private/public keys from a Recovery Kit
+
+---
+
+Recovers `xpub`, `fpub`, `xprv`, and `fprv` from a complete set of recovery materials. Use with [`@fireblocks/wallet-derivation`](../wallet-derivation/) to derive wallets from these recovered extended keys. This module is spawned by [Recovery Utility](../recovery-utility) when recovering or verifying a Recovery Kit.
 
 ## Build Process
 
@@ -16,7 +20,7 @@ Recovery materials include:
 
 The module accepts the Backup Kit .zip and RSA private key as base64-encoded strings.
 
-Here are the four types of keys that are returned from valid recovery materials. Private keys are only returned if the `-p` flag is included.
+Here are the four types of keys that are returned from valid recovery materials. Private keys are only returned if the `-p / --private` flag is `true`.
 
 |             | ECDSA (BIP44) | Ed25519 |
 | ----------- | ------------- | ------- |

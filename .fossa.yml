@@ -1,7 +1,7 @@
 version: 3
 
 project:
-  id: fireblocks/recovery-utility
+  id: fireblocks/recovery
   name: Fireblocks Recovery Utility
   link: https://www.fireblocks.com
-  url: https://github.com/fireblocks/recovery-utility
+  url: https://github.com/fireblocks/recovery

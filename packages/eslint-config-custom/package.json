@@ -1,21 +1,19 @@
 {
   "name": "eslint-config-custom",
-  "author": "Fireblocks (https://www.fireblocks.com)",
-  "repository": "https://github.com/fireblocks/recovery-utility",
+  "description": "Common ESLint config used across recovery apps and packages",
+  "author": "Fireblocks <info@fireblocks.com> (https://www.fireblocks.com)",
+  "repository": "https://github.com/fireblocks/recovery",
   "homepage": "https://www.fireblocks.com",
-  "license": "MIT",
   "version": "0.0.0",
+  "license": "MIT",
   "main": "index.js",
   "private": true,
-  "dependencies": {
+  "devDependencies": {
     "eslint-config-next": "^13.2.3",
     "eslint-config-prettier": "^8.7.0",
-    "eslint-config-turbo": "^0.0.9"
-  },
-  "devDependencies": {
+    "eslint-config-turbo": "^0.0.9",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-typescript": "^17.0.0",
-    "eslint-config-prettier": "^8.7.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-react": "^7.32.2"
   }

@@ -1,6 +1,10 @@
-# Shared frontend components and utilities
+# @fireblocks/recovery-shared
 
-Shared TypeScript frontend components and utilities. Included in the [Next.js](https://nextjs.org/) frontends using [next-transpile-modules](https://www.npmjs.com/package/next-transpile-modules).
+Shared TypeScript frontend components and utilities
+
+---
+
+Included in the [Next.js](https://nextjs.org/) frontends using [next-transpile-modules](https://www.npmjs.com/package/next-transpile-modules).
 
 ```
 📦shared

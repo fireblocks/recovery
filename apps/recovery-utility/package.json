@@ -1,11 +1,11 @@
 {
   "name": "@fireblocks/recovery-utility",
-  "description": "Fireblocks workspace recovery utility",
-  "author": "Fireblocks (https://www.fireblocks.com)",
-  "repository": "https://github.com/fireblocks/recovery-utility",
+  "description": "Recover Fireblocks assets and keys in a disaster, verify a Recovery Kit, or generate keys to set up a new Recovery Kit.",
+  "author": "Fireblocks <info@fireblocks.com> (https://www.fireblocks.com)",
+  "repository": "https://github.com/fireblocks/recovery",
   "homepage": "https://www.fireblocks.com",
-  "license": "MIT",
   "version": "0.2.1",
+  "license": "MIT",
   "private": true,
   "main": "app/background.js",
   "scripts": {
