@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="appps/recovery-relay/public/icons/192x192.png" width="64px" height="64px" />
+  <img src="apps/recovery-relay/public/icons/192x192.png" width="64px" height="64px" />
   <br />
   Fireblocks Recovery Utility
 </h1>
@@ -16,7 +16,7 @@
 
 ## 🆕 Coming from [fireblocks-key-recovery-tool](https://github.com/fireblocks/fireblocks-key-recovery-tool)?
 
-[Recovery Utility](appps/recovery-utility) verifies and performs hard key recovery with an easy interface, and when used with [Recovery Relay](appps/recovery-relay), creates transactions to withdraw from recovered wallets. If you create a new workspace, it makes it easy to set up a new Recovery Kit with no terminal commands.
+[Recovery Utility](apps/recovery-utility) verifies and performs hard key recovery with an easy interface, and when used with [Recovery Relay](apps/recovery-relay), creates transactions to withdraw from recovered wallets. It also makes it easy to set up a new Recovery Kit with no terminal commands.
 
 ## 👍 Usage
 
@@ -26,8 +26,8 @@
    - Protected with a very strong password
    - Encrypted on all partitions
    - Stored in a safe box when not in use
-2. Install the latest [release](/release) of [Recovery Utility](appps/recovery-utility) on the offline recovery machine.
-3. **(Optional)** Install the latest [release](/release) of [Recovery Relay](appps/recovery-relay) on a web server. Recovery Relay is a companion web app that creates transactions from recovered wallets. Fireblocks hosts an instance at [relay.fireblocks.solutions](https://relay.fireblocks.solutions), but you can host your own instance and set its URL in Recovery Utility's Settings tab.
+2. Install the latest [release](/release) of [Recovery Utility](apps/recovery-utility) on the offline recovery machine.
+3. **(Optional)** Install the latest [release](/release) of [Recovery Relay](apps/recovery-relay) on a web server. Recovery Relay is a companion web app that creates transactions from recovered wallets. Fireblocks hosts an instance at [relay.fireblocks.solutions](https://relay.fireblocks.solutions), but you can host your own instance and set its URL in Recovery Utility's Settings tab.
 4. Open Recovery Utility to use one of the following tools...
 
 ## 🧰 Tools

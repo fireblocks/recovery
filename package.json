@@ -3,7 +3,7 @@
   "description": "Recover Fireblocks assets and keys in a disaster, verify a Recovery Kit, or generate keys to set up a new Recovery Kit.",
   "license": "MIT",
   "homepage": "https://www.fireblocks.com",
-  "repository": "https://github.com/Burry/recovery-utility",
+  "repository": "https://github.com/fireblocks/recovery-utility",
   "version": "0.0.0",
   "private": true,
   "engines": {

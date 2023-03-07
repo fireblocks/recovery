@@ -2,7 +2,7 @@
   "name": "@fireblocks/recovery-relay",
   "description": "Make transactions from your recovered Fireblocks wallets",
   "author": "Fireblocks (https://www.fireblocks.com)",
-  "repository": "https://github.com/Burry/recovery-utility",
+  "repository": "https://github.com/fireblocks/recovery-utility",
   "homepage": "https://relay.fireblocks.solutions",
   "license": "MIT",
   "version": "0.1.1",

@@ -2,7 +2,7 @@
   "name": "@fireblocks/recovery-utility",
   "description": "Fireblocks workspace recovery utility",
   "author": "Fireblocks (https://www.fireblocks.com)",
-  "repository": "https://github.com/Burry/recovery-utility",
+  "repository": "https://github.com/fireblocks/recovery-utility",
   "homepage": "https://www.fireblocks.com",
   "license": "MIT",
   "version": "0.2.1",
