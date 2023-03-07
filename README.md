@@ -53,6 +53,6 @@
 
 [Copyright © 2023 Fireblocks](https://www.fireblocks.com)
 
-[MIT License](LICENSE)
+[GNU General Public License v3.0 or later](LICENSE)
 
 [![FOSSA Status](https://app.fossa.com/api/projects/custom%2B9027%2Ffireblocks%2Frecovery.svg?type=large)](https://app.fossa.com/projects/custom%2B9027%2Ffireblocks%2Frecovery?ref=badge_large)

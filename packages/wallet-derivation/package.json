@@ -5,8 +5,7 @@
   "repository": "https://github.com/fireblocks/recovery",
   "homepage": "https://www.fireblocks.com",
   "version": "0.1.0",
-  "license": "MIT",
-  "private": true,
+  "license": "GPL-3.0-or-later",
   "main": "src/index.ts",
   "scripts": {
     "lint": "eslint --fix .",

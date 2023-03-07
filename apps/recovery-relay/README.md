@@ -8,11 +8,11 @@
   Connect recovered wallets to query balances and send transactions without revealing private keys.
   <br />
   <br />
-  <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Ffireblocks%2Frecovery%2Ftree%2Fmain%2Fapps%2Frecovery-relay&build-command=cd%20..%2F..%20%26%26%20npx%20turbo%20run%20build%20--filter%3D%40fireblocks%2Frecovery-relay&project-name=recovery-relay&demo-title=Fireblocks%20Recovery%20Relay&demo-description=Connect%20recovered%20wallets%20to%20query%20balances%20and%20send%20transactions%20without%20revealing%20private%20keys.&demo-url=Connect%20recovered%20wallets%20to%20query%20balances%20and%20send%20transactions%20without%20revealing%20private%20keys.&demo-image=https%3A%2F%2Fgithub.com%2FBurry%2Frecovery%2Fblob%2Fmain%2Fdocs%2Fimg%2Frelay.png&root-directory=apps%2Frecovery-relay" target="_blank">
+  <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Ffireblocks%2Frecovery%2Ftree%2Fmain%2Fapps%2Frecovery-relay&build-command=cd%20..%2F..%20%26%26%20npx%20turbo%20run%20build%20--filter%3D%40fireblocks%2Frecovery-relay&project-name=recovery-relay&demo-title=Fireblocks%20Recovery%20Relay&demo-description=Connect%20recovered%20wallets%20to%20query%20balances%20and%20send%20transactions.&demo-url=https%3A%2F%2Frelay.fireblocks.solutions&demo-image=https%3A%2F%2Fraw.githubusercontent.com%2Ffireblocks%2Frecovery%2Fmain%2Fdocs%2Fimg%2Frelay.png&root-directory=apps%2Frecovery-relay" target="_blank">
     <img src="https://vercel.com/button" alt="Deploy with Vercel" />
   </a>
   <a href="https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/fireblocks/recovery/tree/main/apps/recovery-relay" target="_blank">
-    <img src="https://www.netlify.com/img/deploy/button.svg" alt="Deploy to Netlify" />
+    <img src="https://www.netlify.com/img/deploy/button.svg" alt="Deploy with Netlify" />
   </a>
   <br />
   <a href="https://gitpod.io/#https://github.com/fireblocks/recovery/tree/main/" target="_blank">
