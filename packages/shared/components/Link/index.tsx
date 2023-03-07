@@ -21,7 +21,7 @@ export interface NextLinkComposedProps
 export const NextLinkComposed = forwardRef<
   HTMLAnchorElement,
   NextLinkComposedProps
->(function NextLinkComposed(props, ref) {
+>((props, ref) => {
   const {
     to,
     linkAs,
@@ -62,10 +62,7 @@ export type LinkProps = {
 
 // A styled version of the Next.js Link component:
 // https://nextjs.org/docs/api-reference/next/link
-export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
-  props,
-  ref
-) {
+export const Link = forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => {
   const {
     activeClassName = "active",
     as,
@@ -77,6 +74,7 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
     noLinkStyle,
     prefetch,
     replace,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     role, // Link don't have roles.
     scroll,
     shallow,

@@ -24,7 +24,7 @@ Here are the four types of keys that are returned from valid recovery materials.
 | Public Key  | `xpub`        | `fpub`  |
 
 ```sh
-usage: recovery [-h] -z ZIP -mp MOBILE_PASSPHRASE -rk RSA_KEY [-rp RSA_KEY_PASSPHRASE] [-p PRIVATE]
+usage: recover [-h] -z ZIP -mp MOBILE_PASSPHRASE -rk RSA_KEY [-rp RSA_KEY_PASSPHRASE] [-p PRIVATE]
 
 Fireblocks Extended Key Recovery: recover xprv/fprv/xpub/fpub from Fireblocks Recovery Kit
 

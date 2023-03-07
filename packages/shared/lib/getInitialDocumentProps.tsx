@@ -1,3 +1,4 @@
+import React from "react";
 import NextDocument, { DocumentContext } from "next/document";
 import createEmotionServer from "@emotion/server/create-instance";
 import { ServerStyleSheets } from "@mui/styles";
@@ -39,6 +40,7 @@ export const getInitialDocumentProps = async (ctx: DocumentContext) => {
 
   ctx.renderPage = () =>
     originalRenderPage({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       enhanceApp: (App: any) =>
         function EnhanceApp(props) {
           return sheets.collect(<App emotionCache={cache} {...props} />);

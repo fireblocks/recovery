@@ -14,8 +14,8 @@ This project is a monorepo using [Yarn workspaces](https://classic.yarnpkg.com/l
 
 Check out the README for each package:
 
-- [**`packages/recovery-utility/`**](../packages/recovery-utility/): Recovery Utility: desktop app (Electron + Next.js)
-- [**`packages/recovery-relay/`**](../packages/recovery-relay/): Recovery Relay: browser-based transaction client (Next.js)
+- [**`apps/recovery-utility/`**](../apps/recovery-utility/): Recovery Utility: desktop app (Electron + Next.js)
+- [**`apps/recovery-relay/`**](../apps/recovery-relay/): Recovery Relay: browser-based transaction client (Next.js)
 - [**`packages/extended-key-recovery/`**](../packages/extended-key-recovery/): Extended Key Recovery module (Python)
 - [**`packages/wallet-derivation`**](../packages/wallet-derivation/): Wallet derivation from extended keys (TypeScript)
 - [**`packages/shared/`**](../packages/shared/): Shared frontend components and utilities (TypeScript)

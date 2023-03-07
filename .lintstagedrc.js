@@ -8,6 +8,7 @@ const lintJs = (filenames) =>
     .join(" --file ")}`;
 
 module.exports = {
+  // "*.py": ["python -m black"],
   "*.{js,jsx,ts,tsx}": [format /* lintJs */],
-  "*.{css,scss,sass,md,xml}": [format],
+  "*.{md,xml,yml}": [format],
 };

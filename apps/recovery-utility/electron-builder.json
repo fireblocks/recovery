@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json.schemastore.org/electron-builder",
+  "appId": "com.fireblocks.recovery-utility",
+  "productName": "Fireblocks Recovery Utility",
+  "copyright": "Copyright © 2022 Fireblocks",
+  "extraMetadata": {
+    "name": "Fireblocks Recovery Utility"
+  },
+  "directories": {
+    "output": "dist",
+    "buildResources": "resources"
+  },
+  "files": [
+    {
+      "from": ".",
+      "filter": ["package.json", "app"]
+    },
+    "!node_modules/**/*.{mk,a,o,h}",
+    "!node_modules/extended-key-recovery"
+  ],
+  "extraFiles": [
+    {
+      "from": "../../packages/extended-key-recovery/dist",
+      "filter": ["recover", "recover.exe"]
+    }
+  ],
+  "afterSign": "electron-builder-notarize",
+  "publish": null,
+  "mac": {
+    "target": "zip",
+    "category": "public.app-category.developer-tools",
+    "gatekeeperAssess": false,
+    "hardenedRuntime": true,
+    "entitlements": "./entitlements.plist",
+    "entitlementsInherit": "./entitlements.plist"
+  },
+  "win": {
+    "target": "nsis"
+  },
+  "linux": {
+    "target": "AppImage",
+    "category": "Office"
+  }
+}

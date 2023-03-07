@@ -40,7 +40,7 @@ type Props = Omit<SvgIconProps, "width" | "height"> & {
   assetId: AssetId;
 };
 
-export const AssetIcon = ({ assetId, ...props }: Props) => {
+export function AssetIcon({ assetId, ...props }: Props) {
   const iconData = iconDataMap[assetId];
 
   if (!iconData) {
@@ -62,11 +62,12 @@ export const AssetIcon = ({ assetId, ...props }: Props) => {
         <path fill={FILL_COLOR} d={path} />
       ) : (
         <g fill={FILL_COLOR}>
-          {path.map((path, index) => (
-            <path key={index} d={path} />
+          {path.map((p, index) => (
+            // eslint-disable-next-line react/no-array-index-key
+            <path key={index} d={p} />
           ))}
         </g>
       )}
     </SvgIcon>
   );
-};
+}

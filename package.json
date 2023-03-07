@@ -1,18 +1,19 @@
 {
   "name": "@fireblocks/recovery",
   "description": "Recover Fireblocks assets and keys in a disaster, verify a Recovery Kit, or generate keys to set up a new Recovery Kit.",
-  "version": "0.0.0",
-  "private": true,
   "license": "MIT",
   "homepage": "https://www.fireblocks.com",
   "repository": "https://github.com/Burry/recovery-utility",
+  "version": "0.0.0",
+  "private": true,
   "engines": {
     "node": ">=16.15.0",
     "yarn": ">=1.22.0",
     "npm": "please-use-yarn"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "scripts": {
     "prepare": "./scripts/prepare.sh",
@@ -28,6 +29,7 @@
     "@commitlint/cli": "^17.4.4",
     "@commitlint/config-conventional": "^17.4.4",
     "@commitlint/prompt-cli": "^17.4.4",
+    "@typescript-eslint/utils": "^5.54.1",
     "husky": "^8.0.3",
     "is-ci": "^3.0.1",
     "lint-staged": "^13.1.2",

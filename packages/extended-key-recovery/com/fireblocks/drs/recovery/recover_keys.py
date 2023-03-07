@@ -44,10 +44,14 @@ class RecoveryErrorMetadataNotFound(RecoveryException):
         self._zip_file_path = zip_file_path
 
     def __str__(self):
-        return "Backup zip %s doesn't contain metadata.json" % self._zip_file_path
+        return f"Backup zip {self._zip_file_path} doesn't contain metadata.json"
 
 
 class RecoveryErrorPublicKeyNoMatch(RecoveryException):
+    """
+    RecoveryErrorPublicKeyNoMatch
+    """
+
     def __str__(self):
         return (
             "Computed public key does not match expected public key (zip inconsistency)"
@@ -59,10 +63,7 @@ class RecoveryErrorKeyIdNotInMetadata(RecoveryException):
         self._key_id = key_id
 
     def __str__(self):
-        return (
-            "Found key id %s in zip file, but it doesn't exist in metadata.json"
-            % self._key_id
-        )
+        return f"Found key id {self._key_id} in zip file, but it doesn't exist in metadata.json"
 
 
 class RecoveryErrorKeyIdMissing(RecoveryException):
@@ -70,10 +71,7 @@ class RecoveryErrorKeyIdMissing(RecoveryException):
         self._key_id = key_id
 
     def __str__(self):
-        return (
-            "metadata.json contains key id %s, which wasn't found in zip file"
-            % self._key_id
-        )
+        return f"metadata.json contains key id {self._key_id}, which wasn't found in zip file"
 
 
 class RecoveryErrorUnknownAlgorithm(RecoveryException):
@@ -81,7 +79,7 @@ class RecoveryErrorUnknownAlgorithm(RecoveryException):
         self._algo = algo
 
     def __str__(self):
-        return "metadata.json contains unsupported signature algorithm %s" % self._algo
+        return f"metadata.json contains unsupported signature algorithm {self._algo}"
 
 
 class RecoveryErrorUnknownChainCode(RecoveryException):
@@ -148,8 +146,8 @@ def restore_key_and_chaincode(
 
     try:
         key = RSA.importKey(key_pem, passphrase=zip_prv_key_pass)
-    except ValueError:
-        raise RecoveryErrorRSAKeyImport()
+    except ValueError as exc:
+        raise RecoveryErrorRSAKeyImport() from exc
 
     cipher = PKCS1_OAEP.new(key)
     with ZipFile(BytesIO(zip_file), "r") as z:
@@ -260,10 +258,11 @@ def restore_key_and_chaincode(
 
         pub_from_metadata = key_metadata_mapping[key_id][1]
         if pub_from_metadata != pubkey_str:
-            # print(
-            #     f"Failed to recover {algo} key, expected public key is: {pub_from_metadata} calculated public key is: "
-            #     f"{pubkey_str}"
-            # )
+            print(
+                f"Failed to recover {algo} key. "
+                f"Expected public key is: {pub_from_metadata}. "
+                f"Calculated public key is: {pubkey_str}"
+            )
             privkeys[algo] = None
         else:
             privkeys[algo] = prv_key, chain_code_for_this_key

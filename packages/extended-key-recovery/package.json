@@ -1,11 +1,14 @@
 {
   "name": "@fireblocks/extended-key-recovery",
+  "author": "Fireblocks (https://www.fireblocks.com)",
+  "repository": "https://github.com/Burry/recovery-utility",
+  "homepage": "https://www.fireblocks.com",
   "version": "0.3.0",
   "private": true,
-  "main": "__main__.py",
+  "main": "recover.py",
   "scripts": {
-    "build": "./build.sh",
-    "lint": "pylint .",
+    "build": "python -m PyInstaller --osx-bundle-identifier com.fireblocks.extended-key-recovery --osx-entitlements-file res/entitlements.plist --onefile recover.py",
+    "lint": "python -m pylint --recursive=y --rcfile=../../.pylintrc .",
     "format": "python -m black ."
   }
 }

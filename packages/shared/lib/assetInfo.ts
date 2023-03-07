@@ -30,17 +30,15 @@ export const assetsInfo: Record<AssetId, AssetInfo> = {
   },
 };
 
-export const getAssetInfo = (assetId?: string): AssetInfo => {
-  const _assetId = assetId || "Unknown";
-
-  const baseAssetId = _assetId.split("_TEST")[0] as AssetId;
+export const getAssetInfo = (assetId = "Unknown"): AssetInfo => {
+  const baseAssetId = assetId.split("TEST")[0] as AssetId;
 
   const assetInfo = assetsInfo[baseAssetId];
 
   if (!assetInfo) {
     return {
-      id: _assetId as AssetId,
-      name: _assetId,
+      id: assetId as AssetId,
+      name: assetId,
       type: AssetType.ACCOUNT,
       algorithm: SigningAlgorithm.MPC_ECDSA_SECP256K1,
       utxoUsage: false,

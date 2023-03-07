@@ -1,0 +1,22 @@
+{
+  "name": "eslint-config-custom",
+  "author": "Fireblocks (https://www.fireblocks.com)",
+  "repository": "https://github.com/Burry/recovery-utility",
+  "homepage": "https://www.fireblocks.com",
+  "license": "MIT",
+  "version": "0.0.0",
+  "main": "index.js",
+  "private": true,
+  "dependencies": {
+    "eslint-config-next": "^13.2.3",
+    "eslint-config-prettier": "^8.7.0",
+    "eslint-config-turbo": "^0.0.9"
+  },
+  "devDependencies": {
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-prettier": "^8.7.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-react": "^7.32.2"
+  }
+}

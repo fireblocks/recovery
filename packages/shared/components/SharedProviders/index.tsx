@@ -15,10 +15,10 @@ type Props = {
 
 const clientSideEmotionCache = createEmotionCache();
 
-export const SharedProviders = ({
+export function SharedProviders({
   emotionCache = clientSideEmotionCache,
   children,
-}: Props) => {
+}: Props) {
   const [queryClient] = useState(() => new QueryClient());
 
   return (
@@ -34,4 +34,4 @@ export const SharedProviders = ({
       </CacheProvider>
     </QueryClientProvider>
   );
-};
+}

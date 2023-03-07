@@ -1,5 +1,6 @@
 {
   "$schema": "https://turborepo.org/schema.json",
+  "globalDependencies": ["**/.env.*local"],
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
@@ -10,7 +11,7 @@
         "out/**",
         "app/**",
         "renderer/.next/**",
-        "__main__.spec"
+        "recover.spec"
       ],
       "env": [
         "NODE_ENV",
@@ -46,7 +47,8 @@
       ]
     },
     "dev": {
-      "cache": false
+      "cache": false,
+      "persistent": true
     },
     "test": {
       "outputs": []

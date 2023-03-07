@@ -1,6 +1,7 @@
 // Reference: https://github.com/paulmillr/noble-ed25519
 // MIT License (c) 2019 Paul Miller (paulmillr.com)
 
+import bigInt from "big-integer";
 import {
   _0n,
   _1n,
@@ -11,7 +12,6 @@ import {
   bytesToNumberLE,
   concatBytes,
 } from "./bytes";
-import bigInt from "big-integer";
 
 /**
  * ed25519 is Twisted Edwards curve with equation of
@@ -107,7 +107,12 @@ const invert = (number: bigint, modulo = CURVE.P) => {
     const r = b % a;
     const m = x - u * q;
     const n = y - v * q;
-    (b = a), (a = r), (x = u), (y = v), (u = m), (v = n);
+    b = a;
+    a = r;
+    x = u;
+    y = v;
+    u = m;
+    v = n;
   }
 
   if (b !== _1n) {
@@ -147,12 +152,15 @@ export const edwards = (
  * @see https://python-reference.readthedocs.io/en/latest/docs/operators/floor_division.html
  */
 const floorDiv = (x: bigint, y: bigint): bigint => {
+  let a = x;
+  let b = y;
+
   if (y < 0n) {
-    x = -x;
-    y = -y;
+    a = -a;
+    b = -b;
   }
 
-  return x >= 0n ? x / y : (x - y + 1n) / y;
+  return a >= 0n ? a / b : (a - b + 1n) / b;
 };
 
 /**
@@ -195,32 +203,21 @@ export const serialize = (P: readonly [bigint, bigint]) => {
   return numberToBytesLE(number);
 };
 
-export const decodePoint = (point: Uint8Array) => {
-  let y = BigInt(0);
+const bit = (P: Uint8Array, offset: number) => {
+  const i = Math.floor(offset / 8);
+  const b = P[i];
+  return BigInt((b >> offset % 8) & 1);
+};
 
-  for (let i = 0; i < 255; i++) {
-    y += BigInt(2 ** i) * bit(point, i);
-  }
-
-  let x = xRecover(y);
-
-  if (BigInt(x & _1n) != bit(point, 255)) {
-    x = CURVE.P - x;
-  }
-
-  const P: [bigint, bigint] = [x, y];
-
-  if (!isOnCurve(P)) {
-    throw new Error("Point is not on curve");
-  }
-
-  return P;
+const isOnCurve = (P: [bigint, bigint]) => {
+  const [x, y] = P;
+  return (-x * x + y * y - _1n - CURVE.d * x * x * y * y) % CURVE.P === _0n; // -x mod works?
 };
 
 const xRecover = (y: bigint) => {
   const xx = (y * y - _1n) * invert(CURVE.d * y * y + _1n);
 
-  let xTmp = bigInt(xx).modPow(
+  const xTmp = bigInt(xx).modPow(
     bigInt(floorDiv(CURVE.P + BigInt(3), _8n)),
     bigInt(CURVE.P)
   );
@@ -243,13 +240,24 @@ const xRecover = (y: bigint) => {
   return x;
 };
 
-const bit = (P: Uint8Array, offset: number) => {
-  const i = Math.floor(offset / 8);
-  const b = P[i];
-  return BigInt((b >> offset % 8) & 1);
-};
+export const decodePoint = (point: Uint8Array) => {
+  let y = BigInt(0);
 
-const isOnCurve = (P: [bigint, bigint]) => {
-  const [x, y] = P;
-  return (-x * x + y * y - _1n - CURVE.d * x * x * y * y) % CURVE.P === _0n; // -x mod works?
+  for (let i = 0; i < 255; i += 1) {
+    y += BigInt(2 ** i) * bit(point, i);
+  }
+
+  let x = xRecover(y);
+
+  if (BigInt(x & _1n) !== bit(point, 255)) {
+    x = CURVE.P - x;
+  }
+
+  const P: [bigint, bigint] = [x, y];
+
+  if (!isOnCurve(P)) {
+    throw new Error("Point is not on curve");
+  }
+
+  return P;
 };

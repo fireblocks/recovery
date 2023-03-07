@@ -72,15 +72,12 @@ export abstract class EdDSAWallet extends BaseWallet {
 
     const prefix = extendedKey.slice(0, 4);
 
-    const isPrivate =
-      prefix === "fprv"
-        ? true
-        : prefix === "fpub"
-        ? false
-        : new Error("Extended key is not a valid FPRV or FPUB");
+    let isPrivate = false;
 
-    if (isPrivate instanceof Error) {
-      throw isPrivate;
+    if (prefix === "fprv") {
+      isPrivate = true;
+    } else if (prefix !== "fpub") {
+      throw new Error("Extended key is not a valid fprv or fpub");
     }
 
     let chainCode = decodedKey.subarray(13, 45);

@@ -17,10 +17,10 @@ coverage
 !**/fixtures/*.pem
 
 # next.js
-packages/**/.next
-packages/**/dist
-packages/**/out
-packages/recovery-utility/app
+apps/**/.next
+apps/**/dist
+apps/**/out
+apps/recovery-utility/app
 
 # TypeScript
 *.tsbuildinfo

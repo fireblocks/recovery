@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import crypto from "crypto";
 
 // Be friendly to bad ECMAScript parsers by not using bigint literals like 123n
@@ -21,7 +22,7 @@ const hexes = Array.from({ length: 256 }, (v, i) =>
  * @param value
  * @returns void
  */
-function assertUint8Array(value: any): asserts value is Uint8Array {
+function assertUint8Array(value: Uint8Array): asserts value is Uint8Array {
   if (!(value instanceof Uint8Array)) {
     throw new Error("Uint8Array expected");
   }
@@ -63,7 +64,7 @@ export const numberToBytesLE = (number: bigint) => {
 
   let bigint = BigInt(number);
 
-  for (let i = 0; i < array.length; i++) {
+  for (let i = 0; i < array.length; i += 1) {
     array[i] = Number(bigint & _0xffn);
     bigint >>= _8n;
   }
@@ -82,7 +83,7 @@ export const numberToBytesBE = (number: bigint) => {
 
   let bigint = BigInt(number);
 
-  for (let i = array.length - 1; i >= 0; i--) {
+  for (let i = array.length - 1; i >= 0; i -= 1) {
     array[i] = Number(bigint & _0xffn);
     bigint >>= _8n;
   }

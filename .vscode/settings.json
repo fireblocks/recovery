@@ -5,18 +5,18 @@
     "javascriptreact",
     "typescriptreact"
   ],
-  "eslint.alwaysShowStatus": true,
+  "eslint.workingDirectories": [
+    "packages/shared",
+    "packages/wallet-derivation",
+    "apps/recovery-utility",
+    "apps/recovery-relay"
+  ],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
-  "json.schemas": [
-    {
-      "fileMatch": ["electron-builder.json"],
-      "url": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json"
-    }
-  ],
+  "javascript.suggestionActions.enabled": false,
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },

@@ -1,9 +1,15 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { EMOTION_INSERTION_POINT_NAME } from "../../constants";
 
-export const EmotionHeadTags = ({ styleTags }: any) => (
-  <>
-    <meta name={EMOTION_INSERTION_POINT_NAME} content="" />
-    {styleTags}
-  </>
-);
+type Props = {
+  styleTags: ReactNode;
+};
+
+export function EmotionHeadTags({ styleTags }: Props) {
+  return (
+    <>
+      <meta name={EMOTION_INSERTION_POINT_NAME} content="" />
+      {styleTags}
+    </>
+  );
+}
