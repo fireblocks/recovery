@@ -22,7 +22,7 @@ export const getChildProcessInput = (args: Args) => {
     "-rk",
     args.rsaKey,
     "-p",
-    String(args.dangerouslyRecoverPrivateKeys),
+    String(args.dangerouslyRecoverPrivateKeys ?? false),
   ];
 
   if (args.rsaKeyPassphrase?.trim()) {

@@ -2,17 +2,18 @@
   "name": "@fireblocks/wallet-derivation",
   "description": "Derive wallet keys and addresses from extended keys and HD paths",
   "author": "Fireblocks <info@fireblocks.com> (https://www.fireblocks.com)",
-  "repository": "https://github.com/fireblocks/recovery",
+  "repository": "https://github.com/fireblocks/recovery/tree/main/packages/wallet-derivation",
   "homepage": "https://www.fireblocks.com",
   "version": "0.1.0",
   "license": "GPL-3.0-or-later",
-  "main": "src/index.ts",
+  "main": "index.ts",
   "scripts": {
     "lint": "eslint --fix .",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "test": "jest"
   },
   "dependencies": {
+    "@fireblocks/recovery-constants": "^0.0.0",
     "algosdk": "^2.1.0",
     "big-integer": "^1.6.51",
     "bigint-buffer": "^1.1.5",

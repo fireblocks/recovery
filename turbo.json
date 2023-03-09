@@ -1,6 +1,7 @@
 {
-  "$schema": "https://turborepo.org/schema.json",
+  "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["**/.env.*local"],
+  "globalEnv": ["GITHUB_TOKEN"],
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
@@ -25,29 +26,20 @@
         "APPLE_KEYCHAIN",
         "APPLE_KEYCHAIN_PROFILE",
         "CSC_LINK",
-        "CSC_KEY_PASSWORD"
+        "CSC_KEY_PASSWORD",
+        "FIREBLOCKS_API_KEY",
+        "FIREBLOCKS_API_PRIVATE_KEY"
       ]
     },
     "dev": {
+      "dependsOn": ["^dev"],
       "cache": false,
       "persistent": true
     },
-    "test": {
-      "outputs": []
-    },
-    "lint": {
-      "outputs": []
-    },
+    "test": {},
+    "lint": {},
     "format": {
-      "outputs": [
-        "main/**",
-        "renderer/**",
-        "components/**",
-        "context/**",
-        "lib/**",
-        "pages/**",
-        "*.py"
-      ]
+      "inputs": ["*.tsx", "*.ts", "*.js", "*.json", "*.py", "*.yml", "*.md"]
     }
   }
 }

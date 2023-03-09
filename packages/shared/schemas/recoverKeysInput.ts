@@ -20,3 +20,5 @@ export const recoverKeysInput = z.object({
     .trim()
     .describe("Recovery private key passphrase"),
 });
+
+export type RecoverKeysInput = z.infer<typeof recoverKeysInput>;

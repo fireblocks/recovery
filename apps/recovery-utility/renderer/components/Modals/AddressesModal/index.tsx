@@ -1,5 +1,6 @@
 import { Box, Typography } from "@mui/material";
-import { Button, getAssetInfo, Derivation } from "@fireblocks/recovery-shared";
+import { Button, getAsset } from "@fireblocks/recovery-shared";
+import { Derivation } from "@fireblocks/wallet-derivation";
 import { BaseModal } from "../BaseModal";
 import type { Row } from "../../../pages/accounts/vault/[accountId]";
 
@@ -66,7 +67,7 @@ function Addresses({ type, derivations, hasSegwit }: AddressProps) {
 }
 
 export function AddressesModal({ open, row, onClose }: Props) {
-  const assetInfo = getAssetInfo(row?.assetId);
+  const asset = row?.assetId ? getAsset(row.assetId) : undefined;
 
   const addressCount = row?.derivations.length ?? 0;
 
@@ -84,7 +85,7 @@ export function AddressesModal({ open, row, onClose }: Props) {
     <BaseModal
       open={open}
       onClose={onClose}
-      title={`${assetInfo.name} Address${addressCount > 1 ? "es" : ""}`}
+      title={`${asset?.name} Address${addressCount > 1 ? "es" : ""}`}
       actions={
         <Button variant="text" onClick={onClose}>
           Close

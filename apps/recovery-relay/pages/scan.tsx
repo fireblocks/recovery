@@ -7,7 +7,7 @@ import { Logo } from "../components/Logo";
 import { QrCodeScanner, ScanResult } from "../components/QrCodeScanner";
 
 const Scan: NextPageWithLayout = () => {
-  const { handleRelayUrl } = useWorkspace();
+  const { setWorkspaceFromRelayUrl } = useWorkspace();
 
   const [scanError, setScanError] = useState<string | undefined>(undefined);
 
@@ -15,7 +15,7 @@ const Scan: NextPageWithLayout = () => {
     try {
       setScanError(undefined);
 
-      handleRelayUrl(data);
+      setWorkspaceFromRelayUrl(data);
     } catch {
       setScanError("Invalid Recovery Relay URL in QR code");
     }

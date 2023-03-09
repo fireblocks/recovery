@@ -11,3 +11,5 @@ export const deriveKeysInput = z
     (data) => data.indexStart <= data.indexEnd,
     "Index start must be less than or equal to Index end"
   );
+
+export type DeriveKeysInput = z.infer<typeof deriveKeysInput>;

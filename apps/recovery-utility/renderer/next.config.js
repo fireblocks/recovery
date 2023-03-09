@@ -1,5 +1,6 @@
 // @ts-check
 const withTM = require("next-transpile-modules")([
+  "@fireblocks/recovery-constants",
   "@fireblocks/recovery-shared",
   "@fireblocks/wallet-derivation",
 ]);

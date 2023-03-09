@@ -1,6 +1,6 @@
 import { Network, networks, Psbt } from "bitcoinjs-lib";
 import { Buffer } from "buffer";
-import { Bitcoin as BaseBitcoin } from "@fireblocks/wallet-derivation";
+import { Bitcoin as BaseBitcoin, Input } from "@fireblocks/wallet-derivation";
 import { AddressSummary, FullUTXO, UTXOSummary } from "./types";
 import { UTXO, AccountData, TxPayload } from "../types";
 import { BaseWallet } from "../BaseWallet";
@@ -12,23 +12,11 @@ export class Bitcoin extends BaseBitcoin implements BaseWallet {
 
   private readonly baseUrl: string;
 
-  constructor(
-    xpub: string,
-    account: number,
-    addressIndex: number,
-    isTestnet = false,
-    isLegacy = false
-  ) {
-    super({
-      xpub,
-      assetId: "BTC",
-      path: { account, addressIndex },
-      isTestnet,
-      isLegacy,
-    });
+  constructor(input: Input) {
+    super(input);
 
-    this.network = networks[isTestnet ? "testnet" : "bitcoin"];
-    this.baseUrl = isTestnet
+    this.network = networks[input.isTestnet ? "testnet" : "bitcoin"];
+    this.baseUrl = input.isTestnet
       ? "https://blockstream.info/testnet/api"
       : "https://blockstream.info/api";
   }
@@ -199,7 +187,7 @@ export class Bitcoin extends BaseBitcoin implements BaseWallet {
     const balance = chainStats.funded_txo_sum - chainStats.spent_txo_sum;
     const btcBalance = Bitcoin._satsToBtc(balance);
 
-    this.balance = btcBalance;
+    this.balance.native = btcBalance;
     this.lastUpdated = new Date();
 
     return btcBalance;

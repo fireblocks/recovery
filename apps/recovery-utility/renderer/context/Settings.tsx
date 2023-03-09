@@ -6,7 +6,7 @@ import {
   ReactNode,
 } from "react";
 import { z } from "zod";
-import { settingsInput } from "../lib/schemas";
+import { settingsInput } from "@fireblocks/recovery-shared";
 import {
   restoreSettings as ipcRestoreSettings,
   saveSettings as ipcSaveSettings,

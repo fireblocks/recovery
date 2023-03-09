@@ -19,7 +19,7 @@ import {
   Avatar,
 } from "@mui/material";
 import { generateRsaKeypairInput } from "../lib/schemas";
-import { download } from "../lib/download";
+import { download } from "@fireblocks/recovery-shared/lib/download";
 import { useConnectionTest } from "../context/ConnectionTest";
 import { Layout } from "../components/Layout";
 import type { NextPageWithLayout } from "./_app";

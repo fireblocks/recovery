@@ -48,10 +48,15 @@ const Verify: NextPageWithLayout = () => {
             enableCopy
             isMonospace
             endAdornment={
-              <InputAdornment position="end">
-                <CheckCircle color="success" sx={{ marginRight: "0.25rem" }} />
-                Valid
-              </InputAdornment>
+              extendedKeys?.xpub ? (
+                <InputAdornment position="end">
+                  <CheckCircle
+                    color="success"
+                    sx={{ marginRight: "0.25rem" }}
+                  />
+                  Valid
+                </InputAdornment>
+              ) : null
             }
           />
         </Grid>
@@ -63,10 +68,15 @@ const Verify: NextPageWithLayout = () => {
             enableCopy
             isMonospace
             endAdornment={
-              <InputAdornment position="end">
-                <CheckCircle color="success" sx={{ marginRight: "0.25rem" }} />
-                Valid
-              </InputAdornment>
+              extendedKeys?.fpub ? (
+                <InputAdornment position="end">
+                  <CheckCircle
+                    color="success"
+                    sx={{ marginRight: "0.25rem" }}
+                  />
+                  Valid
+                </InputAdornment>
+              ) : null
             }
           />
         </Grid>
@@ -100,14 +110,6 @@ const Verify: NextPageWithLayout = () => {
   );
 };
 
-Verify.getLayout = (page, router) => {
-  const verifyOnly = router.query.verifyOnly === "true";
-
-  return (
-    <Layout showBack={verifyOnly} hideNavigation={verifyOnly}>
-      {page}
-    </Layout>
-  );
-};
+Verify.getLayout = (page) => <Layout>{page}</Layout>;
 
 export default Verify;

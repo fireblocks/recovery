@@ -11,14 +11,13 @@ import {
 } from "@mui/material";
 import {
   AssetIcon,
-  assets,
   theme,
-  getAssetInfo,
+  getAsset,
   getRelayUrl,
-  AssetId,
-  AssetInfo,
   VaultAccount,
+  Asset,
 } from "@fireblocks/recovery-shared";
+import { supportedAssetsArray } from "@fireblocks/recovery-constants/supportedAssets";
 import { BaseModal } from "../BaseModal";
 import { useSettings } from "../../../context/Settings";
 import { useWorkspace } from "../../../context/Workspace";
@@ -26,40 +25,53 @@ import { VaultAccountIcon } from "../../Icons";
 import { QrCode } from "../../QrCode";
 
 type Props = {
-  assetId?: AssetId;
+  assetId?: string;
   accountId?: number;
   open: boolean;
   onClose: VoidFunction;
 };
 
-export const WithdrawModal = ({ assetId, accountId, open, onClose }: Props) => {
+export const WithdrawModal = ({
+  assetId: openAssetId,
+  accountId,
+  open,
+  onClose,
+}: Props) => {
   const { relayBaseUrl } = useSettings();
 
-  const { extendedKeys, asset, vaultAccounts } = useWorkspace();
+  const { extendedKeys, asset: defaultAsset, accounts } = useWorkspace();
 
-  const resolvedAssetId = assetId ?? asset?.id;
+  const accountsArray = useMemo(
+    () => Array.from(accounts.values()),
+    [accounts]
+  );
 
-  const vaultAccountsArray = useMemo(
-    () => Array.from(vaultAccounts.values()),
-    [vaultAccounts]
+  const assetsInVault = useMemo(
+    () =>
+      supportedAssetsArray.filter((asset) =>
+        accountsArray.some((account) => account.wallets.has(asset.id))
+      ),
+    [accountsArray]
   );
 
   const [account, setAccount] = useState<VaultAccount | undefined>(() =>
-    typeof accountId === "number" ? vaultAccounts.get(accountId) : undefined
+    typeof accountId === "number" ? accounts.get(accountId) : undefined
   );
 
   const onChangeAccount = (newAccount: VaultAccount | null) =>
     setAccount(newAccount ?? undefined);
 
-  const [resolvedAsset, setAsset] = useState<AssetInfo | undefined>(
-    resolvedAssetId ? getAssetInfo(resolvedAssetId) : undefined
+  const resolvedAssetId = openAssetId ?? defaultAsset?.id;
+
+  const [resolvedAsset, setAsset] = useState<Asset | undefined>(
+    resolvedAssetId ? getAsset(resolvedAssetId) : undefined
   );
 
-  const onChangeAsset = (newAsset: AssetInfo | null) =>
+  const onChangeAsset = (newAsset: Asset | null) =>
     setAsset(newAsset ?? undefined);
 
   const relayUrl = useMemo(() => {
-    if (!resolvedAsset || !extendedKeys) {
+    if (!resolvedAsset?.id || !extendedKeys) {
       return "";
     }
 
@@ -67,10 +79,10 @@ export const WithdrawModal = ({ assetId, accountId, open, onClose }: Props) => {
 
     return getRelayUrl(
       "/",
-      { xpub, fpub, assetId: resolvedAssetId, accountId },
+      { xpub, fpub, assetId: resolvedAsset.id, accountId },
       relayBaseUrl
     );
-  }, [resolvedAsset, extendedKeys, resolvedAssetId, accountId, relayBaseUrl]);
+  }, [resolvedAsset, extendedKeys, accountId, relayBaseUrl]);
 
   return (
     <BaseModal open={open} onClose={onClose} title="New Withdrawal">
@@ -84,8 +96,8 @@ export const WithdrawModal = ({ assetId, accountId, open, onClose }: Props) => {
                 // autoSelect
                 // blurOnSelect
                 // includeInputInList
-                value={(asset ?? { id: "" }) as AssetInfo}
-                options={assets}
+                value={(resolvedAsset ?? { id: "" }) as Asset}
+                options={assetsInVault as Asset[]}
                 getOptionLabel={(option) => option.id}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 renderInput={(params) => (
@@ -134,7 +146,7 @@ export const WithdrawModal = ({ assetId, accountId, open, onClose }: Props) => {
                 // blurOnSelect
                 // includeInputInList
                 value={(account ?? { name: "" }) as VaultAccount}
-                options={vaultAccountsArray}
+                options={accountsArray}
                 getOptionLabel={(option) => option.name}
                 renderInput={(params) => (
                   <TextField {...params} fullWidth label="From" />
@@ -178,7 +190,7 @@ export const WithdrawModal = ({ assetId, accountId, open, onClose }: Props) => {
               <Typography variant="body1" paragraph>
                 Scan the QR code with an online device to send a transaction
                 with Fireblocks Recovery Relay. Use the PIN to decrypt the{" "}
-                {asset?.name} private key.
+                {resolvedAsset?.name} private key.
               </Typography>
             </Grid>
           </Grid>

@@ -1,10 +1,10 @@
-import { GetStaticProps, GetStaticPaths } from "next";
 import Head from "next/head";
 import { useId, useState } from "react";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { nanoid } from "nanoid";
 import {
   Typography,
   Box,
@@ -20,16 +20,14 @@ import {
   Link,
   NextLinkComposed,
   monospaceFontFamily,
-  getAssetInfo,
-  assetIds,
-  AssetId,
 } from "@fireblocks/recovery-shared";
+import { transactionInput } from "@fireblocks/recovery-shared/schemas";
 import type { NextPageWithLayout } from "../_app";
 import { useWorkspace } from "../../context/Workspace";
 import { Logo } from "../../components/Logo";
 import { ConfirmationModal } from "../../components/ConfirmationModal";
 import { AccountData, UTXO } from "../../lib/wallets/types";
-import { transactionInput } from "../../lib/schemas";
+import { BaseWallet } from "../../lib/wallets";
 
 type FormData = z.infer<typeof transactionInput>;
 
@@ -40,16 +38,11 @@ const defaultValues: FormData = {
   amount: 0,
 };
 
-type Props = {
-  assetId: AssetId;
-};
-
-const Wallet: NextPageWithLayout<Props> = ({ assetId }: Props) => {
+const Wallet: NextPageWithLayout = () => {
   const queryClient = useQueryClient();
 
-  const { address, walletInstance, handleTransaction } = useWorkspace();
+  const { asset, account, setTransaction } = useWorkspace();
 
-  const asset = getAssetInfo(assetId);
   const title = `${asset?.name} Wallet`;
 
   const fromAddressId = useId();
@@ -60,10 +53,21 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }: Props) => {
 
   const [txHash, setTxHash] = useState<string | undefined>(undefined);
 
-  const addressUrl = address
-    ? asset?.getExplorerUrl(address, "address")
+  const wallet = account && asset ? account.wallets.get(asset.id) : undefined;
+
+  // TODO: Automatically derive all addresses until the first one with a 0 balance, up to a limit of 10 initial zero balances
+  // Hack to get first derivation
+  const derivation = Array.from(wallet?.derivations.values() ?? [])[0] as
+    | BaseWallet
+    | undefined;
+
+  const addressUrl = derivation?.address
+    ? "" // asset?.getExplorerUrl(address, "address")
     : undefined;
-  const txUrl = txHash ? asset?.getExplorerUrl(txHash, "tx") : undefined;
+
+  const txUrl = txHash
+    ? asset?.explorerUrl // asset?.getExplorerUrl(txHash, "tx")
+    : undefined;
 
   const {
     register,
@@ -90,13 +94,13 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }: Props) => {
 
   const values = watch();
 
-  const balanceQueryKey = ["balance", address];
+  const balanceQueryKey = ["balance", derivation?.address];
 
   const balanceQuery = useQuery({
     queryKey: balanceQueryKey,
-    enabled: !!walletInstance,
+    enabled: !!derivation,
     queryFn: async () => {
-      const balance = await walletInstance?.getBalance();
+      const balance = await derivation!.getBalance();
 
       return balance;
     },
@@ -111,9 +115,9 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }: Props) => {
 
   const prepareQuery = useQuery({
     queryKey: prepareQueryKey,
-    enabled: !!walletInstance,
+    enabled: !!derivation,
     queryFn: async () => {
-      const prepare = await walletInstance?.prepare();
+      const prepare = await derivation!.prepare();
 
       return prepare;
     },
@@ -127,18 +131,13 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }: Props) => {
 
   const txMutation = useMutation({
     mutationFn: async (variables: TxMutationVariables) => {
-      if (!walletInstance) {
+      if (!derivation) {
         throw new Error("No wallet instance found");
       }
 
       const { to, amount, utxos, memo } = variables;
 
-      const txPayload = await walletInstance.generateTx(
-        to,
-        amount,
-        memo,
-        utxos
-      );
+      const txPayload = await derivation.generateTx(to, amount, memo, utxos);
 
       return txPayload;
     },
@@ -153,16 +152,22 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }: Props) => {
     },
     onError: (error: Error) => {
       console.error(error);
-
-      handleTransaction({
-        state: "error",
-        to: values.to,
-        amount: values.amount,
-        error,
-      });
-
-      return error;
     },
+    onSettled: (data, error, variables) =>
+      setTransaction({
+        id: nanoid(),
+        state: error ? "error" : "created",
+        assetId: wallet?.assetId ?? "",
+        accountId: account?.id ?? 0,
+        addressIndex: derivation?.path.addressIndex ?? 0,
+        from: derivation?.address ?? "",
+        to: variables.to,
+        amount: variables.amount,
+        remainingBalance: derivation?.balance.native ?? 0 - variables.amount,
+        memo: variables.memo,
+        hex: data?.tx,
+        error: error?.message,
+      }),
   });
 
   const onSubmit = () => setIsConfirmationModalOpen(true);
@@ -220,7 +225,7 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }: Props) => {
             noWrap
             sx={{ userSelect: "text", cursor: "default" }}
           >
-            {address}
+            {derivation?.address}
           </Typography>
         </Grid>
         <Grid item xs={12}>
@@ -335,7 +340,7 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }: Props) => {
                   rows={prepareQuery.data.utxos.map((utxo, idx) => ({
                     id: idx,
                     tx: utxo.txHash,
-                    value: `${utxo.value} ${asset.id}`,
+                    value: `${utxo.value} ${asset?.id}`,
                     confirmed: `${utxo.confirmed ? "Yes" : "No"}`,
                   }))}
                   columns={
@@ -390,7 +395,7 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }: Props) => {
         error={txMutation.error}
         amount={values.amount}
         assetSymbol={asset?.id ?? ""}
-        fromAddress={address ?? ""}
+        fromAddress={derivation?.address ?? ""}
         toAddress={values.to}
         txUrl={txUrl}
         onClose={onCloseConfirmationModal}
@@ -401,14 +406,3 @@ const Wallet: NextPageWithLayout<Props> = ({ assetId }: Props) => {
 };
 
 export default Wallet;
-
-export const getStaticProps: GetStaticProps<Props> = async ({ params }) => ({
-  props: {
-    assetId: params?.assetId as AssetId,
-  },
-});
-
-export const getStaticPaths: GetStaticPaths = async () => ({
-  paths: assetIds.map((assetId) => ({ params: { assetId } })),
-  fallback: false,
-});

@@ -5,7 +5,7 @@ import { Box, Grid, Typography, Breadcrumbs } from "@mui/material";
 import {
   GridToolbarQuickFilter,
   GridActionsCellItem,
-  GridColumns,
+  GridColDef,
   GridRowsProp,
 } from "@mui/x-data-grid";
 import { Add } from "@mui/icons-material";
@@ -80,7 +80,7 @@ function GridToolbar({ onClickExport, onClickAddAccount }: GridToolbarProps) {
 const Vault: NextPageWithLayout = () => {
   const router = useRouter();
 
-  const { vaultAccounts } = useWorkspace();
+  const { accounts } = useWorkspace();
 
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
@@ -103,7 +103,7 @@ const Vault: NextPageWithLayout = () => {
     setWithdrawalAccountId(_accountId);
   const handleCloseWithdrawModal = () => setWithdrawalAccountId(undefined);
 
-  const columns = useMemo<GridColumns<Row>>(
+  const columns = useMemo<GridColDef<Row>[]>(
     () => [
       {
         field: "icon",
@@ -180,20 +180,23 @@ const Vault: NextPageWithLayout = () => {
 
   const rows = useMemo<GridRowsProp<Row>>(
     () =>
-      Array.from(vaultAccounts).map(([accountId, account]) => ({
+      Array.from(accounts).map(([accountId, account]) => ({
         accountId,
         name: account.name,
-        balance: undefined,
+        balance: Array.from(account.wallets).reduce(
+          (balance, [, wallet]) => balance + (wallet.balance?.native ?? 0),
+          0
+        ),
         addresses: Array.from(account.wallets)
           .flatMap(([, wallet]) => Array.from(wallet.derivations))
-          .map(([address]) => address),
+          .map(([, derivation]) => derivation.address),
       })),
-    [vaultAccounts]
+    [accounts]
   );
 
   return (
     <>
-      {vaultAccounts.size ? (
+      {accounts.size ? (
         <DataGrid<Row>
           heading={
             <>

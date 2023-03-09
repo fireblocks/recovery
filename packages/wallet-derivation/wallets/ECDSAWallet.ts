@@ -1,5 +1,5 @@
 import { sha256, encodeBase58, HDNodeWallet } from "ethers";
-import { Input, Derivation } from "../types";
+import { Input, KeyDerivation } from "../types";
 import { BaseWallet } from "./BaseWallet";
 
 export abstract class ECDSAWallet extends BaseWallet {
@@ -21,7 +21,7 @@ export abstract class ECDSAWallet extends BaseWallet {
     return wifBase58;
   }
 
-  protected derive(extendedKey: string): Derivation {
+  protected derive(extendedKey: string): KeyDerivation {
     const pathString = `m/${this.pathParts.join("/")}`;
 
     const derivedWallet =

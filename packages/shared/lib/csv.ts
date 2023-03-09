@@ -1,5 +1,5 @@
-import { parse, unparse } from "papaparse";
-import { addressCsv } from "./schemas";
+import { LocalFile, parse, unparse } from "papaparse";
+import { addressCsv } from "../schemas";
 
 /**
  * Parsed row
@@ -75,7 +75,7 @@ const headers: Array<keyof CsvRow> = [
 
 const parseRow = (row: CsvRow) => {
   try {
-    const parsedRow = props.reduce((parsedRow, prop, index) => {
+    const parsedRow = props.reduce((acc, prop, index) => {
       const header = headers[index];
 
       let value: string | number | number[] | undefined = row[header];
@@ -87,7 +87,7 @@ const parseRow = (row: CsvRow) => {
           .map(Number);
       }
 
-      return { ...parsedRow, [prop]: value ?? undefined };
+      return { ...acc, [prop]: value ?? undefined };
     }, {} as ParsedRow);
 
     return addressCsv.parse(parsedRow);
@@ -99,10 +99,10 @@ const parseRow = (row: CsvRow) => {
 };
 
 export const csvImport = async (
-  csvFile: File,
+  csvFile: LocalFile,
   handleRow: (row: ParsedRow) => void
 ) =>
-  new Promise<void>((resolve, reject) =>
+  new Promise<void>((resolve, reject) => {
     parse<CsvRow>(csvFile, {
       worker: true,
       header: true,
@@ -111,7 +111,8 @@ export const csvImport = async (
       fastMode: true,
       step: ({ data, errors }) => {
         if (errors.length > 0) {
-          return reject(errors.length > 1 ? errors : errors[0]);
+          reject(errors.length > 1 ? errors : errors[0]);
+          return;
         }
 
         const row = parseRow(data);
@@ -119,8 +120,8 @@ export const csvImport = async (
         handleRow(row);
       },
       complete: () => resolve(),
-    })
-  );
+    });
+  });
 
 export const csvExport = (rows: ParsedRow[]) => {
   const data = rows.map((row) => props.map((prop) => row[prop]));

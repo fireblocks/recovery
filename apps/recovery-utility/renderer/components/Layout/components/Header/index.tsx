@@ -18,7 +18,7 @@ type Props = {
 export function Header({ hideNavigation, showBack }: Props) {
   const router = useRouter();
 
-  const { extendedKeys, reset } = useWorkspace();
+  const { reset } = useWorkspace();
 
   const isActive = (pathname: string) => router.pathname.startsWith(pathname);
 
@@ -70,7 +70,7 @@ export function Header({ hideNavigation, showBack }: Props) {
             </Button>
           </Grid>
         )}
-        {!!extendedKeys && !hideNavigation && (
+        {!hideNavigation && (
           <>
             <Grid item>
               <Button

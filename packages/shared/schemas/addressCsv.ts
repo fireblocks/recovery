@@ -17,3 +17,5 @@ export const addressCsv = z.object({
     "Private key in Wallet Import Format (WIF)"
   ),
 });
+
+export type AddressCsv = z.infer<typeof addressCsv>;

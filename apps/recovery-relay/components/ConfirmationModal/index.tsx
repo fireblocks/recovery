@@ -20,7 +20,7 @@ import {
   NextLinkComposed,
   monospaceFontFamily,
 } from "@fireblocks/recovery-shared";
-import { decryptInput } from "../../lib/schemas";
+import { decryptInput } from "@fireblocks/recovery-shared/schemas";
 
 type FormData = z.infer<typeof decryptInput>;
 

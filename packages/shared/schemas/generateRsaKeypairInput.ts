@@ -6,3 +6,5 @@ export const generateRsaKeypairInput = z.object({
     "Recovery private key passphrase is required"
   ).describe("Recovery private key passphrase"),
 });
+
+export type GenerateRsaKeypairInput = z.infer<typeof generateRsaKeypairInput>;

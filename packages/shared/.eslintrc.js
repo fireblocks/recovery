@@ -28,7 +28,6 @@ module.exports = {
   rules: {
     "no-underscore-dangle": "off",
     "no-console": ["warn", { allow: ["warn", "error"] }],
-    "react/react-in-jsx-scope": "off",
     "react/function-component-definition": "off",
     "react/jsx-props-no-spreading": "off",
     "react/prop-types": "off",

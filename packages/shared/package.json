@@ -2,7 +2,7 @@
   "name": "@fireblocks/recovery-shared",
   "description": "Shared TypeScript frontend components and utilities",
   "author": "Fireblocks <info@fireblocks.com> (https://www.fireblocks.com)",
-  "repository": "https://github.com/fireblocks/recovery",
+  "repository": "https://github.com/fireblocks/recovery/tree/main/packages/shared",
   "homepage": "https://www.fireblocks.com",
   "version": "0.1.3",
   "license": "GPL-3.0-or-later",
@@ -17,6 +17,7 @@
     "@emotion/react": "^11.10.6",
     "@emotion/server": "^11.10.0",
     "@emotion/styled": "^11.10.6",
+    "@fireblocks/wallet-derivation": "^0.1.0",
     "@mui/icons-material": "^5.11.11",
     "@mui/material": "^5.11.12",
     "@mui/styles": "^5.11.12",
@@ -24,8 +25,11 @@
     "clsx": "^1.2.1",
     "copy-to-clipboard": "^3.3.3",
     "jsoncrush": "^1.1.8",
+    "nanoid": "^4.0.1",
     "next": "^13.2.3",
-    "react": "^18.2.0"
+    "papaparse": "^5.4.0",
+    "react": "^18.2.0",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@tanstack/react-query-devtools": "^4.26.1",

@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import { Button, getAssetInfo } from "@fireblocks/recovery-shared";
+import { Button, getAsset } from "@fireblocks/recovery-shared";
 import { BaseModal } from "../BaseModal";
 import type { Row } from "../../../pages/accounts/vault/[accountId]";
 
@@ -31,7 +31,7 @@ const Key = ({ type, keyData }: KeyProps) => (
 );
 
 export const KeysModal = ({ open, row, onClose }: Props) => {
-  const assetInfo = getAssetInfo(row?.assetId);
+  const asset = row?.assetId ? getAsset(row.assetId) : undefined;
 
   const keys = row?.derivations
     .map(({ publicKey, privateKey, wif }) => ({
@@ -51,7 +51,7 @@ export const KeysModal = ({ open, row, onClose }: Props) => {
     <BaseModal
       open={open}
       onClose={onClose}
-      title={`${assetInfo.name} Keys`}
+      title={`${asset?.name} Keys`}
       actions={
         <Button variant="text" onClick={onClose}>
           Close

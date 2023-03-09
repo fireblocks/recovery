@@ -2,8 +2,11 @@ import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button, TextField } from "@fireblocks/recovery-shared";
-import { recoverAccountInput } from "../../../lib/schemas";
+import {
+  Button,
+  TextField,
+  recoverAccountInput,
+} from "@fireblocks/recovery-shared";
 import { useWorkspace } from "../../../context/Workspace";
 import { BaseModal } from "../BaseModal";
 
@@ -19,7 +22,7 @@ const defaultValues: FormData = { name: "" };
 export const RecoverAccountModal = ({ open, onClose: _onClose }: Props) => {
   const router = useRouter();
 
-  const { addVaultAccount } = useWorkspace();
+  const { addAccount } = useWorkspace();
 
   const {
     register,
@@ -38,7 +41,7 @@ export const RecoverAccountModal = ({ open, onClose: _onClose }: Props) => {
   };
 
   const onSubmit = (formData: FormData) => {
-    const accountId = addVaultAccount(formData.name);
+    const accountId = addAccount(formData.name);
 
     router.push({
       pathname: "/accounts/vault/[accountId]",

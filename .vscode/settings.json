@@ -6,6 +6,7 @@
     "typescriptreact"
   ],
   "eslint.workingDirectories": [
+    "packages/constants",
     "packages/shared",
     "packages/wallet-derivation",
     "apps/recovery-utility",
@@ -26,5 +27,6 @@
   },
   "[xml]": {
     "editor.defaultFormatter": "DotJoshJohnson.xml"
-  }
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

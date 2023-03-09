@@ -13,3 +13,5 @@ export const settingsInput = z.object({
     .min(1, "URL is required")
     .describe("Recovery Relay base URL"),
 });
+
+export type SettingsInput = z.infer<typeof settingsInput>;

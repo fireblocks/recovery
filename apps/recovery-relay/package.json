@@ -2,7 +2,7 @@
   "name": "@fireblocks/recovery-relay",
   "description": "Connect recovered wallets to query balances and send transactions.",
   "author": "Fireblocks <info@fireblocks.com> (https://www.fireblocks.com)",
-  "repository": "https://github.com/fireblocks/recovery",
+  "repository": "https://github.com/fireblocks/recovery/tree/main/apps/recovery-relay",
   "homepage": "https://relay.fireblocks.solutions",
   "license": "GPL-3.0-or-later",
   "version": "0.1.1",
@@ -27,7 +27,8 @@
     "bigint-buffer": "^1.1.5",
     "bitcoinjs-lib": "^6.1.0",
     "buffer": "^6.0.3",
-    "ethers": "^5.7.2",
+    "ethers": "^6.1.0",
+    "nanoid": "^4.0.1",
     "next": "^13.2.3",
     "next-pwa": "^5.6.0",
     "next-transpile-modules": "^10.0.0",
@@ -36,7 +37,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.43.5",
     "webrtc-adapter": "^8.2.1",
-    "zod": "^3.21.3"
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@types/node": "^18.14.6",

@@ -1,22 +1,15 @@
-import { useRouter } from "next/router";
 import { useState, useMemo } from "react";
-import {
-  Button,
-  Link,
-  getAssetInfo,
-  assets,
-  AssetId,
-  AssetIcon,
-  Derivation,
-} from "@fireblocks/recovery-shared";
+import { Button, Link, getAsset, AssetIcon } from "@fireblocks/recovery-shared";
+import { supportedAssetsArray } from "@fireblocks/recovery-constants/supportedAssets";
 import { Box, Typography, Breadcrumbs } from "@mui/material";
 import {
   GridToolbarQuickFilter,
   GridActionsCellItem,
-  GridColumns,
+  GridColDef,
   GridRowsProp,
 } from "@mui/x-data-grid";
 import { Add, NavigateNext } from "@mui/icons-material";
+import { Derivation } from "@fireblocks/wallet-derivation";
 import type { NextPageWithLayout } from "../../../_app";
 import { useWorkspace } from "../../../../context/Workspace";
 import { Layout } from "../../../../components/Layout";
@@ -33,7 +26,7 @@ import { KeysModal } from "../../../../components/Modals/KeysModal";
 import { WithdrawModal } from "../../../../components/Modals/WithdrawModal";
 
 export type Row = {
-  assetId: AssetId;
+  assetId: string;
   balance?: number;
   derivations: Derivation[];
 };
@@ -87,21 +80,32 @@ function GridToolbar({
 }
 
 const VaultAccount: NextPageWithLayout = () => {
-  const router = useRouter();
+  const { account } = useWorkspace();
 
-  const { vaultAccounts } = useWorkspace();
+  const assetsNotInAccount = useMemo(() => {
+    const assetsInAccount = account?.wallets.size
+      ? Array.from(account.wallets.keys()).map(
+          (assetId) =>
+            getAsset(assetId) ?? {
+              id: assetId,
+              name: assetId,
+              type: "BASE_ASSET",
+              nativeAsset: assetId,
+              decimals: 18,
+            }
+        )
+      : [];
 
-  const accountId =
-    typeof router.query.accountId === "string"
-      ? parseInt(router.query.accountId, 10)
-      : undefined;
+    const otherAssets = [...supportedAssetsArray]
+      .filter(
+        (asset) =>
+          !assetsInAccount.some((assetInVault) => assetInVault.id === asset.id)
+      )
+      .sort((a, b) => a.name.localeCompare(b.name));
 
-  const vaultAccount =
-    typeof accountId === "number" ? vaultAccounts.get(accountId) : undefined;
-
-  const newAssets = assets.filter(
-    (asset) => !vaultAccount?.wallets.get(asset.id)
-  );
+    return otherAssets;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [isRestoreWalletModalOpen, setIsRestoreWalletModalOpen] =
     useState(false);
@@ -121,14 +125,15 @@ const VaultAccount: NextPageWithLayout = () => {
   const handleCloseKeysModal = () => setKeysModalRow(null);
 
   const [withdrawalAssetId, setWithdrawalAssetId] = useState<
-    AssetId | undefined
+    string | undefined
   >(undefined);
 
-  const handleOpenWithdrawModal = (assetId: AssetId) =>
+  const handleOpenWithdrawModal = (assetId: string) =>
     setWithdrawalAssetId(assetId);
+
   const handleCloseWithdrawModal = () => setWithdrawalAssetId(undefined);
 
-  const columns = useMemo<GridColumns<Row>>(
+  const columns = useMemo<GridColDef<Row>[]>(
     () => [
       {
         field: "icon",
@@ -146,7 +151,7 @@ const VaultAccount: NextPageWithLayout = () => {
             border={(theme) => `solid 1px ${theme.palette.grey[200]}`}
             borderRadius={40}
           >
-            <AssetIcon assetId={params.row.assetId as AssetId} />
+            <AssetIcon assetId={params.row.assetId} />
           </Box>
         ),
       },
@@ -162,9 +167,9 @@ const VaultAccount: NextPageWithLayout = () => {
           return (params) => {
             const { assetId } = params.row;
 
-            return (
+            return !!(
               assetId.toLowerCase().includes(lowercaseSearch) ||
-              getAssetInfo(assetId).name.toLowerCase().includes(lowercaseSearch)
+              getAsset(assetId)?.name.toLowerCase().includes(lowercaseSearch)
             );
           };
         },
@@ -222,7 +227,11 @@ const VaultAccount: NextPageWithLayout = () => {
             icon={<WithdrawIcon />}
             label="Withdraw"
             onClick={() => handleOpenWithdrawModal(params.row.assetId)}
-            disabled={!params.row.derivations?.length}
+            disabled={
+              !params.row.derivations?.some(
+                (derivation) => derivation.privateKey
+              )
+            }
           />,
         ],
       },
@@ -230,19 +239,14 @@ const VaultAccount: NextPageWithLayout = () => {
     []
   );
 
-  const rows: GridRowsProp<Row> = vaultAccount
-    ? Array.from(vaultAccount.wallets)
-        .map(([assetId, wallet]) => ({
-          assetId,
-          balance: wallet.balance,
-          derivations: Array.from(wallet.derivations).map(
-            ([, derivation]) => derivation
-          ),
-        }))
-        // TODO: Make this a user setting
-        .filter((row) =>
-          row.derivations.some((derivation) => derivation.privateKey)
-        )
+  const rows: GridRowsProp<Row> = account
+    ? Array.from(account.wallets).map(([assetId, wallet]) => ({
+        assetId,
+        balance: wallet.balance?.native,
+        derivations: Array.from(wallet.derivations).map(
+          ([, derivation]) => derivation
+        ),
+      }))
     : [];
 
   return (
@@ -275,7 +279,10 @@ const VaultAccount: NextPageWithLayout = () => {
                 >
                   <VaultAccountIcon sx={{ fontSize: "19px" }} />
                 </Box>
-                {vaultAccount?.name}
+                {account?.name}{" "}
+                <Typography fontWeight={400} marginLeft="0.5em">
+                  (ID {account?.id})
+                </Typography>
               </Typography>
             </Breadcrumbs>
           </>
@@ -283,13 +290,11 @@ const VaultAccount: NextPageWithLayout = () => {
         getRowId={(row) => row.assetId}
         rows={rows}
         columns={columns}
-        headerHeight={0}
-        disableSelectionOnClick
         componentsProps={{
           toolbar: {
             children: (
               <GridToolbar
-                isAddWalletDisabled={!newAssets.length}
+                isAddWalletDisabled={!assetsNotInAccount.length}
                 onClickAddWallet={handleOpenRestoreWalletModal}
               />
             ),
@@ -303,8 +308,8 @@ const VaultAccount: NextPageWithLayout = () => {
         }}
       />
       <RecoverWalletModal
-        assets={newAssets}
-        accountId={accountId}
+        assets={assetsNotInAccount}
+        accountId={account?.id}
         open={isRestoreWalletModalOpen}
         onClose={handleCloseRestoreWalletModal}
       />
@@ -320,7 +325,7 @@ const VaultAccount: NextPageWithLayout = () => {
       />
       <WithdrawModal
         assetId={withdrawalAssetId}
-        accountId={accountId}
+        accountId={account?.id}
         open={typeof withdrawalAssetId === "string"}
         onClose={handleCloseWithdrawModal}
       />

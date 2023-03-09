@@ -1,52 +1,65 @@
+import type { BaseWallet } from "@fireblocks/wallet-derivation";
+
 export enum AssetId {
   BTC = "BTC",
+  BTC_TEST = "BTC_TEST",
   ETH = "ETH",
+  ETH_TEST3 = "ETH_TEST3",
   SOL = "SOL",
-}
-
-export enum AssetType {
-  UTXO = "UTXO",
-  ACCOUNT = "ACCOUNT",
-}
-
-export enum SigningAlgorithm {
-  MPC_ECDSA_SECP256K1 = "MPC_ECDSA_SECP256K1",
-  MPC_ECDSA_SECP256R1 = "MPC_ECDSA_SECP256R1",
-  MPC_EDDSA_ED25519 = "MPC_EDDSA_ED25519",
+  SOL_TEST = "SOL_TEST",
 }
 
 export type AssetInfo = {
-  id: AssetId;
+  id: string;
   name: string;
-  type: AssetType;
-  algorithm: SigningAlgorithm;
-  utxoUsage: boolean;
-  getExplorerUrl: (locator: string, type: "tx" | "address") => string;
+  type: string;
+  contractAddress?: string;
+  nativeAsset: string;
+  decimals: number;
+  isTestnet?: boolean;
+  rpcURL?: string;
+  explorerUrl?: string;
+  attrs?: {
+    utxo?: boolean;
+    p2wpkh?: boolean;
+  };
 };
 
-export type Derivation = {
-  pathParts: number[];
-  address: string;
-  type: "Permanent" | "Deposit";
+export type Wallet<T extends BaseWallet = BaseWallet> = {
+  assetId: string;
   isTestnet: boolean;
-  isLegacy?: boolean;
-  description?: string;
-  tag?: string;
-  publicKey?: string;
-  privateKey?: string;
-  wif?: string;
+  balance?: {
+    native?: number;
+    usd?: number;
+  };
+  /** Map of addresses to derivations */
+  derivations: Map<string, T>;
 };
 
-export type Wallet = {
-  assetId: AssetId;
-  isTestnet: boolean;
-  balance?: number;
-  balanceUsd?: number;
-  derivations: Map<string, Derivation>;
-};
-
-export type VaultAccount = {
+export type VaultAccount<T extends BaseWallet = BaseWallet> = {
   id: number;
   name: string;
-  wallets: Map<AssetId, Wallet>;
+  /** Map of asset IDs to wallets */
+  wallets: Map<string, Wallet<T>>;
+};
+
+export type Transaction = {
+  id: string;
+  state: "created" | "signed" | "submitted" | "error";
+  assetId: string;
+  accountId: number;
+  addressIndex: number;
+  from: string;
+  to: string;
+  amount: number;
+  remainingBalance?: number;
+  memo?: string;
+  contractCall?: {
+    abi: string;
+    params: Record<string, string>;
+  };
+  hex?: string;
+  signature?: string;
+  hash?: string;
+  error?: string;
 };

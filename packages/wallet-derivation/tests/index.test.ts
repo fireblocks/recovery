@@ -1,4 +1,4 @@
-import { deriveWallet } from "../src";
+import { deriveWallet } from "..";
 
 const xprv =
   "xprv9s21ZrQH143K2zPNSbKDKusTNW4XVwvTCCEFvcLkeNyauqJJd9UjZg3AtfZbmXa22TFph2NdACUPoWR4sCqMCKQM1j7jRvLuBCF3YoapsX6";

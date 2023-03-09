@@ -3,7 +3,7 @@ import { toBigIntBE } from "bigint-buffer";
 import { decode } from "bs58check";
 import { createHmac } from "crypto";
 import { hexlify, toBeHex } from "ethers";
-import { Input } from "../../types";
+import { Input, Derivation as KeyDerivation } from "../../types";
 import { BaseWallet } from "../BaseWallet";
 import {
   hexToNumber,
@@ -63,7 +63,7 @@ export abstract class EdDSAWallet extends BaseWallet {
    * @param extendedKey The fprv/fpub to derive from
    * @param derivationPath The derivation path to use
    */
-  protected derive(extendedKey: string) {
+  protected derive(extendedKey: string): KeyDerivation {
     const decodedKey = decode(extendedKey);
 
     if (decodedKey.length !== 78) {

@@ -1,5 +1,5 @@
 import * as web3 from "@solana/web3.js";
-import { Solana as BaseSolana } from "@fireblocks/wallet-derivation";
+import { Solana as BaseSolana, Input } from "@fireblocks/wallet-derivation";
 import { RawSignature, AccountData, TxPayload } from "../types";
 import { BaseWallet } from "../BaseWallet";
 
@@ -8,20 +8,10 @@ export class Solana extends BaseSolana implements BaseWallet {
 
   private readonly web3PubKey: web3.PublicKey;
 
-  constructor(
-    fpub: string,
-    account: number,
-    addressIndex: number,
-    isTestnet = false
-  ) {
-    super({
-      fpub,
-      assetId: "SOL",
-      path: { account, addressIndex },
-      isTestnet,
-    });
+  constructor(input: Input) {
+    super(input);
 
-    const endpoint = isTestnet
+    const endpoint = input.isTestnet
       ? web3.clusterApiUrl("devnet")
       : "https://try-rpc.mainnet.solana.blockdaemon.tech";
 
@@ -34,7 +24,7 @@ export class Solana extends BaseSolana implements BaseWallet {
 
     const balance = lamports / web3.LAMPORTS_PER_SOL;
 
-    this.balance = balance;
+    this.balance.native = balance;
     this.lastUpdated = new Date();
 
     return balance;

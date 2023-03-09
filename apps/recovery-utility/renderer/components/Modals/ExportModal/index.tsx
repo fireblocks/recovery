@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { FormGroup, FormControlLabel, Checkbox } from "@mui/material";
-import { getAssetInfo, Button } from "@fireblocks/recovery-shared";
+import { getAsset, Button } from "@fireblocks/recovery-shared";
+import { csvExport, ParsedRow } from "@fireblocks/recovery-shared/lib/csv";
+import { download } from "@fireblocks/recovery-shared/lib/download";
 import { BaseModal } from "../BaseModal";
-import { csvExport, ParsedRow } from "../../../lib/csv";
-import { download } from "../../../lib/download";
 import { useWorkspace } from "../../../context/Workspace";
 
 type Props = {
@@ -12,46 +12,45 @@ type Props = {
 };
 
 export const ExportModal = ({ open, onClose }: Props) => {
-  const { vaultAccounts } = useWorkspace();
+  const { extendedKeys, accounts } = useWorkspace();
 
   const [includePrivateKeys, setIncludePrivateKeys] = useState(false);
+
+  const hasPrivateKey = !!(extendedKeys?.xprv || extendedKeys?.fprv);
 
   const handleChangeIncludePrivateKeys = (checked: boolean) =>
     setIncludePrivateKeys(checked);
 
   const onExportCsv = () => {
-    const data = Array.from(vaultAccounts).reduce(
-      (acc, [accountId, account]) => {
-        const rows = Array.from(account.wallets).reduce(
-          (_rows, [assetId, wallet]) => {
-            const walletRows = Array.from(wallet.derivations).map(
-              ([address, derivation]) => ({
-                accountName: account.name,
-                accountId,
-                assetId,
-                assetName: getAssetInfo(assetId)?.name ?? assetId,
-                address,
-                addressType: derivation.type,
-                addressDescription: derivation.description,
-                tag: derivation.tag,
-                pathParts: derivation.pathParts,
-                publicKey: derivation.publicKey,
-                privateKey: includePrivateKeys
-                  ? derivation.privateKey
-                  : undefined,
-                privateKeyWif: includePrivateKeys ? derivation.wif : undefined,
-              })
-            );
+    const data = Array.from(accounts).reduce((acc, [accountId, account]) => {
+      const rows = Array.from(account.wallets).reduce(
+        (_rows, [assetId, wallet]) => {
+          const walletRows = Array.from(wallet.derivations).map(
+            ([, derivation]) => ({
+              accountName: account.name,
+              accountId,
+              assetId,
+              assetName: getAsset(assetId)?.name ?? assetId,
+              address: derivation.address,
+              addressType: derivation.type,
+              addressDescription: derivation.description,
+              tag: derivation.tag,
+              pathParts: derivation.pathParts,
+              publicKey: derivation.publicKey,
+              privateKey: includePrivateKeys
+                ? derivation.privateKey
+                : undefined,
+              privateKeyWif: includePrivateKeys ? derivation.wif : undefined,
+            })
+          );
 
-            return [..._rows, ...walletRows];
-          },
-          [] as ParsedRow[]
-        );
+          return [..._rows, ...walletRows];
+        },
+        [] as ParsedRow[]
+      );
 
-        return [...acc, ...rows];
-      },
-      [] as ParsedRow[]
-    );
+      return [...acc, ...rows];
+    }, [] as ParsedRow[]);
 
     const csv = csvExport(data);
 
@@ -81,14 +80,16 @@ export const ExportModal = ({ open, onClose }: Props) => {
         </>
       }
     >
-      <FormGroup>
-        <FormControlLabel
-          label="Include private keys"
-          control={<Checkbox defaultChecked />}
-          checked={includePrivateKeys}
-          onChange={(_, checked) => handleChangeIncludePrivateKeys(checked)}
-        />
-      </FormGroup>
+      {hasPrivateKey && (
+        <FormGroup>
+          <FormControlLabel
+            label="Include private keys"
+            control={<Checkbox defaultChecked />}
+            checked={includePrivateKeys}
+            onChange={(_, checked) => handleChangeIncludePrivateKeys(checked)}
+          />
+        </FormGroup>
+      )}
     </BaseModal>
   );
 };

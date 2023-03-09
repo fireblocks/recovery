@@ -6,3 +6,5 @@ export const recoverAccountInput = z.object({
     "Vault Account name"
   ),
 });
+
+export type RecoverAccountInput = z.infer<typeof recoverAccountInput>;

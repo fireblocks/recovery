@@ -4,14 +4,17 @@ import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { TextField, Button } from "@fireblocks/recovery-shared";
+import {
+  TextField,
+  Button,
+  recoverKeysInput,
+} from "@fireblocks/recovery-shared";
 import { Box, Grid, Typography } from "@mui/material";
-import { recoverKeysInput } from "../lib/schemas";
+import { readFileToBase64 } from "@fireblocks/recovery-shared/lib/readFile";
 import { useWorkspace } from "../context/Workspace";
 import { Layout } from "../components/Layout";
 import { UploadWell } from "../components/UploadWell";
 import type { NextPageWithLayout } from "./_app";
-import { readFileToBase64 } from "../lib/readFile";
 import { recoverExtendedKeys } from "../lib/ipc";
 
 type FormData = z.infer<typeof recoverKeysInput>;
@@ -19,8 +22,7 @@ type FormData = z.infer<typeof recoverKeysInput>;
 const Recover: NextPageWithLayout = () => {
   const router = useRouter();
 
-  const { restoreVaultAccounts, addVaultAccount, setExtendedKeys } =
-    useWorkspace();
+  const { restoreWorkspace, addAccount } = useWorkspace();
 
   const [recoveryError, setRecoveryError] = useState<string | undefined>(
     undefined
@@ -40,21 +42,24 @@ const Recover: NextPageWithLayout = () => {
     onSuccess: async (extendedKeys, { backupCsv }) => {
       setRecoveryError(undefined);
 
-      setExtendedKeys(extendedKeys);
-
       if (verifyOnly) {
-        router.push({
-          pathname: "/keys",
-          query: { verifyOnly: "true" },
-        });
-      } else if (backupCsv) {
-        router.push("/accounts/vault");
-
-        restoreVaultAccounts(backupCsv, extendedKeys);
+        router.push({ pathname: "/keys", query: { verifyOnly: "true" } });
       } else {
-        addVaultAccount("Default");
-
         router.push("/accounts/vault");
+      }
+
+      const { xpub, fpub, xprv, fprv } = extendedKeys;
+
+      const maskedExtendedKeys = {
+        xpub,
+        fpub,
+        ...(verifyOnly ? {} : { xprv, fprv }),
+      };
+
+      restoreWorkspace(maskedExtendedKeys, backupCsv ?? undefined);
+
+      if (!backupCsv) {
+        addAccount("Default");
       }
     },
     onError: (error) => {

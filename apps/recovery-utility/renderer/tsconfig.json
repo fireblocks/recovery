@@ -1,5 +1,12 @@
 {
   "extends": "../tsconfig.json",
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "../../../packages/shared/lib/csv.ts",
+    "../../../packages/shared/lib/download.ts",
+    "../../../packages/shared/lib/readFile.ts"
+  ],
   "exclude": ["node_modules"]
 }
