@@ -1,7 +1,7 @@
 // Override console.log with electron-log
 import log from 'electron-log';
 
-import { app, BrowserWindow, session, BrowserWindowConstructorOptions } from 'electron';
+import { app, session, systemPreferences, BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
 import isDev from 'electron-is-dev';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import path from 'path';
@@ -229,4 +229,7 @@ app.on('second-instance', (event, commandLine) => {
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
   createWindow();
+
+  // TODO: Use IPC to request camera access only when on /relay page
+  systemPreferences.askForMediaAccess('camera');
 });
