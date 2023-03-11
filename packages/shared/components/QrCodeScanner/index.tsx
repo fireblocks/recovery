@@ -100,6 +100,7 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
       {isLoading ? (
         <CircularProgress
           size='48px'
+          color='primary'
           sx={{
             ...iconProps,
             marginTop: '-24px',

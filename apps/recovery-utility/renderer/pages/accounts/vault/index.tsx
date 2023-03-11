@@ -215,8 +215,8 @@ const Vault: NextPageWithLayout = () => {
             <Typography variant='h1'>Vault Accounts</Typography>
           </Grid>
           <Grid item>
-            <Typography paragraph variant='body1'>
-              Verify or recover your Recovery Kit / extended keys to recreate vault accounts and wallets.
+            <Typography paragraph variant='body1' textAlign='center'>
+              Verify or recover your Recovery Kit or extended keys to recreate vault accounts and wallets.
             </Typography>
           </Grid>
           <Grid item>

@@ -1,9 +1,20 @@
 import { useRouter } from 'next/router';
 import { Box, Grid, lighten } from '@mui/material';
 import { LeakAdd, ManageHistory, Restore, Settings, Verified } from '@mui/icons-material';
-import { Glyph, Button, Link, NextLinkComposed } from '@fireblocks/recovery-shared';
+import { Glyph, Button, ButtonProps, Link, NextLinkComposed } from '@fireblocks/recovery-shared';
 import { useWorkspace } from '../../../../context/Workspace';
 import { AccountsIcon, KeyIcon } from '../../../Icons';
+
+const SidebarButton = ({ sx, disabled, ...props }: ButtonProps) => (
+  <Button
+    {...props}
+    component={NextLinkComposed}
+    variant='text'
+    fullWidth
+    disabled={disabled}
+    sx={{ ...sx, justifyContent: 'flex-start', ...(disabled ? { border: 'none !important', padding: '6px 8px 6px 8px' } : {}) }}
+  />
+);
 
 export const Sidebar = () => {
   const router = useRouter();
@@ -57,95 +68,58 @@ export const Sidebar = () => {
           </Grid>
         </Grid>
         <Grid item xs={12}>
-          <Button
-            variant='text'
-            component={NextLinkComposed}
+          <SidebarButton
             to='/accounts/vault'
             startIcon={<AccountsIcon active={isActive('/accounts')} />}
             color={isActive('/accounts') ? 'primary' : 'secondary'}
-            fullWidth
-            sx={{ justifyContent: 'flex-start' }}
+            disabled={!hasExtendedKeys}
           >
             Accounts
-          </Button>
+          </SidebarButton>
         </Grid>
         <Grid item xs={12}>
-          <Button
-            variant='text'
-            component={NextLinkComposed}
+          <SidebarButton
             to='/relay'
             startIcon={<LeakAdd />}
             color={isActive('/relay') ? 'primary' : 'secondary'}
-            fullWidth
-            sx={{ justifyContent: 'flex-start' }}
+            disabled={!hasExtendedKeys}
           >
             Relay
-          </Button>
+          </SidebarButton>
         </Grid>
         <Grid item xs={12}>
-          <Button
-            variant='text'
-            component={NextLinkComposed}
-            to='/setup'
-            startIcon={<ManageHistory />}
-            color={isActive('/setup') ? 'primary' : 'secondary'}
-            fullWidth
-            sx={{ justifyContent: 'flex-start' }}
-          >
+          <SidebarButton to='/setup' startIcon={<ManageHistory />} color={isActive('/setup') ? 'primary' : 'secondary'}>
             Set Up
-          </Button>
+          </SidebarButton>
         </Grid>
         <Grid item xs={12}>
-          <Button
-            variant='text'
-            component={NextLinkComposed}
-            to='/verify'
-            startIcon={<Verified />}
-            color={isActive('/verify') ? 'primary' : 'secondary'}
-            fullWidth
-            sx={{ justifyContent: 'flex-start' }}
-          >
+          <SidebarButton to='/verify' startIcon={<Verified />} color={isActive('/verify') ? 'primary' : 'secondary'}>
             Verify
-          </Button>
+          </SidebarButton>
         </Grid>
         <Grid item xs={12}>
-          <Button
-            variant='text'
-            component={NextLinkComposed}
+          <SidebarButton
             to='/recover'
             startIcon={<Restore />}
             color={isActive('/recover') ? 'error' : 'secondary'}
             sx={{ justifyContent: 'flex-start' }}
-            fullWidth
           >
             Recover
-          </Button>
+          </SidebarButton>
         </Grid>
         <Grid item xs={12}>
-          <Button
-            variant='text'
-            component={NextLinkComposed}
+          <SidebarButton
             to='/keys'
             startIcon={<KeyIcon active={isActive('/keys')} />}
             color={isActive('/keys') ? 'primary' : 'secondary'}
-            fullWidth
-            sx={{ justifyContent: 'flex-start' }}
           >
             Extended Keys
-          </Button>
+          </SidebarButton>
         </Grid>
         <Grid item xs={12}>
-          <Button
-            variant='text'
-            component={NextLinkComposed}
-            to='/settings'
-            startIcon={<Settings />}
-            color={isActive('/settings') ? 'primary' : 'secondary'}
-            fullWidth
-            sx={{ justifyContent: 'flex-start' }}
-          >
+          <SidebarButton to='/settings' startIcon={<Settings />} color={isActive('/settings') ? 'primary' : 'secondary'}>
             Settings
-          </Button>
+          </SidebarButton>
         </Grid>
       </Grid>
       {hasExtendedKeys && (

@@ -58,10 +58,10 @@ const isValidUrl = (url: string) => {
 async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
-    width: 800,
-    height: 680,
-    minWidth: 800,
-    minHeight: 680,
+    width: 845,
+    height: 720,
+    minWidth: 845,
+    minHeight: 720,
     title: 'Fireblocks Recovery Utility',
     show: false,
     webPreferences: {

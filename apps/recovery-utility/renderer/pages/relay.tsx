@@ -112,7 +112,7 @@ const Relay: NextPageWithLayout = () => {
             marginBottom: '1em',
           })}
         >
-          <Grid container spacing={2}>
+          <Grid container>
             {txTitle && (
               <Grid item xs={6}>
                 <Typography variant='caption' fontWeight={500} color='inherit' display='flex' alignItems='center'>

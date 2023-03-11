@@ -15,7 +15,7 @@ export {
   QrCodeScanner,
 } from './components';
 
-export type { ScanResult } from './components';
+export type { ButtonProps, ScanResult } from './components';
 
 // Document
 export { getInitialDocumentProps } from './lib/getInitialDocumentProps';

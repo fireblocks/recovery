@@ -5,10 +5,10 @@ import { Button, NextLinkComposed } from '@fireblocks/recovery-shared';
 import type { NextPageWithLayout } from './_app';
 import { useWorkspace } from '../context/Workspace';
 import { Layout } from '../components/Layout';
-import { AccountsIcon, KeyIcon, VaultAccountIcon } from '../components/Icons';
+import { KeyIcon, VaultAccountIcon } from '../components/Icons';
 
 const buttonStyles: SxProps = {
-  padding: '0.15rem',
+  padding: '0.2rem',
   height: '100%',
   aspectRatio: '1 / 1',
   textAlign: 'center',
@@ -52,10 +52,9 @@ const BoxButton = ({ icon: Icon, title, description, color = 'primary', href, di
 );
 
 const Index: NextPageWithLayout = () => {
-  const { extendedKeys } = useWorkspace();
+  const { extendedKeys: { xpub, fpub, xprv, fprv } = {} } = useWorkspace();
 
-  const hasExtendedKeys =
-    !!extendedKeys && (!!extendedKeys.xpub || !!extendedKeys.fpub || !!extendedKeys.xprv || !!extendedKeys.fprv);
+  const hasExtendedKeys = !!xpub || !!fpub || !!xprv || !!fprv;
 
   return (
     <Grid container justifyContent='center' alignItems='center' height='100%' padding='rem'>
