@@ -18,7 +18,7 @@ type AppProps = NextAppProps & {
 };
 
 const title = 'Fireblocks Recovery Relay';
-const description = 'Make transactions from your recovered Fireblocks wallets';
+const description = 'Query balances and send transactions from your recovered Fireblocks wallets';
 
 const icons = [32, 180, 192, 270].reduce(
   (acc, size) => ({ ...acc, [size]: `/icons/${size}x${size}.png` }),

@@ -2,9 +2,8 @@ import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button, TextField, recoverAccountInput } from '@fireblocks/recovery-shared';
+import { BaseModal, Button, TextField, recoverAccountInput } from '@fireblocks/recovery-shared';
 import { useWorkspace } from '../../../context/Workspace';
-import { BaseModal } from '@fireblocks/recovery-shared/components/BaseModal';
 
 type Props = {
   open: boolean;

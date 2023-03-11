@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { FormGroup, FormControlLabel, Checkbox } from '@mui/material';
-import { Button } from '@fireblocks/recovery-shared';
+import { BaseModal, Button } from '@fireblocks/recovery-shared';
 import { csvExport, ParsedRow } from '@fireblocks/recovery-shared/lib/csv';
 import { download } from '@fireblocks/recovery-shared/lib/download';
 import { getAssetConfig } from '@fireblocks/asset-config';
-import { BaseModal } from '@fireblocks/recovery-shared/components/BaseModal';
 import { useWorkspace } from '../../../context/Workspace';
 
 type Props = {

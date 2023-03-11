@@ -1,7 +1,6 @@
 import { Box, Typography } from '@mui/material';
-import { Button } from '@fireblocks/recovery-shared';
+import { BaseModal, Button } from '@fireblocks/recovery-shared';
 import { getAssetConfig } from '@fireblocks/asset-config';
-import { BaseModal } from '@fireblocks/recovery-shared/components/BaseModal';
 import type { Row } from '../../../pages/accounts/vault/[accountId]';
 
 type Props = {

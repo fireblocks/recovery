@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Link } from '@fireblocks/recovery-shared';
+import { Link, QrCodeScanner, ScanResult } from '@fireblocks/recovery-shared';
 import { Box, Typography } from '@mui/material';
 import type { NextPageWithLayout } from './_app';
 import { useWorkspace } from '../context/Workspace';
 import { Logo } from '../components/Logo';
-import { QrCodeScanner, ScanResult } from '../components/QrCodeScanner';
 
 const Scan: NextPageWithLayout = () => {
   const { setWorkspaceFromRelayUrl } = useWorkspace();
