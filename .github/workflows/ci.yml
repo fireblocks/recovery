@@ -75,6 +75,21 @@ jobs:
       - name: Install Node.js & Python dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Install FOSSA CLI
+        run: mkdir -p $HOME/.local/bin
+          curl https://raw.githubusercontent.com/fossas/fossa-cli/master/install.sh | bash -s -- -b $HOME/.local/bin
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Scan licenses
+        env:
+          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
+        run: fossa analyze --branch ${{ github.head_ref || github.ref_name }}
+
+      - name: Build dependency attributions
+        env:
+          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
+        run: fossa report attribution --format markdown > ATTRIBUTION.md
+
       - name: Prepare for macOS app notarization
         if: startsWith(matrix.os, 'macos')
         env:
@@ -158,23 +173,6 @@ jobs:
           security delete-keychain "$KEYCHAIN_PATH"
           rm -rf "$APPLE_KEY_DIR_PATH"
 
-  fossa-scan:
-    name: Check compliance
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 2
-
-      - name: FOSSA scan
-        uses: fossas/fossa-action@main
-        with:
-          api-key: ${{ secrets.FOSSA_API_KEY }}
-          branch: ${{ github.head_ref || github.ref_name }}
-          run-tests: false
-
   pr:
     name: Version packages
     runs-on: ubuntu-latest
@@ -189,7 +187,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: lts/gallium
-          cache: "yarn"
+          cache: 'yarn'
 
       - name: Create release pull request
         id: changesets

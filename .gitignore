@@ -11,6 +11,9 @@ node_modules
 .pnp
 .pnp.js
 
+# Generated dependency attributions
+ATTRIBUTION.md
+
 # Testing
 coverage
 !**/fixtures/*.key
