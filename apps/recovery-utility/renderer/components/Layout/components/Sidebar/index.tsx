@@ -8,13 +8,11 @@ import { AccountsIcon, KeyIcon } from '../../../Icons';
 export const Sidebar = () => {
   const router = useRouter();
 
-  const { extendedKeys } = useWorkspace();
+  const { extendedKeys: { xpub, fpub, xprv, fprv } = {} } = useWorkspace();
 
-  const hasExtendedKeys =
-    !!extendedKeys && (!!extendedKeys.xpub || !!extendedKeys.fpub || !!extendedKeys.xprv || !!extendedKeys.fprv);
-
-  const hasExtendedPublicKeys = hasExtendedKeys && (extendedKeys.xpub || extendedKeys.fpub);
-  const hasExtendedPrivateKeys = hasExtendedKeys && (extendedKeys.xprv || extendedKeys.fprv);
+  const hasExtendedPublicKeys = !!xpub || !!fpub;
+  const hasExtendedPrivateKeys = !!xprv || !!fprv;
+  const hasExtendedKeys = hasExtendedPublicKeys || hasExtendedPrivateKeys;
   const hasOnlyExtendedPublicKeys = hasExtendedPublicKeys && !hasExtendedPrivateKeys;
 
   const StatusIcon = hasOnlyExtendedPublicKeys ? Verified : Restore;
@@ -58,36 +56,32 @@ export const Sidebar = () => {
             </Grid>
           </Grid>
         </Grid>
-        {hasExtendedKeys && (
-          <>
-            <Grid item xs={12}>
-              <Button
-                variant='text'
-                component={NextLinkComposed}
-                to='/accounts/vault'
-                startIcon={<AccountsIcon active={isActive('/accounts')} />}
-                color={isActive('/accounts') ? 'primary' : 'secondary'}
-                fullWidth
-                sx={{ justifyContent: 'flex-start' }}
-              >
-                Accounts
-              </Button>
-            </Grid>
-            <Grid item xs={12}>
-              <Button
-                variant='text'
-                component={NextLinkComposed}
-                to='/relay'
-                startIcon={<LeakAdd />}
-                color={isActive('/relay') ? 'primary' : 'secondary'}
-                fullWidth
-                sx={{ justifyContent: 'flex-start' }}
-              >
-                Relay
-              </Button>
-            </Grid>
-          </>
-        )}
+        <Grid item xs={12}>
+          <Button
+            variant='text'
+            component={NextLinkComposed}
+            to='/accounts/vault'
+            startIcon={<AccountsIcon active={isActive('/accounts')} />}
+            color={isActive('/accounts') ? 'primary' : 'secondary'}
+            fullWidth
+            sx={{ justifyContent: 'flex-start' }}
+          >
+            Accounts
+          </Button>
+        </Grid>
+        <Grid item xs={12}>
+          <Button
+            variant='text'
+            component={NextLinkComposed}
+            to='/relay'
+            startIcon={<LeakAdd />}
+            color={isActive('/relay') ? 'primary' : 'secondary'}
+            fullWidth
+            sx={{ justifyContent: 'flex-start' }}
+          >
+            Relay
+          </Button>
+        </Grid>
         <Grid item xs={12}>
           <Button
             variant='text'
