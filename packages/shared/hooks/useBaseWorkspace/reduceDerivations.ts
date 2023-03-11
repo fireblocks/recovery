@@ -96,8 +96,6 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(input: Deri
       isLegacy,
       balance,
     } as unknown as T);
-
-    console.info('Just set mock derivation', wallet.derivations.get(address));
   }
 
   const derivationInput: Input = {

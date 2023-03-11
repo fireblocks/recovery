@@ -1,18 +1,7 @@
-import { useState, MouseEvent } from "react";
-import {
-  Typography,
-  Box,
-  ToggleButtonGroup,
-  ToggleButton,
-} from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
-import {
-  theme,
-  monospaceFontFamily,
-  Button,
-} from "@fireblocks/recovery-shared";
-import { QrCode } from "../../QrCode";
-import { BaseModal } from "../BaseModal";
+import { useState, MouseEvent } from 'react';
+import { Typography, Box, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
+import { theme, monospaceFontFamily, Button, BaseModal, QrCode } from '@fireblocks/recovery-shared';
 
 type Props = {
   publicKey: string;
@@ -21,14 +10,14 @@ type Props = {
 };
 
 enum ApprovalMethod {
-  SHORT_KEY = "SHORT_KEY",
-  QR_CODE = "QR_CODE",
+  SHORT_KEY = 'SHORT_KEY',
+  QR_CODE = 'QR_CODE',
 }
 
 const getShortKey = async (publicKey: string) => {
   const publicKeyBuffer = new TextEncoder().encode(publicKey);
 
-  const digestBuffer = await crypto.subtle.digest("SHA-256", publicKeyBuffer);
+  const digestBuffer = await crypto.subtle.digest('SHA-256', publicKeyBuffer);
 
   const digestArray = Array.from(new Uint8Array(digestBuffer));
 
@@ -40,9 +29,7 @@ const getShortKey = async (publicKey: string) => {
 };
 
 export function ChecksumModal({ publicKey, open, onClose }: Props) {
-  const [approvalMethod, setApprovalMethod] = useState<ApprovalMethod>(
-    ApprovalMethod.QR_CODE
-  );
+  const [approvalMethod, setApprovalMethod] = useState<ApprovalMethod>(ApprovalMethod.QR_CODE);
 
   const isShortKey = approvalMethod === ApprovalMethod.SHORT_KEY;
 
@@ -57,10 +44,7 @@ export function ChecksumModal({ publicKey, open, onClose }: Props) {
     queryFn: async () => getShortKey(publicKey),
   });
 
-  const onChangeApprovalMethod = (
-    event: MouseEvent<HTMLElement>,
-    newApprovalMethod: ApprovalMethod | null
-  ) => {
+  const onChangeApprovalMethod = (event: MouseEvent<HTMLElement>, newApprovalMethod: ApprovalMethod | null) => {
     if (newApprovalMethod !== null) {
       setApprovalMethod(newApprovalMethod);
     }
@@ -70,49 +54,37 @@ export function ChecksumModal({ publicKey, open, onClose }: Props) {
     <BaseModal
       open={open}
       onClose={onClose}
-      title="Approve Recovery Public Key"
+      title='Approve Recovery Public Key'
       actions={
-        <Button variant="text" onClick={onClose}>
+        <Button variant='text' onClick={onClose}>
           Close
         </Button>
       }
     >
       <ToggleButtonGroup
         value={approvalMethod}
-        color="primary"
+        color='primary'
         fullWidth
         exclusive
         onChange={onChangeApprovalMethod}
-        aria-label="Approval method"
+        aria-label='Approval method'
       >
-        <ToggleButton value={ApprovalMethod.SHORT_KEY}>
-          Input short key
-        </ToggleButton>
+        <ToggleButton value={ApprovalMethod.SHORT_KEY}>Input short key</ToggleButton>
         <ToggleButton value={ApprovalMethod.QR_CODE}>Scan QR code</ToggleButton>
       </ToggleButtonGroup>
-      <Box
-        marginTop="1em"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
+      <Box marginTop='1em' display='flex' alignItems='center' justifyContent='center'>
         {isShortKey && (
-          <Typography
-            component="span"
-            color="#000"
-            fontFamily={monospaceFontFamily}
-            fontSize="4em"
-          >
+          <Typography component='span' color='#000' fontFamily={monospaceFontFamily} fontSize='4em'>
             {shortKey}
           </Typography>
         )}
         {isQrCode && (
           <QrCode
             data={publicKey}
-            title="Public key QR code"
+            title='Public key QR code'
             bgColor={theme.palette.background.default}
             showRawData={false}
-            height="100%"
+            height='100%'
             maxHeight={300}
           />
         )}

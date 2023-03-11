@@ -1,12 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Typography, Box, Grid, Autocomplete, TextField, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
-import { AssetIcon, theme, getRelayUrl, VaultAccount } from '@fireblocks/recovery-shared';
+import { AssetIcon, theme, getRelayUrl, VaultAccount, BaseModal, QrCode } from '@fireblocks/recovery-shared';
 import { getAssetConfig, derivableAssets, AssetConfig } from '@fireblocks/asset-config';
-import { BaseModal } from '../BaseModal';
 import { useSettings } from '../../../context/Settings';
 import { useWorkspace } from '../../../context/Workspace';
 import { VaultAccountIcon } from '../../Icons';
-import { QrCode } from '../../QrCode';
 
 type Props = {
   assetId?: string;

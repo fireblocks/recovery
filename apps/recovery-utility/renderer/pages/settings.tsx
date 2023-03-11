@@ -1,16 +1,14 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button, TextField, settingsInput, theme, monospaceFontFamily } from '@fireblocks/recovery-shared';
+import { Button, TextField, QrCode, settingsInput, theme, monospaceFontFamily } from '@fireblocks/recovery-shared';
 import { Box, Grid, Typography } from '@mui/material';
-import { version as relayVersion } from '@fireblocks/recovery-relay/package.json';
-import { version as walletDerivationVersion } from '@fireblocks/wallet-derivation/package.json';
-import { version as extendedKeyRecoveryVersion } from '@fireblocks/extended-key-recovery/package.json';
+import walletDerivationPackage from '@fireblocks/wallet-derivation/package.json';
+import extendedKeyRecoveryPackage from '@fireblocks/extended-key-recovery/package.json';
 import { useSettings, defaultSettings } from '../context/Settings';
 import { Layout } from '../components/Layout';
 import type { NextPageWithLayout } from './_app';
-import { QrCode } from '../components/QrCode';
-import { version as utilityVersion } from '../../package.json';
+import utilityPackage from '../../package.json';
 
 type FormData = z.infer<typeof settingsInput>;
 
@@ -83,24 +81,20 @@ const Settings: NextPageWithLayout = () => {
             support.fireblocks.io or {`${RELAY_SOURCE_URL}/releases`}.
           </Typography>
           <Grid container spacing={2}>
-            <Grid item xs={3}>
+            <Grid item xs={4}>
               <Typography variant='caption' paragraph>
-                Recovery Utility<Typography fontFamily={monospaceFontFamily}>{utilityVersion}</Typography>
+                Recovery Utility<Typography fontFamily={monospaceFontFamily}>{utilityPackage.version}</Typography>
               </Typography>
             </Grid>
-            <Grid item xs={3}>
+            <Grid item xs={4}>
               <Typography variant='caption' paragraph>
-                Recovery Relay<Typography fontFamily={monospaceFontFamily}>{relayVersion}</Typography>
+                Wallet Derivation<Typography fontFamily={monospaceFontFamily}>{walletDerivationPackage.version}</Typography>
               </Typography>
             </Grid>
-            <Grid item xs={3}>
+            <Grid item xs={4}>
               <Typography variant='caption' paragraph>
-                Wallet Derivation<Typography fontFamily={monospaceFontFamily}>{walletDerivationVersion}</Typography>
-              </Typography>
-            </Grid>
-            <Grid item xs={3}>
-              <Typography variant='caption' paragraph>
-                X-Key Recovery<Typography fontFamily={monospaceFontFamily}>{extendedKeyRecoveryVersion}</Typography>
+                Extended Key Recovery
+                <Typography fontFamily={monospaceFontFamily}>{extendedKeyRecoveryPackage.version}</Typography>
               </Typography>
             </Grid>
           </Grid>

@@ -205,7 +205,7 @@ const Setup: NextPageWithLayout = () => {
             </Grid>
             <Grid item xs={6}>
               <Button type='submit' color='primary' fullWidth disabled={!hasPassphrase || activeStep < 2}>
-                Generate Recovery Keypair
+                Generate Recovery Keys
               </Button>
             </Grid>
             <Grid item xs={6}>

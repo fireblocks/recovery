@@ -14,6 +14,10 @@ const nextConfig = {
   webpack: (config, { isServer }) => ({
     ...config,
     target: isServer ? config.target : 'electron-renderer',
+    experiments: {
+      ...config.experiments,
+      asyncWebAssembly: true,
+    },
   }),
 };
 

@@ -15,7 +15,7 @@ export const Layout = ({ children }: Props) => {
     <Box
       height='100%'
       display='grid'
-      gridTemplateColumns='180px 1fr'
+      gridTemplateColumns='225px 1fr'
       gridTemplateRows={`${isOnline ? 'min-content ' : ''} 1fr`}
       gridTemplateAreas={`${isOnline ? '"notice notice" ' : ''} "sidebar main"`}
     >

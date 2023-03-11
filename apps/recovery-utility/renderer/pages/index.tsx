@@ -58,7 +58,7 @@ const Index: NextPageWithLayout = () => {
     !!extendedKeys && (!!extendedKeys.xpub || !!extendedKeys.fpub || !!extendedKeys.xprv || !!extendedKeys.fprv);
 
   return (
-    <Grid container spacing={2} justifyContent='center' alignItems='center' height='100%' padding='rem'>
+    <Grid container justifyContent='center' alignItems='center' height='100%' padding='rem'>
       <Grid item xs={11}>
         <Grid container spacing={2}>
           <Grid item xs={12}>
@@ -99,13 +99,7 @@ const Index: NextPageWithLayout = () => {
             </Typography>
           </Grid>
           <Grid item xs={4}>
-            <BoxButton
-              icon={Restore}
-              title='Recover Private Keys'
-              description='Recover extended private keys from Recovery Kit'
-              color='error'
-              href='/recover'
-            />
+            <BoxButton icon={Restore} title='Recover Private Keys' description='Use Recovery Kit' color='error' href='/recover' />
           </Grid>
           <Grid item xs={4}>
             <BoxButton

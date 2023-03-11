@@ -6,7 +6,7 @@ import type { ExtendedKeys } from '../../schemas';
 import { Wallet, VaultAccount, Transaction } from '../../types';
 import { BaseWorkspace, BaseWorkspaceContext } from './types';
 import { csvImport, ParsedRow } from '../../lib/csv';
-import { RelayParams, getRelayParams, RelayPath } from '../../lib/relayUrl';
+import { getRelayParams, RelayPath } from '../../lib/relayUrl';
 import { useRelayUrl } from './useRelayUrl';
 import { reduceDerivations, testIsLegacy, DerivationReducerInput } from './reduceDerivations';
 import { reduceTransactions } from './reduceTransactions';
@@ -25,7 +25,7 @@ export const defaultBaseWorkspaceContext: BaseWorkspaceContext<BaseWallet> = {
   ...defaultBaseWorkspace,
   getRelayUrl: () => '',
   restoreWorkspace: async () => undefined,
-  setWorkspaceFromRelayUrl: <P extends RelayPath>() => ({} as RelayParams<P>),
+  setWorkspaceFromRelayUrl: () => undefined,
   setExtendedKeys: () => undefined,
   setAsset: () => undefined,
   setAccount: () => undefined,
@@ -61,13 +61,15 @@ export const useBaseWorkspace = <T extends BaseWallet>({ relayBaseUrl, deriveWal
 
   const setWorkspaceFromRelayUrl = <P extends RelayPath>(url: string) => {
     try {
-      const params = getRelayParams<P>(url);
+      const relayParams = getRelayParams<P>(url);
 
-      if (params) {
-        setWorkspaceFromRelayParams(params);
+      if (!relayParams) {
+        return undefined;
       }
 
-      return params;
+      setWorkspaceFromRelayParams(relayParams.params);
+
+      return relayParams;
     } catch (error) {
       console.error(error);
 

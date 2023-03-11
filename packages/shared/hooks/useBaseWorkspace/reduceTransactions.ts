@@ -1,13 +1,21 @@
-import { nanoid } from "nanoid";
-import { Transaction } from "../../types";
+import { nanoid } from 'nanoid';
+import { Transaction } from '../../types';
 
-export const reduceTransactions = (
-  transactions: Map<string, Transaction>,
-  tx: Partial<Transaction>
-) => {
+const requiredTransactionKeys: (keyof Transaction)[] = [
+  'id',
+  'assetId',
+  'accountId',
+  'addressIndex',
+  'from',
+  'to',
+  'amount',
+  'hex',
+];
+
+export const reduceTransactions = (transactions: Map<string, Transaction>, tx: Partial<Transaction>) => {
   const {
     id = nanoid(),
-    state = tx.signature ? "signed" : "created",
+    state = tx.signature ? 'signed' : 'created',
     assetId,
     accountId = 0,
     addressIndex = 0,
@@ -23,14 +31,7 @@ export const reduceTransactions = (
     error,
   } = tx;
 
-  const hasTransaction = !!(
-    id &&
-    assetId &&
-    from &&
-    to &&
-    typeof amount === "number" &&
-    hex
-  );
+  const hasTransaction = requiredTransactionKeys.every((key) => typeof tx[key] !== 'undefined');
 
   if (!hasTransaction) {
     return transactions;
@@ -42,11 +43,11 @@ export const reduceTransactions = (
     ...transactions.get(id),
     id,
     state,
-    assetId,
+    assetId: assetId as string,
     accountId,
     addressIndex,
-    from,
-    to,
+    from: from as string,
+    to: to as string,
     amount,
     remainingBalance,
     memo,

@@ -1,4 +1,5 @@
 export * from './AssetIcon';
+export * from './BaseModal';
 export * from './Button';
 export * from './EmotionHeadTags';
 export * from './Glyph';
@@ -7,3 +8,5 @@ export * from './Logo';
 export * from './LogoHero';
 export * from './SharedProviders';
 export * from './TextField';
+export * from './QrCode';
+export * from './QrCodeScanner';

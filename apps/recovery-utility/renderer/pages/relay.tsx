@@ -1,18 +1,85 @@
-import { Box, Typography } from '@mui/material';
-import { theme } from '@fireblocks/recovery-shared';
+import { Box, Grid, lighten, Typography } from '@mui/material';
+import { AllRelayParams, RelayPath, QrCode, QrCodeScanner, ScanResult, theme } from '@fireblocks/recovery-shared';
 import Link from 'next/link';
+import { useState } from 'react';
+import { ArrowDownward, ArrowUpward } from '@mui/icons-material';
+import { getAssetConfig } from '@fireblocks/asset-config';
 import type { NextPageWithLayout } from './_app';
+import { useSettings } from '../context/Settings';
 import { useWorkspace } from '../context/Workspace';
 import { Layout } from '../components/Layout';
-import { QrCode } from '../components/QrCode';
 
 const Relay: NextPageWithLayout = () => {
-  const { extendedKeys, getRelayUrl } = useWorkspace();
+  const { relayBaseUrl } = useSettings();
 
-  const hasExtendedPublicKeys = !!extendedKeys && (extendedKeys.xpub || extendedKeys.fpub);
-  const hasExtendedPrivateKeys = !!extendedKeys && (extendedKeys.xprv || extendedKeys.fprv);
+  const { extendedKeys: { xpub, fpub, xprv, fprv } = {}, accounts, getRelayUrl, setWorkspaceFromRelayUrl } = useWorkspace();
+
+  const hasExtendedPublicKeys = !!xpub || !!fpub;
+  const hasExtendedPrivateKeys = !!xprv || !!fprv;
   const hasNoExtendedKeys = !hasExtendedPublicKeys && !hasExtendedPrivateKeys;
   const hasOnlyExtendedPublicKeys = hasExtendedPublicKeys && !hasExtendedPrivateKeys;
+
+  const [txRelayPath, setTxRelayPath] = useState<Exclude<RelayPath, '/balances' | '/sign'>>('/');
+  const [txRelayParams, setTxRelayParams] = useState<AllRelayParams | undefined>(
+    hasExtendedPublicKeys ? { xpub, fpub } : undefined,
+  );
+  const [rxRelayParams, setRxRelayParams] = useState<AllRelayParams | undefined>();
+
+  const onDecodeQrCode = ({ data }: ScanResult) => {
+    console.info('Scan result:', data);
+
+    const relay = setWorkspaceFromRelayUrl(data);
+
+    if (relay) {
+      const { path, params } = relay;
+
+      setRxRelayParams(params);
+
+      switch (path) {
+        case '/balances':
+          console.info('Updating wallets');
+          break;
+        case '/sign':
+          console.info('Prompting for transaction signature');
+          break;
+        default:
+          console.info('Unknown Relay path');
+      }
+    }
+  };
+
+  const relayUrl = txRelayParams ? getRelayUrl(txRelayPath, txRelayParams) : relayBaseUrl;
+
+  let txTitle: string | undefined;
+  let rxTitle: string | undefined;
+
+  if (txRelayParams?.signature) {
+    txTitle = 'Signed transaction';
+  } else if (hasExtendedPublicKeys) {
+    txTitle = 'Extended public keys';
+  }
+
+  if (rxRelayParams?.txHex) {
+    rxTitle = `Unsigned transaction${hasOnlyExtendedPublicKeys ? ' (read-only)' : ''}`;
+  } else if (hasExtendedPublicKeys) {
+    rxTitle = 'Wallet balances';
+
+    const singleBalance = rxRelayParams?.balances?.length === 1 ? rxRelayParams.balances[0] : undefined;
+    const accountLabel =
+      (typeof singleBalance?.accountId !== 'undefined'
+        ? accounts.get(singleBalance.accountId)?.name
+        : singleBalance?.accountId) ?? singleBalance?.accountId;
+    const assetLabel = getAssetConfig(singleBalance?.assetId)?.name ?? singleBalance?.assetId;
+    const hasAccountLabel = typeof accountLabel !== 'undefined';
+    const hasAssetLabel = typeof assetLabel !== 'undefined';
+
+    rxTitle += hasAccountLabel || hasAssetLabel ? ' for ' : '';
+    rxTitle += hasAccountLabel ? `account ${accountLabel}` : '';
+    rxTitle += hasAccountLabel && hasAssetLabel ? ' / ' : '';
+    rxTitle += hasAssetLabel ? `asset ${assetLabel}` : '';
+  }
+
+  const showStatus = !!txTitle || !!rxTitle;
 
   return (
     <Box>
@@ -32,31 +99,46 @@ const Relay: NextPageWithLayout = () => {
           You are only verifying public keys and cannot sign transactions.
         </Typography>
       )}
-      <Box display='flex' alignItems='flex-start' justifyContent='center'>
-        <QrCode
-          title='Relay URL'
-          data={
-            extendedKeys
-              ? getRelayUrl('/', {
-                  xpub: extendedKeys?.xpub,
-                  fpub: extendedKeys?.fpub,
-                })
-              : undefined
-          }
-          width={300}
-          bgColor={theme.palette.background.paper}
-        />
+      {showStatus && (
         <Box
-          width={298}
-          height={298}
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
-          color='#FFF'
-          sx={{ background: '#000' }}
+          sx={(t) => ({
+            color: t.palette.primary.main,
+            border: `solid 1px ${t.palette.primary.main}`,
+            background: lighten(t.palette.primary.main, 0.95),
+            borderRadius: '0.5rem',
+            padding: '0.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            marginBottom: '1em',
+          })}
         >
-          QR Scanner
+          <Grid container spacing={2}>
+            {txTitle && (
+              <Grid item xs={6}>
+                <Typography variant='caption' fontWeight={500} color='inherit' display='flex' alignItems='center'>
+                  <ArrowUpward fontSize='small' sx={{ marginRight: '0.25rem' }} /> Sending
+                </Typography>
+                <Typography variant='body1' color='inherit'>
+                  {txTitle}
+                </Typography>
+              </Grid>
+            )}
+            {rxTitle && (
+              <Grid item xs={6}>
+                <Typography variant='caption' fontWeight={500} color='inherit' display='flex' alignItems='center'>
+                  <ArrowDownward fontSize='small' sx={{ marginRight: '0.25rem' }} /> Receiving
+                </Typography>
+                <Typography variant='body1' color='inherit'>
+                  {rxTitle}
+                </Typography>
+              </Grid>
+            )}
+          </Grid>
         </Box>
+      )}
+      <Box display='flex' alignItems='flex-start' justifyContent='center'>
+        <QrCode title='Relay URL' data={relayUrl} bgColor={theme.palette.background.paper} />
+        <QrCodeScanner onDecode={onDecodeQrCode} />
       </Box>
     </Box>
   );

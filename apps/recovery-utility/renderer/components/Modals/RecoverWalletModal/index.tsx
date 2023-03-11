@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Box, Typography, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import { assets } from '@fireblocks/asset-config';
 import { Button, AssetIcon } from '@fireblocks/recovery-shared';
+import { BaseModal } from '@fireblocks/recovery-shared/components/BaseModal';
 import { useWorkspace } from '../../../context/Workspace';
-import { BaseModal } from '../BaseModal';
 
 type Props = {
   assets?: { id: string; name: string; type: string }[];

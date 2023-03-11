@@ -1,20 +1,8 @@
-import "webrtc-adapter";
-import { useState, useRef, useId, useCallback, useEffect } from "react";
-import QrScanner from "qr-scanner";
-import {
-  Box,
-  Grid,
-  CircularProgress,
-  FormControl,
-  InputLabel,
-  NativeSelect,
-  IconButton,
-} from "@mui/material";
-import {
-  QrCodeScanner as QrCodeScannerIcon,
-  FlashlightOn,
-  FlashlightOff,
-} from "@mui/icons-material";
+import 'webrtc-adapter';
+import React, { useState, useRef, useId, useCallback, useEffect } from 'react';
+import QrScanner from 'qr-scanner';
+import { Box, Grid, CircularProgress, FormControl, InputLabel, NativeSelect, IconButton } from '@mui/material';
+import { QrCodeScanner as QrCodeScannerIcon, FlashlightOn, FlashlightOff } from '@mui/icons-material';
 
 export type ScanResult = QrScanner.ScanResult;
 
@@ -25,9 +13,7 @@ type Props = {
 export const QrCodeScanner = ({ onDecode }: Props) => {
   const [isLoading, setIsLoading] = useState(true);
   const [cameras, setCameras] = useState<QrScanner.Camera[]>([]);
-  const [preferredCamera, setPreferredCamera] = useState<
-    QrScanner.FacingMode | QrScanner.DeviceId | undefined
-  >();
+  const [preferredCamera, setPreferredCamera] = useState<QrScanner.FacingMode | QrScanner.DeviceId | undefined>();
   const [flash, setFlash] = useState<boolean | undefined>();
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -38,16 +24,14 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
   const FlashIcon = flash ? FlashlightOn : FlashlightOff;
 
   const iconProps = {
-    color: "#FFF",
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    zIndex: "2",
+    color: '#FFF',
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    zIndex: '2',
   };
 
-  const handleCameraChange = async (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
+  const handleCameraChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
     if (qrScannerRef.current) {
       setIsLoading(true);
 
@@ -62,7 +46,7 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
   };
 
   const handleFlashChange = async () => {
-    if (qrScannerRef.current && typeof flash === "boolean") {
+    if (qrScannerRef.current && typeof flash === 'boolean') {
       await qrScannerRef.current.toggleFlash();
 
       setFlash(qrScannerRef.current.isFlashOn());
@@ -87,24 +71,22 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
 
       await qrScannerRef.current.start();
 
-      const cameras = await QrScanner.listCameras(true);
+      const newCameras = await QrScanner.listCameras(true);
 
-      const flash = (await qrScannerRef.current.hasFlash())
-        ? qrScannerRef.current.isFlashOn()
-        : undefined;
+      const newFlash = (await qrScannerRef.current.hasFlash()) ? qrScannerRef.current.isFlashOn() : undefined;
 
-      setCameras(cameras);
-      setFlash(flash);
+      setCameras(newCameras);
+      setFlash(newFlash);
       setIsLoading(false);
     } catch (error) {
       console.error(error);
     }
   }, [onDecode, preferredCamera]);
 
-  const stopScanner = () => {};
+  // const stopScanner = () => {};
 
   useEffect(() => {
-    void startScanner();
+    startScanner();
 
     if (qrScannerRef.current) {
       qrScannerRef.current.destroy();
@@ -114,72 +96,53 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
   }, []);
 
   return (
-    <Box
-      width="100%"
-      height="100%"
-      overflow="hidden"
-      position="relative"
-      sx={{ aspectRatio: "1" }}
-    >
+    <Box width='100%' height='100%' overflow='hidden' position='relative' sx={{ aspectRatio: '1' }}>
       {isLoading ? (
         <CircularProgress
-          size="48px"
+          size='48px'
           sx={{
             ...iconProps,
-            marginTop: "-24px",
-            marginLeft: "-24px",
+            marginTop: '-24px',
+            marginLeft: '-24px',
           }}
         />
       ) : (
         <QrCodeScannerIcon
           sx={{
             ...iconProps,
-            width: "25%",
-            height: "25%",
-            transform: "translate(-50%, -50%)",
+            width: '25%',
+            height: '25%',
+            transform: 'translate(-50%, -50%)',
           }}
         />
       )}
-      {!!(cameras.length || typeof flash === "boolean") && (
+      {!!(cameras.length || typeof flash === 'boolean') && (
         <Box
-          padding="1em"
-          width="100%"
-          position="absolute"
-          bottom="0"
-          left="0"
-          zIndex="3"
-          color="#FFF"
-          sx={{ backgroundColor: (theme) => theme.palette.primary.main }}
+          padding='1em 1em 0 1em'
+          width='100%'
+          position='absolute'
+          bottom='0'
+          left='0'
+          zIndex='3'
+          color='#FFF'
+          sx={{ backgroundColor: 'rgba(0, 0, 0, 0.25)', backdropFilter: 'blur(15px)' }}
         >
-          <Grid
-            container
-            spacing={2}
-            alignItems="center"
-            justifyContent="space-between"
-          >
+          <Grid container spacing={2} alignItems='center' justifyContent='space-between'>
             <Grid item>
               {!!cameras.length && (
-                <FormControl
-                  fullWidth
-                  variant="standard"
-                  sx={{ color: "#FFF" }}
-                >
-                  <InputLabel
-                    variant="standard"
-                    htmlFor={cameraSelectId}
-                    sx={{ color: "#FFF !important" }}
-                  >
+                <FormControl fullWidth variant='standard' sx={{ color: '#FFF' }}>
+                  <InputLabel variant='standard' htmlFor={cameraSelectId} sx={{ color: '#FFF !important' }}>
                     Camera
                   </InputLabel>
                   <NativeSelect
-                    variant="standard"
+                    variant='standard'
                     defaultValue={preferredCamera ?? cameras[0].id}
                     inputProps={{
-                      name: "camera",
+                      name: 'camera',
                       id: cameraSelectId,
                     }}
                     onChange={handleCameraChange}
-                    sx={{ color: "#FFF", "&:before": { borderColor: "#FFF" } }}
+                    sx={{ color: '#FFF', '&:before': { borderColor: '#FFF' } }}
                   >
                     {cameras.map((camera) => (
                       <option key={camera.id} value={camera.id}>
@@ -191,12 +154,8 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
               )}
             </Grid>
             <Grid item>
-              {typeof flash === "boolean" && (
-                <IconButton
-                  aria-label={`Turn flash ${flash ? "off" : "on"}`}
-                  color="inherit"
-                  onClick={handleFlashChange}
-                >
+              {typeof flash === 'boolean' && (
+                <IconButton aria-label={`Turn flash ${flash ? 'off' : 'on'}`} color='inherit' onClick={handleFlashChange}>
                   <FlashIcon />
                 </IconButton>
               )}
@@ -205,20 +164,20 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
         </Box>
       )}
       <Box
-        component="video"
+        component='video'
         ref={videoRef}
         muted
         playsInline
         controls={false}
-        width="100%"
-        height="100%"
-        position="absolute"
-        top="0"
-        left="0"
-        style={{
-          background: "#000",
-          objectFit: "cover",
-          pointerEvents: "none",
+        width='100%'
+        height='100%'
+        position='absolute'
+        top='0'
+        left='0'
+        sx={{
+          background: (theme) => theme.palette.grey[300],
+          objectFit: 'cover',
+          pointerEvents: 'none',
         }}
       />
     </Box>

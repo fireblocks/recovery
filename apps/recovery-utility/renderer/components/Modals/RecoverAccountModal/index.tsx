@@ -1,14 +1,10 @@
-import { useRouter } from "next/router";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import {
-  Button,
-  TextField,
-  recoverAccountInput,
-} from "@fireblocks/recovery-shared";
-import { useWorkspace } from "../../../context/Workspace";
-import { BaseModal } from "../BaseModal";
+import { useRouter } from 'next/router';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Button, TextField, recoverAccountInput } from '@fireblocks/recovery-shared';
+import { useWorkspace } from '../../../context/Workspace';
+import { BaseModal } from '@fireblocks/recovery-shared/components/BaseModal';
 
 type Props = {
   open: boolean;
@@ -17,7 +13,7 @@ type Props = {
 
 type FormData = z.infer<typeof recoverAccountInput>;
 
-const defaultValues: FormData = { name: "" };
+const defaultValues: FormData = { name: '' };
 
 export const RecoverAccountModal = ({ open, onClose: _onClose }: Props) => {
   const router = useRouter();
@@ -44,7 +40,7 @@ export const RecoverAccountModal = ({ open, onClose: _onClose }: Props) => {
     const accountId = addAccount(formData.name);
 
     router.push({
-      pathname: "/accounts/vault/[accountId]",
+      pathname: '/accounts/vault/[accountId]',
       query: { accountId },
     });
   };
@@ -53,27 +49,25 @@ export const RecoverAccountModal = ({ open, onClose: _onClose }: Props) => {
     <BaseModal
       open={open}
       onClose={onClose}
-      title="Recover Vault Account"
+      title='Recover Vault Account'
       actions={
         <>
-          <Button variant="text" onClick={onClose}>
+          <Button variant='text' onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit">Recover</Button>
+          <Button type='submit'>Recover</Button>
         </>
       }
       // eslint-disable-next-line react/no-unstable-nested-components
-      WrapperComponent={(props) => (
-        <form onSubmit={handleSubmit(onSubmit)} {...props} />
-      )}
+      WrapperComponent={(props) => <form onSubmit={handleSubmit(onSubmit)} {...props} />}
     >
       <TextField
-        id="accountName"
-        label="Account Name"
-        placeholder="e.g. Funding"
+        id='accountName'
+        label='Account Name'
+        placeholder='e.g. Funding'
         error={errors.name?.message}
         autoFocus
-        {...register("name")}
+        {...register('name')}
       />
     </BaseModal>
   );

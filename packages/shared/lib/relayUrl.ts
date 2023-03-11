@@ -43,6 +43,7 @@ export type RelaySigningResponseParameters = {
   assetId: string;
   accountId: number;
   addressIndex: number;
+  from: string;
   to: string;
   remaining: number;
   amount: number;
@@ -58,6 +59,7 @@ export type RelayBroadcastRequestParameters = {
   txId: string;
   assetId: string;
   accountId: number;
+  addressIndex: number;
   from: string;
   to: string;
   amount: number;
@@ -97,7 +99,11 @@ export const getRelayUrl = <P extends RelayPath>(path: P, params: RelayParams<P>
 };
 
 export const getRelayParams = <P extends RelayPath = RelayPath>(url: string) => {
-  const encodedParams = url.split('#')[1];
+  const segments = url.split('/');
+
+  const path = segments[segments.length - 1] as P;
+
+  const encodedParams = path.split('#')[1];
 
   if (!encodedParams) {
     console.warn('No Relay parameters found in URL');
@@ -113,7 +119,7 @@ export const getRelayParams = <P extends RelayPath = RelayPath>(url: string) => 
     return undefined;
   }
 
-  const parsedParams = JSON.parse(decompressedParams) as RelayParams<P>;
+  const params = JSON.parse(decompressedParams) as RelayParams<P>;
 
-  return parsedParams;
+  return { path, params };
 };

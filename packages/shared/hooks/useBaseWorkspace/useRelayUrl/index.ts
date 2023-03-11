@@ -11,7 +11,7 @@ export let initialUrlParams: AllRelayParams | undefined;
 
 if (typeof window !== 'undefined') {
   try {
-    initialUrlParams = getRelayParams<RelayPath>(window.location.href);
+    initialUrlParams = getRelayParams<RelayPath>(window.location.href) as AllRelayParams;
   } catch (error) {
     console.error(error);
   }

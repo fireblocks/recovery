@@ -1,8 +1,7 @@
-import Head from "next/head";
-import { useRouter } from "next/router";
-import { theme } from "@fireblocks/recovery-shared";
-import { Box } from "@mui/material";
-import { QrCode } from "../components/QrCode";
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { theme, QrCode } from '@fireblocks/recovery-shared';
+import { Box } from '@mui/material';
 
 function QR() {
   const router = useRouter();
@@ -11,15 +10,11 @@ function QR() {
   const title = router.query.title as string | undefined;
 
   return (
-    <Box padding="1em">
+    <Box padding='1em'>
       <Head>
-        <title>{`${title ? `${title} ` : ""} QR Code`}</title>
+        <title>{`${title ? `${title} ` : ''} QR Code`}</title>
       </Head>
-      <QrCode
-        data={data}
-        title={title}
-        bgColor={theme.palette.background.default}
-      />
+      <QrCode data={data} title={title} bgColor={theme.palette.background.default} />
     </Box>
   );
 }

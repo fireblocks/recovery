@@ -17,7 +17,7 @@ export const Sidebar = () => {
   const hasExtendedPrivateKeys = hasExtendedKeys && (extendedKeys.xprv || extendedKeys.fprv);
   const hasOnlyExtendedPublicKeys = hasExtendedPublicKeys && !hasExtendedPrivateKeys;
 
-  const StstusIcon = hasOnlyExtendedPublicKeys ? Verified : Restore;
+  const StatusIcon = hasOnlyExtendedPublicKeys ? Verified : Restore;
 
   const isActive = (pathname: string) => router.pathname.startsWith(pathname);
 
@@ -170,7 +170,7 @@ export const Sidebar = () => {
             };
           }}
         >
-          <StstusIcon sx={{ marginRight: '0.5rem' }} />
+          <StatusIcon sx={{ marginRight: '0.5rem' }} />
           {hasOnlyExtendedPublicKeys ? 'Verifying public' : 'Recovered private'} keys
         </Box>
       )}

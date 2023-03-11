@@ -1,6 +1,7 @@
 // Components
 export {
   AssetIcon,
+  BaseModal,
   Button,
   EmotionHeadTags,
   Glyph,
@@ -10,7 +11,11 @@ export {
   LogoHero,
   SharedProviders,
   TextField,
+  QrCode,
+  QrCodeScanner,
 } from './components';
+
+export type { ScanResult } from './components';
 
 // Document
 export { getInitialDocumentProps } from './lib/getInitialDocumentProps';
@@ -32,6 +37,7 @@ export type {
   RelayBroadcastRequestParameters,
   RelayParams,
   AllRelayParams,
+  RelayPath,
 } from './lib/relayUrl';
 
 export { getRelayUrl, getRelayParams } from './lib/relayUrl';
