@@ -1,57 +1,39 @@
-import { Input, BaseWallet } from "@fireblocks/wallet-derivation";
-import { useEffect, Dispatch, SetStateAction } from "react";
-import { getSupportedAsset, getAsset } from "../../../constants/assetInfo";
-import {
-  RelayPath,
-  RelayParams,
-  AllRelayParams,
-  getRelayUrl,
-  getRelayParams,
-} from "../../../lib/relayUrl";
-import { reduceDerivations } from "../reduceDerivations";
-import { reduceTransactions } from "../reduceTransactions";
-import { BaseWorkspace } from "../types";
+import { isDerivableAssetId, getAssetConfig } from '@fireblocks/asset-config';
+import { Input, BaseWallet } from '@fireblocks/wallet-derivation';
+import { useEffect, Dispatch, SetStateAction } from 'react';
+import { RelayPath, RelayParams, AllRelayParams, getRelayUrl, getRelayParams } from '../../../lib/relayUrl';
+import { reduceDerivations } from '../reduceDerivations';
+import { reduceTransactions } from '../reduceTransactions';
+import { BaseWorkspace } from '../types';
 
 // eslint-disable-next-line import/no-mutable-exports
 export let initialUrlParams: AllRelayParams | undefined;
 
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   try {
-    initialUrlParams = getRelayParams<AllRelayParams>(window.location.href);
+    initialUrlParams = getRelayParams<RelayPath>(window.location.href);
   } catch (error) {
     console.error(error);
   }
 
-  window.location.hash = "";
+  window.location.hash = '';
 }
 
-const assertKeyParity = <T extends BaseWallet>(
-  extension: "x" | "f",
-  params: AllRelayParams,
-  prev: BaseWorkspace<T>
-) => {
+const assertKeyParity = <T extends BaseWallet>(extension: 'x' | 'f', params: AllRelayParams, prev: BaseWorkspace<T>) => {
   const xprv = `${extension}prv` as const;
   const xpub = `${extension}pub` as const;
 
-  if (
-    prev.extendedKeys?.[xprv] &&
-    prev.extendedKeys[xpub] &&
-    params[xpub] &&
-    params[xpub] !== prev.extendedKeys[xpub]
-  ) {
+  if (prev.extendedKeys?.[xprv] && prev.extendedKeys[xpub] && params[xpub] && params[xpub] !== prev.extendedKeys[xpub]) {
     throw new Error(`Cannot mutate ${xpub} from Relay URL`);
   }
 };
 
 const getRelayWorkspaceReducer =
-  <T extends BaseWallet = BaseWallet>(
-    params: AllRelayParams,
-    deriveWallet: (input: Input) => T
-  ) =>
+  <T extends BaseWallet = BaseWallet>(params: AllRelayParams, deriveWallet: (input: Input) => T) =>
   (prev: BaseWorkspace<T>): BaseWorkspace<T> => {
     // If private are set and the public keys are changing, throw an error
-    assertKeyParity("x", params, prev);
-    assertKeyParity("f", params, prev);
+    assertKeyParity('x', params, prev);
+    assertKeyParity('f', params, prev);
 
     // Set extended public keys (don't override if already set)
     const extendedKeys = {
@@ -97,37 +79,30 @@ const getRelayWorkspaceReducer =
     // Active asset
     const assetId = params.assetId ?? prev.asset?.id;
 
-    const asset = typeof assetId === "string" ? getAsset(assetId) : prev.asset;
+    const asset = getAssetConfig(assetId) ?? prev.asset;
 
     // Active account
     const accountId = params.accountId ?? prev.account?.id;
 
-    const hasAccountId = typeof accountId === "number";
+    const hasAccountId = typeof accountId === 'number';
 
     if (assetId && hasAccountId) {
       const existingWallet = prev.accounts.get(accountId)?.wallets.get(assetId);
 
       const existingDerivation =
-        typeof params.addressIndex === "number" && existingWallet
-          ? Array.from(existingWallet.derivations.values()).find(
-              (d) => d.path.addressIndex === params.addressIndex
-            )
+        typeof params.addressIndex === 'number' && existingWallet
+          ? Array.from(existingWallet.derivations.values()).find((d) => d.path.addressIndex === params.addressIndex)
           : undefined;
 
       // Derive wallet if not already derived
-      if (
-        !existingDerivation &&
-        extendedKeys.xpub &&
-        extendedKeys.fpub &&
-        getSupportedAsset(assetId)
-      ) {
+      if (!existingDerivation && extendedKeys.xpub && extendedKeys.fpub && isDerivableAssetId(assetId)) {
         const newAccount = reduceDerivations({
           extendedKeys,
           accounts,
           assetId,
           accountId,
           path: { addressIndex: params.addressIndex },
-          isTestnet: asset?.isTestnet,
+          isTestnet: asset?.id.includes('TEST'),
           deriveWallet,
         });
 
@@ -150,15 +125,11 @@ const getRelayWorkspaceReducer =
 export const useRelayUrl = <T extends BaseWallet = BaseWallet>(
   relayBaseUrl: string,
   setWorkspace: Dispatch<SetStateAction<BaseWorkspace<T>>>,
-  deriveWallet: (input: Input) => T
+  deriveWallet: (input: Input) => T,
 ) => {
-  const getRelayUrlWithBase = <P extends RelayPath>(
-    path: P,
-    params: RelayParams<P>
-  ) => getRelayUrl(path, params, relayBaseUrl);
+  const getRelayUrlWithBase = <P extends RelayPath>(path: P, params: RelayParams<P>) => getRelayUrl(path, params, relayBaseUrl);
 
-  const setWorkspaceFromRelayParams = (params: AllRelayParams) =>
-    setWorkspace(getRelayWorkspaceReducer(params, deriveWallet));
+  const setWorkspaceFromRelayParams = (params: AllRelayParams) => setWorkspace(getRelayWorkspaceReducer(params, deriveWallet));
 
   useEffect(() => {
     if (initialUrlParams) {

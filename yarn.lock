@@ -3574,6 +3574,11 @@ bip174@^2.1.0:
   resolved "https://registry.yarnpkg.com/bip174/-/bip174-2.1.0.tgz#cd3402581feaa5116f0f00a0eaee87a5843a2d30"
   integrity sha512-lkc0XyiX9E9KiVAS1ZiOqK1xfiwvf4FXDDdkDq5crcDzOq+xGytY+14qCsqz7kCiy8rpN1CRNfacRhf9G3JNSA==
 
+bip44-constants@^199.0.0:
+  version "199.0.0"
+  resolved "https://registry.yarnpkg.com/bip44-constants/-/bip44-constants-199.0.0.tgz#db45588f594653cc9db42c69b77c4cac385bd3af"
+  integrity sha512-STe4fyxUGeYavBUJuAUrJIjwPhjCdPDkD/kQqlwvIJdGxsEkUb7xNjobR/tuJ08varjx/NQIQOe2FcRXYvO0Cg==
+
 bitcoinjs-lib@^6.1.0:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/bitcoinjs-lib/-/bitcoinjs-lib-6.1.0.tgz#2e3123d63eab5e8e752fd7e2f237314f35ed738f"

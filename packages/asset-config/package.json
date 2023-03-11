@@ -1,27 +1,23 @@
 {
-  "name": "@fireblocks/recovery-constants",
-  "description": "Recovery constants",
+  "name": "@fireblocks/asset-config",
+  "description": "Recovery asset constants",
   "author": "Fireblocks <info@fireblocks.com> (https://www.fireblocks.com)",
-  "repository": "https://github.com/fireblocks/recovery/tree/main/packages/constants",
+  "repository": "https://github.com/fireblocks/recovery/tree/main/packages/asset-config",
   "homepage": "https://www.fireblocks.com",
   "version": "0.0.0",
   "license": "GPL-3.0-or-later",
   "private": true,
-  "files": [
-    "assets.ts",
-    "explorers.ts",
-    "nativeAssetIds.ts",
-    "supportedAssets.ts"
-  ],
+  "main": "index.ts",
   "scripts": {
-    "postinstall": "ts-node scripts/getAssets",
-    "build": "ts-node scripts/getAssets",
+    "prepare": "ts-node scripts/build",
+    "build": "ts-node scripts/build",
     "lint": "eslint --fix .",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.54.1",
     "@typescript-eslint/parser": "^5.54.1",
+    "bip44-constants": "^199.0.0",
     "dotenv": "^16.0.3",
     "eslint": "^8.35.0",
     "eslint-config-airbnb": "^19.0.4",

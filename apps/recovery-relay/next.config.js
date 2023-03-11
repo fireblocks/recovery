@@ -1,13 +1,13 @@
 // @ts-check
-const withTM = require("next-transpile-modules")([
-  "@fireblocks/recovery-constants",
-  "@fireblocks/recovery-shared",
-  "@fireblocks/wallet-derivation",
+const withTM = require('next-transpile-modules')([
+  '@fireblocks/asset-config',
+  '@fireblocks/recovery-shared',
+  '@fireblocks/wallet-derivation',
 ]);
 // @ts-ignore
-const withPWA = require("next-pwa")({
-  dest: "public",
-  disable: process.env.NODE_ENV === "development",
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  disable: process.env.NODE_ENV === 'development',
   reloadOnOnline: false,
 });
 

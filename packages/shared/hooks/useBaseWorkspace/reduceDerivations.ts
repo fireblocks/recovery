@@ -1,11 +1,6 @@
-import {
-  ExtendedKeys,
-  Input,
-  BaseWallet,
-  HDPathInput,
-} from "@fireblocks/wallet-derivation";
-import { getAsset, getSupportedAsset } from "../../constants/assetInfo";
-import { VaultAccount, Wallet } from "../../types";
+import { ExtendedKeys, Input, BaseWallet, HDPathInput } from '@fireblocks/wallet-derivation';
+import { getDerivableAssetConfig } from '@fireblocks/asset-config';
+import { VaultAccount, Wallet } from '../../types';
 
 export type DerivationReducerInput<T extends BaseWallet> = {
   extendedKeys?: ExtendedKeys;
@@ -28,11 +23,9 @@ export type DerivationReducerInput<T extends BaseWallet> = {
 };
 
 export const testIsLegacy = (assetId: string, address: string) =>
-  assetId === "BTC" && !address.startsWith("bc1") && !address.startsWith("tb1");
+  (assetId === 'BTC' && !address.startsWith('bc1')) || (assetId.startsWith('BTC_') && !address.startsWith('tb1'));
 
-export const sumDerivationBalances = <T extends BaseWallet = BaseWallet>(
-  derivations: T[]
-) =>
+export const sumDerivationBalances = <T extends BaseWallet = BaseWallet>(derivations: T[]) =>
   derivations.reduce((acc, { balance }) => {
     const sum = { ...acc };
 
@@ -43,11 +36,9 @@ export const sumDerivationBalances = <T extends BaseWallet = BaseWallet>(
     });
 
     return sum;
-  }, {} as BaseWallet["balance"]);
+  }, {} as BaseWallet['balance']);
 
-export const reduceDerivations = <T extends BaseWallet = BaseWallet>(
-  input: DerivationReducerInput<T>
-) => {
+export const reduceDerivations = <T extends BaseWallet = BaseWallet>(input: DerivationReducerInput<T>) => {
   const {
     extendedKeys,
     accounts,
@@ -62,8 +53,7 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(
     privateKey,
     wif,
     isLegacy = !!input.address && testIsLegacy(input.assetId, input.address),
-    isTestnet = getAsset(input.assetId)?.isTestnet ??
-      input.assetId.includes("TEST"),
+    isTestnet = input.assetId.includes('TEST'),
     balance = { native: 0, usd: 0 },
     deriveWallet,
   } = input;
@@ -94,13 +84,7 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(
     wallet.derivations.set(address, {
       assetId,
       path,
-      pathParts: [
-        44,
-        path.coinType,
-        path.account,
-        path.changeIndex,
-        path.addressIndex,
-      ],
+      pathParts: [44, path.coinType, path.account, path.changeIndex, path.addressIndex],
       address,
       tag,
       type,
@@ -112,6 +96,8 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(
       isLegacy,
       balance,
     } as unknown as T);
+
+    console.info('Just set mock derivation', wallet.derivations.get(address));
   }
 
   const derivationInput: Input = {
@@ -128,22 +114,20 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(
 
   const hasXprv = !!xprv || !!fprv;
 
-  const canDerive = (hasXpub || hasXprv) && !!getSupportedAsset(assetId);
+  const canDerive = (hasXpub || hasXprv) && !!getDerivableAssetConfig(assetId);
 
   const missingWalletKey = (hasXpub && !publicKey) || (hasXprv && !privateKey);
 
-  const shouldDerive =
-    canDerive &&
-    (missingWalletKey || !address || !wallet.derivations.has(address));
+  const shouldDerive = canDerive && (missingWalletKey || !address || !wallet.derivations.has(address));
 
   // Derive wallet
   if (shouldDerive) {
     const derivation = deriveWallet(derivationInput);
 
     if (address && derivation.address !== address) {
-      throw new Error(
-        `Address mismatch: ${address} does not match derivation address ${derivation.address}`
-      );
+      // TODO: Show notice in UI when this happens. For now just remove the erroneous imported address
+      console.warn(`Address mismatch, dropping import. Imported ${address}, derived ${derivation.address}`);
+      wallet.derivations.delete(address);
     }
 
     derivation.balance = { ...derivation.balance, ...balance };
@@ -152,11 +136,9 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(
   }
 
   // Handle legacy + Segwit derivations
-  if (assetId === "BTC") {
+  if (assetId === 'BTC' || assetId.startsWith('BTC_')) {
     const hasOneAddressForPath =
-      Array.from(wallet.derivations.values()).filter(
-        (d) => d.path.addressIndex === path.addressIndex
-      ).length < 2;
+      Array.from(wallet.derivations.values()).filter((d) => d.path.addressIndex === path.addressIndex).length < 2;
 
     if (hasOneAddressForPath) {
       const altDerivation = deriveWallet({
@@ -168,9 +150,7 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(
     }
   }
 
-  wallet.balance = sumDerivationBalances(
-    Array.from(wallet.derivations.values())
-  );
+  wallet.balance = sumDerivationBalances(Array.from(wallet.derivations.values()));
 
   account.wallets.set(assetId, wallet);
 

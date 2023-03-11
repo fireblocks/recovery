@@ -15,6 +15,11 @@
     "jsx": "preserve",
     "incremental": true
   },
-  "include": ["**/*.ts", "**/*.tsx", ".eslintrc.js", "../constants/assets.ts"],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".eslintrc.js",
+    "../constants/dist/assets.ts"
+  ],
   "exclude": ["node_modules"]
 }

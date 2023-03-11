@@ -5,15 +5,7 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [
-        ".next/**",
-        "build/**",
-        "dist/**",
-        "out/**",
-        "app/**",
-        "renderer/.next/**",
-        "recover.spec"
-      ],
+      "outputs": [".next/**", "build/**", "dist/**", "out/**", "app/**", "renderer/.next/**", "recover.spec"],
       "env": [
         "NODE_ENV",
         "ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES",

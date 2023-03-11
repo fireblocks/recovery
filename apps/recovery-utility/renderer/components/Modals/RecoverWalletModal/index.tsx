@@ -1,20 +1,9 @@
-import { useState } from "react";
-import {
-  Box,
-  Typography,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-} from "@mui/material";
-import {
-  Button,
-  AssetIcon,
-  AssetId,
-  assetsList,
-} from "@fireblocks/recovery-shared";
-import { useWorkspace } from "../../../context/Workspace";
-import { BaseModal } from "../BaseModal";
+import { useState } from 'react';
+import { Box, Typography, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import { assets } from '@fireblocks/asset-config';
+import { Button, AssetIcon } from '@fireblocks/recovery-shared';
+import { useWorkspace } from '../../../context/Workspace';
+import { BaseModal } from '../BaseModal';
 
 type Props = {
   assets?: { id: string; name: string; type: string }[];
@@ -24,12 +13,7 @@ type Props = {
   onClose: VoidFunction;
 };
 
-export const RecoverWalletModal = ({
-  assets: _assets = assetsList,
-  accountId,
-  open,
-  onClose: _onClose,
-}: Props) => {
+export const RecoverWalletModal = ({ assets: _assets = assets, accountId, open, onClose: _onClose }: Props) => {
   const { account, addWallet } = useWorkspace();
 
   const [assetId, setAssetId] = useState<string | null>(null);
@@ -43,8 +27,8 @@ export const RecoverWalletModal = ({
   const onClickAsset = (_assetId: string) => setAssetId(_assetId);
 
   const onClickRecover = () => {
-    if (typeof accountId === "number" && assetId) {
-      addWallet(accountId, assetId as AssetId);
+    if (typeof accountId === 'number' && assetId) {
+      addWallet(assetId, accountId);
     }
 
     onClose();
@@ -58,16 +42,11 @@ export const RecoverWalletModal = ({
         (
           <Box>
             {!!account?.name && (
-              <Typography
-                component="h2"
-                variant="h3"
-                marginTop="1em"
-                color={(theme) => theme.palette.text.disabled}
-              >
+              <Typography component='h2' variant='h3' marginTop='1em' color={(theme) => theme.palette.text.disabled}>
                 {account.name}
               </Typography>
             )}
-            <Typography variant="h1" marginTop="0.5em">
+            <Typography variant='h1' marginTop='0.5em'>
               Recover Asset Wallet
             </Typography>
           </Box>
@@ -75,7 +54,7 @@ export const RecoverWalletModal = ({
       }
       actions={
         <>
-          <Button variant="text" onClick={onClose}>
+          <Button variant='text' onClick={onClose}>
             Cancel
           </Button>
           <Button disabled={!assetId} onClick={onClickRecover}>
@@ -84,7 +63,7 @@ export const RecoverWalletModal = ({
         </>
       }
     >
-      <List component="nav" aria-label="main mailbox folders">
+      <List component='nav' aria-label='main mailbox folders'>
         {_assets.map((asset) => (
           <ListItemButton
             key={asset.id}
@@ -93,11 +72,11 @@ export const RecoverWalletModal = ({
             divider
             onClick={() => onClickAsset(asset.id)}
             sx={{
-              transition: "none",
-              "&:hover": {
-                background: "transparent",
-                boxShadow: "0px 3px 10px 0 rgb(41 51 155 / 15%)",
-                borderRadius: "8px",
+              transition: 'none',
+              '&:hover': {
+                background: 'transparent',
+                boxShadow: '0px 3px 10px 0 rgb(41 51 155 / 15%)',
+                borderRadius: '8px',
               },
             }}
           >
@@ -105,21 +84,17 @@ export const RecoverWalletModal = ({
               <Box
                 width={40}
                 height={40}
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
+                display='flex'
+                alignItems='center'
+                justifyContent='center'
                 borderRadius={40}
                 border={(theme) => `solid 1px ${theme.palette.grey[300]}`}
-                sx={{ background: "#FFF" }}
+                sx={{ background: '#FFF' }}
               >
                 <AssetIcon assetId={asset.id} />
               </Box>
             </ListItemIcon>
-            <ListItemText
-              primaryTypographyProps={{ variant: "h2" }}
-              primary={asset.id}
-              secondary={asset.name}
-            />
+            <ListItemText primaryTypographyProps={{ variant: 'h2' }} primary={asset.id} secondary={asset.name} />
           </ListItemButton>
         ))}
       </List>

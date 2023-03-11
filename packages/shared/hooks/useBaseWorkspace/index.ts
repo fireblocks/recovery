@@ -1,19 +1,15 @@
-import { useState, useCallback } from "react";
-import { Input, BaseWallet } from "@fireblocks/wallet-derivation";
-import { LocalFile } from "papaparse";
-import { getAsset } from "../../constants/assetInfo";
-import type { ExtendedKeys } from "../../schemas";
-import { AssetId, Wallet, VaultAccount, Transaction } from "../../types";
-import { BaseWorkspace, BaseWorkspaceContext } from "./types";
-import { csvImport, ParsedRow } from "../../lib/csv";
-import { RelayParams, getRelayParams, RelayPath } from "../../lib/relayUrl";
-import { useRelayUrl } from "./useRelayUrl";
-import {
-  reduceDerivations,
-  testIsLegacy,
-  DerivationReducerInput,
-} from "./reduceDerivations";
-import { reduceTransactions } from "./reduceTransactions";
+import { useState, useCallback } from 'react';
+import { Input, BaseWallet } from '@fireblocks/wallet-derivation';
+import { LocalFile } from 'papaparse';
+import { getAssetConfig } from '@fireblocks/asset-config';
+import type { ExtendedKeys } from '../../schemas';
+import { Wallet, VaultAccount, Transaction } from '../../types';
+import { BaseWorkspace, BaseWorkspaceContext } from './types';
+import { csvImport, ParsedRow } from '../../lib/csv';
+import { RelayParams, getRelayParams, RelayPath } from '../../lib/relayUrl';
+import { useRelayUrl } from './useRelayUrl';
+import { reduceDerivations, testIsLegacy, DerivationReducerInput } from './reduceDerivations';
+import { reduceTransactions } from './reduceTransactions';
 
 export type { BaseWorkspace, BaseWorkspaceContext };
 
@@ -27,7 +23,7 @@ export const defaultBaseWorkspace: BaseWorkspace<BaseWallet> = {
 
 export const defaultBaseWorkspaceContext: BaseWorkspaceContext<BaseWallet> = {
   ...defaultBaseWorkspace,
-  getRelayUrl: () => "",
+  getRelayUrl: () => '',
   restoreWorkspace: async () => undefined,
   setWorkspaceFromRelayUrl: <P extends RelayPath>() => ({} as RelayParams<P>),
   setExtendedKeys: () => undefined,
@@ -44,22 +40,16 @@ type Props<T extends BaseWallet> = {
   deriveWallet: (input: Input) => T;
 };
 
-export const useBaseWorkspace = <T extends BaseWallet>({
-  relayBaseUrl,
-  deriveWallet,
-}: Props<T>) => {
-  const [workspace, setWorkspace] = useState<BaseWorkspace<T>>(
-    defaultBaseWorkspace as BaseWorkspace<T>
-  );
+export const useBaseWorkspace = <T extends BaseWallet>({ relayBaseUrl, deriveWallet }: Props<T>) => {
+  const [workspace, setWorkspace] = useState<BaseWorkspace<T>>(defaultBaseWorkspace as BaseWorkspace<T>);
 
-  const setExtendedKeys = (extendedKeys: ExtendedKeys) =>
+  const setExtendedKeys = (extendedKeys: Partial<ExtendedKeys>) =>
     setWorkspace((prev) => ({
       ...prev,
       extendedKeys: { ...prev.extendedKeys, ...extendedKeys },
     }));
 
-  const setAsset = (assetId: string) =>
-    setWorkspace((prev) => ({ ...prev, asset: getAsset(assetId) }));
+  const setAsset = (assetId: string) => setWorkspace((prev) => ({ ...prev, asset: getAssetConfig(assetId) }));
 
   const setAccount = (accountId: number) =>
     setWorkspace((prev) => ({
@@ -67,31 +57,26 @@ export const useBaseWorkspace = <T extends BaseWallet>({
       account: prev.accounts.get(accountId),
     }));
 
-  const { getRelayUrl, setWorkspaceFromRelayParams } = useRelayUrl(
-    relayBaseUrl,
-    setWorkspace,
-    deriveWallet
-  );
+  const { getRelayUrl, setWorkspaceFromRelayParams } = useRelayUrl(relayBaseUrl, setWorkspace, deriveWallet);
 
-  const setWorkspaceFromRelayUrl = (url: string) => {
+  const setWorkspaceFromRelayUrl = <P extends RelayPath>(url: string) => {
     try {
-      const params = getRelayParams(url);
+      const params = getRelayParams<P>(url);
 
-      setWorkspaceFromRelayParams(params);
+      if (params) {
+        setWorkspaceFromRelayParams(params);
+      }
 
       return params;
     } catch (error) {
       console.error(error);
 
-      throw new Error("Invalid relay URL");
+      throw new Error('Invalid relay URL');
     }
   };
 
   const setDerivation = (
-    derivationInput: Omit<
-      DerivationReducerInput<T>,
-      "accounts" | "deriveWallet"
-    > & { extendedKeys?: ExtendedKeys }
+    derivationInput: Omit<DerivationReducerInput<T>, 'accounts' | 'deriveWallet'> & { extendedKeys?: ExtendedKeys },
   ) =>
     setWorkspace((prev) => {
       const accounts = new Map(prev.accounts);
@@ -145,7 +130,7 @@ export const useBaseWorkspace = <T extends BaseWallet>({
         publicKey,
         privateKey,
         wif: privateKeyWif,
-        isTestnet: assetId.includes("TEST"),
+        isTestnet: assetId.includes('TEST'),
         isLegacy: testIsLegacy(assetId, address),
         balance: {
           native: 0,
@@ -153,11 +138,13 @@ export const useBaseWorkspace = <T extends BaseWallet>({
         },
       });
     },
-    [setDerivation, workspace.extendedKeys]
+    [setDerivation, workspace.extendedKeys],
   );
 
   const restoreWorkspace = useCallback(
-    async (extendedKeys?: ExtendedKeys, csvFile?: LocalFile) => {
+    async (extendedKeys?: Partial<ExtendedKeys>, csvFile?: LocalFile) => {
+      setWorkspace(defaultBaseWorkspace as BaseWorkspace<T>);
+
       if (extendedKeys) {
         setExtendedKeys(extendedKeys);
       }
@@ -166,7 +153,7 @@ export const useBaseWorkspace = <T extends BaseWallet>({
         await csvImport(csvFile, handleCsvRow);
       }
     },
-    [setExtendedKeys, handleCsvRow]
+    [setExtendedKeys, handleCsvRow],
   );
 
   const addAccount = useCallback(
@@ -176,7 +163,7 @@ export const useBaseWorkspace = <T extends BaseWallet>({
       setWorkspace((prev) => {
         const accounts = new Map(prev.accounts);
 
-        if (typeof resolvedAccountId === "undefined") {
+        if (typeof resolvedAccountId === 'undefined') {
           if (accounts.size > 0) {
             const accountIds = Array.from(accounts.keys());
 
@@ -189,7 +176,7 @@ export const useBaseWorkspace = <T extends BaseWallet>({
         const newAccount: VaultAccount<T> = {
           id: resolvedAccountId,
           name,
-          wallets: new Map<AssetId, Wallet<T>>(),
+          wallets: new Map<string, Wallet<T>>(),
         };
 
         accounts.set(resolvedAccountId, newAccount);
@@ -199,16 +186,16 @@ export const useBaseWorkspace = <T extends BaseWallet>({
 
       return resolvedAccountId ?? 0;
     },
-    [setWorkspace]
+    [setWorkspace],
   );
 
   const addWallet = (assetId: string, accountId: number, addressIndex = 0) => {
-    if (typeof accountId !== "number") {
-      throw new Error("Wallet needs an account ID");
+    if (typeof accountId !== 'number') {
+      throw new Error('Wallet needs an account ID');
     }
 
-    if (typeof assetId !== "string") {
-      throw new Error("Wallet needs an asset ID");
+    if (typeof assetId !== 'string') {
+      throw new Error('Wallet needs an asset ID');
     }
 
     setDerivation({
@@ -226,9 +213,9 @@ export const useBaseWorkspace = <T extends BaseWallet>({
 
   const reset = () => setWorkspace(defaultBaseWorkspace as BaseWorkspace<T>);
 
-  if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
+  if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
     // eslint-disable-next-line no-console
-    console.info("Workspace", workspace);
+    console.info('Workspace', workspace);
   }
 
   const value: BaseWorkspaceContext<T> = {

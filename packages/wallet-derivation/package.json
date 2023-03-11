@@ -13,7 +13,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@fireblocks/recovery-constants": "^0.0.0",
+    "@fireblocks/asset-config": "^0.0.0",
     "algosdk": "^2.1.0",
     "big-integer": "^1.6.51",
     "bigint-buffer": "^1.1.5",

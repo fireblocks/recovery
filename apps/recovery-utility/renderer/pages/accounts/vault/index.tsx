@@ -1,22 +1,17 @@
-import { useRouter } from "next/router";
-import { useMemo, useState } from "react";
-import { Button } from "@fireblocks/recovery-shared";
-import { Box, Grid, Typography, Breadcrumbs } from "@mui/material";
-import {
-  GridToolbarQuickFilter,
-  GridActionsCellItem,
-  GridColDef,
-  GridRowsProp,
-} from "@mui/x-data-grid";
-import { Add } from "@mui/icons-material";
-import type { NextPageWithLayout } from "../../_app";
-import { useWorkspace } from "../../../context/Workspace";
-import { Layout } from "../../../components/Layout";
-import { VaultAccountIcon, WithdrawIcon } from "../../../components/Icons";
-import { DataGrid } from "../../../components/DataGrid";
-import { ExportModal } from "../../../components/Modals/ExportModal";
-import { RecoverAccountModal } from "../../../components/Modals/RecoverAccountModal";
-import { WithdrawModal } from "../../../components/Modals/WithdrawModal";
+import { useRouter } from 'next/router';
+import { useMemo, useState } from 'react';
+import { Button, NextLinkComposed } from '@fireblocks/recovery-shared';
+import { Box, Grid, Typography, Breadcrumbs } from '@mui/material';
+import { GridToolbarQuickFilter, GridActionsCellItem, GridColDef, GridRowsProp } from '@mui/x-data-grid';
+import { Add } from '@mui/icons-material';
+import type { NextPageWithLayout } from '../../_app';
+import { useWorkspace } from '../../../context/Workspace';
+import { Layout } from '../../../components/Layout';
+import { VaultAccountIcon, WithdrawIcon } from '../../../components/Icons';
+import { DataGrid } from '../../../components/DataGrid';
+import { ExportModal } from '../../../components/Modals/ExportModal';
+import { RecoverAccountModal } from '../../../components/Modals/RecoverAccountModal';
+import { WithdrawModal } from '../../../components/Modals/WithdrawModal';
 
 type Row = {
   accountId: number;
@@ -34,42 +29,32 @@ function GridToolbar({ onClickExport, onClickAddAccount }: GridToolbarProps) {
   return (
     <>
       <GridToolbarQuickFilter
-        placeholder="Account Name or Address"
-        variant="outlined"
+        placeholder='Account Name or Address'
+        variant='outlined'
         sx={{
-          minWidth: "250px",
-          backgroundColor: "rgba(84, 83, 96, 0.1)",
-          padding: "0 8px",
-          borderRadius: "24px",
-          "& .MuiInputBase-root": {
+          minWidth: '250px',
+          backgroundColor: 'rgba(84, 83, 96, 0.1)',
+          padding: '0 8px',
+          borderRadius: '24px',
+          '& .MuiInputBase-root': {
             padding: 0,
           },
-          "& .MuiInputBase-input": {
+          '& .MuiInputBase-input': {
             padding: 0,
           },
-          "& fieldset": {
-            display: "none",
+          '& fieldset': {
+            display: 'none',
           },
         }}
       />
       <Box>
-        <Button
-          variant="text"
-          size="small"
-          sx={{ marginRight: "1rem" }}
-          onClick={onClickExport}
-        >
+        <Button variant='text' size='small' sx={{ marginRight: '1rem' }} onClick={onClickExport}>
           Export
         </Button>
         {/* <Button variant="text" size="small" sx={{ marginRight: "1rem" }}>
         Get Balances
       </Button> */}
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<Add />}
-          onClick={onClickAddAccount}
-        >
+        <Button variant='outlined' size='small' startIcon={<Add />} onClick={onClickAddAccount}>
           Vault Account
         </Button>
       </Box>
@@ -80,34 +65,28 @@ function GridToolbar({ onClickExport, onClickAddAccount }: GridToolbarProps) {
 const Vault: NextPageWithLayout = () => {
   const router = useRouter();
 
-  const { accounts } = useWorkspace();
+  const { extendedKeys, accounts } = useWorkspace();
 
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const handleOpenExportModal = () => setIsExportModalOpen(true);
   const handleCloseExportModal = () => setIsExportModalOpen(false);
 
-  const [isRecoverAccountModalOpen, setIsRecoverAccountModalOpen] =
-    useState(false);
+  const [isRecoverAccountModalOpen, setIsRecoverAccountModalOpen] = useState(false);
 
-  const handleOpenRecoverAccountModal = () =>
-    setIsRecoverAccountModalOpen(true);
-  const handleCloseRecoverAccountModal = () =>
-    setIsRecoverAccountModalOpen(false);
+  const handleOpenRecoverAccountModal = () => setIsRecoverAccountModalOpen(true);
+  const handleCloseRecoverAccountModal = () => setIsRecoverAccountModalOpen(false);
 
-  const [withdrawalAccountId, setWithdrawalAccountId] = useState<
-    number | undefined
-  >(undefined);
+  const [withdrawalAccountId, setWithdrawalAccountId] = useState<number | undefined>(undefined);
 
-  const handleOpenWithdrawModal = (_accountId: number) =>
-    setWithdrawalAccountId(_accountId);
+  const handleOpenWithdrawModal = (_accountId: number) => setWithdrawalAccountId(_accountId);
   const handleCloseWithdrawModal = () => setWithdrawalAccountId(undefined);
 
   const columns = useMemo<GridColDef<Row>[]>(
     () => [
       {
-        field: "icon",
-        headerName: "Icon",
+        field: 'icon',
+        headerName: 'Icon',
         width: 60,
         sortable: false,
         filterable: false,
@@ -116,66 +95,63 @@ const Vault: NextPageWithLayout = () => {
           <Box
             width={40}
             height={40}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            border={(theme) => `solid 1px ${theme.palette.grey[200]}`}
+            display='flex'
+            alignItems='center'
+            justifyContent='center'
+            border={(t) => `solid 1px ${t.palette.grey[200]}`}
           >
-            <VaultAccountIcon />
+            <VaultAccountIcon color='primary' />
           </Box>
         ),
       },
       {
-        field: "accountId",
-        headerName: "ID",
+        field: 'accountId',
+        headerName: 'ID',
         sortable: true,
         filterable: false,
         getApplyQuickFilterFn: undefined,
       },
       {
-        field: "name",
-        headerName: "Name",
+        field: 'name',
+        headerName: 'Name',
         flex: 1,
         editable: true,
         sortable: true,
         filterable: true,
-        getApplyQuickFilterFn: (search: string) => (params) =>
-          params.row.name.toLowerCase().includes(search.toLowerCase()),
+        getApplyQuickFilterFn: (search: string) => (params) => params.row.name.toLowerCase().includes(search.toLowerCase()),
       },
       {
-        field: "balance",
-        headerName: "Balance",
-        type: "number",
+        field: 'balance',
+        headerName: 'Balance',
+        type: 'number',
         width: 150,
         sortable: true,
         filterable: false,
         getApplyQuickFilterFn: undefined,
       },
       {
-        field: "addresses",
-        headerName: "Addresses",
+        field: 'addresses',
+        headerName: 'Addresses',
         sortable: false,
         filterable: false,
         getApplyQuickFilterFn: (search: string) => (params) =>
-          params.row.addresses.some(
-            (address) => address.toLowerCase() === search.toLowerCase()
-          ),
+          params.row.addresses.some((address) => address.toLowerCase() === search.toLowerCase()),
       },
       {
-        field: "actions",
-        type: "actions",
+        field: 'actions',
+        type: 'actions',
         width: 50,
         getActions: (params) => [
           <GridActionsCellItem
             key={`withdraw-${params.id}`}
             icon={<WithdrawIcon />}
-            label="Withdraw"
+            label='Withdraw'
             onClick={() => handleOpenWithdrawModal(params.row.accountId)}
           />,
         ],
       },
     ],
-    []
+    [],
   );
 
   const rows = useMemo<GridRowsProp<Row>>(
@@ -183,15 +159,12 @@ const Vault: NextPageWithLayout = () => {
       Array.from(accounts).map(([accountId, account]) => ({
         accountId,
         name: account.name,
-        balance: Array.from(account.wallets).reduce(
-          (balance, [, wallet]) => balance + (wallet.balance?.native ?? 0),
-          0
-        ),
+        balance: Array.from(account.wallets).reduce((balance, [, wallet]) => balance + (wallet.balance?.native ?? 0), 0),
         addresses: Array.from(account.wallets)
           .flatMap(([, wallet]) => Array.from(wallet.derivations))
           .map(([, derivation]) => derivation.address),
       })),
-    [accounts]
+    [accounts],
   );
 
   return (
@@ -200,17 +173,15 @@ const Vault: NextPageWithLayout = () => {
         <DataGrid<Row>
           heading={
             <>
-              <Typography variant="h1" marginY={0}>
-                Accounts
-              </Typography>
+              <Typography variant='h1'>Accounts</Typography>
               <Breadcrumbs
                 sx={{
-                  minHeight: "48px",
-                  display: "flex",
-                  alignItems: "center",
+                  minHeight: '48px',
+                  display: 'flex',
+                  alignItems: 'center',
                 }}
               >
-                <Typography variant="h2">My Vault</Typography>
+                <Typography variant='h2'>My Vault</Typography>
               </Breadcrumbs>
             </>
           }
@@ -219,18 +190,13 @@ const Vault: NextPageWithLayout = () => {
           columns={columns}
           componentsProps={{
             toolbar: {
-              children: (
-                <GridToolbar
-                  onClickExport={handleOpenExportModal}
-                  onClickAddAccount={handleOpenRecoverAccountModal}
-                />
-              ),
+              children: <GridToolbar onClickExport={handleOpenExportModal} onClickAddAccount={handleOpenRecoverAccountModal} />,
             },
           }}
           columnVisibilityModel={{ accountId: false, addresses: false }}
           initialState={{
             sorting: {
-              sortModel: [{ field: "name", sort: "asc" }],
+              sortModel: [{ field: 'name', sort: 'asc' }],
             },
           }}
           onRowClick={(params) =>
@@ -241,40 +207,36 @@ const Vault: NextPageWithLayout = () => {
           }
         />
       ) : (
-        <Grid
-          container
-          spacing={2}
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          height="100%"
-        >
+        <Grid container spacing={2} flexDirection='column' alignItems='center' justifyContent='center' height='100%'>
           <Grid item>
-            <VaultAccountIcon sx={{ fontSize: "5em" }} />
+            <VaultAccountIcon color='primary' sx={{ fontSize: '5em' }} />
           </Grid>
           <Grid item>
-            <Typography variant="h1">Recover Vault Accounts</Typography>
+            <Typography variant='h1'>Vault Accounts</Typography>
           </Grid>
           <Grid item>
-            <Typography paragraph variant="body1">
-              Make withdrawals or import your keys into other wallets.
+            <Typography paragraph variant='body1'>
+              Verify or recover your Recovery Kit / extended keys to recreate vault accounts and wallets.
             </Typography>
           </Grid>
           <Grid item>
-            <Button startIcon={<Add />} onClick={handleOpenRecoverAccountModal}>
-              Vault Account
-            </Button>
+            {!!extendedKeys?.xpub && !!extendedKeys.fpub ? (
+              <Button startIcon={<Add />} onClick={handleOpenRecoverAccountModal}>
+                Vault Account
+              </Button>
+            ) : (
+              <Button component={NextLinkComposed} to='/'>
+                Verify or Recover
+              </Button>
+            )}
           </Grid>
         </Grid>
       )}
       <ExportModal open={isExportModalOpen} onClose={handleCloseExportModal} />
-      <RecoverAccountModal
-        open={isRecoverAccountModalOpen}
-        onClose={handleCloseRecoverAccountModal}
-      />
+      <RecoverAccountModal open={isRecoverAccountModalOpen} onClose={handleCloseRecoverAccountModal} />
       <WithdrawModal
         accountId={withdrawalAccountId}
-        open={typeof withdrawalAccountId === "number"}
+        open={typeof withdrawalAccountId === 'number'}
         onClose={handleCloseWithdrawModal}
       />
     </>

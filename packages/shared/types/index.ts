@@ -1,29 +1,4 @@
-import type { BaseWallet } from "@fireblocks/wallet-derivation";
-
-export enum AssetId {
-  BTC = "BTC",
-  BTC_TEST = "BTC_TEST",
-  ETH = "ETH",
-  ETH_TEST3 = "ETH_TEST3",
-  SOL = "SOL",
-  SOL_TEST = "SOL_TEST",
-}
-
-export type AssetInfo = {
-  id: string;
-  name: string;
-  type: string;
-  contractAddress?: string;
-  nativeAsset: string;
-  decimals: number;
-  isTestnet?: boolean;
-  rpcURL?: string;
-  explorerUrl?: string;
-  attrs?: {
-    utxo?: boolean;
-    p2wpkh?: boolean;
-  };
-};
+import type { BaseWallet } from '@fireblocks/wallet-derivation';
 
 export type Wallet<T extends BaseWallet = BaseWallet> = {
   assetId: string;
@@ -45,7 +20,7 @@ export type VaultAccount<T extends BaseWallet = BaseWallet> = {
 
 export type Transaction = {
   id: string;
-  state: "created" | "signed" | "submitted" | "error";
+  state: 'created' | 'signed' | 'submitted' | 'error';
   assetId: string;
   accountId: number;
   addressIndex: number;

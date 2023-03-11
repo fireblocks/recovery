@@ -52,6 +52,8 @@ Check out the README for each package:
    yarn install
    ```
 
+3. To enable the build process, which fetches the latest supported assets from Fireblocks, copy [`packages/asset-config/.env.example`](../packages/asset-config/.env.example) to a new `.env` file and replace the `FIREBLOCKS_API_KEY` and `FIREBLOCKS_API_PRIVATE_KEY` environment variables. These should also be set in CI/CD.
+
 ## Development Scripts
 
 ### Develop
@@ -81,6 +83,8 @@ yarn lint
 ### Build
 
 Run all `build` scripts. Build Recovery Utility, the Python Extended Key Recovery module, and Recovery Relay for production. Recovery Utility and the Extended Key Recovery module are compiled only for the current development machine's architecture.
+
+Be sure to set the `FIREBLOCKS_API_KEY` and `FIREBLOCKS_API_PRIVATE_KEY` environment variables to enable fetching the latest supported assets from Fireblocks.
 
 To code sign and notarize the app, [`scripts/build.sh`](../scripts/build.sh) contains a template for filling in required environment variables. Duplicate the file to `scripts/build.local.sh` and fill out these variables in this new file, which will be ignored by Git.
 

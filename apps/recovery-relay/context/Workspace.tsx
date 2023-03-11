@@ -1,15 +1,11 @@
-import { createContext, useContext, ReactNode, useEffect } from "react";
-import {
-  useBaseWorkspace,
-  defaultBaseWorkspaceContext,
-  BaseWorkspaceContext,
-} from "@fireblocks/recovery-shared";
-import { WalletClasses, Derivation } from "../lib/wallets";
+import { createContext, useContext, ReactNode, useEffect } from 'react';
+import { useBaseWorkspace, defaultBaseWorkspaceContext, BaseWorkspaceContext } from '@fireblocks/recovery-shared';
+import { getAssetConfig } from '@fireblocks/asset-config';
+import { WalletClasses, Derivation } from '../lib/wallets';
 
 type WorkspaceContext = BaseWorkspaceContext<Derivation>;
 
-const defaultValue: WorkspaceContext =
-  defaultBaseWorkspaceContext as WorkspaceContext;
+const defaultValue: WorkspaceContext = defaultBaseWorkspaceContext as WorkspaceContext;
 
 const Context = createContext(defaultValue);
 
@@ -35,15 +31,15 @@ export const WorkspaceProvider = ({ children }: Props) => {
     addWallet,
     reset,
   } = useBaseWorkspace({
-    relayBaseUrl: "fireblocks-recovery://",
+    relayBaseUrl: 'fireblocks-recovery://',
     deriveWallet: (input) => {
-      const assetId = input.assetId as keyof typeof WalletClasses;
+      const nativeAssetId = (getAssetConfig(input.assetId)?.nativeAsset?.id ?? input.assetId) as keyof typeof WalletClasses;
 
-      if (assetId in WalletClasses) {
-        return new WalletClasses[assetId](input);
+      if (nativeAssetId in WalletClasses) {
+        return new WalletClasses[nativeAssetId](input);
       }
 
-      throw new Error(`Unsupported asset: ${assetId}`);
+      throw new Error(`Unsupported asset: ${input.assetId}`);
     },
   });
 

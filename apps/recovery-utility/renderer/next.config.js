@@ -1,8 +1,8 @@
 // @ts-check
-const withTM = require("next-transpile-modules")([
-  "@fireblocks/recovery-constants",
-  "@fireblocks/recovery-shared",
-  "@fireblocks/wallet-derivation",
+const withTM = require('next-transpile-modules')([
+  '@fireblocks/asset-config',
+  '@fireblocks/recovery-shared',
+  '@fireblocks/wallet-derivation',
 ]);
 
 /** @type {import('next').NextConfig} */
@@ -13,7 +13,7 @@ const nextConfig = {
   eslint: { ignoreDuringBuilds: true }, // !!process.env.CI },
   webpack: (config, { isServer }) => ({
     ...config,
-    target: isServer ? config.target : "electron-renderer",
+    target: isServer ? config.target : 'electron-renderer',
   }),
 };
 

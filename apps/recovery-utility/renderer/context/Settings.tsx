@@ -1,16 +1,7 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
-import { z } from "zod";
-import { settingsInput } from "@fireblocks/recovery-shared";
-import {
-  restoreSettings as ipcRestoreSettings,
-  saveSettings as ipcSaveSettings,
-} from "../lib/ipc";
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { z } from 'zod';
+import { settingsInput } from '@fireblocks/recovery-shared';
+import { restoreSettings as ipcRestoreSettings, saveSettings as ipcSaveSettings } from '../lib/ipc';
 
 type Settings = z.infer<typeof settingsInput>;
 
@@ -19,7 +10,7 @@ interface ISettingsContext extends Settings {
 }
 
 const defaultValue: ISettingsContext = {
-  relayBaseUrl: "",
+  relayBaseUrl: '',
   idleMinutes: 10,
   saveSettings: async () => undefined,
 };
@@ -36,15 +27,13 @@ export const SettingsProvider = ({ children }: Props) => {
   const [settings, setSettings] = useState<Settings>(defaultValue);
 
   useEffect(() => {
-    ipcRestoreSettings().then((data) =>
-      setSettings((prev) => ({ ...prev, ...data }))
-    );
+    ipcRestoreSettings().then((data) => setSettings((prev) => ({ ...prev, ...data })));
   }, []);
 
   const saveSettings = async (data: Settings) => {
     await ipcSaveSettings(data);
 
-    setSettings((prev) => ({ ...prev, ...settings }));
+    setSettings((prev) => ({ ...prev, ...data }));
   };
 
   const value: ISettingsContext = {

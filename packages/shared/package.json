@@ -17,6 +17,7 @@
     "@emotion/react": "^11.10.6",
     "@emotion/server": "^11.10.0",
     "@emotion/styled": "^11.10.6",
+    "@fireblocks/asset-config": "^0.0.0",
     "@fireblocks/wallet-derivation": "^0.1.0",
     "@mui/icons-material": "^5.11.11",
     "@mui/material": "^5.11.12",

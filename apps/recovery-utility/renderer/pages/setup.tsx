@@ -1,29 +1,15 @@
-import { useState, useEffect, useRef } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { pki } from "node-forge";
-import {
-  NextLinkComposed,
-  TextField,
-  Button,
-} from "@fireblocks/recovery-shared";
-import {
-  Box,
-  Grid,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  Avatar,
-} from "@mui/material";
-import { generateRsaKeypairInput } from "../lib/schemas";
-import { download } from "@fireblocks/recovery-shared/lib/download";
-import { useConnectionTest } from "../context/ConnectionTest";
-import { Layout } from "../components/Layout";
-import type { NextPageWithLayout } from "./_app";
-import { ChecksumModal } from "../components/Modals/ChecksumModal";
+import { useState, useEffect, useRef } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { pki } from 'node-forge';
+import { NextLinkComposed, TextField, Button, generateRsaKeypairInput } from '@fireblocks/recovery-shared';
+import { Box, Grid, Typography, List, ListItem, ListItemText, ListItemAvatar, Avatar } from '@mui/material';
+import { download } from '@fireblocks/recovery-shared/lib/download';
+import { useConnectionTest } from '../context/ConnectionTest';
+import { Layout } from '../components/Layout';
+import type { NextPageWithLayout } from './_app';
+import { ChecksumModal } from '../components/Modals/ChecksumModal';
 
 type FormData = z.infer<typeof generateRsaKeypairInput>;
 
@@ -37,11 +23,10 @@ type Keypair = {
   publicKey: BlobData;
 };
 
-const createBlobUri = (content: string) =>
-  URL.createObjectURL(new Blob([content], { type: "text/plain" }));
+const createBlobUri = (content: string) => URL.createObjectURL(new Blob([content], { type: 'text/plain' }));
 
 const generateRsaKeypair = (passphrase: string) =>
-  new Promise<Keypair>((resolve, reject) =>
+  new Promise<Keypair>((resolve, reject) => {
     pki.rsa.generateKeyPair({ bits: 4096, workers: 2 }, (err, keypair) => {
       if (err) {
         reject(err);
@@ -49,8 +34,8 @@ const generateRsaKeypair = (passphrase: string) =>
 
       const { privateKey, publicKey } = keypair;
 
-      const privateKeyPem = pki.encryptRsaPrivateKey(privateKey, "password", {
-        algorithm: "aes128",
+      const privateKeyPem = pki.encryptRsaPrivateKey(privateKey, passphrase, {
+        algorithm: 'aes128',
       });
 
       const publicKeyPem = pki.publicKeyToPem(publicKey);
@@ -65,13 +50,13 @@ const generateRsaKeypair = (passphrase: string) =>
           uri: createBlobUri(publicKeyPem),
         },
       });
-    })
-  );
+    });
+  });
 
 const Setup: NextPageWithLayout = () => {
   const { isOnline } = useConnectionTest();
 
-  const machineSetupColor = isOnline ? "error" : "success";
+  const machineSetupColor = isOnline ? 'error' : 'success';
 
   const [activeStep, setActiveStep] = useState<2 | 3 | 4 | 5>(2);
 
@@ -98,11 +83,9 @@ const Setup: NextPageWithLayout = () => {
         return;
       }
 
-      Object.keys(rsaKeypair).forEach((type) =>
-        URL.revokeObjectURL(rsaKeypair[type as keyof Keypair].uri)
-      );
+      Object.keys(rsaKeypair).forEach((type) => URL.revokeObjectURL(rsaKeypair[type as keyof Keypair].uri));
     },
-    [rsaKeypair]
+    [rsaKeypair],
   );
 
   const onDownload = (key: keyof typeof downloadedFilesRef.current) => {
@@ -126,9 +109,9 @@ const Setup: NextPageWithLayout = () => {
 
     setRsaKeypair(keypair);
 
-    download(keypair.privateKey.data, "fb-recovery-prv.pem", "text/plain");
+    download(keypair.privateKey.data, 'fb-recovery-prv.pem', 'text/plain');
 
-    onDownload("privateKey");
+    onDownload('privateKey');
   };
 
   const {
@@ -139,23 +122,17 @@ const Setup: NextPageWithLayout = () => {
   } = useForm<FormData>({
     resolver: zodResolver(generateRsaKeypairInput),
     defaultValues: {
-      passphrase: "",
+      passphrase: '',
     },
   });
 
-  const hasPassphrase = !!watch("passphrase")?.trim();
+  const hasPassphrase = !!watch('passphrase')?.trim();
 
   return (
-    <Box
-      component="form"
-      display="flex"
-      flexDirection="column"
-      marginBottom="2em"
-      onSubmit={handleSubmit(onGenerateRsaKeypair)}
-    >
-      <Typography variant="h1">Set Up Recovery Kit</Typography>
-      <List sx={{ width: "100%" }} dense disablePadding>
-        <ListItem sx={{ alignItems: "flex-start" }}>
+    <Box component='form' display='flex' flexDirection='column' marginBottom='2em' onSubmit={handleSubmit(onGenerateRsaKeypair)}>
+      <Typography variant='h1'>Set Up Recovery Kit</Typography>
+      <List sx={{ width: '100%' }} dense disablePadding>
+        <ListItem sx={{ alignItems: 'flex-start' }}>
           <ListItemAvatar>
             <Avatar
               sx={{
@@ -166,20 +143,16 @@ const Setup: NextPageWithLayout = () => {
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="Set up the offline recovery machine"
-            primaryTypographyProps={{ variant: "h2" }}
+            primary='Set up the offline recovery machine'
+            primaryTypographyProps={{ variant: 'h2' }}
             secondary={
               <>
                 Ensure that this dedicated recovery machine is:
                 <ol>
                   <li>
-                    <Typography
-                      color={machineSetupColor}
-                      fontWeight={isOnline ? 600 : undefined}
-                    >
+                    <Typography color={machineSetupColor} fontWeight={isOnline ? 600 : undefined}>
                       Offline and air-gapped
-                      {isOnline &&
-                        ". This machine is connected to a network. Please disconnect."}
+                      {isOnline && '. This machine is connected to a network. Please disconnect.'}
                     </Typography>
                   </li>
                   <li>Accessible only by necessary, authorized personnel</li>
@@ -191,198 +164,172 @@ const Setup: NextPageWithLayout = () => {
             }
           />
         </ListItem>
-        <ListItem sx={{ alignItems: "flex-start" }}>
+        <ListItem sx={{ alignItems: 'flex-start' }}>
           <ListItemAvatar>
             <Avatar
               sx={{
                 background: (theme) =>
-                  activeStep > 2
-                    ? theme.palette.success.main
-                    : activeStep === 2
-                    ? theme.palette.primary.main
-                    : undefined,
+                  activeStep > 2 ? theme.palette.success.main : activeStep === 2 ? theme.palette.primary.main : undefined,
               }}
             >
               2
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="Generate the recovery keypair"
-            primaryTypographyProps={{ variant: "h2" }}
+            primary='Generate the recovery keypair'
+            primaryTypographyProps={{ variant: 'h2' }}
             secondary={
               <>
-                <Typography variant="body1" paragraph>
-                  The recovery keypair is used for encrypting Fireblocks key
-                  shares and decrypting them in a disaster scenario.
+                <Typography variant='body1' paragraph>
+                  The recovery keypair is used for encrypting Fireblocks key shares and decrypting them in a disaster scenario.
                 </Typography>
                 <Typography fontWeight={600} paragraph>
-                  Store your recovery private key and its passphrase redundantly
-                  in a secure location! You will need them to recover your
-                  Fireblocks assets.
+                  Store your recovery private key and its passphrase redundantly in a secure location! You will need them to
+                  recover your Fireblocks assets.
                 </Typography>
               </>
             }
           />
         </ListItem>
-        <ListItem sx={{ paddingLeft: "4.5rem" }}>
+        <ListItem sx={{ paddingLeft: '4.5rem' }}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
-                id="rsaKeyPassphrase"
-                type="password"
-                label="Recovery Private Key Passphrase"
+                id='rsaKeyPassphrase'
+                type='password'
+                label='Recovery Private Key Passphrase'
                 error={errors.passphrase?.message}
                 disabled={activeStep < 2}
-                {...register("passphrase")}
+                {...register('passphrase')}
               />
             </Grid>
             <Grid item xs={6}>
-              <Button
-                type="submit"
-                color="primary"
-                fullWidth
-                disabled={!hasPassphrase || activeStep < 2}
-              >
+              <Button type='submit' color='primary' fullWidth disabled={!hasPassphrase || activeStep < 2}>
                 Generate Recovery Keypair
               </Button>
             </Grid>
             <Grid item xs={6}>
               <Button
-                color="primary"
+                color='primary'
                 fullWidth
                 disabled={!rsaKeypair}
-                onClick={() => onDownload("privateKey")}
-                component="a"
-                href={rsaKeypair?.privateKey.uri ?? ""}
-                download="fb-recovery-prv.pem"
+                onClick={() => onDownload('privateKey')}
+                component='a'
+                href={rsaKeypair?.privateKey.uri ?? ''}
+                download='fb-recovery-prv.pem'
               >
                 Download Private Key
               </Button>
             </Grid>
           </Grid>
         </ListItem>
-        <ListItem sx={{ alignItems: "flex-start" }}>
+        <ListItem sx={{ alignItems: 'flex-start' }}>
           <ListItemAvatar>
             <Avatar
               sx={{
                 background: (theme) =>
-                  activeStep > 3
-                    ? theme.palette.success.main
-                    : activeStep === 3
-                    ? theme.palette.primary.main
-                    : undefined,
+                  activeStep > 3 ? theme.palette.success.main : activeStep === 3 ? theme.palette.primary.main : undefined,
               }}
             >
               3
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="Send the recovery public key to Fireblocks"
-            primaryTypographyProps={{ variant: "h2" }}
-            secondary="Upload the recovery public key to the Fireblocks Console > Settings > Key backup and recovery."
+            primary='Send the recovery public key to Fireblocks'
+            primaryTypographyProps={{ variant: 'h2' }}
+            secondary='Upload the recovery public key to the Fireblocks Console > Settings > Key backup and recovery.'
           />
         </ListItem>
-        <ListItem sx={{ paddingLeft: "4.5rem" }}>
+        <ListItem sx={{ paddingLeft: '4.5rem' }}>
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Button
-                color="primary"
+                color='primary'
                 fullWidth
                 disabled={activeStep < 3}
-                onClick={() => onDownload("publicKey")}
-                component="a"
-                href={rsaKeypair?.publicKey.uri ?? ""}
-                download="fb-recovery-pub.pem"
+                onClick={() => onDownload('publicKey')}
+                component='a'
+                href={rsaKeypair?.publicKey.uri ?? ''}
+                download='fb-recovery-pub.pem'
               >
                 Download Public Key
               </Button>
             </Grid>
           </Grid>
         </ListItem>
-        <ListItem sx={{ alignItems: "flex-start" }}>
+        <ListItem sx={{ alignItems: 'flex-start' }}>
           <ListItemAvatar>
             <Avatar
               sx={{
                 background: (theme) =>
-                  activeStep > 4
-                    ? theme.palette.success.main
-                    : activeStep === 4
-                    ? theme.palette.primary.main
-                    : undefined,
+                  activeStep > 4 ? theme.palette.success.main : activeStep === 4 ? theme.palette.primary.main : undefined,
               }}
             >
               4
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="Approve the recovery public key"
-            primaryTypographyProps={{ variant: "h2" }}
-            secondary="Use the Fireblocks Mobile app to approve the recovery public key."
+            primary='Approve the recovery public key'
+            primaryTypographyProps={{ variant: 'h2' }}
+            secondary='Use the Fireblocks Mobile app to approve the recovery public key.'
           />
         </ListItem>
-        <ListItem sx={{ paddingLeft: "4.5rem" }}>
+        <ListItem sx={{ paddingLeft: '4.5rem' }}>
           <Grid container spacing={2}>
             <Grid item xs={6}>
-              <Button
-                color="primary"
-                fullWidth
-                disabled={activeStep < 4}
-                onClick={onOpenChecksumModal}
-              >
+              <Button color='primary' fullWidth disabled={activeStep < 4} onClick={onOpenChecksumModal}>
                 Start Approval
               </Button>
             </Grid>
           </Grid>
         </ListItem>
-        <ListItem sx={{ alignItems: "flex-start" }}>
+        <ListItem sx={{ alignItems: 'flex-start' }}>
           <ListItemAvatar>
             <Avatar
               sx={{
-                background: (theme) =>
-                  activeStep === 5 ? theme.palette.primary.main : undefined,
+                background: (theme) => (activeStep > 4 ? theme.palette.primary.main : undefined),
               }}
             >
               5
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="Download and secure the Recovery Kit"
-            primaryTypographyProps={{ variant: "h2" }}
+            primary='Download and secure the Recovery Kit'
+            primaryTypographyProps={{ variant: 'h2' }}
             secondary={
               <>
-                <Typography variant="body1" paragraph>
-                  After the integrity check on the public key is complete, an
-                  encrypted key backup ZIP file (&quot;Recovery Kit&quot;)
-                  containing both your key shares and Fireblocks key shares is
-                  generated. Your key shares are encrypted using the recovery
-                  passphrase entered during the owner&apos;s mobile app setup.
-                  The Fireblocks key shares are encrypted using your recovery
-                  public key.
+                <Typography variant='body1' paragraph>
+                  After the integrity check on the public key is complete, an encrypted key backup ZIP file (&quot;Recovery
+                  Kit&quot;) containing both your key shares and Fireblocks key shares is generated. Your key shares are encrypted
+                  using the recovery passphrase entered during the owner&apos;s mobile app setup. The Fireblocks key shares are
+                  encrypted using your recovery public key.
                 </Typography>
                 <Typography fontWeight={600}>
-                  Store your Recovery Kit redundantly in a secure location,
-                  preferably not on the same machine that stores the recovery
-                  private key! You will need it to recover your Fireblocks
-                  assets.
+                  Store your Recovery Kit redundantly in a secure location, preferably not on the same machine that stores the
+                  recovery private key! You will need it to recover your Fireblocks assets.
                 </Typography>
               </>
             }
           />
         </ListItem>
-        <ListItem sx={{ alignItems: "flex-start" }}>
+        <ListItem sx={{ alignItems: 'flex-start' }}>
           <ListItemAvatar>
-            <Avatar>6</Avatar>
+            <Avatar
+              sx={{
+                background: (theme) => (activeStep > 4 ? theme.palette.primary.main : undefined),
+              }}
+            >
+              6
+            </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="Check your key recovery materials"
-            primaryTypographyProps={{ variant: "h2" }}
+            primary='Check your key recovery materials'
+            primaryTypographyProps={{ variant: 'h2' }}
             secondary={
               <>
-                <Typography variant="body1" paragraph>
-                  Ensure that you have securely and redundantly stored all key
-                  recovery materials to prepare for a disaster recovery. All of
-                  the following materials must be accessible to recover your
-                  Fireblocks assets:
+                <Typography variant='body1' paragraph>
+                  Ensure that you have securely and redundantly stored all key recovery materials to prepare for a disaster
+                  recovery. All of the following materials must be accessible to recover your Fireblocks assets:
                 </Typography>
                 <ol>
                   <li>Recovery private key</li>
@@ -394,48 +341,37 @@ const Setup: NextPageWithLayout = () => {
             }
           />
         </ListItem>
-        <ListItem sx={{ alignItems: "flex-start" }}>
+        <ListItem sx={{ alignItems: 'flex-start' }}>
           <ListItemAvatar>
-            <Avatar>7</Avatar>
+            <Avatar
+              sx={{
+                background: (theme) => (activeStep > 4 ? theme.palette.primary.main : undefined),
+              }}
+            >
+              7
+            </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="Verify Recovery Kit"
-            primaryTypographyProps={{ variant: "h2" }}
-            secondary="Use Recovery Utility to verify that your recovery system can restore access to your Fireblocks assets in a disaster scenario. Check that the recovered Fireblocks extended public keys match the keys in your Fireblocks Console Settings. The public keys and private keys of all of wallets in this workspace are derived from the extended public keys and private keys."
+            primary='Verify Recovery Kit'
+            primaryTypographyProps={{ variant: 'h2' }}
+            secondary='Use Recovery Utility to verify that your recovery system can restore access to your Fireblocks assets in a disaster scenario. Check that the recovered Fireblocks extended public keys match the keys in your Fireblocks Console Settings. The public keys and private keys of all of wallets in this workspace are derived from the extended public keys and private keys.'
           />
         </ListItem>
-        <ListItem sx={{ paddingLeft: "4.5rem" }}>
+        <ListItem sx={{ paddingLeft: '4.5rem' }}>
           <Grid container spacing={2}>
             <Grid item xs={6}>
-              <Button
-                color="primary"
-                fullWidth
-                component={NextLinkComposed}
-                to={{
-                  pathname: "/recover",
-                  query: { verifyOnly: true },
-                }}
-                disabled={activeStep < 5}
-              >
+              <Button color='primary' fullWidth component={NextLinkComposed} to='/verify' disabled={activeStep < 5}>
                 Verify Recovery Kit
               </Button>
             </Grid>
           </Grid>
         </ListItem>
       </List>
-      <ChecksumModal
-        publicKey={rsaKeypair?.publicKey.data ?? ""}
-        open={isChecksumModalOpen}
-        onClose={onCloseChecksumModal}
-      />
+      <ChecksumModal publicKey={rsaKeypair?.publicKey.data ?? ''} open={isChecksumModalOpen} onClose={onCloseChecksumModal} />
     </Box>
   );
 };
 
-Setup.getLayout = (page) => (
-  <Layout showBack hideNavigation>
-    {page}
-  </Layout>
-);
+Setup.getLayout = (page) => <Layout>{page}</Layout>;
 
 export default Setup;

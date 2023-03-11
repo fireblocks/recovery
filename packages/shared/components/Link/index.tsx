@@ -1,38 +1,22 @@
-import React, { forwardRef, AnchorHTMLAttributes } from "react";
-import clsx from "clsx";
-import { useRouter } from "next/router";
-import NextLink, { LinkProps as NextLinkProps } from "next/link";
-import MuiLink, { LinkProps as MuiLinkProps } from "@mui/material/Link";
-import { styled } from "@mui/material/styles";
+import React, { forwardRef, AnchorHTMLAttributes } from 'react';
+import clsx from 'clsx';
+import { useRouter } from 'next/router';
+import NextLink, { LinkProps as NextLinkProps } from 'next/link';
+import MuiLink, { LinkProps as MuiLinkProps } from '@mui/material/Link';
+import { styled } from '@mui/material/styles';
 
 // Add support for the sx prop for consistency with the other branches.
-const Anchor = styled("a")({});
+const Anchor = styled('a')({});
 
 export interface NextLinkComposedProps
-  extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href">,
-    Omit<
-      NextLinkProps,
-      "href" | "as" | "passHref" | "onMouseEnter" | "onClick" | "onTouchStart"
-    > {
-  to: NextLinkProps["href"];
-  linkAs?: NextLinkProps["as"];
+  extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'>,
+    Omit<NextLinkProps, 'href' | 'as' | 'passHref' | 'onMouseEnter' | 'onClick' | 'onTouchStart'> {
+  to: NextLinkProps['href'];
+  linkAs?: NextLinkProps['as'];
 }
 
-export const NextLinkComposed = forwardRef<
-  HTMLAnchorElement,
-  NextLinkComposedProps
->((props, ref) => {
-  const {
-    to,
-    linkAs,
-    replace,
-    scroll,
-    shallow,
-    prefetch,
-    legacyBehavior = true,
-    locale,
-    ...other
-  } = props;
+export const NextLinkComposed = forwardRef<HTMLAnchorElement, NextLinkComposedProps>((props, ref) => {
+  const { to, linkAs, replace, scroll, shallow, prefetch, legacyBehavior = true, locale, ...other } = props;
 
   return (
     <NextLink
@@ -53,18 +37,18 @@ export const NextLinkComposed = forwardRef<
 
 export type LinkProps = {
   activeClassName?: string;
-  as?: NextLinkProps["as"];
-  href: NextLinkProps["href"];
-  linkAs?: NextLinkProps["as"]; // Useful when the as prop is shallow by styled().
+  as?: NextLinkProps['as'];
+  href: NextLinkProps['href'];
+  linkAs?: NextLinkProps['as']; // Useful when the as prop is shallow by styled().
   noLinkStyle?: boolean;
-} & Omit<NextLinkComposedProps, "to" | "linkAs" | "href"> &
-  Omit<MuiLinkProps, "href">;
+} & Omit<NextLinkComposedProps, 'to' | 'linkAs' | 'href'> &
+  Omit<MuiLinkProps, 'href'>;
 
 // A styled version of the Next.js Link component:
 // https://nextjs.org/docs/api-reference/next/link
 export const Link = forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => {
   const {
-    activeClassName = "active",
+    activeClassName = 'active',
     as,
     className: classNameProps,
     href,
@@ -82,16 +66,13 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => {
   } = props;
 
   const router = useRouter();
-  const pathname = typeof href === "string" ? href : href.pathname;
+  const pathname = typeof href === 'string' ? href : href.pathname;
   const className = clsx(classNameProps, {
     [activeClassName]: router.pathname === pathname && activeClassName,
   });
 
   const isExternal =
-    typeof href === "string" &&
-    (href.indexOf("http") === 0 ||
-      href.indexOf("mailto:") === 0 ||
-      href.indexOf("blob:") === 0);
+    typeof href === 'string' && (href.indexOf('http') === 0 || href.indexOf('mailto:') === 0 || href.indexOf('blob:') === 0);
 
   if (isExternal) {
     if (noLinkStyle) {
@@ -114,23 +95,8 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => {
   };
 
   if (noLinkStyle) {
-    return (
-      <NextLinkComposed
-        className={className}
-        ref={ref}
-        {...nextjsProps}
-        {...other}
-      />
-    );
+    return <NextLinkComposed className={className} ref={ref} {...nextjsProps} {...other} />;
   }
 
-  return (
-    <MuiLink
-      component={NextLinkComposed}
-      className={className}
-      ref={ref}
-      {...nextjsProps}
-      {...other}
-    />
-  );
+  return <MuiLink component={NextLinkComposed} className={className} ref={ref} {...nextjsProps} {...other} />;
 });

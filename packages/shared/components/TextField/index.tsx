@@ -1,13 +1,6 @@
-import React, {
-  forwardRef,
-  useState,
-  ReactNode,
-  FocusEvent,
-  RefObject,
-  useRef,
-} from "react";
-import copy from "copy-to-clipboard";
-import { alpha, styled } from "@mui/material/styles";
+import React, { forwardRef, useState, ReactNode, FocusEvent, RefObject, useRef } from 'react';
+import copy from 'copy-to-clipboard';
+import { alpha, styled } from '@mui/material/styles';
 import {
   FormControl,
   FormControlProps,
@@ -17,34 +10,24 @@ import {
   InputBaseProps,
   InputAdornment,
   IconButton,
-} from "@mui/material";
-import {
-  Visibility,
-  VisibilityOff,
-  QrCode2,
-  ContentCopy,
-  Check,
-} from "@mui/icons-material";
-import { monospaceFontFamily } from "../../theme";
-import { NextLinkComposed } from "../Link";
+} from '@mui/material';
+import { Visibility, VisibilityOff, QrCode2, ContentCopy, Check } from '@mui/icons-material';
+import { monospaceFontFamily } from '../../theme';
+import { NextLinkComposed } from '../Link';
 
 const Input = styled(InputBase)(({ theme }) => ({
-  fontSize: "16px",
-  borderRadius: "10px",
-  backgroundColor: "#FCFCFC",
+  fontSize: '16px',
+  borderRadius: '10px',
+  backgroundColor: '#FCFCFC',
   border: `solid 1px ${theme.palette.grey[400]}`,
-  transition: theme.transitions.create([
-    "border-color",
-    "background-color",
-    "box-shadow",
-  ]),
-  "label + &": {
+  transition: theme.transitions.create(['border-color', 'background-color', 'box-shadow']),
+  'label + &': {
     marginTop: theme.spacing(3),
   },
-  "& .MuiInputBase-input": {
-    padding: "10px 12px",
+  '& .MuiInputBase-input': {
+    padding: '10px 12px',
   },
-  "&:has(.MuiInputBase-input:focus)": {
+  '&:has(.MuiInputBase-input:focus)': {
     boxShadow: `${alpha(theme.palette.primary.main, 0.25)} 0 0 0 0.2rem`,
     borderColor: theme.palette.primary.main,
   },
@@ -54,21 +37,21 @@ const Input = styled(InputBase)(({ theme }) => ({
   "&:has(.MuiInputBase-input[aria-invalid='true']:focus)": {
     boxShadow: `${alpha(theme.palette.error.main, 0.25)} 0 0 0 0.2rem`,
   },
-  "&:has(.MuiInputAdornment-positionStart)": {
-    paddingLeft: "12px",
-    "& .MuiInputBase-input": {
-      paddingLeft: "0",
+  '&:has(.MuiInputAdornment-positionStart)': {
+    paddingLeft: '12px',
+    '& .MuiInputBase-input': {
+      paddingLeft: '0',
     },
   },
-  "&:has(.MuiInputAdornment-positionEnd)": {
-    paddingRight: "12px",
-    "& .MuiInputBase-input": {
-      paddingRight: "0",
+  '&:has(.MuiInputAdornment-positionEnd)': {
+    paddingRight: '12px',
+    '& .MuiInputBase-input': {
+      paddingRight: '0',
     },
   },
 }));
 
-export type TextFieldProps = Omit<InputBaseProps, "error"> & {
+export type TextFieldProps = Omit<InputBaseProps, 'error'> & {
   id: string;
   error?: ReactNode;
   helpText?: ReactNode;
@@ -93,6 +76,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
       formControlProps,
       type,
       value,
+      defaultValue,
       readOnly,
       endAdornment,
       inputProps,
@@ -101,45 +85,42 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
       onFocus: _onFocus,
       ...props
     },
-    ref
+    ref,
   ) => {
-    const inputRef = (_inputRef || ref) as
-      | RefObject<HTMLInputElement>
-      | undefined;
+    const inputRef = (_inputRef || ref) as RefObject<HTMLInputElement> | undefined;
 
     const helpText = error || _helpText;
 
-    const [revealed, setRevealed] = useState(type !== "password");
+    const [revealed, setRevealed] = useState(type !== 'password');
     const [copied, setCopied] = useState(false);
     const copiedTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const getData = () => {
-      if (
-        !value &&
-        (typeof inputRef === "function" || !inputRef?.current?.value)
-      ) {
-        return "";
+      if (typeof inputRef === 'function') {
+        return '';
       }
 
-      return (value as string) || inputRef?.current?.value || "";
+      return (value as string) || inputRef?.current?.value || (defaultValue as string) || '';
     };
 
     const onToggleReveal = () => setRevealed((prev) => !prev);
 
     const onCopy = () => {
-      if (typeof copiedTimeoutRef.current === "number") {
+      if (typeof copiedTimeoutRef.current === 'number') {
         clearTimeout(copiedTimeoutRef.current);
       }
 
-      setCopied(true);
+      const data = getData();
 
-      copy(getData(), { format: "text/plain" });
+      copy(data, { format: 'text/plain' });
+
+      setCopied(true);
 
       copiedTimeoutRef.current = setTimeout(() => setCopied(false), 3000);
     };
 
     const onFocus = (event: FocusEvent<HTMLInputElement>) => {
-      if (enableCopy && type !== "password") {
+      if (enableCopy && type !== 'password') {
         event.target.select();
       }
 
@@ -147,16 +128,16 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
     };
 
     return (
-      <FormControl variant="standard" fullWidth {...formControlProps}>
+      <FormControl variant='standard' fullWidth {...formControlProps}>
         {!!label && !hideLabel && (
           <InputLabel
             shrink
             htmlFor={id}
             sx={{
-              fontSize: "18px",
+              fontSize: '18px',
               fontWeight: 600,
-              color: "#000000",
-              marginBottom: "0.5rem",
+              color: '#000000',
+              marginBottom: '0.5rem',
             }}
           >
             {label}
@@ -165,56 +146,49 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
         <Input
           id={id}
           aria-describedby={`${id}-helper-text`}
-          color={error ? "error" : "primary"}
-          type={copied || revealed ? "text" : type}
-          value={copied ? "Copied" : value}
+          color={error ? 'error' : 'primary'}
+          type={revealed ? 'text' : type}
+          defaultValue={defaultValue || value}
           error={!!error}
           readOnly={readOnly || enableCopy}
           inputRef={inputRef}
           inputProps={{
             ...inputProps,
-            sx:
-              isMonospace && !copied
-                ? { ...inputProps?.sx, fontFamily: monospaceFontFamily }
-                : inputProps?.sx,
+            sx: isMonospace ? { ...inputProps?.sx, fontFamily: monospaceFontFamily } : inputProps?.sx,
           }}
           onFocus={onFocus}
           endAdornment={
             <>
               {endAdornment}
-              {type === "password" && (
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="Reveal"
-                    onClick={onToggleReveal}
-                    edge="end"
-                  >
+              {type === 'password' && (
+                <InputAdornment position='end'>
+                  <IconButton aria-label='Reveal' onClick={onToggleReveal} edge='end'>
                     {revealed ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
               )}
               {enableQr && (
-                <InputAdornment position="end">
+                <InputAdornment position='end'>
                   <IconButton
-                    aria-label="Show QR code"
-                    edge="end"
+                    aria-label='Show QR code'
+                    edge='end'
                     component={NextLinkComposed}
                     to={{
-                      pathname: "/qr",
+                      pathname: '/qr',
                       query: {
                         data: getData(),
-                        title: typeof label === "string" ? label : undefined,
+                        title: typeof label === 'string' ? label : undefined,
                       },
                     }}
-                    target="_blank"
+                    target='_blank'
                   >
                     <QrCode2 />
                   </IconButton>
                 </InputAdornment>
               )}
               {enableCopy && (
-                <InputAdornment position="end">
-                  <IconButton aria-label="Copy" onClick={onCopy} edge="end">
+                <InputAdornment position='end'>
+                  <IconButton aria-label='Copy' onClick={onCopy} edge='end'>
                     {copied ? <Check /> : <ContentCopy />}
                   </IconButton>
                 </InputAdornment>
@@ -230,7 +204,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
         )}
       </FormControl>
     );
-  }
+  },
 );
 
-TextField.displayName = "TextField";
+TextField.displayName = 'TextField';

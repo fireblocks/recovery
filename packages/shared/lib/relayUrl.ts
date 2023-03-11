@@ -1,5 +1,4 @@
-import JSONCrush from "jsoncrush";
-import { AssetId } from "../types/index";
+import JSONCrush from 'jsoncrush';
 
 // A Relay URL is the interface between Recovery Utility and Recovery Relay.
 // Relay URLs are encoded in QR codes which are scanned by either app to
@@ -41,7 +40,7 @@ export type RelayBalanceResponseParameters = {
  */
 export type RelaySigningResponseParameters = {
   txId: string;
-  assetId: AssetId;
+  assetId: string;
   accountId: number;
   addressIndex: number;
   to: string;
@@ -57,7 +56,7 @@ export type RelayBroadcastRequestParameters = {
   xpub?: string;
   fpub?: string;
   txId: string;
-  assetId: AssetId;
+  assetId: string;
   accountId: number;
   from: string;
   to: string;
@@ -67,10 +66,10 @@ export type RelayBroadcastRequestParameters = {
 };
 
 type RelayPathParams = {
-  "/": RelayBaseParameters;
-  "/balances": RelayBalanceResponseParameters;
-  "/sign": RelaySigningResponseParameters;
-  "/broadcast": RelayBroadcastRequestParameters;
+  '/': RelayBaseParameters;
+  '/balances': RelayBalanceResponseParameters;
+  '/sign': RelaySigningResponseParameters;
+  '/broadcast': RelayBroadcastRequestParameters;
 };
 
 export type RelayPath = keyof RelayPathParams;
@@ -78,38 +77,43 @@ export type RelayPath = keyof RelayPathParams;
 export type RelayParams<T extends RelayPath = RelayPath> = RelayPathParams[T];
 
 export type AllRelayParams = Partial<
-  RelayBaseParameters &
-    RelayBalanceResponseParameters &
-    RelaySigningResponseParameters &
-    RelayBroadcastRequestParameters
+  RelayBaseParameters & RelayBalanceResponseParameters & RelaySigningResponseParameters & RelayBroadcastRequestParameters
 >;
 
-export const getRelayUrl = <P extends RelayPath>(
-  path: P,
-  params: RelayParams<P>,
-  baseUrl: string
-) => {
+export const getRelayUrl = <P extends RelayPath>(path: P, params: RelayParams<P>, baseUrl: string) => {
+  let relayUrl = `${baseUrl}${path}`;
+
+  if (Object.keys(params).every((key) => !params[key as keyof typeof params])) {
+    return relayUrl;
+  }
+
   const compressedParams = JSONCrush.crush(JSON.stringify(params));
 
   const encodedParams = encodeURIComponent(compressedParams);
 
-  const relayUrl = `${baseUrl}${path}#${encodedParams}`;
+  relayUrl = `${relayUrl}#${encodedParams}`;
 
   return relayUrl;
 };
 
-export const getRelayParams = (url: string) => {
-  const encodedParams = url.split("#")[1];
+export const getRelayParams = <P extends RelayPath = RelayPath>(url: string) => {
+  const encodedParams = url.split('#')[1];
 
   if (!encodedParams) {
-    throw new Error("No Recovery Utility parameters found in URL");
+    console.warn('No Relay parameters found in URL');
+    return undefined;
   }
 
   const compressedParams = decodeURIComponent(encodedParams);
 
   const decompressedParams = JSONCrush.uncrush(compressedParams);
 
-  const parsedParams = JSON.parse(decompressedParams) as T;
+  if (!decompressedParams) {
+    console.warn('Relay parameter decompression failed');
+    return undefined;
+  }
+
+  const parsedParams = JSON.parse(decompressedParams) as RelayParams<P>;
 
   return parsedParams;
 };

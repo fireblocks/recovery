@@ -1,7 +1,7 @@
-import { useId, ReactNode } from "react";
-import { useDropzone, Accept } from "react-dropzone";
-import { Box, Grid, FormHelperText, Typography } from "@mui/material";
-import { FileUpload, CheckCircle, Cancel } from "@mui/icons-material";
+import { useId, ReactNode } from 'react';
+import { useDropzone, Accept } from 'react-dropzone';
+import { Box, FormHelperText, Typography } from '@mui/material';
+import { FileUpload, CheckCircle, Cancel } from '@mui/icons-material';
 
 type Props = {
   label?: ReactNode;
@@ -12,77 +12,63 @@ type Props = {
   onDrop: (file: File) => void;
 };
 
-export const UploadWell = ({
-  label,
-  error,
-  hasFile,
-  accept,
-  disabled,
-  onDrop: _onDrop,
-}: Props) => {
+export const UploadWell = ({ label, error, hasFile, accept, disabled, onDrop: _onDrop }: Props) => {
   const labelId = useId();
 
   const extensions = Object.values(accept || {})
     .flat()
-    .join(" / ")
+    .join(' / ')
     .toUpperCase();
 
   const onDropAccepted = (files: File[]) => _onDrop(files[0]);
 
-  const { getRootProps, getInputProps, isDragAccept, isDragReject } =
-    useDropzone({
-      accept,
-      disabled,
-      multiple: false,
-      onDropAccepted,
-    });
+  const { getRootProps, getInputProps, isDragAccept, isDragReject } = useDropzone({
+    accept,
+    disabled,
+    multiple: false,
+    onDropAccepted,
+  });
 
   const isActive = hasFile || isDragAccept;
 
   let InputIcon = FileUpload;
-  let inputText: ReactNode = "Drop or select file";
+  let inputText: ReactNode = 'Drop or select file';
 
   if (isActive) {
     InputIcon = CheckCircle;
   }
 
   if (hasFile) {
-    inputText = "File selected";
+    inputText = 'File selected';
   }
 
   if (isDragAccept) {
-    inputText = "Drop file";
+    inputText = 'Drop file';
   }
 
   if (isDragReject) {
     InputIcon = Cancel;
-    inputText = "Invalid file";
+    inputText = 'Invalid file';
   }
 
   return (
-    <Box marginBottom={error ? "0" : "23px"} {...getRootProps()}>
+    <Box marginBottom={error ? '0' : '23px'} {...getRootProps()}>
       {(!!label || !!extensions) && (
-        <Grid container spacing={2} justifyContent="space-between">
-          {!!label && (
-            <Grid item>
-              <Typography id={labelId} variant="h3">
-                {label}
-              </Typography>
-            </Grid>
-          )}
+        <Typography id={labelId} variant='h3' marginBottom='0'>
+          {label}
           {!!extensions && (
-            <Grid item>
-              <Typography variant="h3">{extensions}</Typography>
-            </Grid>
+            <Typography variant='caption' paragraph>
+              {extensions}
+            </Typography>
           )}
-        </Grid>
+        </Typography>
       )}
       <Box
         aria-labelledby={label ? labelId : undefined}
-        paddingX="2rem"
-        paddingY="1.5rem"
-        textAlign="center"
-        color={(theme) => (isActive ? "#FFFFFF" : theme.palette.text.primary)}
+        paddingX='2rem'
+        paddingY='1.5rem'
+        textAlign='center'
+        color={(theme) => (isActive ? '#FFFFFF' : theme.palette.text.primary)}
         border={(theme) => {
           let borderColor = theme.palette.text.primary;
 
@@ -94,13 +80,13 @@ export const UploadWell = ({
 
           return `solid 1px ${borderColor}`;
         }}
-        borderRadius="10px"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
+        borderRadius='10px'
+        display='flex'
+        alignItems='center'
+        justifyContent='center'
         sx={{
           backgroundColor: (theme) => {
-            let backgroundColor = "#E0E0E0";
+            let backgroundColor = '#E0E0E0';
 
             if (isActive) {
               backgroundColor = theme.palette.primary.main;
@@ -110,15 +96,13 @@ export const UploadWell = ({
 
             return backgroundColor;
           },
-          background: isActive
-            ? "linear-gradient(10.71deg, #1866CC 6.42%, #0075F2 93.52%)"
-            : undefined,
-          cursor: disabled ? "default" : "pointer",
+          background: isActive ? 'linear-gradient(10.71deg, #1866CC 6.42%, #0075F2 93.52%)' : undefined,
+          cursor: disabled ? 'default' : 'pointer',
         }}
       >
         <input {...getInputProps()} />
-        <InputIcon sx={{ marginRight: "0.5rem" }} />
-        <Typography fontSize="16px">{inputText}</Typography>
+        <InputIcon sx={{ marginRight: '0.5rem' }} />
+        <Typography fontSize='16px'>{inputText}</Typography>
       </Box>
       {!!error && <FormHelperText error>{error}</FormHelperText>}
     </Box>

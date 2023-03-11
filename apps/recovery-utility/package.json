@@ -36,6 +36,7 @@
     "@emotion/react": "^11.10.6",
     "@emotion/server": "^11.10.0",
     "@emotion/styled": "^11.10.6",
+    "@fireblocks/asset-config": "^0.0.0",
     "@fireblocks/extended-key-recovery": "^0.3.0",
     "@fireblocks/recovery-shared": "^0.1.3",
     "@fireblocks/wallet-derivation": "^0.1.0",

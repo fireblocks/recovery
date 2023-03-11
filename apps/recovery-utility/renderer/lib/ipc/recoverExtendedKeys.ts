@@ -1,5 +1,5 @@
-import { ipcRenderer } from "electron";
-import type { Args } from "../../../main/ipc/recoverExtendedKeys/input";
+import { ipcRenderer } from 'electron';
+import type { Args } from '../../../main/ipc/recoverExtendedKeys/input';
 
 export type ExtendedKeys = {
   xpub: string;
@@ -8,5 +8,4 @@ export type ExtendedKeys = {
   fprv?: string;
 };
 
-export const recoverExtendedKeys = (args: Args) =>
-  ipcRenderer.invoke("extended-keys/recover", args) as Promise<ExtendedKeys>;
+export const recoverExtendedKeys = (args: Args) => ipcRenderer.invoke('extended-keys/recover', args) as Promise<ExtendedKeys>;
