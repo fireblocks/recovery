@@ -13,11 +13,6 @@
   </a>
   <br />
   <br />
-  <a href="https://gitpod.io/#https://github.com/fireblocks/recovery/tree/main/" target="_blank">
-    <img src="https://gitpod.io/button/open-in-gitpod.svg" alt="Open in Gitpod" />
-  </a>
-  <br />
-  <br />
   <a href="#" target="_blank">
     <img  src="docs/img/splash.png" alt="Screenshot" />
   </a>

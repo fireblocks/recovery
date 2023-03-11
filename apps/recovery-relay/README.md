@@ -15,10 +15,6 @@
     <img src="https://www.netlify.com/img/deploy/button.svg" alt="Deploy with Netlify" />
   </a>
   <br />
-  <a href="https://gitpod.io/#https://github.com/fireblocks/recovery/tree/main/" target="_blank">
-    <img src="https://gitpod.io/button/open-in-gitpod.svg" alt="Open in Gitpod" />
-  </a>
-  <br />
   <br />
   <a href="https://relay.fireblocks.solutions" target="_blank">
     <img src="../../docs/img/relay.png" alt="Screenshot" />
