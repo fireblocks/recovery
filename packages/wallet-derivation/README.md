@@ -17,12 +17,12 @@ Accepts an input including an `xpub | fpub | xprv | fprv`, `path` object, and `a
 If an `xprv` or `fprv` are provided, `deriveWallet` includes in its return object the private key in hexadecimal format and in WIF for ECDSA-signed assets.
 
 ```typescript
-import { deriveWallet, Input } from "@fireblocks/wallet-derivation";
+import { deriveWallet, Input } from '@fireblocks/wallet-derivation';
 
 // Derive a BTC private+public key and address from vault account 0
 const btcInput: Input = {
-  assetId: "BTC",
-  xprv: "xprv...",
+  assetId: 'BTC',
+  xprv: 'xprv...',
   path: { account: 0, addressIndex: 0 },
 };
 const btcWallet = deriveWallet(btcInput);
@@ -42,8 +42,8 @@ console.info(btcWallet);
 
 // Derive a ETH private+public key and address from vault account 1
 const ethInput: Input = {
-  assetId: "ERH",
-  xprv: "xprv...",
+  assetId: 'ERH',
+  xprv: 'xprv...',
   path: { account: 1 },
 };
 const ethWallet = deriveWallet(ethInput);
@@ -62,8 +62,8 @@ console.info(ethWallet);
 
 // Derive a SOL public key and address from vault account 2
 const solInput: Input = {
-  assetId: "SOL",
-  fpub: "fpub...",
+  assetId: 'SOL',
+  fpub: 'fpub...',
   path: { account: 2 },
 };
 const solWallet = deriveWallet(solInput);

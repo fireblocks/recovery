@@ -1,8 +1,8 @@
-import React from "react";
-import NextDocument, { DocumentContext } from "next/document";
-import createEmotionServer from "@emotion/server/create-instance";
-import { ServerStyleSheets } from "@mui/styles";
-import { createEmotionCache } from "./createEmotionCache";
+import React from 'react';
+import NextDocument, { DocumentContext } from 'next/document';
+import createEmotionServer from '@emotion/server/create-instance';
+import { ServerStyleSheets } from '@mui/styles';
+import { createEmotionCache } from './createEmotionCache';
 
 // `getInitialProps` belongs to `_document` (instead of `_app`),
 // it's compatible with static-site generation (SSG).
@@ -53,7 +53,7 @@ export const getInitialDocumentProps = async (ctx: DocumentContext) => {
   const emotionStyles = extractCriticalToChunks(initialProps.html);
   const emotionStyleTags = emotionStyles.styles.map((style) => (
     <style
-      data-emotion={`${style.key} ${style.ids.join(" ")}`}
+      data-emotion={`${style.key} ${style.ids.join(' ')}`}
       key={style.key}
       // eslint-disable-next-line react/no-danger
       dangerouslySetInnerHTML={{ __html: style.css }}

@@ -1,11 +1,4 @@
-import {
-  Algorithm,
-  HDPath,
-  HDPathParts,
-  Input,
-  KeyDerivation,
-  Derivation,
-} from "../types";
+import { Algorithm, HDPath, HDPathParts, Input, KeyDerivation, Derivation } from '../types';
 
 export abstract class BaseWallet implements Derivation {
   /** Asset ID */
@@ -24,7 +17,7 @@ export abstract class BaseWallet implements Derivation {
   public tag?: string;
 
   /** Address type */
-  public type: "Deposit" | "Permanent";
+  public type: 'Deposit' | 'Permanent';
 
   /** Address description */
   public description?: string;
@@ -66,31 +59,22 @@ export abstract class BaseWallet implements Derivation {
       addressIndex: input.path.addressIndex ?? 0,
     };
 
-    this.pathParts = [
-      44,
-      this.path.coinType,
-      this.path.account,
-      this.path.changeIndex,
-      this.path.addressIndex,
-    ];
+    this.pathParts = [44, this.path.coinType, this.path.account, this.path.changeIndex, this.path.addressIndex];
 
-    this.type = this.path.addressIndex > 0 ? "Deposit" : "Permanent";
+    this.type = this.path.addressIndex > 0 ? 'Deposit' : 'Permanent';
 
-    const isXprvDerivation =
-      typeof input.xprv === "string" || typeof input.fprv === "string";
+    const isXprvDerivation = typeof input.xprv === 'string' || typeof input.fprv === 'string';
 
-    const isEdDSA = algorithm === "EDDSA";
+    const isEdDSA = algorithm === 'EDDSA';
 
-    const xprvKey = isEdDSA ? "fprv" : "xprv";
+    const xprvKey = isEdDSA ? 'fprv' : 'xprv';
 
-    const xpubKey = isEdDSA ? "fpub" : "xpub";
+    const xpubKey = isEdDSA ? 'fpub' : 'xpub';
 
     const extendedKey = isXprvDerivation ? input[xprvKey] : input[xpubKey];
 
     if (!extendedKey) {
-      throw new Error(
-        `${algorithm} extended key is required (${xprvKey} or ${xpubKey})`
-      );
+      throw new Error(`${algorithm} extended key is required (${xprvKey} or ${xpubKey})`);
     }
 
     const { publicKey, evmAddress, privateKey, wif } = this.derive(extendedKey);

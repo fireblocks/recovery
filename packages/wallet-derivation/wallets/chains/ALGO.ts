@@ -1,7 +1,7 @@
-import { encodeAddress } from "algosdk";
-import { toUtf8Bytes } from "ethers";
-import { Input } from "../../types";
-import { EdDSAWallet } from "../EdDSAWallet";
+import { encodeAddress } from 'algosdk';
+import { toUtf8Bytes } from 'ethers';
+import { Input } from '../../types';
+import { EdDSAWallet } from '../EdDSAWallet';
 
 export class Algorand extends EdDSAWallet {
   constructor(input: Input) {

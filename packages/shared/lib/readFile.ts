@@ -5,7 +5,7 @@ export const readFileToBase64 = (file: File) =>
     reader.onload = () => {
       const dataUrl = reader.result as string;
 
-      const base64String = dataUrl.split(",")[1];
+      const base64String = dataUrl.split(',')[1];
 
       resolve(base64String);
     };

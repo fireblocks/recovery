@@ -36,7 +36,7 @@ export interface FullUTXO {
       witness: [string];
       is_coinbase: boolean;
       sequence: number;
-    }
+    },
   ];
   vout: [
     {
@@ -45,7 +45,7 @@ export interface FullUTXO {
       scriptpubkey_type: string;
       scriptpubkey_address: string;
       value: number;
-    }
+    },
   ];
   size: number;
   weight: number;

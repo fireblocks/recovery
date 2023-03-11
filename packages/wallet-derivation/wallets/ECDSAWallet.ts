@@ -1,10 +1,10 @@
-import { sha256, encodeBase58, HDNodeWallet } from "ethers";
-import { Input, KeyDerivation } from "../types";
-import { BaseWallet } from "./BaseWallet";
+import { sha256, encodeBase58, HDNodeWallet } from 'ethers';
+import { Input, KeyDerivation } from '../types';
+import { BaseWallet } from './BaseWallet';
 
 export abstract class ECDSAWallet extends BaseWallet {
   constructor(input: Input, defaultCoinType: number) {
-    super(input, defaultCoinType, "ECDSA");
+    super(input, defaultCoinType, 'ECDSA');
   }
 
   private static getWif(privateKey: string) {
@@ -22,15 +22,13 @@ export abstract class ECDSAWallet extends BaseWallet {
   }
 
   protected derive(extendedKey: string): KeyDerivation {
-    const pathString = `m/${this.pathParts.join("/")}`;
+    const pathString = `m/${this.pathParts.join('/')}`;
 
-    const derivedWallet =
-      HDNodeWallet.fromExtendedKey(extendedKey).derivePath(pathString);
+    const derivedWallet = HDNodeWallet.fromExtendedKey(extendedKey).derivePath(pathString);
 
     const { address: evmAddress, publicKey } = derivedWallet;
 
-    const privateKey =
-      "privateKey" in derivedWallet ? derivedWallet.privateKey : undefined;
+    const privateKey = 'privateKey' in derivedWallet ? derivedWallet.privateKey : undefined;
 
     const wif = privateKey ? ECDSAWallet.getWif(privateKey) : undefined;
 

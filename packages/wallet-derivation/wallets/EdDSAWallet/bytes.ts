@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import crypto from "crypto";
+import crypto from 'crypto';
 
 // Be friendly to bad ECMAScript parsers by not using bigint literals like 123n
 export const _0n = BigInt(0);
@@ -12,9 +12,7 @@ export const _0xffn = BigInt(0xff);
 /**
  * Precomputed hex values for bytes 0-255.
  */
-const hexes = Array.from({ length: 256 }, (v, i) =>
-  i.toString(16).padStart(2, "0")
-);
+const hexes = Array.from({ length: 256 }, (v, i) => i.toString(16).padStart(2, '0'));
 
 /**
  * Assert that a value is a Uint8Array.
@@ -24,7 +22,7 @@ const hexes = Array.from({ length: 256 }, (v, i) =>
  */
 function assertUint8Array(value: Uint8Array): asserts value is Uint8Array {
   if (!(value instanceof Uint8Array)) {
-    throw new Error("Uint8Array expected");
+    throw new Error('Uint8Array expected');
   }
 }
 
@@ -34,8 +32,7 @@ function assertUint8Array(value: Uint8Array): asserts value is Uint8Array {
  * @param hex hex string with optional 0x prefix
  * @returns bigint
  */
-export const hexToNumber = (hex: string) =>
-  BigInt(hex.startsWith("0x") ? hex : `0x${hex}`);
+export const hexToNumber = (hex: string) => BigInt(hex.startsWith('0x') ? hex : `0x${hex}`);
 
 /**
  * Convert a byte array in little-endian order to a bigint.
@@ -48,7 +45,7 @@ export const bytesToNumberLE = (array: Uint8Array) => {
 
   const littleEndianArray = Uint8Array.from(array).reverse();
 
-  const hex = littleEndianArray.reduce((acc, byte) => acc + hexes[byte], "");
+  const hex = littleEndianArray.reduce((acc, byte) => acc + hexes[byte], '');
 
   return hexToNumber(hex);
 };
@@ -97,8 +94,7 @@ export const numberToBytesBE = (number: bigint) => {
  * @param number number
  * @returns 4-byte long byte array in big-endian order
  */
-export const numberTo4BytesBE = (number: number) =>
-  Buffer.from([number >> 24, number >> 16, number >> 8, number]);
+export const numberTo4BytesBE = (number: number) => Buffer.from([number >> 24, number >> 16, number >> 8, number]);
 
 /**
  * Get a byte array of cryptographically-secure random bytes.
@@ -106,8 +102,7 @@ export const numberTo4BytesBE = (number: number) =>
  * @param length length of byte array
  * @returns byte array
  */
-export const randomBytes = (length = 32) =>
-  crypto.getRandomValues(new Uint8Array(length));
+export const randomBytes = (length = 32) => crypto.getRandomValues(new Uint8Array(length));
 
 /**
  * Concatenate a list of byte arrays.

@@ -1,5 +1,5 @@
-import path from "path";
-import isDev from "electron-is-dev";
+import path from 'path';
+import isDev from 'electron-is-dev';
 
 export type Args = {
   zip: string;
@@ -9,45 +9,36 @@ export type Args = {
   dangerouslyRecoverPrivateKeys?: boolean;
 };
 
-const EXECUTABLE_NAME = "recover";
+const EXECUTABLE_NAME = 'recover';
 
-const basePath = path.join(__dirname, "..", "..", "..");
+const basePath = path.join(__dirname, '..', '..', '..');
 
 export const getChildProcessInput = (args: Args) => {
   const processArgs = [
-    "-z",
+    '-z',
     args.zip,
-    "-mp",
+    '-mp',
     args.mobilePassphrase,
-    "-rk",
+    '-rk',
     args.rsaKey,
-    "-p",
+    '-p',
     String(args.dangerouslyRecoverPrivateKeys ?? false),
   ];
 
   if (args.rsaKeyPassphrase?.trim()) {
-    processArgs.push("-rp", args.rsaKeyPassphrase);
+    processArgs.push('-rp', args.rsaKeyPassphrase);
   }
 
   let file: string;
 
   if (isDev) {
-    const executablePath = path.join(
-      basePath,
-      "packages",
-      "extended-key-recovery",
-      `${EXECUTABLE_NAME}.py`
-    );
+    const executablePath = path.join(basePath, 'packages', 'extended-key-recovery', `${EXECUTABLE_NAME}.py`);
 
-    file = "python";
+    file = 'python';
 
     processArgs.unshift(executablePath);
   } else {
-    const executablePath = path.join(
-      basePath,
-      EXECUTABLE_NAME,
-      process.platform === "win32" ? ".exe" : ""
-    );
+    const executablePath = path.join(basePath, EXECUTABLE_NAME, process.platform === 'win32' ? '.exe' : '');
 
     file = executablePath;
   }

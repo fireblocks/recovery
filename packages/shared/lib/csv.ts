@@ -1,5 +1,5 @@
-import { LocalFile, parse, unparse } from "papaparse";
-import { addressCsv } from "../schemas";
+import { LocalFile, parse, unparse } from 'papaparse';
+import { addressCsv } from '../schemas';
 
 /**
  * Parsed row
@@ -10,7 +10,7 @@ export type ParsedRow = {
   assetId: string;
   assetName: string;
   address: string;
-  addressType: "Permanent" | "Deposit";
+  addressType: 'Permanent' | 'Deposit';
   addressDescription?: string;
   tag?: string;
   pathParts: number[];
@@ -23,54 +23,54 @@ export type ParsedRow = {
  * CSV row
  */
 type CsvRow = {
-  "Account Name"?: string;
-  "Account ID": number;
+  'Account Name'?: string;
+  'Account ID': number;
   Asset: string;
-  "Asset Name": string;
+  'Asset Name': string;
   Address: string;
-  "Address Type": "Permanent" | "Deposit";
-  "Address Description"?: string;
+  'Address Type': 'Permanent' | 'Deposit';
+  'Address Description'?: string;
   Tag?: string;
-  "HD Path": string;
-  "Public Key"?: string;
-  "Private Key"?: string;
-  "Private Key (WIF)"?: string;
+  'HD Path': string;
+  'Public Key'?: string;
+  'Private Key'?: string;
+  'Private Key (WIF)'?: string;
 };
 
 /**
  * Parsed row properties
  */
 const props: Array<keyof ParsedRow> = [
-  "accountName",
-  "accountId",
-  "assetId",
-  "assetName",
-  "address",
-  "addressType",
-  "addressDescription",
-  "tag",
-  "pathParts",
-  "publicKey",
-  "privateKey",
-  "privateKeyWif",
+  'accountName',
+  'accountId',
+  'assetId',
+  'assetName',
+  'address',
+  'addressType',
+  'addressDescription',
+  'tag',
+  'pathParts',
+  'publicKey',
+  'privateKey',
+  'privateKeyWif',
 ];
 
 /**
  * CSV headers
  */
 const headers: Array<keyof CsvRow> = [
-  "Account Name",
-  "Account ID",
-  "Asset",
-  "Asset Name",
-  "Address",
-  "Address Type",
-  "Address Description",
-  "Tag",
-  "HD Path",
-  "Public Key",
-  "Private Key",
-  "Private Key (WIF)",
+  'Account Name',
+  'Account ID',
+  'Asset',
+  'Asset Name',
+  'Address',
+  'Address Type',
+  'Address Description',
+  'Tag',
+  'HD Path',
+  'Public Key',
+  'Private Key',
+  'Private Key (WIF)',
 ];
 
 const parseRow = (row: CsvRow) => {
@@ -80,10 +80,10 @@ const parseRow = (row: CsvRow) => {
 
       let value: string | number | number[] | undefined = row[header];
 
-      if (prop === "pathParts") {
+      if (prop === 'pathParts') {
         value = (value as string)
-          .split(" / ")
-          .filter((part) => part !== "m")
+          .split(' / ')
+          .filter((part) => part !== 'm')
           .map(Number);
       }
 
@@ -94,20 +94,17 @@ const parseRow = (row: CsvRow) => {
   } catch (error) {
     console.error(error);
 
-    throw new Error("Failed to parse CSV row");
+    throw new Error('Failed to parse CSV row');
   }
 };
 
-export const csvImport = async (
-  csvFile: LocalFile,
-  handleRow: (row: ParsedRow) => void
-) =>
+export const csvImport = async (csvFile: LocalFile, handleRow: (row: ParsedRow) => void) =>
   new Promise<void>((resolve, reject) => {
     parse<CsvRow>(csvFile, {
       worker: true,
       header: true,
       dynamicTyping: true,
-      skipEmptyLines: "greedy",
+      skipEmptyLines: 'greedy',
       fastMode: true,
       step: ({ data, errors }) => {
         if (errors.length > 0) {

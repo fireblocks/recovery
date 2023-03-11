@@ -1,22 +1,15 @@
-import {
-  screen,
-  BrowserWindow,
-  BrowserWindowConstructorOptions as BrowserWindowConstructorOptionsBase,
-} from "electron";
-import Store from "electron-store";
+import { screen, BrowserWindow, BrowserWindowConstructorOptions as BrowserWindowConstructorOptionsBase } from 'electron';
+import Store from 'electron-store';
 
-type BrowserWindowConstructorOptions = Omit<
-  BrowserWindowConstructorOptionsBase,
-  "width" | "height"
-> & { width: number; height: number };
+type BrowserWindowConstructorOptions = Omit<BrowserWindowConstructorOptionsBase, 'width' | 'height'> & {
+  width: number;
+  height: number;
+};
 
-export const createWindow = (
-  windowName: string,
-  options: BrowserWindowConstructorOptions
-): BrowserWindow => {
-  const key = "window-state";
+export const createWindow = (windowName: string, options: BrowserWindowConstructorOptions): BrowserWindow => {
+  const key = 'window-state';
   const name = `window-state-${windowName}`;
-  const store = new Store<{ "window-state": BrowserWindowConstructorOptions }>({
+  const store = new Store<{ 'window-state': BrowserWindowConstructorOptions }>({
     name,
   });
   const defaultSize = {
@@ -39,20 +32,10 @@ export const createWindow = (
     };
   };
 
-  const windowWithinBounds = (
-    windowState: BrowserWindowConstructorOptions,
-    bounds: BrowserWindowConstructorOptions
-  ) =>
-    [
-      windowState.width,
-      windowState.height,
-      windowState.x,
-      windowState.y,
-      bounds.width,
-      bounds.height,
-      bounds.x,
-      bounds.y,
-    ].every((x) => typeof x === "number") &&
+  const windowWithinBounds = (windowState: BrowserWindowConstructorOptions, bounds: BrowserWindowConstructorOptions) =>
+    [windowState.width, windowState.height, windowState.x, windowState.y, bounds.width, bounds.height, bounds.x, bounds.y].every(
+      (x) => typeof x === 'number',
+    ) &&
     windowState.x! >= bounds.x! &&
     windowState.y! >= bounds.y! &&
     windowState.x! + windowState.width <= bounds.x! + bounds.width &&
@@ -67,12 +50,8 @@ export const createWindow = (
     };
   };
 
-  const ensureVisibleOnSomeDisplay = (
-    windowState: BrowserWindowConstructorOptions
-  ) => {
-    const visible = screen
-      .getAllDisplays()
-      .some((display) => windowWithinBounds(windowState, display.bounds));
+  const ensureVisibleOnSomeDisplay = (windowState: BrowserWindowConstructorOptions) => {
+    const visible = screen.getAllDisplays().some((display) => windowWithinBounds(windowState, display.bounds));
     if (!visible) {
       // Window is partially or fully not visible now.
       // Reset it to safe defaults.
@@ -102,7 +81,7 @@ export const createWindow = (
 
   win = new BrowserWindow(browserOptions);
 
-  win.on("close", saveState);
+  win.on('close', saveState);
 
   return win;
 };

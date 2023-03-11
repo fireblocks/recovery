@@ -1,3 +1,3 @@
-import { ipcRenderer } from "electron";
+import { ipcRenderer } from 'electron';
 
-export const closeWindow = () => ipcRenderer.send("window/close");
+export const closeWindow = () => ipcRenderer.send('window/close');

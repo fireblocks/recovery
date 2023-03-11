@@ -1,6 +1,4 @@
-import { ipcMain } from "electron";
-import { SettingsStore, Settings } from "../store/settings";
+import { ipcMain } from 'electron';
+import { SettingsStore, Settings } from '../store/settings';
 
-ipcMain.handle("settings/save", (event, args: Settings) =>
-  SettingsStore.set(args)
-);
+ipcMain.handle('settings/save', (event, args: Settings) => SettingsStore.set(args));

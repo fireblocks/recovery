@@ -1,7 +1,7 @@
-import * as web3 from "@solana/web3.js";
-import { Solana as BaseSolana, Input } from "@fireblocks/wallet-derivation";
-import { RawSignature, AccountData, TxPayload } from "../types";
-import { BaseWallet } from "../BaseWallet";
+import * as web3 from '@solana/web3.js';
+import { Solana as BaseSolana, Input } from '@fireblocks/wallet-derivation';
+import { RawSignature, AccountData, TxPayload } from '../types';
+import { BaseWallet } from '../BaseWallet';
 
 export class Solana extends BaseSolana implements BaseWallet {
   private readonly connection: web3.Connection;
@@ -11,12 +11,10 @@ export class Solana extends BaseSolana implements BaseWallet {
   constructor(input: Input) {
     super(input);
 
-    const endpoint = input.isTestnet
-      ? web3.clusterApiUrl("devnet")
-      : "https://try-rpc.mainnet.solana.blockdaemon.tech";
+    const endpoint = input.isTestnet ? web3.clusterApiUrl('devnet') : 'https://try-rpc.mainnet.solana.blockdaemon.tech';
 
-    this.connection = new web3.Connection(endpoint, "confirmed");
-    this.web3PubKey = new web3.PublicKey(Buffer.from(this.publicKey, "hex"));
+    this.connection = new web3.Connection(endpoint, 'confirmed');
+    this.web3PubKey = new web3.PublicKey(Buffer.from(this.publicKey, 'hex'));
   }
 
   public async getBalance() {
@@ -32,19 +30,12 @@ export class Solana extends BaseSolana implements BaseWallet {
 
   public async broadcastTx(
     tx: string,
-    sig: RawSignature
+    sig: RawSignature,
     // _?: string | undefined
   ): Promise<string> {
-    const unsignedTx = web3.VersionedTransaction.deserialize(
-      Buffer.from(tx, "hex")
-    );
-    unsignedTx.addSignature(
-      this.web3PubKey,
-      Buffer.concat([Buffer.from(sig.r, "hex"), Buffer.from(sig.s, "hex")])
-    );
-    const txHash = await this.connection.sendRawTransaction(
-      unsignedTx.serialize()
-    );
+    const unsignedTx = web3.VersionedTransaction.deserialize(Buffer.from(tx, 'hex'));
+    unsignedTx.addSignature(this.web3PubKey, Buffer.concat([Buffer.from(sig.r, 'hex'), Buffer.from(sig.s, 'hex')]));
+    const txHash = await this.connection.sendRawTransaction(unsignedTx.serialize());
 
     return txHash;
   }
@@ -58,7 +49,7 @@ export class Solana extends BaseSolana implements BaseWallet {
 
   public async generateTx(
     to: string,
-    amount: number
+    amount: number,
     // memo?: string | undefined,
     // utxos?: UTXO[] | undefined,
     // additionalParameters?: Map<string, object> | undefined
@@ -68,7 +59,7 @@ export class Solana extends BaseSolana implements BaseWallet {
         fromPubkey: this.web3PubKey,
         toPubkey: new web3.PublicKey(to),
         lamports: amount * web3.LAMPORTS_PER_SOL,
-      })
+      }),
     );
 
     // Check for sufficient fee
@@ -78,11 +69,9 @@ export class Solana extends BaseSolana implements BaseWallet {
     if (fee !== null) {
       if (fee > balance - amount) {
         throw new Error(
-          `Insufficient balance for fee - balance: ${
-            balance / web3.LAMPORTS_PER_SOL
-          }, tx amount: ${amount / web3.LAMPORTS_PER_SOL}, fee: ${
-            fee / web3.LAMPORTS_PER_SOL
-          }`
+          `Insufficient balance for fee - balance: ${balance / web3.LAMPORTS_PER_SOL}, tx amount: ${
+            amount / web3.LAMPORTS_PER_SOL
+          }, fee: ${fee / web3.LAMPORTS_PER_SOL}`,
         );
       }
     }
@@ -93,8 +82,7 @@ export class Solana extends BaseSolana implements BaseWallet {
     // eslint-disable-next-line no-constant-condition
     while (true) {
       // eslint-disable-next-line no-await-in-loop
-      const currentBlockHash = (await this.connection.getLatestBlockhash())
-        .blockhash;
+      const currentBlockHash = (await this.connection.getLatestBlockhash()).blockhash;
       if (txBlockHash !== currentBlockHash) {
         txBlockHash = currentBlockHash;
         break;
@@ -105,7 +93,7 @@ export class Solana extends BaseSolana implements BaseWallet {
     const serializedTx = tx.serializeMessage();
     return {
       derivationPath: this.pathParts,
-      tx: serializedTx.toString("hex"),
+      tx: serializedTx.toString('hex'),
     };
   }
 }

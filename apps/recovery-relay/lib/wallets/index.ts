@@ -1,8 +1,8 @@
-import { Bitcoin } from "./BTC";
-import { Ethereum } from "./ETH";
-import { Solana } from "./SOL";
+import { Bitcoin } from './BTC';
+import { Ethereum } from './ETH';
+import { Solana } from './SOL';
 
-export { BaseWallet } from "./BaseWallet";
+export { BaseWallet } from './BaseWallet';
 
 export const WalletClasses = {
   BTC: Bitcoin,

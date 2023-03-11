@@ -1,5 +1,5 @@
-import { Input } from "../../types";
-import { ECDSAWallet } from "../ECDSAWallet";
+import { Input } from '../../types';
+import { ECDSAWallet } from '../ECDSAWallet';
 
 export class Ethereum extends ECDSAWallet {
   constructor(input: Input) {

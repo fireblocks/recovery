@@ -1,18 +1,18 @@
-import { Heebo } from "next/font/google";
+import { Heebo } from 'next/font/google';
 
 export const heebo = Heebo({
-  subsets: ["latin"],
-  display: "swap",
+  subsets: ['latin'],
+  display: 'swap',
   fallback: [
-    "system-ui",
-    "-apple-system",
+    'system-ui',
+    '-apple-system',
     '"Segoe UI"',
-    "Roboto",
+    'Roboto',
     '"Helvetica Neue"',
     '"Noto Sans"',
     '"Liberation Sans"',
-    "Arial",
-    "sans-serif",
+    'Arial',
+    'sans-serif',
     '"Apple Color Emoji"',
     '"Segoe UI Emoji"',
     '"Segoe UI Symbol"',

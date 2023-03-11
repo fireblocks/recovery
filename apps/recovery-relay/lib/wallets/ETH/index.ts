@@ -1,7 +1,7 @@
-import { JsonRpcProvider, formatEther, Transaction } from "ethers";
-import { Ethereum as BaseEthereum, Input } from "@fireblocks/wallet-derivation";
-import { AccountData, TxPayload, RawSignature } from "../types";
-import { BaseWallet } from "../BaseWallet";
+import { JsonRpcProvider, formatEther, Transaction } from 'ethers';
+import { Ethereum as BaseEthereum, Input } from '@fireblocks/wallet-derivation';
+import { AccountData, TxPayload, RawSignature } from '../types';
+import { BaseWallet } from '../BaseWallet';
 
 export class Ethereum extends BaseEthereum implements BaseWallet {
   private readonly provider: JsonRpcProvider;
@@ -9,7 +9,7 @@ export class Ethereum extends BaseEthereum implements BaseWallet {
   constructor(input: Input) {
     super(input);
 
-    const cluster = input.isTestnet ? "goerli" : "mainnet";
+    const cluster = input.isTestnet ? 'goerli' : 'mainnet';
     const endpoint = `https://${cluster}.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161`;
 
     this.provider = new JsonRpcProvider(endpoint);
@@ -37,15 +37,12 @@ export class Ethereum extends BaseEthereum implements BaseWallet {
 
   public async generateTx(
     to: string,
-    amount: number
+    amount: number,
     // memo?: string | undefined,
     // utxos?: UTXO[] | undefined,
     // additionalParameters?: Map<string, object> | undefined
   ): Promise<TxPayload> {
-    const nonce = await this.provider.getTransactionCount(
-      this.address,
-      "latest"
-    );
+    const nonce = await this.provider.getTransactionCount(this.address, 'latest');
 
     // Should we use maxGasPrice? i.e. EIP1559.
     const { gasPrice } = await this.provider.getFeeData();
@@ -70,7 +67,7 @@ export class Ethereum extends BaseEthereum implements BaseWallet {
 
   public async broadcastTx(
     tx: string,
-    sig: RawSignature
+    sig: RawSignature,
     // customUrl?: string | undefined
   ): Promise<string> {
     const transaction = Transaction.from(tx);

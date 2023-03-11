@@ -1,4 +1,4 @@
-export type Algorithm = "ECDSA" | "EDDSA";
+export type Algorithm = 'ECDSA' | 'EDDSA';
 
 export type HDPath = Readonly<{
   coinType: number;
@@ -48,7 +48,7 @@ export interface Derivation {
   tag?: string;
 
   /** Address type */
-  type: "Deposit" | "Permanent";
+  type: 'Deposit' | 'Permanent';
 
   /** Derived public key hexadecimal string */
   publicKey: string;

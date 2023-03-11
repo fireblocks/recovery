@@ -1,17 +1,8 @@
 // Reference: https://github.com/paulmillr/noble-ed25519
 // MIT License (c) 2019 Paul Miller (paulmillr.com)
 
-import bigInt from "big-integer";
-import {
-  _0n,
-  _1n,
-  _2n,
-  _8n,
-  _255n,
-  numberToBytesLE,
-  bytesToNumberLE,
-  concatBytes,
-} from "./bytes";
+import bigInt from 'big-integer';
+import { _0n, _1n, _2n, _8n, _255n, numberToBytesLE, bytesToNumberLE, concatBytes } from './bytes';
 
 /**
  * ed25519 is Twisted Edwards curve with equation of
@@ -22,25 +13,15 @@ import {
 export const CURVE = Object.freeze({
   // Equal to -121665/121666 over finite field.
   // Negative number is P - number, and division is invert(number, P)
-  d: BigInt(
-    "37095705934669439343138083508754565189542113879843219016388785533085940283555"
-  ),
+  d: BigInt('37095705934669439343138083508754565189542113879843219016388785533085940283555'),
   // Finite field 𝔽p over which we'll do calculations; 2n ** 255n - 19n
-  P: BigInt(
-    "57896044618658097711785492504343953926634992332820282019728792003956564819949"
-  ),
+  P: BigInt('57896044618658097711785492504343953926634992332820282019728792003956564819949'),
   // Subgroup order: how many points ed25519 has
   // in rfc8032 it's called l; 2n ** 252n + 27742317777372353535851937790883648493n
-  l: BigInt(
-    "7237005577332262213973186563042994240857116359379907606001950938285454250989"
-  ),
+  l: BigInt('7237005577332262213973186563042994240857116359379907606001950938285454250989'),
   // Base point (x, y) aka generator point
-  Gx: BigInt(
-    "15112221349535400772501151409588531511454012693041857206046113283949847762202"
-  ),
-  Gy: BigInt(
-    "46316835694926478169428394003475163141307993866256225615783033603165251855960"
-  ),
+  Gx: BigInt('15112221349535400772501151409588531511454012693041857206046113283949847762202'),
+  Gy: BigInt('46316835694926478169428394003475163141307993866256225615783033603165251855960'),
 } as const);
 
 export const G = [CURVE.Gx, CURVE.Gy] as const;
@@ -54,7 +35,7 @@ export const G = [CURVE.Gx, CURVE.Gy] as const;
 export const sha512 = async (...messages: Uint8Array[]) => {
   const buffer = concatBytes(...messages);
 
-  const digest = await crypto.subtle.digest("SHA-512", buffer);
+  const digest = await crypto.subtle.digest('SHA-512', buffer);
 
   return new Uint8Array(digest);
 };
@@ -78,8 +59,7 @@ export const mod = (a: bigint, b = CURVE.P) => {
  * @param digest byte array
  * @returns bigint
  */
-export const modlLE = (digest: Uint8Array) =>
-  mod(bytesToNumberLE(digest), CURVE.l);
+export const modlLE = (digest: Uint8Array) => mod(bytesToNumberLE(digest), CURVE.l);
 
 /**
  * Invert number over modulo.
@@ -90,9 +70,7 @@ export const modlLE = (digest: Uint8Array) =>
  */
 const invert = (number: bigint, modulo = CURVE.P) => {
   if (number === _0n || modulo <= _0n) {
-    throw new Error(
-      `invert: expected positive integers, got n=${number} mod=${modulo}`
-    );
+    throw new Error(`invert: expected positive integers, got n=${number} mod=${modulo}`);
   }
 
   let a = mod(number, modulo);
@@ -116,7 +94,7 @@ const invert = (number: bigint, modulo = CURVE.P) => {
   }
 
   if (b !== _1n) {
-    throw new Error("invert: does not exist");
+    throw new Error('invert: does not exist');
   }
 
   return mod(x, modulo);
@@ -129,10 +107,7 @@ const invert = (number: bigint, modulo = CURVE.P) => {
  * @param Q x, y coordinates of point Q
  * @returns array of two bigints
  */
-export const edwards = (
-  P: readonly [bigint, bigint],
-  Q: readonly [bigint, bigint]
-): readonly [bigint, bigint] => {
+export const edwards = (P: readonly [bigint, bigint], Q: readonly [bigint, bigint]): readonly [bigint, bigint] => {
   const [x1, y1] = P;
   const [x2, y2] = Q;
 
@@ -170,10 +145,7 @@ const floorDiv = (x: bigint, y: bigint): bigint => {
  * @param e bigint
  * @returns array of two bigints
  */
-export const scalarMult = (
-  P: readonly [bigint, bigint],
-  e: bigint
-): readonly [bigint, bigint] => {
+export const scalarMult = (P: readonly [bigint, bigint], e: bigint): readonly [bigint, bigint] => {
   if (e === _0n) {
     return [_0n, _1n];
   }
@@ -217,18 +189,12 @@ const isOnCurve = (P: [bigint, bigint]) => {
 const xRecover = (y: bigint) => {
   const xx = (y * y - _1n) * invert(CURVE.d * y * y + _1n);
 
-  const xTmp = bigInt(xx).modPow(
-    bigInt(floorDiv(CURVE.P + BigInt(3), _8n)),
-    bigInt(CURVE.P)
-  );
+  const xTmp = bigInt(xx).modPow(bigInt(floorDiv(CURVE.P + BigInt(3), _8n)), bigInt(CURVE.P));
 
   let x = BigInt(xTmp.toString());
 
   if ((x * x - xx) % CURVE.P !== _0n) {
-    const tmp = bigInt("2").modPow(
-      bigInt((CURVE.P - _1n) / BigInt(4)),
-      bigInt(CURVE.P)
-    );
+    const tmp = bigInt('2').modPow(bigInt((CURVE.P - _1n) / BigInt(4)), bigInt(CURVE.P));
 
     x = (x * BigInt(tmp.toString())) % CURVE.P;
   }
@@ -256,7 +222,7 @@ export const decodePoint = (point: Uint8Array) => {
   const P: [bigint, bigint] = [x, y];
 
   if (!isOnCurve(P)) {
-    throw new Error("Point is not on curve");
+    throw new Error('Point is not on curve');
   }
 
   return P;

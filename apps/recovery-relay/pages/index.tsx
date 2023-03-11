@@ -1,25 +1,15 @@
-import { Box, Grid } from "@mui/material";
-import { LeakAdd } from "@mui/icons-material";
-import {
-  LogoHero,
-  Button,
-  NextLinkComposed,
-} from "@fireblocks/recovery-shared";
-import type { NextPageWithLayout } from "./_app";
+import { Box, Grid } from '@mui/material';
+import { LeakAdd } from '@mui/icons-material';
+import { LogoHero, Button, NextLinkComposed } from '@fireblocks/recovery-shared';
+import type { NextPageWithLayout } from './_app';
 
 const Index: NextPageWithLayout = () => (
-  <Box
-    height="100%"
-    padding="1rem"
-    display="flex"
-    alignItems="center"
-    justifyContent="center"
-  >
-    <Grid container spacing={2} alignItems="center" maxWidth="800px">
+  <Box height='100%' padding='1rem' display='flex' alignItems='center' justifyContent='center'>
+    <Grid container spacing={2} alignItems='center' maxWidth='800px'>
       <Grid item sm={6}>
         <LogoHero
-          title="Recovery Relay"
-          description="Make transactions from wallets recovered with Fireblocks Recovery Utility."
+          title='Recovery Relay'
+          description='Make transactions from wallets recovered with Fireblocks Recovery Utility.'
           icon={LeakAdd}
         />
       </Grid>
@@ -31,13 +21,7 @@ const Index: NextPageWithLayout = () => (
               </Button>
             </Grid> */}
           <Grid item xs={12}>
-            <Button
-              size="large"
-              color="primary"
-              fullWidth
-              component={NextLinkComposed}
-              to="/scan"
-            >
+            <Button size='large' color='primary' fullWidth component={NextLinkComposed} to='/scan'>
               Scan QR Code
             </Button>
           </Grid>
