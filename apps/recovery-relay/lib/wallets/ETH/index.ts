@@ -67,12 +67,13 @@ export class Ethereum extends BaseEthereum implements BaseWallet {
 
   public async broadcastTx(
     tx: string,
-    sig: RawSignature,
+    sigs: RawSignature[],
     // customUrl?: string | undefined
   ): Promise<string> {
     const transaction = Transaction.from(tx);
 
-    transaction.signature = sig;
+    // eslint-disable-next-line prefer-destructuring
+    transaction.signature = sigs[0];
 
     const signer = await this.provider.getSigner();
 

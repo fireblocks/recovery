@@ -30,9 +30,10 @@ export class Solana extends BaseSolana implements BaseWallet {
 
   public async broadcastTx(
     tx: string,
-    sig: RawSignature,
+    sigs: RawSignature[],
     // _?: string | undefined
   ): Promise<string> {
+    const sig = sigs[0];
     const unsignedTx = web3.VersionedTransaction.deserialize(Buffer.from(tx, 'hex'));
     unsignedTx.addSignature(this.web3PubKey, Buffer.concat([Buffer.from(sig.r, 'hex'), Buffer.from(sig.s, 'hex')]));
     const txHash = await this.connection.sendRawTransaction(unsignedTx.serialize());

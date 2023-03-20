@@ -48,6 +48,14 @@ export const nativeAssetPatches: { [ID in AssetId]?: NativeAssetPatch } = {
   SOL: {
     derive: true,
   },
+  ADA: {
+    utxo: true,
+    derive: true,
+  },
+  ADA_TEST: {
+    utxo: true,
+    derive: true,
+  },
 };
 
 export const assetPatches: { [ID in AssetId]?: ChildAssetPatch } = {};

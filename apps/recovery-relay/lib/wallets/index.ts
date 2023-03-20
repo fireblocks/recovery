@@ -1,3 +1,4 @@
+import { Cardano } from './ADA';
 import { Bitcoin } from './BTC';
 import { Ethereum } from './ETH';
 import { Solana } from './SOL';
@@ -12,6 +13,8 @@ export const WalletClasses = {
   ETH_TEST5: Ethereum,
   SOL: Solana,
   SOL_TEST: Solana,
+  ADA: Cardano,
+  ADA_TEST: Cardano,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];

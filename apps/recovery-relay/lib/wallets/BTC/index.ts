@@ -155,7 +155,7 @@ export class Bitcoin extends BaseBitcoin implements BaseWallet {
 
   public async broadcastTx(
     txHex: string,
-    // signature: RawSignature,
+    // signature: RawSignature[],
     // customUrl?: string | undefined
   ): Promise<string> {
     // BTC Tx are automatically signed and resulting hex is signed, so no need to do anything special.

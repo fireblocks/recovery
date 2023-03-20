@@ -92,4 +92,8 @@ export abstract class BaseWallet implements Derivation {
   protected abstract derive(extendedKey: string): KeyDerivation;
 
   protected abstract getAddress(evmAddress?: string): string;
+
+  public isLateInit(): boolean {
+    return false;
+  }
 }

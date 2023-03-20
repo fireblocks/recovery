@@ -14,6 +14,7 @@ export const transactionInput = z.object({
     .optional(),
   to: z.string().trim().min(1).describe('Recipient address'),
   amount: z.number().positive().describe('Amount to withdraw'),
+  endpoint: z.string().optional().describe('Endpoint data for specific blockchains'),
 });
 
 export type TransactionInput = z.infer<typeof transactionInput>;

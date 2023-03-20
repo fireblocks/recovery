@@ -14,5 +14,5 @@ export abstract class BaseWallet extends DerivationBaseWallet {
     additionalParameters?: Map<string, object>,
   ): Promise<TxPayload>;
 
-  public abstract broadcastTx(txHex: string, signature: RawSignature, customUrl?: string): Promise<string>;
+  public abstract broadcastTx(txHex: string, sigs: RawSignature[], customUrl?: string): Promise<string>;
 }

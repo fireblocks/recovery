@@ -1,3 +1,4 @@
+import { Cardano } from './ADA';
 import { Algorand } from './ALGO';
 import { Bitcoin } from './BTC';
 import { Ethereum } from './ETH';
@@ -21,9 +22,12 @@ export const getWallet = (assetId: string) => {
       return Solana;
     case 'ALGO':
       return Algorand;
+    case 'ADA':
+    case 'ADA_TEST':
+      return Cardano;
     default:
       throw new Error(`Unsupported asset "${assetId}"`);
   }
 };
 
-export { Bitcoin, Ethereum, Solana, Algorand };
+export { Bitcoin, Ethereum, Solana, Algorand, Cardano };

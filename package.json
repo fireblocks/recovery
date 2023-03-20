@@ -23,7 +23,9 @@
   "scripts": {
     "postinstall": "manypkg check",
     "prepare": "./scripts/prepare.sh",
+    "clean": "[ -f scripts/clean.local.sh ] && ./scripts/clean.local.sh || ./scripts/clean.sh",
     "build": "[ -f scripts/build.local.sh ] && ./scripts/build.local.sh || ./scripts/build.sh",
+    "forcebuild": "npx turbo run build --force",
     "dev": "turbo run dev",
     "test": "turbo run test",
     "lint": "turbo run lint",

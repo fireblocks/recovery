@@ -229,6 +229,8 @@ export const assets = {
     decimals: 6,
     exp: "cardanoscan.io",
     coinType: 1815,
+    utxo: true,
+    derive: true,
   },
   ADA_BSC: {
     id: "ADA_BSC",
@@ -246,6 +248,8 @@ export const assets = {
     decimals: 6,
     exp: "preprod.cardanoscan.io",
     coinType: 1815,
+    utxo: true,
+    derive: true,
   },
   ADAI: {
     id: "ADAI",

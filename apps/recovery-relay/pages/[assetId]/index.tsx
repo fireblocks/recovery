@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useId, useState } from 'react';
+import { ChangeEvent, useId, useState } from 'react';
 import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,6 +15,7 @@ import { Logo } from '../../components/Logo';
 import { ConfirmationModal } from '../../components/ConfirmationModal';
 import { AccountData, UTXO } from '../../lib/wallets/types';
 import { BaseWallet } from '../../lib/wallets';
+import { LateInitBaseWallet } from '../../lib/wallets/LateInitBaseWallet';
 
 type FormData = z.infer<typeof transactionInput>;
 
@@ -155,7 +156,8 @@ const Wallet: NextPageWithLayout = () => {
 
   const onSubmit = () => setIsConfirmationModalOpen(true);
 
-  const onConfirmTransaction = () => txMutation.mutate({ to: values.to, amount: values.amount });
+  const onConfirmTransaction = () =>
+    txMutation.mutate({ to: values.to, amount: values.amount, utxos: values.utxos, memo: values.memo });
 
   return (
     <Box
@@ -290,6 +292,30 @@ const Wallet: NextPageWithLayout = () => {
             {...register('memo')}
           />
         </Grid>
+        {derivation && derivation instanceof LateInitBaseWallet ? (
+          <Grid item xs={12}>
+            <TextField
+              id='endpoint'
+              label='Blockfrost Project Id or GraphQL Server Endpoint'
+              error={errors.to?.message}
+              disabled={txMutation.isLoading}
+              autoComplete='off'
+              autoCapitalize='off'
+              spellCheck={false}
+              isMonospace
+              {...register('endpoint')}
+              onChange={(evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+                // eslint-disable-next-line no-useless-catch
+                (derivation as LateInitBaseWallet).updateDataEndpoint(evt.target.value);
+                setTimeout(balanceQuery.refetch, 1000);
+                setTimeout(prepareQuery.refetch, 1000);
+              }}
+            />
+          </Grid>
+        ) : (
+          ''
+        )}
+
         {prepareQuery.isError
           ? 'Could not check UTXO data'
           : prepareQuery.data &&
