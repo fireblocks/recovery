@@ -13,7 +13,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "dependencies": {
-    "@emotion/cache": "^11.10.5",
+    "@emotion/cache": "^11.10.7",
     "@emotion/react": "^11.10.6",
     "@emotion/server": "^11.10.0",
     "@emotion/styled": "^11.10.6",
@@ -23,7 +23,7 @@
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.12.1",
     "@mui/styles": "^5.12.0",
-    "@mui/x-data-grid": "^6.0.1",
+    "@mui/x-data-grid": "^6.2.1",
     "@tanstack/react-query": "^4.29.3",
     "clsx": "^1.2.1",
     "copy-to-clipboard": "^3.3.3",
@@ -38,23 +38,23 @@
     "react-hook-form": "^7.43.9",
     "semver-regex": "^4.0.5",
     "superjson": "^1.12.2",
-    "webrtc-adapter": "^8.2.1",
+    "webrtc-adapter": "^8.2.2",
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@tanstack/react-query-devtools": "^4.26.1",
+    "@tanstack/react-query-devtools": "^4.29.3",
     "@types/react": "^18.0.37",
-    "@typescript-eslint/eslint-plugin": "^5.55.0",
-    "@typescript-eslint/parser": "^5.55.0",
-    "eslint": "^8.36.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.0",
+    "@typescript-eslint/parser": "^5.59.0",
+    "eslint": "^8.38.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-typescript": "^17.0.0",
-    "eslint-config-prettier": "^8.7.0",
+    "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "prettier": "^2.8.4",
+    "prettier": "^2.8.7",
     "typescript": "^5.0.4"
   }
 }
