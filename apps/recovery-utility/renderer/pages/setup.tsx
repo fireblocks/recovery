@@ -3,12 +3,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { pki } from 'node-forge';
-import { NextLinkComposed, TextField, Button, generateRsaKeypairInput } from '@fireblocks/recovery-shared';
+import { NextLinkComposed, TextField, Button, generateRsaKeypairInput, theme } from '@fireblocks/recovery-shared';
 import { Box, Grid, Typography, List, ListItem, ListItemText, ListItemAvatar, Avatar } from '@mui/material';
 import { download } from '@fireblocks/recovery-shared/lib/download';
 import { useConnectionTest } from '../context/ConnectionTest';
-import { Layout } from '../components/Layout';
-import type { NextPageWithLayout } from './_app';
 import { ChecksumModal } from '../components/Modals/ChecksumModal';
 
 type FormData = z.infer<typeof generateRsaKeypairInput>;
@@ -35,7 +33,9 @@ const generateRsaKeypair = (passphrase: string) =>
       const { privateKey, publicKey } = keypair;
 
       const privateKeyPem = pki.encryptRsaPrivateKey(privateKey, passphrase, {
+        legacy: true,
         algorithm: 'aes128',
+        prfAlgorithm: 'sha256',
       });
 
       const publicKeyPem = pki.publicKeyToPem(publicKey);
@@ -53,10 +53,8 @@ const generateRsaKeypair = (passphrase: string) =>
     });
   });
 
-const Setup: NextPageWithLayout = () => {
+const Setup = () => {
   const { isOnline } = useConnectionTest();
-
-  const machineSetupColor = isOnline ? 'error' : 'success';
 
   const [activeStep, setActiveStep] = useState<2 | 3 | 4 | 5>(2);
 
@@ -128,19 +126,29 @@ const Setup: NextPageWithLayout = () => {
 
   const hasPassphrase = !!watch('passphrase')?.trim();
 
+  const machineSetupColor = isOnline ? theme.palette.error.main : theme.palette.success.main;
+
+  const finalStepsColor = activeStep > 4 ? theme.palette.primary.main : undefined;
+
+  const stepColor = (step: 2 | 3 | 4 | 5) => {
+    if (activeStep > step) {
+      return theme.palette.success.main;
+    }
+
+    if (activeStep === step) {
+      return theme.palette.primary.main;
+    }
+
+    return undefined;
+  };
+
   return (
     <Box component='form' display='flex' flexDirection='column' marginBottom='2em' onSubmit={handleSubmit(onGenerateRsaKeypair)}>
       <Typography variant='h1'>Set Up Recovery Kit</Typography>
       <List sx={{ width: '100%' }} dense disablePadding>
         <ListItem sx={{ alignItems: 'flex-start' }}>
           <ListItemAvatar>
-            <Avatar
-              sx={{
-                background: (theme) => theme.palette[machineSetupColor].main,
-              }}
-            >
-              1
-            </Avatar>
+            <Avatar sx={{ background: machineSetupColor }}>1</Avatar>
           </ListItemAvatar>
           <ListItemText
             primary='Set up the offline recovery machine'
@@ -166,14 +174,7 @@ const Setup: NextPageWithLayout = () => {
         </ListItem>
         <ListItem sx={{ alignItems: 'flex-start' }}>
           <ListItemAvatar>
-            <Avatar
-              sx={{
-                background: (theme) =>
-                  activeStep > 2 ? theme.palette.success.main : activeStep === 2 ? theme.palette.primary.main : undefined,
-              }}
-            >
-              2
-            </Avatar>
+            <Avatar sx={{ background: stepColor(2) }}>2</Avatar>
           </ListItemAvatar>
           <ListItemText
             primary='Generate the recovery keypair'
@@ -225,14 +226,7 @@ const Setup: NextPageWithLayout = () => {
         </ListItem>
         <ListItem sx={{ alignItems: 'flex-start' }}>
           <ListItemAvatar>
-            <Avatar
-              sx={{
-                background: (theme) =>
-                  activeStep > 3 ? theme.palette.success.main : activeStep === 3 ? theme.palette.primary.main : undefined,
-              }}
-            >
-              3
-            </Avatar>
+            <Avatar sx={{ background: stepColor(3) }}>3</Avatar>
           </ListItemAvatar>
           <ListItemText
             primary='Send the recovery public key to Fireblocks'
@@ -259,14 +253,7 @@ const Setup: NextPageWithLayout = () => {
         </ListItem>
         <ListItem sx={{ alignItems: 'flex-start' }}>
           <ListItemAvatar>
-            <Avatar
-              sx={{
-                background: (theme) =>
-                  activeStep > 4 ? theme.palette.success.main : activeStep === 4 ? theme.palette.primary.main : undefined,
-              }}
-            >
-              4
-            </Avatar>
+            <Avatar sx={{ background: stepColor(4) }}>4</Avatar>
           </ListItemAvatar>
           <ListItemText
             primary='Approve the recovery public key'
@@ -285,13 +272,7 @@ const Setup: NextPageWithLayout = () => {
         </ListItem>
         <ListItem sx={{ alignItems: 'flex-start' }}>
           <ListItemAvatar>
-            <Avatar
-              sx={{
-                background: (theme) => (activeStep > 4 ? theme.palette.primary.main : undefined),
-              }}
-            >
-              5
-            </Avatar>
+            <Avatar sx={{ background: finalStepsColor }}>5</Avatar>
           </ListItemAvatar>
           <ListItemText
             primary='Download and secure the Recovery Kit'
@@ -314,13 +295,7 @@ const Setup: NextPageWithLayout = () => {
         </ListItem>
         <ListItem sx={{ alignItems: 'flex-start' }}>
           <ListItemAvatar>
-            <Avatar
-              sx={{
-                background: (theme) => (activeStep > 4 ? theme.palette.primary.main : undefined),
-              }}
-            >
-              6
-            </Avatar>
+            <Avatar sx={{ background: finalStepsColor }}>6</Avatar>
           </ListItemAvatar>
           <ListItemText
             primary='Check your key recovery materials'
@@ -343,13 +318,7 @@ const Setup: NextPageWithLayout = () => {
         </ListItem>
         <ListItem sx={{ alignItems: 'flex-start' }}>
           <ListItemAvatar>
-            <Avatar
-              sx={{
-                background: (theme) => (activeStep > 4 ? theme.palette.primary.main : undefined),
-              }}
-            >
-              7
-            </Avatar>
+            <Avatar sx={{ background: finalStepsColor }}>7</Avatar>
           </ListItemAvatar>
           <ListItemText
             primary='Verify Recovery Kit'
@@ -371,7 +340,5 @@ const Setup: NextPageWithLayout = () => {
     </Box>
   );
 };
-
-Setup.getLayout = (page) => <Layout>{page}</Layout>;
 
 export default Setup;

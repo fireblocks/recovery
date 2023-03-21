@@ -2,10 +2,6 @@ import { z } from 'zod';
 import { nonEmptyString } from './scalars';
 
 export const recoverKeysInput = z.object({
-  backupCsv: z
-    .custom<File>((value) => value instanceof File)
-    .nullable()
-    .describe('Address backup CSV file'),
   backupZip: nonEmptyString('Backup Kit is required').describe('Base64-encoded string representation of backup ZIP file'),
   passphrase: z.string().optional().describe('Recovery passphrase if not auto generated'),
   rsaKey: nonEmptyString('Recovery private key is required').describe('Recovery private key'),

@@ -1,21 +1,39 @@
 // Components
 export {
-  AssetIcon,
   BaseModal,
+  AddressesModal,
+  KeysModal,
+  RecoverAccountModal,
+  RecoverWalletModal,
   Button,
+  DataGrid,
   EmotionHeadTags,
+  ErrorBoundary,
   Glyph,
+  Layout,
   Link,
   NextLinkComposed,
   Logo,
   LogoHero,
-  SharedProviders,
-  TextField,
   QrCode,
   QrCodeScanner,
+  RelayRxTx,
+  Select,
+  SharedProviders,
+  TextField,
+  UploadWell,
 } from './components';
 
-export type { ButtonProps, ScanResult } from './components';
+export { AccountsIcon, AssetIcon, AssetsIcon, VaultAccountIcon, DepositAddressesIcon, KeyIcon, WithdrawIcon } from './components';
+
+export type { ButtonProps, LayoutProps, ScanResult, StatusBoxProps } from './components';
+
+// Pages
+export { ImportExportBasePage } from './pages/csv';
+export { ExtendedKeysBasePage } from './pages/keys';
+export { RelayBasePage } from './pages/relay';
+export { VaultBasePage } from './pages/accounts/vault';
+export { VaultAccountBasePage } from './pages/accounts/vault/[accountId]';
 
 // Document
 export { getInitialDocumentProps } from './lib/getInitialDocumentProps';
@@ -30,17 +48,7 @@ export * from './schemas';
 
 // Utils
 
-export type {
-  RelayBaseParameters,
-  RelayBalanceResponseParameters,
-  RelaySigningResponseParameters,
-  RelayBroadcastRequestParameters,
-  RelayParams,
-  AllRelayParams,
-  RelayPath,
-} from './lib/relayUrl';
-
-export { getRelayUrl, getRelayParams } from './lib/relayUrl';
+export { getRelayUrl, getRelayParams, getTxFromRelay } from './lib/relayUrl';
 
 export { stringToBytes, bytesToString } from './lib/stringBytes';
 

@@ -70,13 +70,4 @@ export interface Derivation {
 
   /** Encoded address */
   address: string;
-
-  /** Balance */
-  balance: {
-    native?: number;
-    usd?: number;
-  };
-
-  /** Last updated date */
-  lastUpdated?: Date;
 }

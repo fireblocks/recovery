@@ -1,3 +1,5 @@
+import type { Buffer } from 'buffer';
+
 export type UTXO = {
   txHash: string;
   index: number;
@@ -5,9 +7,33 @@ export type UTXO = {
   confirmed: boolean;
 };
 
+export type TxInput =
+  | ({
+      hash: string;
+      index: number;
+    } & {
+      witnessUtxo: {
+        script: Buffer;
+        value: number;
+      };
+    })
+  | {
+      nonWitnessUtxo: Buffer;
+    };
+
+// TODO: WIP
 export type AccountData = {
   balance: number;
+  inputs?: TxInput[];
   utxos?: UTXO[];
+  feeRate?: number;
+  nonce?: number;
+  gasPrice?: bigint | null;
+};
+
+export type TxBroadcastVariables = {
+  tx: string;
+  signature: RawSignature;
 };
 
 export type TxParamsRequest = {
@@ -31,7 +57,7 @@ export type TxParamsResponse = {
 };
 
 export type TxPayload = {
-  derivationPath: [number, number, number, number, number];
+  derivationPath: [44, number, number, number, number];
   tx: string;
 };
 

@@ -1,125 +1,180 @@
+import { nanoid } from 'nanoid';
 import JSONCrush from 'jsoncrush';
-
-// A Relay URL is the interface between Recovery Utility and Recovery Relay.
-// Relay URLs are encoded in QR codes which are scanned by either app to
-// update their workspace states. Recovery Relay accepts these URLs to derive
-// wallets from extended public keys, enabling balance queries and transaction
-// creation. Recovery Utility accepts URLs using its URL scheme
-// fireblocks-recovery:// to update wallet balances and sign transactions.
-
-/**
- * Requests from Utility to Relay to load wallet(s)
- */
-export type RelayBaseParameters = {
-  xpub?: string;
-  fpub?: string;
-  assetId?: string;
-  accountId?: number;
-};
-
-export type RelayBalanceResponse = {
-  assetId: string;
-  accountId: number;
-  addressIndex?: number;
-  address?: string;
-  isLegacy?: boolean;
-  isTestnet?: boolean;
-  native: number;
-  usd?: number;
-};
+import { Transaction } from '../types';
+import {
+  relayImportRequestParams,
+  relayCreateTxRequestParams,
+  relayBroadcastTxRequestParams,
+  relaySignTxResponseParams,
+  RelayParams,
+  RelayRequestParams,
+  RelayResponseParams,
+} from '../schemas/relayUrl';
 
 /**
- * Responses from Relay to Utility to get balances
+ * Get a Relay URL parameters validation schema for a given action
+ *
+ * @param action Relay action
+ * @param app Targeted app (relay or utility)
+ * @returns Relay URL parameters validation schema
  */
-export type RelayBalanceResponseParameters = {
-  balances: RelayBalanceResponse[];
-};
+const getSchema = (action: RelayParams['action'], app: 'utility' | 'relay') => {
+  const error = new Error(`Invalid ${app} action: ${action}`);
 
-/**
- * Responses from Relay to Utility to sign a transaction
- */
-export type RelaySigningResponseParameters = {
-  txId: string;
-  assetId: string;
-  accountId: number;
-  addressIndex: number;
-  from: string;
-  to: string;
-  remaining: number;
-  amount: number;
-  txHex: string;
-};
-
-/**
- * Requests from Utility to Relay to broadcast a transaction
- */
-export type RelayBroadcastRequestParameters = {
-  xpub?: string;
-  fpub?: string;
-  txId: string;
-  assetId: string;
-  accountId: number;
-  addressIndex: number;
-  from: string;
-  to: string;
-  amount: number;
-  txHex: string;
-  signature: string;
-};
-
-type RelayPathParams = {
-  '/': RelayBaseParameters;
-  '/balances': RelayBalanceResponseParameters;
-  '/sign': RelaySigningResponseParameters;
-  '/broadcast': RelayBroadcastRequestParameters;
-};
-
-export type RelayPath = keyof RelayPathParams;
-
-export type RelayParams<T extends RelayPath = RelayPath> = RelayPathParams[T];
-
-export type AllRelayParams = Partial<
-  RelayBaseParameters & RelayBalanceResponseParameters & RelaySigningResponseParameters & RelayBroadcastRequestParameters
->;
-
-export const getRelayUrl = <P extends RelayPath>(path: P, params: RelayParams<P>, baseUrl: string) => {
-  let relayUrl = `${baseUrl}${path}`;
-
-  if (Object.keys(params).every((key) => !params[key as keyof typeof params])) {
-    return relayUrl;
+  if (app === 'relay') {
+    switch (action) {
+      case 'import':
+        return relayImportRequestParams;
+      case 'tx/create':
+        return relayCreateTxRequestParams;
+      case 'tx/broadcast':
+        return relayBroadcastTxRequestParams;
+      default:
+        throw error;
+    }
   }
 
-  const compressedParams = JSONCrush.crush(JSON.stringify(params));
+  if (app === 'utility' && action === 'tx/sign') {
+    return relaySignTxResponseParams;
+  }
 
-  const encodedParams = encodeURIComponent(compressedParams);
+  throw error;
+};
 
-  relayUrl = `${relayUrl}#${encodedParams}`;
+/**
+ * Get parameters from a Relay URL
+ *
+ * @param app Targeted app (relay or utility)
+ * @param relayUrl Relay URL
+ * @returns Relay URL parameters
+ */
+export const getRelayParams = <
+  Params extends App extends 'utility' ? RelayResponseParams : RelayRequestParams,
+  App extends 'utility' | 'relay',
+>(
+  app: App,
+  relayUrl: string,
+) => {
+  const url = new URL(relayUrl);
+
+  // Extract account ID from URL path
+  const pathMatch = url.pathname.match(/\/accounts\/vault\/([0-9]+)/);
+
+  const accountId = pathMatch?.[1] ? parseInt(pathMatch[1], 10) : undefined;
+
+  // Extract parameters from URL hash
+  const encodedParams = url.hash.split('#')[1];
+
+  if (!encodedParams) {
+    throw new Error('No parameters found in Relay URL');
+  }
+
+  // Decode parameters
+  const compressedParams = decodeURIComponent(encodedParams);
+
+  // Decompress parameters
+  const decompressedParams = JSONCrush.uncrush(compressedParams);
+
+  if (!decompressedParams) {
+    throw new Error('Relay URL parameter decompression failed');
+  }
+
+  const parsedParams = { accountId, ...JSON.parse(decompressedParams) } as Params;
+
+  const schema = getSchema(parsedParams.action, app);
+
+  // Validate parameters
+  const validatedParams = schema.parse(parsedParams) as Params;
+
+  return validatedParams;
+};
+
+/**
+ * Get a Relay URL from a base URL and parameters
+ *
+ * @param target Targeted app (relay or utility)
+ * @param baseUrl Relay base URL of the destination app (e.g. https://relay.fireblocks.solutions or fireblocks-recovery://)
+ * @param params Relay URL parameters
+ * @returns Relay URL
+ */
+export const getRelayUrl = <
+  Params extends Target extends 'relay' ? RelayRequestParams : RelayResponseParams,
+  Target extends 'relay' | 'utility',
+>(
+  target: Target,
+  baseUrl: string,
+  params: Params,
+) => {
+  const schema = getSchema(params.action, target);
+
+  // Validate parameters
+  const parsedParams = schema.parse(params);
+
+  // Extract account ID from parameters as it's part of the URL path, not the hash
+  const { accountId, ...hashParams } = parsedParams;
+
+  // Compress hash parameters
+  const compressedHashParams = JSONCrush.crush(JSON.stringify(hashParams));
+
+  // Encode hash parameters
+  const encodedHashParams = encodeURIComponent(compressedHashParams);
+
+  const relayUrl = `${baseUrl}/accounts/vault/${accountId}#${encodedHashParams}` as const;
 
   return relayUrl;
 };
 
-export const getRelayParams = <P extends RelayPath = RelayPath>(url: string) => {
-  const segments = url.split('/');
+const REQUIRED_TX_TRANSACTION_KEYS: (keyof Transaction)[] = [
+  'id',
+  'assetId',
+  'accountId',
+  'addressIndex',
+  'from',
+  'to',
+  'amount',
+  'hex',
+];
 
-  const path = segments[segments.length - 1] as P;
+export const getTxFromRelay = (txInput: Partial<Transaction>) => {
+  const {
+    id = nanoid(),
+    state = txInput.signature ? 'signed' : 'created',
+    assetId,
+    accountId = 0,
+    addressIndex = 0,
+    from,
+    to,
+    amount = 0,
+    remainingBalance = 0,
+    memo,
+    contractCall,
+    hex,
+    signature,
+    hash,
+    error,
+  } = txInput;
 
-  const encodedParams = path.split('#')[1];
+  const hasTransaction = REQUIRED_TX_TRANSACTION_KEYS.every((key) => typeof txInput[key] !== 'undefined');
 
-  if (!encodedParams) {
-    console.warn('No Relay parameters found in URL');
-    return undefined;
+  if (hasTransaction) {
+    return {
+      id,
+      state,
+      assetId: assetId as string,
+      accountId,
+      addressIndex,
+      from: from as string,
+      to: to as string,
+      amount,
+      remainingBalance,
+      memo,
+      contractCall,
+      hex,
+      signature,
+      hash,
+      error,
+    };
   }
 
-  const compressedParams = decodeURIComponent(encodedParams);
-
-  const decompressedParams = JSONCrush.uncrush(compressedParams);
-
-  if (!decompressedParams) {
-    console.warn('Relay parameter decompression failed');
-    return undefined;
-  }
-
-  const params = JSON.parse(decompressedParams) as RelayParams<P>;
-
-  return { path, params };
+  return undefined;
 };

@@ -2,7 +2,7 @@ import React, { useId, ReactNode, ComponentType, Fragment } from 'react';
 import { Dialog, DialogProps, DialogTitle, DialogContent, DialogActions, Typography, IconButton } from '@mui/material';
 import { Close } from '@mui/icons-material';
 
-type Props = Omit<DialogProps, 'onClose'> & {
+type Props = Omit<DialogProps, 'title' | 'onClose'> & {
   title?: ReactNode;
   actions?: ReactNode;
   WrapperComponent?: ComponentType<{ children: ReactNode }>;

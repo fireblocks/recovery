@@ -1,8 +1,9 @@
 import 'webrtc-adapter';
 import React, { useState, useRef, useId, useCallback, useEffect } from 'react';
 import QrScanner from 'qr-scanner';
-import { Box, Grid, CircularProgress, FormControl, InputLabel, NativeSelect, IconButton } from '@mui/material';
+import { Box, Grid, CircularProgress, SelectChangeEvent, IconButton } from '@mui/material';
 import { QrCodeScanner as QrCodeScannerIcon, FlashlightOn, FlashlightOff } from '@mui/icons-material';
+import { Select } from '../Select';
 
 export type ScanResult = QrScanner.ScanResult;
 
@@ -24,18 +25,17 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
   const FlashIcon = flash ? FlashlightOn : FlashlightOff;
 
   const iconProps = {
-    color: '#FFF',
     position: 'absolute',
     top: '50%',
     left: '50%',
     zIndex: '2',
   };
 
-  const handleCameraChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleCameraChange = async (event: SelectChangeEvent<unknown>) => {
     if (qrScannerRef.current) {
       setIsLoading(true);
 
-      const facingModeOrDeviceId = event.target.value;
+      const facingModeOrDeviceId = event.target.value as string;
 
       await qrScannerRef.current.setCamera(facingModeOrDeviceId);
 
@@ -83,104 +83,90 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
     }
   }, [onDecode, preferredCamera]);
 
-  // const stopScanner = () => {};
-
   useEffect(() => {
+    const stopScanner = () => {
+      if (qrScannerRef.current) {
+        qrScannerRef.current.destroy();
+        qrScannerRef.current = null;
+      }
+    };
+
+    stopScanner();
     startScanner();
 
-    if (qrScannerRef.current) {
-      qrScannerRef.current.destroy();
-      qrScannerRef.current = null;
-    }
+    return () => {
+      stopScanner();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <Box width='100%' height='100%' overflow='hidden' position='relative' sx={{ aspectRatio: '1' }}>
-      {isLoading ? (
-        <CircularProgress
-          size='48px'
-          color='primary'
-          sx={{
-            ...iconProps,
-            marginTop: '-24px',
-            marginLeft: '-24px',
-          }}
-        />
-      ) : (
-        <QrCodeScannerIcon
-          sx={{
-            ...iconProps,
-            width: '25%',
-            height: '25%',
-            transform: 'translate(-50%, -50%)',
-          }}
-        />
-      )}
-      {!!(cameras.length || typeof flash === 'boolean') && (
+    <Box width='100%' display='flex' flexDirection='column'>
+      <Box overflow='hidden' position='relative' sx={{ aspectRatio: '1' }}>
+        {isLoading ? (
+          <CircularProgress
+            size='48px'
+            color='primary'
+            sx={(theme) => ({
+              ...iconProps,
+              color: theme.palette.primary.main,
+              marginTop: '-24px',
+              marginLeft: '-24px',
+            })}
+          />
+        ) : (
+          <QrCodeScannerIcon
+            sx={{
+              ...iconProps,
+              color: '#FFF',
+              width: '25%',
+              height: '25%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          />
+        )}
         <Box
-          padding='1em 1em 0 1em'
+          component='video'
+          ref={videoRef}
+          muted
+          playsInline
+          controls={false}
           width='100%'
+          height='100%'
           position='absolute'
-          bottom='0'
+          top='0'
           left='0'
-          zIndex='3'
-          color='#FFF'
-          sx={{ backgroundColor: 'rgba(0, 0, 0, 0.25)', backdropFilter: 'blur(15px)' }}
-        >
-          <Grid container spacing={2} alignItems='center' justifyContent='space-between'>
-            <Grid item>
-              {!!cameras.length && (
-                <FormControl fullWidth variant='standard' sx={{ color: '#FFF' }}>
-                  <InputLabel variant='standard' htmlFor={cameraSelectId} sx={{ color: '#FFF !important' }}>
-                    Camera
-                  </InputLabel>
-                  <NativeSelect
-                    variant='standard'
-                    defaultValue={preferredCamera ?? cameras[0].id}
-                    inputProps={{
-                      name: 'camera',
-                      id: cameraSelectId,
-                    }}
-                    onChange={handleCameraChange}
-                    sx={{ color: '#FFF', '&:before': { borderColor: '#FFF' } }}
-                  >
-                    {cameras.map((camera) => (
-                      <option key={camera.id} value={camera.id}>
-                        {camera.label}
-                      </option>
-                    ))}
-                  </NativeSelect>
-                </FormControl>
-              )}
-            </Grid>
-            <Grid item>
-              {typeof flash === 'boolean' && (
+          sx={{
+            background: (theme) => theme.palette.grey[300],
+            objectFit: 'cover',
+            pointerEvents: 'none',
+          }}
+        />
+      </Box>
+      {!!(cameras.length || typeof flash === 'boolean') && (
+        <Box marginTop='1em'>
+          <Grid container spacing={1} flexWrap='nowrap' alignItems='flex-end' justifyContent='space-between'>
+            {!!cameras.length && (
+              <Grid item flex={1} sx={{ overflowX: 'hidden' }}>
+                <Select
+                  id={cameraSelectId}
+                  label='Camera'
+                  value={(preferredCamera ?? cameras[0].id) as unknown}
+                  onChange={handleCameraChange}
+                  items={cameras.map((camera) => ({ value: camera.id, children: camera.label }))}
+                />
+              </Grid>
+            )}
+            {typeof flash === 'boolean' && (
+              <Grid item>
                 <IconButton aria-label={`Turn flash ${flash ? 'off' : 'on'}`} color='inherit' onClick={handleFlashChange}>
                   <FlashIcon />
                 </IconButton>
-              )}
-            </Grid>
+              </Grid>
+            )}
           </Grid>
         </Box>
       )}
-      <Box
-        component='video'
-        ref={videoRef}
-        muted
-        playsInline
-        controls={false}
-        width='100%'
-        height='100%'
-        position='absolute'
-        top='0'
-        left='0'
-        sx={{
-          background: (theme) => theme.palette.grey[300],
-          objectFit: 'cover',
-          pointerEvents: 'none',
-        }}
-      />
     </Box>
   );
 };

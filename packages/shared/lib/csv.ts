@@ -1,28 +1,11 @@
 import { LocalFile, parse, unparse } from 'papaparse';
-import { addressCsv } from '../schemas';
+import { z } from 'zod';
+import { addressesCsv, AddressesCsv, balancesCsv, BalancesCsv } from '../schemas';
 
 /**
- * Parsed row
+ * Addresses CSV row
  */
-export type ParsedRow = {
-  accountName?: string;
-  accountId: number;
-  assetId: string;
-  assetName: string;
-  address: string;
-  addressType: 'Permanent' | 'Deposit';
-  addressDescription?: string;
-  tag?: string;
-  pathParts: number[];
-  publicKey?: string;
-  privateKey?: string;
-  privateKeyWif?: string;
-};
-
-/**
- * CSV row
- */
-type CsvRow = {
+type AddressesCsvRow = {
   'Account Name'?: string;
   'Account ID': number;
   Asset: string;
@@ -38,31 +21,28 @@ type CsvRow = {
 };
 
 /**
- * Parsed row properties
+ * Balances CSV row
  */
-const props: Array<keyof ParsedRow> = [
-  'accountName',
-  'accountId',
-  'assetId',
-  'assetName',
-  'address',
-  'addressType',
-  'addressDescription',
-  'tag',
-  'pathParts',
-  'publicKey',
-  'privateKey',
-  'privateKeyWif',
-];
+type BalancesCsvRow = {
+  'Account Name'?: string;
+  'Account ID': number;
+  Asset: string;
+  'Asset Name': string;
+  'Total Balance': number;
+  'Total Balance - Last Update': string;
+  'HD Path': string;
+};
 
 /**
- * CSV headers
+ * Addresses CSV headers
  */
-const headers: Array<keyof CsvRow> = [
+const addressesCsvHeaders: Array<keyof AddressesCsvRow | keyof BalancesCsvRow> = [
   'Account Name',
   'Account ID',
   'Asset',
   'Asset Name',
+  'Total Balance',
+  'Total Balance - Last Update',
   'Address',
   'Address Type',
   'Address Description',
@@ -73,24 +53,76 @@ const headers: Array<keyof CsvRow> = [
   'Private Key (WIF)',
 ];
 
-const parseRow = (row: CsvRow) => {
+/**
+ * Balances CSV headers
+ */
+const balancesCsvHeaders: Array<keyof AddressesCsvRow | keyof BalancesCsvRow> = [
+  'Account Name',
+  'Account ID',
+  'Asset',
+  'Asset Name',
+  'Total Balance',
+  'Total Balance - Last Update',
+  'HD Path',
+];
+
+const parseRow = <T extends 'addresses' | 'balances'>(row: T extends 'addresses' ? AddressesCsvRow : BalancesCsvRow, type: T) => {
   try {
-    const parsedRow = props.reduce((acc, prop, index) => {
-      const header = headers[index];
+    if (type === 'addresses') {
+      const {
+        'Account Name': accountName,
+        'Account ID': accountId,
+        Asset: assetId,
+        'Asset Name': assetName,
+        Address: address,
+        'Address Type': addressType,
+        'Address Description': addressDescription,
+        Tag: tag,
+        'HD Path': path,
+        'Public Key': publicKey,
+        'Private Key': privateKey,
+        'Private Key (WIF)': privateKeyWif,
+      } = row as AddressesCsvRow;
 
-      let value: string | number | number[] | undefined = row[header];
+      const pathParts = path.match(/(\d+)/g)?.map(Number);
 
-      if (prop === 'pathParts') {
-        value = (value as string)
-          .split(' / ')
-          .filter((part) => part !== 'm')
-          .map(Number);
-      }
+      return addressesCsv.parse({
+        accountName,
+        accountId,
+        assetId,
+        assetName,
+        address,
+        addressType,
+        addressDescription,
+        tag,
+        pathParts,
+        publicKey,
+        privateKey,
+        privateKeyWif,
+      });
+    }
 
-      return { ...acc, [prop]: value ?? undefined };
-    }, {} as ParsedRow);
+    const {
+      'Account Name': accountName,
+      'Account ID': accountId,
+      Asset: assetId,
+      'Asset Name': assetName,
+      'Total Balance': totalBalance,
+      'Total Balance - Last Update': lastUpdate,
+      'HD Path': path,
+    } = row as BalancesCsvRow;
 
-    return addressCsv.parse(parsedRow);
+    const partialPathParts = path.match(/(\d+)/g)?.map(Number);
+
+    return balancesCsv.parse({
+      accountName,
+      accountId,
+      assetId,
+      assetName,
+      totalBalance,
+      lastUpdate: new Date(lastUpdate),
+      partialPathParts,
+    });
   } catch (error) {
     console.error(error);
 
@@ -98,9 +130,13 @@ const parseRow = (row: CsvRow) => {
   }
 };
 
-export const csvImport = async (csvFile: LocalFile, handleRow: (row: ParsedRow) => void) =>
+export const csvImport = async <T extends 'addresses' | 'balances'>(
+  csvFile: LocalFile,
+  type: T,
+  handleRow: (row: T extends 'addresses' ? AddressesCsv : BalancesCsv) => void,
+) =>
   new Promise<void>((resolve, reject) => {
-    parse<CsvRow>(csvFile, {
+    parse<T extends 'addresses' ? AddressesCsvRow : BalancesCsvRow>(csvFile, {
       worker: true,
       header: true,
       dynamicTyping: true,
@@ -112,7 +148,7 @@ export const csvImport = async (csvFile: LocalFile, handleRow: (row: ParsedRow) 
           return;
         }
 
-        const row = parseRow(data);
+        const row = parseRow(data, type) as T extends 'addresses' ? AddressesCsv : BalancesCsv;
 
         handleRow(row);
       },
@@ -120,8 +156,12 @@ export const csvImport = async (csvFile: LocalFile, handleRow: (row: ParsedRow) 
     });
   });
 
-export const csvExport = (rows: ParsedRow[]) => {
-  const data = rows.map((row) => props.map((prop) => row[prop]));
+export const csvExport = <T extends typeof addressesCsv | typeof balancesCsv>(rows: z.infer<T>[], schema: T) => {
+  const props = Object.keys(schema.keyof().enum) as (T extends typeof addressesCsv ? keyof AddressesCsv : keyof BalancesCsv)[];
+
+  const data = rows.map((row) => props.map((prop) => row[prop as keyof typeof row]));
+
+  const headers = schema === addressesCsv ? addressesCsvHeaders : balancesCsvHeaders;
 
   const csv = unparse({ data, fields: headers });
 

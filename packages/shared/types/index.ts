@@ -7,6 +7,7 @@ export type Wallet<T extends BaseWallet = BaseWallet> = {
     native?: number;
     usd?: number;
   };
+  lastUpdated?: Date;
   /** Map of addresses to derivations */
   derivations: Map<string, T>;
 };

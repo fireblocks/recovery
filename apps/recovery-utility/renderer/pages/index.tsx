@@ -1,11 +1,8 @@
 import { ReactNode } from 'react';
 import { Grid, Typography, SxProps } from '@mui/material';
-import { LeakAdd, ManageHistory, Restore, Verified, Warning } from '@mui/icons-material';
-import { Button, NextLinkComposed } from '@fireblocks/recovery-shared';
-import type { NextPageWithLayout } from './_app';
+import { ImportExport, ManageHistory, Restore, Verified, Warning } from '@mui/icons-material';
+import { Button, NextLinkComposed, KeyIcon, VaultAccountIcon } from '@fireblocks/recovery-shared';
 import { useWorkspace } from '../context/Workspace';
-import { Layout } from '../components/Layout';
-import { KeyIcon, VaultAccountIcon } from '../components/Icons';
 
 const buttonStyles: SxProps = {
   padding: '0.2rem',
@@ -51,13 +48,13 @@ const BoxButton = ({ icon: Icon, title, description, color = 'primary', href, di
   </Button>
 );
 
-const Index: NextPageWithLayout = () => {
+const Index = () => {
   const { extendedKeys: { xpub, fpub, xprv, fprv } = {} } = useWorkspace();
 
   const hasExtendedKeys = !!xpub || !!fpub || !!xprv || !!fprv;
 
   return (
-    <Grid container justifyContent='center' alignItems='center' height='100%' padding='rem'>
+    <Grid container justifyContent='center' alignItems='center' height='100%' padding='0.5rem'>
       <Grid item xs={11}>
         <Grid container spacing={2}>
           <Grid item xs={12}>
@@ -112,11 +109,11 @@ const Index: NextPageWithLayout = () => {
           </Grid>
           <Grid item xs={4}>
             <BoxButton
-              icon={LeakAdd}
-              title='Connect Wallets'
-              description='Query balances & transfer'
+              icon={ImportExport}
+              title='Import / Export Vault'
+              description='Addresses CSV'
               color='primary'
-              href='/relay'
+              href='/csv'
               disabled={!hasExtendedKeys}
             />
           </Grid>
@@ -125,7 +122,5 @@ const Index: NextPageWithLayout = () => {
     </Grid>
   );
 };
-
-Index.getLayout = (page) => <Layout>{page}</Layout>;
 
 export default Index;

@@ -1,8 +1,14 @@
 import { ReactNode } from 'react';
-import { darken, Box } from '@mui/material';
-import { CloudOutlined } from '@mui/icons-material';
-import { Sidebar } from './components/Sidebar';
+import { CloudOutlined, Restore, Verified, /* LeakAdd, */ ImportExport, ManageHistory, Settings } from '@mui/icons-material';
+import {
+  Layout as BaseLayout,
+  LayoutProps as BaseLayoutProps,
+  StatusBoxProps,
+  AccountsIcon,
+  KeyIcon,
+} from '@fireblocks/recovery-shared';
 import { useConnectionTest } from '../../context/ConnectionTest';
+import { useWorkspace } from '../../context/Workspace';
 
 type Props = {
   children: ReactNode;
@@ -11,51 +17,85 @@ type Props = {
 export const Layout = ({ children }: Props) => {
   const { isOnline } = useConnectionTest();
 
+  const { extendedKeys: { xpub, fpub, xprv, fprv } = {} } = useWorkspace();
+
+  const hasExtendedPrivateKeys = !!xprv || !!fprv;
+  const hasExtendedPublicKeys = !!xpub || !!fpub;
+  const hasOnlyExtendedPublicKeys = hasExtendedPublicKeys && !hasExtendedPrivateKeys;
+  const hasExtendedKeys = hasExtendedPublicKeys || hasExtendedPrivateKeys;
+
+  let status: StatusBoxProps | undefined;
+
+  if (hasExtendedPrivateKeys) {
+    status = { icon: Restore, text: 'Recovered private keys' };
+  } else if (hasOnlyExtendedPublicKeys) {
+    status = { icon: Verified, text: 'Verifying public keys' };
+  }
+
+  const navLinks: BaseLayoutProps['navLinks'] = [
+    {
+      label: 'Accounts',
+      path: '/accounts/vault',
+      icon: AccountsIcon,
+      disabled: !hasExtendedKeys,
+    },
+    // {
+    //   label: 'Relay',
+    //   path: '/relay',
+    //   icon: LeakAdd,
+    //   disabled: !hasExtendedKeys,
+    // },
+    {
+      label: 'Import / Export',
+      path: '/csv',
+      icon: ImportExport,
+      disabled: !hasExtendedKeys,
+    },
+    {
+      label: 'Set Up',
+      path: '/setup',
+      icon: ManageHistory,
+    },
+    {
+      label: 'Verify',
+      path: '/verify',
+      icon: Verified,
+    },
+    {
+      label: 'Recover',
+      path: '/recover',
+      icon: Restore,
+      color: 'error',
+    },
+    {
+      label: 'Extended Keys',
+      path: '/keys',
+      icon: KeyIcon,
+    },
+    {
+      label: 'Settings',
+      path: '/settings',
+      icon: Settings,
+    },
+  ];
+
   return (
-    <Box
-      height='100%'
-      display='grid'
-      gridTemplateColumns='225px 1fr'
-      gridTemplateRows={`${isOnline ? 'min-content ' : ''} 1fr`}
-      gridTemplateAreas={`${isOnline ? '"notice notice" ' : ''} "sidebar main"`}
+    <BaseLayout
+      title='Recovery Utility'
+      description='Recover Fireblocks assets and keys in a disaster, verify a Recovery Kit, or generate keys to set up a new Recovery Kit.'
+      navLinks={navLinks}
+      status={status}
+      notice={
+        isOnline ? (
+          <>
+            <CloudOutlined sx={{ marginRight: '0.5rem' }} />
+            This machine is connected to a network. Please disconnect.
+          </>
+        ) : undefined
+      }
+      noticeLevel={isOnline ? 'error' : undefined}
     >
-      {isOnline && (
-        <Box
-          component='aside'
-          gridArea='notice'
-          padding='0.5em 1em'
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
-          textAlign='center'
-          fontWeight='600'
-          color='#FFF'
-          zIndex='2'
-          sx={(theme) => ({
-            backgroundImage: `repeating-linear-gradient(45deg, ${darken(theme.palette.error.main, 0.1)}, ${darken(
-              theme.palette.error.main,
-              0.1,
-            )} 1rem, ${theme.palette.error.main} 1rem, ${theme.palette.error.main} 2rem)`,
-            backgroundSize: '200% 100%',
-            animation: 'barberpole 30s linear infinite',
-            '@keyframes barberpole': {
-              from: {
-                backgroundPosition: 'right',
-              },
-              to: {
-                backgroundPosition: 'left',
-              },
-            },
-          })}
-        >
-          <CloudOutlined sx={{ marginRight: '0.5rem' }} />
-          This machine is connected to a network. Please disconnect.
-        </Box>
-      )}
-      <Sidebar />
-      <Box component='main' gridArea='main' padding='1em' overflow='auto'>
-        {children}
-      </Box>
-    </Box>
+      {children}
+    </BaseLayout>
   );
 };

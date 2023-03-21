@@ -1,19 +1,33 @@
 import { createContext, useContext, useEffect, ReactNode } from 'react';
+import {
+  useBaseWorkspace,
+  defaultBaseWorkspaceContext,
+  BaseWorkspaceContext,
+  RelayRequestParams,
+} from '@fireblocks/recovery-shared';
+import { BaseWallet, deriveWallet } from '@fireblocks/wallet-derivation';
 import { useRouter } from 'next/router';
-import { useBaseWorkspace, defaultBaseWorkspaceContext, BaseWorkspaceContext } from '@fireblocks/recovery-shared';
-import { deriveWallet } from '@fireblocks/wallet-derivation';
-import { getAssetConfig } from '@fireblocks/asset-config';
+import packageJson from '../../package.json';
 import { initIdleDetector } from '../lib/idleDetector';
+import { handleRelayUrl } from '../lib/ipc/handleRelayUrl';
 import { useSettings } from './Settings';
 
-const Context = createContext(defaultBaseWorkspaceContext);
+type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K> : never;
+
+type RelayRequestParamsInput = DistributiveOmit<RelayRequestParams, 'xpub' | 'fpub' | 'version' | 'platform'>;
+
+type WorkspaceContext = Omit<BaseWorkspaceContext<BaseWallet, 'utility'>, 'setWalletBalance' | 'getOutboundRelayUrl'> & {
+  getOutboundRelayUrl: <Params extends RelayRequestParamsInput>(params: Params) => string;
+};
+
+const Context = createContext<WorkspaceContext>(defaultBaseWorkspaceContext as WorkspaceContext);
 
 type Props = {
   children: ReactNode;
 };
 
 export const WorkspaceProvider = ({ children }: Props) => {
-  const { push, query } = useRouter();
+  const { push } = useRouter();
 
   const settings = useSettings();
 
@@ -21,34 +35,40 @@ export const WorkspaceProvider = ({ children }: Props) => {
 
   const {
     extendedKeys,
-    asset: currentAsset,
-    account: currentAccount,
+    account,
     accounts,
     transactions,
-    getRelayUrl,
-    restoreWorkspace,
-    setWorkspaceFromRelayUrl,
+    inboundRelayParams,
+    setInboundRelayUrl,
+    getOutboundRelayUrl: baseGetOutboundRelayUrl,
+    importCsv,
     setExtendedKeys,
     setTransaction,
-    setAsset,
-    setAccount,
     addAccount,
     addWallet,
-    reset: resetBaseWorkspace,
+    reset,
   } = useBaseWorkspace({
+    app: 'utility',
     relayBaseUrl,
     deriveWallet,
   });
 
-  const asset = currentAsset ?? getAssetConfig(query.assetId as string);
+  const getOutboundRelayUrl = <Params extends RelayRequestParamsInput>(params: Params) => {
+    const { xpub, fpub } = extendedKeys || {};
 
-  const account =
-    currentAccount ??
-    (typeof query.accountId !== 'undefined' ? accounts.get(parseInt(query.accountId as string, 10)) : undefined);
+    if (!xpub || !fpub) {
+      throw new Error('Missing extended keys');
+    }
 
-  const reset = () => {
-    resetBaseWorkspace();
-    push('/');
+    const platform = navigator.userAgentData?.platform ?? 'Unknown';
+
+    return baseGetOutboundRelayUrl({
+      xpub,
+      fpub,
+      version: packageJson.version,
+      platform,
+      ...params,
+    });
   };
 
   useEffect(() => {
@@ -64,26 +84,36 @@ export const WorkspaceProvider = ({ children }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idleMinutes]);
 
+  useEffect(() => {
+    handleRelayUrl((relayUrl) => {
+      setInboundRelayUrl(relayUrl);
+
+      const pathname = new URL(relayUrl).pathname.replace('//', '/');
+
+      push(pathname);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // eslint-disable-next-line react/jsx-no-constructed-context-values
-  const value: BaseWorkspaceContext = {
+  const value: WorkspaceContext = {
     extendedKeys,
-    asset,
     account,
     accounts,
     transactions,
-    getRelayUrl,
-    restoreWorkspace,
-    setWorkspaceFromRelayUrl,
+    inboundRelayParams,
+    setInboundRelayUrl,
+    getOutboundRelayUrl,
+    importCsv,
     setExtendedKeys,
     setTransaction,
-    setAsset,
-    setAccount,
     addAccount,
     addWallet,
     reset,
   };
 
   if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
     console.info('Settings', settings);
   }
 

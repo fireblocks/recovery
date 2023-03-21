@@ -1,27 +1,35 @@
-import { AssetConfig } from '@fireblocks/asset-config';
 import { BaseWallet } from '@fireblocks/wallet-derivation';
 import type { LocalFile } from 'papaparse';
-import { RelayPath, RelayParams } from '../../lib/relayUrl';
-import type { ExtendedKeys } from '../../schemas';
-import type { VaultAccount, Transaction } from '../../types';
+import type { ExtendedKeys, RelayRequestParams, RelayResponseParams } from '../../schemas';
+import type { VaultAccount, Transaction, Wallet } from '../../types';
 
-export type BaseWorkspace<T extends BaseWallet = BaseWallet> = {
+export type BaseWorkspaceInput<Derivation extends BaseWallet = BaseWallet> = {
   extendedKeys?: ExtendedKeys;
-  asset?: AssetConfig;
-  account?: VaultAccount<T>;
-  accounts: Map<number, VaultAccount<T>>;
+  accounts: Map<number, VaultAccount<Derivation>>;
   transactions: Map<string, Transaction>;
 };
 
-export type BaseWorkspaceContext<T extends BaseWallet = BaseWallet> = BaseWorkspace<T> & {
-  getRelayUrl: <P extends RelayPath = RelayPath>(path: P, params: RelayParams<P>) => string;
-  restoreWorkspace: (extendedKeys?: Partial<ExtendedKeys>, csvFile?: LocalFile) => Promise<void>;
-  setWorkspaceFromRelayUrl: <P extends RelayPath>(url: string) => { path: P; params: RelayParams<P> } | undefined;
+export type BaseWorkspace<
+  Derivation extends BaseWallet = BaseWallet,
+  App extends 'utility' | 'relay' = 'utility',
+> = BaseWorkspaceInput<Derivation> & {
+  account?: VaultAccount<Derivation>;
+  inboundRelayParams?: App extends 'utility' ? RelayResponseParams : RelayRequestParams;
+};
+
+export type BaseWorkspaceContext<
+  Derivation extends BaseWallet = BaseWallet,
+  App extends 'utility' | 'relay' = 'utility',
+> = BaseWorkspace<Derivation, App> & {
+  setInboundRelayUrl: (relayUrl: string | null) => void;
+  getOutboundRelayUrl: <Params extends App extends 'utility' ? RelayRequestParams : RelayResponseParams>(
+    params: Params,
+  ) => string;
   setExtendedKeys: (extendedKeys: ExtendedKeys) => void;
+  importCsv: (addressesCsv?: LocalFile, balancesCsv?: LocalFile) => Promise<void>;
   setTransaction: (transaction: Transaction) => void;
-  setAsset: (assetId: string) => void;
-  setAccount: (accountId: number) => void;
   addAccount: (name: string, accountId?: number) => number;
-  addWallet: (assetId: string, accountId: number, addressIndex?: number) => void;
+  addWallet: (assetId: string, accountId: number, addressIndex?: number) => Wallet<Derivation> | undefined;
+  setWalletBalance: (assetId: string, accountId: number, balance: number) => void;
   reset: () => void;
 };

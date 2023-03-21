@@ -1,12 +1,10 @@
 import * as web3 from '@solana/web3.js';
 import { Solana as BaseSolana, Input } from '@fireblocks/wallet-derivation';
 import { RawSignature, AccountData, TxPayload } from '../types';
-import { BaseWallet } from '../BaseWallet';
+import { ConnectedWallet } from '../ConnectedWallet';
 
-export class Solana extends BaseSolana implements BaseWallet {
+export class Solana extends BaseSolana implements ConnectedWallet {
   private readonly connection: web3.Connection;
-
-  private readonly web3PubKey: web3.PublicKey;
 
   constructor(input: Input) {
     super(input);
@@ -19,12 +17,7 @@ export class Solana extends BaseSolana implements BaseWallet {
 
   public async getBalance() {
     const lamports = await this.connection.getBalance(this.web3PubKey);
-
     const balance = lamports / web3.LAMPORTS_PER_SOL;
-
-    this.balance.native = balance;
-    this.lastUpdated = new Date();
-
     return balance;
   }
 
@@ -92,6 +85,7 @@ export class Solana extends BaseSolana implements BaseWallet {
 
     tx.recentBlockhash = txBlockHash;
     const serializedTx = tx.serializeMessage();
+
     return {
       derivationPath: this.pathParts,
       tx: serializedTx.toString('hex'),

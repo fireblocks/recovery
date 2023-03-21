@@ -1,0 +1,32 @@
+{
+  "name": "Fireblocks Recovery Utility",
+  "short_name": "Recovery Utility",
+  "description": "Recover Fireblocks assets and keys in a disaster, verify a Recovery Kit, or generate keys to set up a new Recovery Kit.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#0075F2",
+  "background_color": "#F6F6F6",
+  "icons": [
+    {
+      "src": "/icons/32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/180x180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/270x270.png",
+      "sizes": "270x270",
+      "type": "image/png"
+    }
+  ]
+}

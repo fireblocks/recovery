@@ -22,7 +22,7 @@ import { Velas } from './EVM/VLX';
 import { XinFin } from './EVM/XDC';
 import { Solana } from './SOL';
 
-export { BaseWallet } from './BaseWallet';
+export { ConnectedWallet as BaseWallet } from './ConnectedWallet';
 
 export const WalletClasses = {
   AVAX: Avalanche,
@@ -67,3 +67,13 @@ export const WalletClasses = {
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];
 
 export type Derivation = InstanceType<WalletClass>;
+
+export type {
+  UTXO,
+  AccountData,
+  TxParamsRequest,
+  TxParamsResponse,
+  TxBroadcastVariables,
+  TxPayload,
+  RawSignature,
+} from './types';

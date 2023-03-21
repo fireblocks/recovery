@@ -18,25 +18,13 @@ export type DerivationReducerInput<T extends BaseWallet> = {
   wif?: string;
   isTestnet?: boolean;
   isLegacy?: boolean;
+  lastUpdated?: Date;
   balance?: { native?: number; usd?: number };
   deriveWallet: (input: Input) => T;
 };
 
 export const testIsLegacy = (assetId: string, address: string) =>
   (assetId === 'BTC' && !address.startsWith('bc1')) || (assetId.startsWith('BTC_') && !address.startsWith('tb1'));
-
-export const sumDerivationBalances = <T extends BaseWallet = BaseWallet>(derivations: T[]) =>
-  derivations.reduce((acc, { balance }) => {
-    const sum = { ...acc };
-
-    const unitKeys = Object.keys(balance) as (keyof typeof balance)[];
-
-    unitKeys.forEach((unitKey) => {
-      sum[unitKey] = (sum[unitKey] ?? 0) + (balance[unitKey] ?? 0);
-    });
-
-    return sum;
-  }, {} as BaseWallet['balance']);
 
 export const reduceDerivations = <T extends BaseWallet = BaseWallet>(input: DerivationReducerInput<T>) => {
   const {
@@ -54,7 +42,8 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(input: Deri
     wif,
     isLegacy = !!input.address && testIsLegacy(input.assetId, input.address),
     isTestnet = input.assetId.includes('TEST'),
-    balance = { native: 0, usd: 0 },
+    lastUpdated,
+    balance,
     deriveWallet,
   } = input;
 
@@ -76,6 +65,7 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(input: Deri
     assetId,
     isTestnet,
     derivations: new Map<string, T>(),
+    lastUpdated,
     ...account.wallets.get(assetId),
   };
 
@@ -94,7 +84,6 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(input: Deri
       wif,
       isTestnet,
       isLegacy,
-      balance,
     } as unknown as T);
   }
 
@@ -128,8 +117,6 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(input: Deri
       wallet.derivations.delete(address);
     }
 
-    derivation.balance = { ...derivation.balance, ...balance };
-
     wallet.derivations.set(derivation.address, derivation);
   }
 
@@ -148,7 +135,12 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(input: Deri
     }
   }
 
-  wallet.balance = sumDerivationBalances(Array.from(wallet.derivations.values()));
+  wallet.balance = {
+    native: 0,
+    usd: 0,
+    ...wallet.balance,
+    ...balance,
+  };
 
   account.wallets.set(assetId, wallet);
 

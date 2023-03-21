@@ -1,12 +1,10 @@
 import React, { forwardRef, useState, ReactNode, FocusEvent, RefObject, useRef } from 'react';
 import copy from 'copy-to-clipboard';
-import { alpha, styled } from '@mui/material/styles';
 import {
   FormControl,
   FormControlProps,
   FormHelperText,
   InputLabel,
-  InputBase,
   InputBaseProps,
   InputAdornment,
   IconButton,
@@ -14,42 +12,7 @@ import {
 import { Visibility, VisibilityOff, QrCode2, ContentCopy, Check } from '@mui/icons-material';
 import { monospaceFontFamily } from '../../theme';
 import { NextLinkComposed } from '../Link';
-
-const Input = styled(InputBase)(({ theme }) => ({
-  fontSize: '16px',
-  borderRadius: '10px',
-  backgroundColor: '#FCFCFC',
-  border: `solid 1px ${theme.palette.grey[400]}`,
-  transition: theme.transitions.create(['border-color', 'background-color', 'box-shadow']),
-  'label + &': {
-    marginTop: theme.spacing(3),
-  },
-  '& .MuiInputBase-input': {
-    padding: '10px 12px',
-  },
-  '&:has(.MuiInputBase-input:focus)': {
-    boxShadow: `${alpha(theme.palette.primary.main, 0.25)} 0 0 0 0.2rem`,
-    borderColor: theme.palette.primary.main,
-  },
-  "&:has(.MuiInputBase-input[aria-invalid='true'])": {
-    borderColor: theme.palette.error.main,
-  },
-  "&:has(.MuiInputBase-input[aria-invalid='true']:focus)": {
-    boxShadow: `${alpha(theme.palette.error.main, 0.25)} 0 0 0 0.2rem`,
-  },
-  '&:has(.MuiInputAdornment-positionStart)': {
-    paddingLeft: '12px',
-    '& .MuiInputBase-input': {
-      paddingLeft: '0',
-    },
-  },
-  '&:has(.MuiInputAdornment-positionEnd)': {
-    paddingRight: '12px',
-    '& .MuiInputBase-input': {
-      paddingRight: '0',
-    },
-  },
-}));
+import { InputBase } from '../InputBase';
 
 export type TextFieldProps = Omit<InputBaseProps, 'error'> & {
   id: string;
@@ -143,11 +106,12 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
             {label}
           </InputLabel>
         )}
-        <Input
+        <InputBase
           id={id}
           aria-describedby={`${id}-helper-text`}
           color={error ? 'error' : 'primary'}
           type={revealed ? 'text' : type}
+          value={value}
           defaultValue={defaultValue || value}
           error={!!error}
           readOnly={readOnly || enableCopy}

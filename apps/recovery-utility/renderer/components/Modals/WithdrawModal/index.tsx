@@ -1,152 +1,103 @@
-import { useMemo, useState } from 'react';
-import { Typography, Box, Grid, Autocomplete, TextField, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
-import { AssetIcon, theme, getRelayUrl, VaultAccount, BaseModal, QrCode } from '@fireblocks/recovery-shared';
-import { getAssetConfig, derivableAssets, AssetConfig } from '@fireblocks/asset-config';
-import { useSettings } from '../../../context/Settings';
+import { useMemo, useState, ReactNode } from 'react';
+import { nanoid } from 'nanoid';
+import { Typography, Box } from '@mui/material';
+import { VaultAccount, BaseModal, AssetIcon } from '@fireblocks/recovery-shared';
+import { getAssetConfig, derivableAssets, AssetConfig, getDerivableAssetConfig } from '@fireblocks/asset-config';
 import { useWorkspace } from '../../../context/Workspace';
-import { VaultAccountIcon } from '../../Icons';
+import { InitiateTransaction } from './InitiateTransaction';
+import { SignTransaction } from './SignTransaction';
 
 type Props = {
   assetId?: string;
-  accountId?: number;
+  accountId: number;
   open: boolean;
   onClose: VoidFunction;
 };
 
-export const WithdrawModal = ({ assetId: openAssetId, accountId, open, onClose }: Props) => {
-  const { relayBaseUrl } = useSettings();
+const getDerivableAssetId = (assetId?: string) => getDerivableAssetConfig(assetId)?.id;
 
-  const { extendedKeys, asset: defaultAsset, accounts } = useWorkspace();
+const getHighestBalanceAssetId = (account: VaultAccount) => {
+  if (!account.wallets.size) {
+    return undefined;
+  }
+
+  const assets = Array.from(account.wallets.values());
+
+  const maxBalanceWallet = assets.reduce(
+    (max, asset) =>
+      typeof asset.balance?.native !== 'undefined' &&
+      typeof max?.balance?.native !== 'undefined' &&
+      asset.balance.native > max.balance.native
+        ? asset
+        : max,
+    assets[0],
+  );
+
+  const assetId = maxBalanceWallet?.assetId;
+
+  const derivableAssetId = getDerivableAssetId(assetId);
+
+  return derivableAssetId;
+};
+
+export const WithdrawModal = ({ assetId, accountId, open, onClose: onCloseModal }: Props) => {
+  const { accounts, inboundRelayParams, setInboundRelayUrl } = useWorkspace();
 
   const accountsArray = useMemo(() => Array.from(accounts.values()), [accounts]);
 
-  const assetsInVault = useMemo(
+  const assetsInAccount = useMemo(
     () => derivableAssets.filter((asset) => accountsArray.some((account) => account.wallets.has(asset.id))),
     [accountsArray],
   );
 
-  const [account, setAccount] = useState<VaultAccount | undefined>(() =>
-    typeof accountId === 'number' ? accounts.get(accountId) : undefined,
+  const [selectedAccount, setSelectedAccount] = useState<VaultAccount | undefined>(accounts.get(accountId) ?? accountsArray[0]);
+
+  const onChangeAccount = (newAccount?: VaultAccount) => setSelectedAccount(newAccount);
+
+  const [selectedAssetId, setSelectedAssetId] = useState<string | undefined>(() =>
+    assetId ? getDerivableAssetId(assetId) : getHighestBalanceAssetId(selectedAccount ?? accountsArray[0]),
   );
 
-  const onChangeAccount = (newAccount: VaultAccount | null) => setAccount(newAccount ?? undefined);
+  const selectedAsset = getAssetConfig(selectedAssetId);
 
-  const resolvedAssetId = openAssetId ?? defaultAsset?.id;
+  const onChangeAssetId = (newAssetId?: string) => setSelectedAssetId(newAssetId);
 
-  const [resolvedAsset, setAsset] = useState<AssetConfig | undefined>(getAssetConfig(resolvedAssetId));
+  const [newTxId, setNewTxId] = useState(nanoid);
 
-  const onChangeAsset = (newAsset: AssetConfig | null) => setAsset(newAsset ?? undefined);
-
-  const relayUrl = useMemo(() => {
-    if (!resolvedAsset?.id || !extendedKeys) {
-      return '';
-    }
-
-    const { xpub, fpub } = extendedKeys;
-
-    return getRelayUrl('/', { xpub, fpub, assetId: resolvedAsset.id, accountId }, relayBaseUrl);
-  }, [resolvedAsset, extendedKeys, accountId, relayBaseUrl]);
+  const onClose = () => {
+    onCloseModal();
+    setInboundRelayUrl(null);
+    setNewTxId(nanoid());
+  };
 
   return (
-    <BaseModal open={open} onClose={onClose} title='New Withdrawal'>
-      <Grid container spacing={2}>
-        <Grid item xs={6}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Autocomplete
-                id='assetId'
-                autoComplete
-                // autoSelect
-                // blurOnSelect
-                // includeInputInList
-                value={(resolvedAsset ?? { id: '' }) as AssetConfig}
-                options={assetsInVault as unknown as AssetConfig[]}
-                getOptionLabel={(option) => option.id}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
-                renderInput={(params) => <TextField {...params} fullWidth label='Asset' />}
-                renderOption={(props, option, { selected }) => (
-                  <ListItemButton
-                    selected={selected}
-                    dense
-                    divider
-                    onClick={() => onChangeAsset(option)}
-                    sx={{ transition: 'none' }}
-                  >
-                    <ListItemIcon>
-                      <Box
-                        width={40}
-                        height={40}
-                        display='flex'
-                        alignItems='center'
-                        justifyContent='center'
-                        borderRadius={40}
-                        border={(_theme) => `solid 1px ${_theme.palette.grey[300]}`}
-                        sx={{ background: '#FFF' }}
-                      >
-                        <AssetIcon assetId={option.id} />
-                      </Box>
-                    </ListItemIcon>
-                    <ListItemText primaryTypographyProps={{ variant: 'h2' }} primary={option.id} secondary={option.name} />
-                  </ListItemButton>
-                )}
-                onChange={(_, newAsset) => onChangeAsset(newAsset)}
-                sx={{ width: 300 }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Autocomplete
-                id='accountId'
-                autoComplete
-                // autoSelect
-                // blurOnSelect
-                // includeInputInList
-                value={(account ?? { name: '' }) as VaultAccount}
-                options={accountsArray}
-                getOptionLabel={(option) => option.name}
-                renderInput={(params) => <TextField {...params} fullWidth label='From' />}
-                renderOption={(props, option, { selected }) => (
-                  <ListItemButton
-                    selected={selected}
-                    dense
-                    divider
-                    onClick={() => onChangeAccount(option)}
-                    sx={{ transition: 'none' }}
-                  >
-                    <ListItemIcon>
-                      <Box
-                        width={40}
-                        height={40}
-                        display='flex'
-                        alignItems='center'
-                        justifyContent='center'
-                        borderRadius={40}
-                        border={(_theme) => `solid 1px ${_theme.palette.grey[300]}`}
-                        sx={{ background: '#FFF' }}
-                      >
-                        <VaultAccountIcon color='primary' />
-                      </Box>
-                    </ListItemIcon>
-                    <ListItemText primaryTypographyProps={{ variant: 'h2' }} primary={option.id} secondary={option.name} />
-                  </ListItemButton>
-                )}
-                onChange={(_, newAccount) => onChangeAccount(newAccount)}
-                sx={{ width: 300 }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant='body1' paragraph>
-                Scan the QR code with an online device to send a transaction with Fireblocks Recovery Relay. Use the PIN to
-                decrypt the {resolvedAsset?.name} private key.
-              </Typography>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid item xs={6}>
-          <Box>
-            <QrCode data={relayUrl} title='Open with an online device' bgColor={theme.palette.background.default} />
-          </Box>
-        </Grid>
-      </Grid>
+    <BaseModal
+      open={open}
+      onClose={onClose}
+      title={
+        (
+          <Typography variant='h1' display='flex' alignItems='center'>
+            <Box display='flex' alignItems='center' marginRight='0.5rem'>
+              <AssetIcon assetId={selectedAsset?.id} />
+            </Box>
+            Withdraw {selectedAsset?.name || ''}
+          </Typography>
+        ) as ReactNode
+      }
+    >
+      {inboundRelayParams?.action === 'tx/sign' && selectedAccount && selectedAsset ? (
+        <SignTransaction txId={newTxId} account={selectedAccount} asset={selectedAsset} inboundRelayParams={inboundRelayParams} />
+      ) : (
+        <InitiateTransaction
+          txId={newTxId}
+          accountsArray={accountsArray}
+          assetsInAccount={assetsInAccount as unknown as AssetConfig[]}
+          account={selectedAccount}
+          asset={selectedAsset}
+          onChangeAccount={onChangeAccount}
+          onChangeAssetId={onChangeAssetId}
+        />
+      )}
     </BaseModal>
   );
 };

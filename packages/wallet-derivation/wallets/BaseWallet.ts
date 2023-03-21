@@ -37,17 +37,7 @@ export abstract class BaseWallet implements Derivation {
   /** Is legacy derivation (vs. Segwit) */
   public isLegacy: boolean;
 
-  /** Balance */
-  public balance: {
-    native?: number;
-    usd?: number;
-  };
-
-  /** Last updated date */
-  public lastUpdated?: Date;
-
   constructor(input: Input, defaultCoinType: number, algorithm: Algorithm) {
-    this.balance = {};
     this.assetId = input.assetId;
     this.isLegacy = input.isLegacy ?? false;
     this.isTestnet = input.isTestnet ?? false;

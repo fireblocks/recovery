@@ -1,7 +1,7 @@
 // Override console.log with electron-log
 import log from 'electron-log';
 
-import { app, session, systemPreferences, BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
+import { app, session, systemPreferences, BrowserWindow } from 'electron';
 import isDev from 'electron-is-dev';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import path from 'path';
@@ -14,6 +14,8 @@ Object.assign(console, log.functions);
 // be closed automatically when the JavaScript object is garbage collected.
 // eslint-disable-next-line import/no-mutable-exports
 export let win: BrowserWindow | null = null;
+
+let relayUrl: string | undefined;
 
 const PROTOCOL = 'app';
 const RELAY_RESPONSE_PROTOCOL = 'fireblocks-recovery';
@@ -31,28 +33,18 @@ if (!gotTheLock) {
   app.quit();
 }
 
-const getWindowOptions = (width: number, height: number): BrowserWindowConstructorOptions => ({
-  // frame: true,
-  fullscreenable: false,
-  modal: true,
-  height,
-  width,
-  minHeight: height,
-  minWidth: width,
-  webPreferences: {
-    devTools: true,
-    nodeIntegration: true,
-    contextIsolation: false,
-    plugins: true,
-    backgroundThrottling: false,
-    disableBlinkFeatures: 'Auxclick',
-  },
-});
-
 const isValidUrl = (url: string) => {
   const parsedUrl = new URL(url);
 
   return parsedUrl.protocol === `${PROTOCOL}:` || validOrigins.includes(parsedUrl.origin);
+};
+
+const handleRelayUrl = (url = relayUrl) => {
+  if (url) {
+    relayUrl = url;
+
+    win?.webContents.send('relay-url', url);
+  }
 };
 
 async function createWindow() {
@@ -110,6 +102,9 @@ async function createWindow() {
       }
     });
   }
+
+  // Handle Relay URLs
+  win.webContents.once('dom-ready', () => handleRelayUrl());
 
   win.once('ready-to-show', () => {
     win?.show();
@@ -176,14 +171,12 @@ app.on('web-contents-created', (event, contents) => {
   // This code replaces the old "new-window" event handling;
   // https://github.com/electron/electron/pull/24517#issue-447670981
   contents.setWindowOpenHandler(({ url }) => {
-    if (isValidUrl(url)) {
-      if (url.includes('/qr')) {
-        return {
-          action: 'allow',
-          overrideBrowserWindowOptions: getWindowOptions(300, 418),
-        };
-      }
-    }
+    // Check valid URLs for new windows
+    // if (isValidUrl(url)) {
+    //   return {
+    //     action: 'allow',
+    //   };
+    // }
 
     console.error(`The application tried to open a new window at the following address: '${url}'. This attempt was blocked.`);
 
@@ -201,13 +194,8 @@ if (process.defaultApp) {
   app.setAsDefaultProtocolClient(RELAY_RESPONSE_PROTOCOL);
 }
 
-const handleUrl = (url: string) => {
-  // eslint-disable-next-line no-console
-  console.info('Handled protocol url:', url);
-};
-
 // macOS & Linux
-app.on('open-url', (event, url) => handleUrl(url));
+app.on('open-url', (event, url) => handleRelayUrl(url));
 
 // Windows
 app.on('second-instance', (event, commandLine) => {
@@ -221,7 +209,7 @@ app.on('second-instance', (event, commandLine) => {
 
   const url = commandLine.pop()?.slice(0, -1) ?? '';
 
-  handleUrl(url);
+  handleRelayUrl(url);
 });
 
 // This method will be called when Electron has finished
