@@ -4,7 +4,7 @@ import { AccountData, TxPayload, RawSignature } from '../types';
 import { BaseWallet } from '../BaseWallet';
 
 export class Ethereum extends BaseEthereum implements BaseWallet {
-  private readonly provider: JsonRpcProvider;
+  protected readonly provider: JsonRpcProvider;
 
   constructor(input: Input) {
     super(input);

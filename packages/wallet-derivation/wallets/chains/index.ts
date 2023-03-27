@@ -1,6 +1,7 @@
 import { Cardano } from './ADA';
 import { Algorand } from './ALGO';
 import { Bitcoin } from './BTC';
+import { ERC20 } from './ERC20';
 import { Ethereum } from './ETH';
 import { Solana } from './SOL';
 
@@ -30,4 +31,4 @@ export const getWallet = (assetId: string) => {
   }
 };
 
-export { Bitcoin, Ethereum, Solana, Algorand, Cardano };
+export { Bitcoin, Ethereum, Solana, Algorand, Cardano, ERC20 };
