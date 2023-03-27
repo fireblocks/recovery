@@ -1,42 +1,18 @@
 /* eslint-disable prefer-destructuring */
 import { Input } from '@fireblocks/wallet-derivation';
-import { Contract, Interface, InterfaceAbi, Transaction, ethers } from 'ethers';
+import { Contract, Interface, Transaction, ethers } from 'ethers';
 import { BaseWallet } from '../BaseWallet';
 import { AccountData, TxPayload, RawSignature } from '../types';
 import { Ethereum } from '../EVM/ETH';
-import erc20Abi from './erc20.abi.json';
+import { erc20Abi } from './erc20.abi';
+import { transferAbi } from './transfer.abi';
 
 export class ERC20 extends Ethereum implements BaseWallet {
   private contract: Contract;
 
-  private transferAbi: InterfaceAbi = [
-    {
-      constant: false,
-      inputs: [
-        {
-          name: '_to',
-          type: 'address',
-        },
-        {
-          name: '_value',
-          type: 'uint256',
-        },
-      ],
-      name: 'transfer',
-      outputs: [
-        {
-          name: '',
-          type: 'bool',
-        },
-      ],
-      payable: false,
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-  ];
-
   constructor(input: Input, tokenAddress: string) {
     super(input);
+
     this.contract = new ethers.Contract(tokenAddress, erc20Abi);
   }
 
@@ -65,7 +41,7 @@ export class ERC20 extends Ethereum implements BaseWallet {
       gasPrice,
       value: 0,
       chainId: this.path.coinType === 1 ? 5 : 1,
-      data: new Interface(this.transferAbi).encodeFunctionData('transfer', [
+      data: new Interface(transferAbi).encodeFunctionData('transfer', [
         to,
         BigInt(amount) * BigInt(await this.contract.decimals()),
       ]),

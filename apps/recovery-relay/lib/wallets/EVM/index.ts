@@ -1,9 +1,10 @@
-import { BaseWallet, EVMWallet as EVMBase, Input } from '@fireblocks/wallet-derivation';
-import { JsonRpcProvider, Transaction, formatEther } from 'ethers';
+import { JsonRpcProvider, formatEther, Transaction } from 'ethers';
+import { EVMWallet as EVMBase, Input } from '@fireblocks/wallet-derivation';
 import { AccountData, RawSignature } from '../types';
+import { ConnectedWallet } from '../ConnectedWallet';
 
-export class EVM extends EVMBase implements BaseWallet {
-  protected readonly provider: JsonRpcProvider;
+export class EVM extends EVMBase implements ConnectedWallet {
+  private readonly provider: JsonRpcProvider;
 
   constructor(input: Input, rpcEndpoint: string, chainId?: number) {
     super(input);
