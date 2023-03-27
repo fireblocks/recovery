@@ -1,6 +1,9 @@
 import { Cardano } from './ADA';
 import { Bitcoin } from './BTC';
-import { Ethereum } from './ETH';
+import { Arbitrum } from './EVM/AETH';
+import { BinanceSmartChain } from './EVM/BNB_BSC';
+import { Ethereum } from './EVM/ETH';
+import { Matic } from './EVM/MATIC';
 import { Solana } from './SOL';
 
 export { BaseWallet } from './BaseWallet';
@@ -15,6 +18,12 @@ export const WalletClasses = {
   SOL_TEST: Solana,
   ADA: Cardano,
   ADA_TEST: Cardano,
+  MATIC_POLYGON: Matic,
+  MATIC_POLYGON_MUMBAI: Matic,
+  'ETH-AETH': Arbitrum,
+  'ETH-AETH_RIN': Arbitrum,
+  BNB_BSC: BinanceSmartChain,
+  BNB_TEST: BinanceSmartChain,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];

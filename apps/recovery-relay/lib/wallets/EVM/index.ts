@@ -1,18 +1,13 @@
-import { JsonRpcProvider, formatEther, Transaction } from 'ethers';
-import { Ethereum as BaseEthereum, Input } from '@fireblocks/wallet-derivation';
-import { AccountData, TxPayload, RawSignature } from '../types';
-import { BaseWallet } from '../BaseWallet';
+import { BaseWallet, EVMWallet as EVMBase, Input } from '@fireblocks/wallet-derivation';
+import { JsonRpcProvider, Transaction, formatEther } from 'ethers';
+import { AccountData, RawSignature, TxPayload } from '../types';
 
-export class Ethereum extends BaseEthereum implements BaseWallet {
+export class EVM extends EVMBase implements BaseWallet {
   protected readonly provider: JsonRpcProvider;
 
-  constructor(input: Input) {
+  constructor(input: Input, rpcEndpoint: string) {
     super(input);
-
-    const cluster = input.isTestnet ? 'goerli' : 'mainnet';
-    const endpoint = `https://${cluster}.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161`;
-
-    this.provider = new JsonRpcProvider(endpoint);
+    this.provider = new JsonRpcProvider(rpcEndpoint);
   }
 
   public async getBalance() {

@@ -3,7 +3,7 @@ import { Input } from '@fireblocks/wallet-derivation';
 import { Contract, Interface, InterfaceAbi, Transaction, ethers } from 'ethers';
 import { BaseWallet } from '../BaseWallet';
 import { AccountData, TxPayload, RawSignature } from '../types';
-import { Ethereum } from '../ETH';
+import { Ethereum } from '../EVM/ETH';
 import erc20Abi from './erc20.abi.json';
 
 export class ERC20 extends Ethereum implements BaseWallet {
