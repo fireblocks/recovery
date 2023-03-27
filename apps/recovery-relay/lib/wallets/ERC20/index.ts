@@ -1,13 +1,13 @@
 /* eslint-disable prefer-destructuring */
 import { Input } from '@fireblocks/wallet-derivation';
 import { Contract, Interface, Transaction, ethers } from 'ethers';
-import { BaseWallet } from '../BaseWallet';
 import { AccountData, TxPayload, RawSignature } from '../types';
+import { ConnectedWallet } from '../ConnectedWallet';
 import { Ethereum } from '../EVM/ETH';
 import { erc20Abi } from './erc20.abi';
 import { transferAbi } from './transfer.abi';
 
-export class ERC20 extends Ethereum implements BaseWallet {
+export class ERC20 extends Ethereum implements ConnectedWallet {
   private contract: Contract;
 
   constructor(input: Input, tokenAddress: string) {

@@ -42,7 +42,7 @@ export class Bitcoin extends BaseBitcoin implements ConnectedWallet {
     return feeRate;
   }
 
-  private async _addSegwitInput(utxo: UTXOSummary) {
+  private async _getSegwitInput(utxo: UTXOSummary) {
     const { txid: hash } = utxo;
     const index = Bitcoin._satsToBtc(utxo.value);
     const fullUtxo = await this._requestJson<FullUTXO>(`/tx/${hash}`);
@@ -58,7 +58,7 @@ export class Bitcoin extends BaseBitcoin implements ConnectedWallet {
     };
   }
 
-  private async _addNonSegwitInput(utxo: UTXOSummary) {
+  private async _getNonSegwitInput(utxo: UTXOSummary) {
     const { txid: hash } = utxo;
     const index = Bitcoin._satsToBtc(utxo.value);
     const rawTxRes = await this._request(`/tx/${hash}/raw`);
@@ -81,9 +81,9 @@ export class Bitcoin extends BaseBitcoin implements ConnectedWallet {
 
     const utxos = await this._getAddressUTXOs();
 
-    const addInputMethod = this.isLegacy ? this._addNonSegwitInput : this._addSegwitInput;
+    const getInputMethod = this.isLegacy ? this._getNonSegwitInput : this._getSegwitInput;
 
-    const inputs = await Promise.all(utxos.map((utxo) => addInputMethod(utxo)));
+    const inputs = await Promise.all(utxos.map((utxo) => getInputMethod(utxo)));
 
     const feeRate = await this._getFeeRate();
 

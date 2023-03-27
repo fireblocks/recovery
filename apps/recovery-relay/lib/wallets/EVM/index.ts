@@ -4,7 +4,7 @@ import { AccountData, RawSignature } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
 
 export class EVM extends EVMBase implements ConnectedWallet {
-  private readonly provider: JsonRpcProvider;
+  protected readonly provider: JsonRpcProvider;
 
   constructor(input: Input, rpcEndpoint: string, chainId?: number) {
     super(input);

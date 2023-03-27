@@ -77,8 +77,8 @@ export class Cardano extends BaseCardano implements LateInitBaseWallet {
     let balance: number = 0;
     const utxos: UTXO[] = [];
     if (this.gqlClient) {
-      const utxosResult: ADAGQLUtxo[] = (
-        await this.gqlClient.query({
+      const utxosResult = (
+        await this.gqlClient.query<{ utxos: ADAGQLUtxo[] }>({
           query: gql`
             query utxoSetForAddresses($addresses: [String]!) {
               utxos(where: { address: { _in: $addresses } }) {

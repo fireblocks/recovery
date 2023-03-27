@@ -7,19 +7,20 @@ export type UTXO = {
   confirmed: boolean;
 };
 
-export type TxInput =
-  | ({
-      hash: string;
-      index: number;
-    } & {
+export type TxInput = {
+  hash: string;
+  index: number;
+} & (
+  | {
       witnessUtxo: {
         script: Buffer;
         value: number;
       };
-    })
+    }
   | {
       nonWitnessUtxo: Buffer;
-    };
+    }
+);
 
 // TODO: WIP
 export type AccountData = {
