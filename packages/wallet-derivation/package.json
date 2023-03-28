@@ -18,7 +18,7 @@
     "@types/bech32": "^1.1.4",
     "@types/bitcore-lib-cash": "^8.23.5",
     "@types/blake2b": "^2.1.0",
-    "algosdk": "^2.1.0",
+    "algosdk": "^2.2.0",
     "bech32": "^2.0.0",
     "big-integer": "^1.6.51",
     "bigint-buffer": "^1.1.5",
@@ -30,9 +30,9 @@
     "ethers": "^6.3.0"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.0",
-    "@types/node": "^18.15.11",
-    "eslint": "^8.36.0",
+    "@types/jest": "^29.5.1",
+    "@types/node": "^18.15.12",
+    "eslint": "^8.38.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-typescript": "^17.0.0",
     "eslint-config-prettier": "^8.8.0",
