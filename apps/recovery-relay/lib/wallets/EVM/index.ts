@@ -5,9 +5,9 @@ import { AccountData, RawSignature, TxPayload } from '../types';
 export class EVM extends EVMBase implements BaseWallet {
   protected readonly provider: JsonRpcProvider;
 
-  constructor(input: Input, rpcEndpoint: string) {
+  constructor(input: Input, rpcEndpoint: string, chainId?: number) {
     super(input);
-    this.provider = new JsonRpcProvider(rpcEndpoint);
+    this.provider = new JsonRpcProvider(rpcEndpoint, chainId);
   }
 
   public async getBalance() {

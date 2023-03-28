@@ -137,4 +137,36 @@ describe('deriveWallet()', () => {
 
     expect(wallet.wif).toBeUndefined();
   });
+
+  it('should derive an ATOM wallet using xpub', () => {
+    const wallet = deriveWallet({
+      assetId: 'ATOM_COS',
+      xpub,
+      path,
+    });
+
+    expect(wallet.address).toEqual('cosmos1uy8v5s0x6kq0lwy200es8ecy2xzjzkhwvre950');
+
+    expect(wallet.publicKey).toEqual('0x0339b35362e0a934b62e0cfb57a6550ebae27d0e1eedd3c03da55097d7b0eb0936');
+
+    expect(wallet.privateKey).toBeUndefined();
+
+    expect(wallet.wif).toBeUndefined();
+  });
+
+  it('should derive an ATOM wallet using xprv', () => {
+    const wallet = deriveWallet({
+      assetId: 'ATOM_COS',
+      xprv,
+      path,
+    });
+
+    expect(wallet.address).toEqual('cosmos1uy8v5s0x6kq0lwy200es8ecy2xzjzkhwvre950');
+
+    expect(wallet.publicKey).toEqual('0x0339b35362e0a934b62e0cfb57a6550ebae27d0e1eedd3c03da55097d7b0eb0936');
+
+    expect(wallet.privateKey).toEqual('0xec9e9b2673bc7e3bc21aff716581ade5b95d21283d4c0ce1a3cc44cdcbc3036c');
+
+    expect(wallet.wif).toEqual('L59fifpQPPwpPbvR423ncVAK9mDCDr1qzGhd9KQ1zMi5UZpeUsqA');
+  });
 });
