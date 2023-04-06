@@ -37,6 +37,7 @@
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.43.9",
     "semver-regex": "^4.0.5",
+    "superjson": "^1.12.2",
     "webrtc-adapter": "^8.2.1",
     "zod": "^3.21.4"
   },

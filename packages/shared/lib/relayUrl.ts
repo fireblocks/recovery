@@ -1,4 +1,5 @@
 import { nanoid } from 'nanoid';
+import superjson from 'superjson';
 import JSONCrush from 'jsoncrush';
 import { Transaction } from '../types';
 import {
@@ -60,26 +61,29 @@ export const getRelayParams = <
   // Extract account ID from URL path
   const pathMatch = url.pathname.match(/\/accounts\/vault\/([0-9]+)/);
 
-  const accountId = pathMatch?.[1] ? parseInt(pathMatch[1], 10) : undefined;
+  const accountId = typeof pathMatch?.[1] !== 'undefined' ? parseInt(pathMatch[1], 10) : undefined;
 
   // Extract parameters from URL hash
-  const encodedParams = url.hash.split('#')[1];
+  const encodedHashParams = url.hash.split('#')[1];
 
-  if (!encodedParams) {
+  if (!encodedHashParams) {
     throw new Error('No parameters found in Relay URL');
   }
 
   // Decode parameters
-  const compressedParams = decodeURIComponent(encodedParams);
+  const compressedHashParams = decodeURIComponent(encodedHashParams);
 
   // Decompress parameters
-  const decompressedParams = JSONCrush.uncrush(compressedParams);
+  const decompressedHashParams = JSONCrush.uncrush(compressedHashParams);
 
-  if (!decompressedParams) {
+  if (!decompressedHashParams) {
     throw new Error('Relay URL parameter decompression failed');
   }
 
-  const parsedParams = { accountId, ...JSON.parse(decompressedParams) } as Params;
+  // Deserialize parameters
+  const deserializedHashParams = superjson.parse<Params>(decompressedHashParams);
+
+  const parsedParams = { ...deserializedHashParams, accountId };
 
   const schema = getSchema(parsedParams.action, app);
 
@@ -111,10 +115,13 @@ export const getRelayUrl = <
   const parsedParams = schema.parse(params);
 
   // Extract account ID from parameters as it's part of the URL path, not the hash
-  const { accountId, ...hashParams } = parsedParams;
+  const { accountId, ...deserializedParams } = parsedParams;
+
+  // Serialize hash parameters
+  const serializedHashParams = superjson.stringify(deserializedParams);
 
   // Compress hash parameters
-  const compressedHashParams = JSONCrush.crush(JSON.stringify(hashParams));
+  const compressedHashParams = JSONCrush.crush(serializedHashParams);
 
   // Encode hash parameters
   const encodedHashParams = encodeURIComponent(compressedHashParams);
