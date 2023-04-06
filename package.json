@@ -33,15 +33,15 @@
     "changeset": "changeset"
   },
   "dependencies": {
-    "@changesets/cli": "^2.26.0",
-    "@commitlint/cli": "^17.4.4",
+    "@changesets/cli": "^2.26.1",
+    "@commitlint/cli": "^17.5.1",
     "@commitlint/config-conventional": "^17.4.4",
-    "@commitlint/prompt-cli": "^17.4.4",
+    "@commitlint/prompt-cli": "^17.5.0",
     "@manypkg/cli": "^0.20.0",
     "@typescript-eslint/utils": "^5.58.0",
     "husky": "^8.0.3",
     "is-ci": "^3.0.1",
     "lint-staged": "^13.2.0",
-    "turbo": "^1.8.3"
+    "turbo": "^1.8.8"
   }
 }

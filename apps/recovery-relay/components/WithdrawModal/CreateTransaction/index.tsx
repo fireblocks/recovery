@@ -48,7 +48,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
   const { accounts } = useWorkspace();
 
   const { accountId } = inboundRelayParams;
-  const { id: txId } = inboundRelayParams.newTx;
+  const { id: txId, to: toAddress } = inboundRelayParams.newTx;
 
   const wallet = getWallet(accounts, accountId, asset?.id);
   const derivationsArray = sortDerivationsArrayByAddressIndex(wallet?.derivations);
@@ -56,7 +56,6 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
 
   const defaultValues: TransactionInput = {
     fromAddress: fromAddresses[0],
-    toAddress: '',
   };
 
   const {
@@ -118,12 +117,14 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
       return;
     }
 
+    console.info('Balance:', balanceQuery.data);
+
     setSignTxResponseUrl({
       id: txId,
       assetId: asset.id,
       path: [44, derivation.path.coinType, derivation.path.account, derivation.path.changeIndex, derivation.path.addressIndex],
-      from: fromAddress,
-      to: data.toAddress,
+      from: data.fromAddress,
+      to: toAddress,
       amount: balanceQuery.data,
       // memo: data.memo,
       // misc: { utxos: data.utxos }, // TODO
@@ -231,12 +232,12 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
         <TextField
           id='toAddress'
           label='Recipient Address'
-          error={errors.toAddress?.message}
           autoComplete='off'
           autoCapitalize='off'
           spellCheck={false}
           isMonospace
-          {...register('toAddress')}
+          readOnly
+          value={toAddress}
         />
       </Grid>
       <Grid item xs={12}>

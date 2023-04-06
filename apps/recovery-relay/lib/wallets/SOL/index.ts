@@ -12,7 +12,6 @@ export class Solana extends BaseSolana implements ConnectedWallet {
     const endpoint = input.isTestnet ? web3.clusterApiUrl('devnet') : 'https://try-rpc.mainnet.solana.blockdaemon.tech';
 
     this.connection = new web3.Connection(endpoint, 'confirmed');
-    this.web3PubKey = new web3.PublicKey(Buffer.from(this.publicKey, 'hex'));
   }
 
   public async getBalance() {

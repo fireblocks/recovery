@@ -9,4 +9,5 @@ export * from './recoverAccountInput';
 export * from './recoverKeysInput';
 export * from './relayUrl';
 export * from './settingsInput';
+export * from './transactionInitInput';
 export * from './transactionInput';

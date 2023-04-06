@@ -1,150 +1,146 @@
-import { useMemo } from 'react';
-import { Typography, Box, Grid, Autocomplete, TextField, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
-import { AssetIcon, VaultAccount, VaultAccountIcon, RelayRxTx } from '@fireblocks/recovery-shared';
-import { AssetConfig } from '@fireblocks/asset-config';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Box, Grid, Autocomplete, TextField as MuiTextField, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import {
+  AssetIcon,
+  VaultAccount,
+  VaultAccountIcon,
+  TextField,
+  TransactionInitInput,
+  transactionInitInput,
+  Button,
+} from '@fireblocks/recovery-shared';
+import { AssetConfig, getAssetConfig } from '@fireblocks/asset-config';
 import { useWorkspace } from '../../../../context/Workspace';
 
 type Props = {
-  txId: string;
   accountsArray: VaultAccount[];
   assetsInAccount: AssetConfig[];
-  account?: VaultAccount;
-  asset?: AssetConfig;
-  onChangeAccount: (newAccount?: VaultAccount) => void;
-  onChangeAssetId: (newAssetId?: string) => void;
+  initialAccountId?: number;
+  initialAssetId?: string;
+  onSubmit: (data: TransactionInitInput) => void;
 };
 
-export const InitiateTransaction = ({
-  txId,
-  accountsArray,
-  assetsInAccount,
-  account,
-  asset,
-  onChangeAccount,
-  onChangeAssetId,
-}: Props) => {
-  const { extendedKeys, getOutboundRelayUrl, setInboundRelayUrl } = useWorkspace();
+export const InitiateTransaction = ({ accountsArray, assetsInAccount, initialAccountId, initialAssetId, onSubmit }: Props) => {
+  const { accounts } = useWorkspace();
 
-  let txTitle = 'Extended public keys';
+  const {
+    register,
+    watch,
+    setValue,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<TransactionInitInput>({
+    resolver: zodResolver(transactionInitInput),
+    defaultValues: {
+      accountId: initialAccountId,
+      assetId: initialAssetId,
+      to: '',
+    },
+    // mode: 'onChange',
+    // reValidateMode: 'onChange',
+  });
 
-  if (typeof account?.id === 'number') {
-    txTitle += ` / account ${account.id}`;
-  }
-
-  if (typeof asset?.id === 'string') {
-    txTitle += ` / asset ${asset.id}`;
-  }
-
-  const outboundRelayUrl = useMemo(() => {
-    const { xpub, fpub } = extendedKeys || {};
-
-    if (!xpub || !fpub || !txId || typeof account?.id !== 'number' || !asset?.id) {
-      return undefined;
-    }
-
-    return getOutboundRelayUrl({
-      action: 'tx/create',
-      accountId: account.id,
-      newTx: {
-        id: txId,
-        assetId: asset.id,
-      },
-    });
-  }, [extendedKeys, txId, account, asset, getOutboundRelayUrl]);
+  const [assetId, accountId] = watch(['assetId', 'accountId']);
 
   return (
-    <>
-      <Typography variant='body1' paragraph>
-        Scan the QR code with an online device to create a transaction with Recovery Relay. Pass QR codes back and forth to sign
-        the transaction with Recovery Utility and broadcast it with Recovery Relay. This does not expose your private keys.
-      </Typography>
-      <Grid container spacing={2} marginBottom='1em'>
-        <Grid item xs={6}>
-          <Autocomplete
-            id='assetId'
-            autoComplete
-            // autoSelect
-            // blurOnSelect
-            // includeInputInList
-            value={(asset ?? { id: '' }) as AssetConfig}
-            options={assetsInAccount}
-            getOptionLabel={(option) => option.name}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            renderInput={(params) => <TextField {...params} fullWidth label='Asset' />}
-            renderOption={(props, option, { selected }) => (
-              <ListItemButton
-                selected={selected}
-                dense
-                divider
-                onClick={() => onChangeAssetId(option.id)}
-                sx={{ transition: 'none' }}
-              >
-                <ListItemIcon>
-                  <Box
-                    width={40}
-                    height={40}
-                    display='flex'
-                    alignItems='center'
-                    justifyContent='center'
-                    borderRadius={40}
-                    border={(_theme) => `solid 1px ${_theme.palette.grey[300]}`}
-                    sx={{ background: '#FFF' }}
-                  >
-                    <AssetIcon assetId={option.id} />
-                  </Box>
-                </ListItemIcon>
-                <ListItemText primaryTypographyProps={{ variant: 'h2' }} primary={option.name} secondary={option.id} />
-              </ListItemButton>
-            )}
-            onChange={(_, newAsset) => onChangeAssetId(newAsset?.id)}
-          />
-        </Grid>
-        <Grid item xs={6}>
-          <Autocomplete
-            id='accountId'
-            autoComplete
-            // autoSelect
-            // blurOnSelect
-            // includeInputInList
-            value={(account ?? { name: '' }) as VaultAccount}
-            options={accountsArray}
-            getOptionLabel={(option) => option.name}
-            renderInput={(params) => <TextField {...params} fullWidth label='From' />}
-            renderOption={(props, option, { selected }) => (
-              <ListItemButton
-                selected={selected}
-                dense
-                divider
-                onClick={() => onChangeAccount(option)}
-                sx={{ transition: 'none' }}
-              >
-                <ListItemIcon>
-                  <Box
-                    width={40}
-                    height={40}
-                    display='flex'
-                    alignItems='center'
-                    justifyContent='center'
-                    borderRadius={40}
-                    border={(_theme) => `solid 1px ${_theme.palette.grey[300]}`}
-                    sx={{ background: '#FFF' }}
-                  >
-                    <VaultAccountIcon color='primary' />
-                  </Box>
-                </ListItemIcon>
-                <ListItemText primaryTypographyProps={{ variant: 'h2' }} primary={option.name} secondary={`ID ${option.id}`} />
-              </ListItemButton>
-            )}
-            onChange={(_, newAccount) => onChangeAccount(newAccount ?? undefined)}
-          />
-        </Grid>
+    <Grid component='form' container spacing={2} onSubmit={handleSubmit(onSubmit)}>
+      <Grid item xs={12}>
+        <Autocomplete
+          id='assetId'
+          autoComplete
+          // autoSelect
+          // blurOnSelect
+          // includeInputInList
+          value={getAssetConfig(assetId)}
+          options={assetsInAccount}
+          getOptionLabel={(option) => option.name}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          renderInput={(params) => <MuiTextField {...params} fullWidth label='Asset' />}
+          renderOption={(props, option, { selected }) => (
+            <ListItemButton
+              selected={selected}
+              dense
+              divider
+              onClick={() => setValue('assetId', option.id)}
+              sx={{ transition: 'none' }}
+            >
+              <ListItemIcon>
+                <Box
+                  width={40}
+                  height={40}
+                  display='flex'
+                  alignItems='center'
+                  justifyContent='center'
+                  borderRadius={40}
+                  border={(_theme) => `solid 1px ${_theme.palette.grey[300]}`}
+                  sx={{ background: '#FFF' }}
+                >
+                  <AssetIcon assetId={option.id} />
+                </Box>
+              </ListItemIcon>
+              <ListItemText primaryTypographyProps={{ variant: 'h2' }} primary={option.name} secondary={option.id} />
+            </ListItemButton>
+          )}
+          onChange={(_, newAsset) => setValue('assetId', newAsset?.id ?? '')}
+        />
       </Grid>
-      <RelayRxTx
-        rxTitle='Transaction parameters'
-        txTitle={txTitle}
-        txUrl={outboundRelayUrl}
-        onDecodeQrCode={setInboundRelayUrl}
-      />
-    </>
+      <Grid item xs={12}>
+        <Autocomplete
+          id='accountId'
+          autoComplete
+          // autoSelect
+          // blurOnSelect
+          // includeInputInList
+          value={accounts.get(accountId)}
+          options={accountsArray}
+          getOptionLabel={(option) => option.name}
+          renderInput={(params) => <MuiTextField {...params} fullWidth label='From' />}
+          renderOption={(props, option, { selected }) => (
+            <ListItemButton
+              selected={selected}
+              dense
+              divider
+              onClick={() => setValue('accountId', option.id)}
+              sx={{ transition: 'none' }}
+            >
+              <ListItemIcon>
+                <Box
+                  width={40}
+                  height={40}
+                  display='flex'
+                  alignItems='center'
+                  justifyContent='center'
+                  borderRadius={40}
+                  border={(_theme) => `solid 1px ${_theme.palette.grey[300]}`}
+                  sx={{ background: '#FFF' }}
+                >
+                  <VaultAccountIcon color='primary' />
+                </Box>
+              </ListItemIcon>
+              <ListItemText primaryTypographyProps={{ variant: 'h2' }} primary={option.name} secondary={`ID ${option.id}`} />
+            </ListItemButton>
+          )}
+          onChange={(_, newAccount) => setValue('accountId', newAccount?.id ?? 0)}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <TextField
+          id='toAddress'
+          label='Recipient Address'
+          error={errors.to?.message}
+          autoComplete='off'
+          autoCapitalize='off'
+          spellCheck={false}
+          isMonospace
+          {...register('to')}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <Button type='submit' variant='contained' color='primary' fullWidth>
+          Create Transaction
+        </Button>
+      </Grid>
+    </Grid>
   );
 };

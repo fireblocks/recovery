@@ -22,6 +22,7 @@ const actionSchema = <Action extends string>(action: Action) => z.literal(action
 const newTxSchema = z.object({
   id: z.string().nonempty('Transaction ID is required'),
   assetId: z.string().nonempty('Asset ID is required'),
+  to: z.string().nonempty('To address is required'),
 });
 
 // Requests (Utility -> Relay)
@@ -59,7 +60,6 @@ const preparedTxSchema = newTxSchema.extend({
     nonnegativeIntSchema('Address index'),
   ]),
   from: z.string().nonempty('From address is required'),
-  to: z.string().nonempty('To address is required'),
   amount: z.number().positive('Amount is required'),
 });
 

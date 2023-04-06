@@ -83,7 +83,9 @@ export const WithdrawModal = () => {
                 setSignTxResponseUrl={setSignTxResponseUrl}
               />
             ))}
-          {action === 'tx/broadcast' && <>Confirm and broadcast</>}
+          {action === 'tx/broadcast' && (
+            <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>WIP: Confirm and broadcast</pre>
+          )}
         </>
       ) : (
         <Typography variant='body1'>Asset {relayAssetId} not found in your vault</Typography>
