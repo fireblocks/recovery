@@ -1,9 +1,3 @@
-// @ts-check
-const withTM = require('next-transpile-modules')([
-  '@fireblocks/asset-config',
-  '@fireblocks/recovery-shared',
-  '@fireblocks/wallet-derivation',
-]);
 // @ts-ignore
 const withPWA = require('next-pwa')({
   dest: 'public',
@@ -17,6 +11,7 @@ const nextConfig = {
   swcMinify: true,
   // eslint-disable-next-line turbo/no-undeclared-env-vars
   eslint: { ignoreDuringBuilds: true }, // !!process.env.CI },
+  transpilePackages: ['@fireblocks/asset-config', '@fireblocks/recovery-shared', '@fireblocks/wallet-derivation'],
   webpack: (config) => ({
     ...config,
     experiments: {
@@ -27,4 +22,4 @@ const nextConfig = {
 };
 
 // @ts-ignore
-module.exports = withTM(withPWA(nextConfig));
+module.exports = withPWA(nextConfig);

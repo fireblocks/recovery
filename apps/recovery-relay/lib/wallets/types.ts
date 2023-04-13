@@ -7,6 +7,7 @@ export type UTXO = {
   confirmed: boolean;
 };
 
+// TEMP
 export type TxInput = {
   hash: string;
   index: number;

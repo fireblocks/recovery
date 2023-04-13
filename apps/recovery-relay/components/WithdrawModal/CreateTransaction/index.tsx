@@ -56,6 +56,9 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
 
   const defaultValues: TransactionInput = {
     fromAddress: fromAddresses[0],
+    to: '',
+    amount: 0,
+    utxos: [],
   };
 
   const {
