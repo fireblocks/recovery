@@ -1,14 +1,11 @@
 import { ipcMain } from 'electron';
-import { getChildProcessInput, Args } from './input';
+import { getChildProcessInput, ExecArgs } from './input';
 import { runChildProcess } from './run';
-import { parseExtendedKeys } from './parse';
 
-ipcMain.handle('extended-keys/recover', async (event, args: Args) => {
+ipcMain.handle('extended-keys/decrypt', async (event, args: ExecArgs) => {
   const { file, processArgs } = getChildProcessInput(args);
 
   const stdout = await runChildProcess(file, processArgs);
 
-  const extendedKeys = parseExtendedKeys(stdout, args.dangerouslyRecoverPrivateKeys);
-
-  return extendedKeys;
+  return stdout;
 });

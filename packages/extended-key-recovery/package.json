@@ -7,10 +7,34 @@
   "version": "0.3.0",
   "license": "GPL-3.0-or-later",
   "private": true,
-  "main": "recover.py",
+  "main": "index.ts",
   "scripts": {
-    "build": "python -m PyInstaller --osx-bundle-identifier com.fireblocks.extended-key-recovery --osx-entitlements-file res/entitlements.plist --onefile recover.py",
-    "lint": "python -m pylint --recursive=y --rcfile=../../.pylintrc .",
-    "format": "python -m black ."
+    "lint": "eslint --fix .",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@noble/curves": "^1.0.0",
+    "@typescript-eslint/utils": "^5.58.0",
+    "adm-zip": "^0.5.10",
+    "bigint-mod-arith": "^3.2.0",
+    "bs58check": "^3.0.1",
+    "inquirer": "^9.1.5",
+    "jsrsasign": "^10.8.1",
+    "jsrsasign-util": "^1.0.5",
+    "node-forge": "^1.3.1",
+    "node-rsa": "^1.1.1",
+    "python-struct": "^1.1.3"
+  },
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.0",
+    "@types/bs58check": "^2.1.0",
+    "@types/inquirer": "^9.0.3",
+    "@types/jest": "^29.5.0",
+    "@types/jsrsasign": "^10.5.8",
+    "@types/node-forge": "^1.3.1",
+    "@types/node-rsa": "^1.1.1",
+    "@types/python-struct": "^1.0.1",
+    "@types/uuid": "^9.0.1"
   }
 }

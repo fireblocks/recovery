@@ -9,10 +9,11 @@ type Props = {
   hasFile?: boolean;
   accept?: Accept;
   disabled?: boolean;
+  hidden?: boolean;
   onDrop: (file: File) => void;
 };
 
-export const UploadWell = ({ label, error, hasFile, accept, disabled, onDrop: _onDrop }: Props) => {
+export const UploadWell = ({ label, error, hasFile, accept, disabled, hidden = false, onDrop: _onDrop }: Props) => {
   const labelId = useId();
 
   const extensions = Object.values(accept || {})
@@ -49,6 +50,10 @@ export const UploadWell = ({ label, error, hasFile, accept, disabled, onDrop: _o
   if (isDragReject) {
     InputIcon = Cancel;
     inputText = 'Invalid file';
+  }
+
+  if (hidden) {
+    return <span style={{ display: 'none' }} />;
   }
 
   return (

@@ -1,14 +1,11 @@
 {
-  "eslint.validate": [
-    "javascript",
-    "typescript",
-    "javascriptreact",
-    "typescriptreact"
-  ],
+  "eslint.validate": ["javascript", "typescript", "javascriptreact", "typescriptreact"],
   "eslint.workingDirectories": [
     "packages/asset-config",
     "packages/shared",
     "packages/wallet-derivation",
+    "packages/extended-key-recovery",
+    "packages/py-dec",
     "apps/recovery-utility",
     "apps/recovery-relay"
   ],

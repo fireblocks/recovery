@@ -1,0 +1,16 @@
+{
+  "name": "@fireblocks/py-dec",
+  "description": "Decrypts RSA-OAEP Encryption",
+  "author": "Fireblocks <info@fireblocks.com> (https://www.fireblocks.com)",
+  "repository": "https://github.com/fireblocks/recovery/tree/main/packages/py-dec",
+  "homepage": "https://www.fireblocks.com",
+  "version": "0.3.0",
+  "license": "GPL-3.0-or-later",
+  "private": true,
+  "main": "recover.py",
+  "scripts": {
+    "build": "python -m PyInstaller --osx-bundle-identifier com.fireblocks.py_dec --osx-entitlements-file res/entitlements.plist --onefile recover.py",
+    "lint": "python -m pylint --recursive=y --rcfile=../../.pylintrc .",
+    "format": "python -m black ."
+  }
+}
