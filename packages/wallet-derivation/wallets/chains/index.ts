@@ -38,6 +38,7 @@ export const getWallet = (assetId: string) => {
     case 'MATIC_POLYGON_MUMBAI':
     case 'ETH-AETH':
     case 'ETH-AETH_RIN':
+    case 'GLMR':
     case 'ETHW':
     case 'ETH':
     case 'ETH_TEST':

@@ -8,6 +8,7 @@ import { Ethereum } from './EVM/ETH';
 import { EthereumPoW } from './EVM/ETHW';
 import { EVMOS } from './EVM/EVMOS';
 import { Fantom } from './EVM/FTM';
+import { Moonbeam } from './EVM/GLMR';
 import { Matic } from './EVM/MATIC';
 import { Solana } from './SOL';
 
@@ -26,6 +27,7 @@ export const WalletClasses = {
   ETH_TEST5: Ethereum,
   ETHW: EthereumPoW,
   EVMOS,
+  GLMR: Moonbeam,
   SOL: Solana,
   SOL_TEST: Solana,
   ADA: Cardano,
