@@ -17,6 +17,7 @@ import { Optimism } from './EVM/OETH';
 import { RootstockBTC } from './EVM/RBTC';
 import { Ronin } from './EVM/RON';
 import { Songbird } from './EVM/SGB';
+import { TokenX } from './EVM/TKX';
 import { Velas } from './EVM/VLX';
 import { XinFin } from './EVM/XDC';
 import { Solana } from './SOL';
@@ -50,6 +51,7 @@ export const WalletClasses = {
   VLX_VLX: Velas,
   VLX_TEST: Velas,
   SOL_TEST: Solana,
+  TKX: TokenX,
   ADA: Cardano,
   ADA_TEST: Cardano,
   MATIC_POLYGON: Matic,

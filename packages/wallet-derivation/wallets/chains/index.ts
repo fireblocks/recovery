@@ -50,6 +50,7 @@ export const getWallet = (assetId: string) => {
     case 'XDC':
     case 'RBTC_TEST':
     case 'AOA':
+    case 'TKX':
     case 'VLX_VLX':
     case 'VLX_TEST':
     case 'ETHW':
