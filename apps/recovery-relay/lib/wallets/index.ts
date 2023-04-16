@@ -2,6 +2,7 @@ import { Cardano } from './ADA';
 import { BitcoinCash } from './BCH';
 import { Bitcoin } from './BTC';
 import { Arbitrum } from './EVM/AETH';
+import { Aurora } from './EVM/AOA';
 import { Avalanche } from './EVM/AVAX';
 import { BinanceSmartChain } from './EVM/BNB_BSC';
 import { Celo } from './EVM/CELO';
@@ -30,6 +31,7 @@ export const WalletClasses = {
   EVMOS,
   GLMR: Moonbeam,
   CELO: Celo,
+  AOA: Aurora,
   SOL: Solana,
   SOL_TEST: Solana,
   ADA: Cardano,

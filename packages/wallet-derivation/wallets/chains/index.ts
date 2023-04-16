@@ -40,6 +40,7 @@ export const getWallet = (assetId: string) => {
     case 'ETH-AETH_RIN':
     case 'GLMR':
     case 'CELO':
+    case 'AOA':
     case 'ETHW':
     case 'ETH':
     case 'ETH_TEST':
