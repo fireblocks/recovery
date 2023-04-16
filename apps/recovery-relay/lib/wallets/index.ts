@@ -4,6 +4,7 @@ import { Bitcoin } from './BTC';
 import { Arbitrum } from './EVM/AETH';
 import { Avalanche } from './EVM/AVAX';
 import { BinanceSmartChain } from './EVM/BNB_BSC';
+import { Celo } from './EVM/CELO';
 import { Ethereum } from './EVM/ETH';
 import { EthereumPoW } from './EVM/ETHW';
 import { EVMOS } from './EVM/EVMOS';
@@ -28,6 +29,7 @@ export const WalletClasses = {
   ETHW: EthereumPoW,
   EVMOS,
   GLMR: Moonbeam,
+  CELO: Celo,
   SOL: Solana,
   SOL_TEST: Solana,
   ADA: Cardano,
