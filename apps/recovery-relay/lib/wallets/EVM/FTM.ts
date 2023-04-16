@@ -6,6 +6,6 @@ export class Fantom extends EVM implements BaseWallet {
     if (input.isTestnet) {
       throw new Error('No fantom testnet support');
     }
-    super(input, `${input.isTestnet ? '' : 'https://rpcapi.fantom.network'}`);
+    super(input, 'https://rpcapi.fantom.network');
   }
 }
