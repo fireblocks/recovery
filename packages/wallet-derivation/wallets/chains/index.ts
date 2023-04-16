@@ -28,6 +28,14 @@ export const getWallet = (assetId: string) => {
     case 'BCH':
     case 'BCH_TEST':
       return BitcoinCash;
+    case 'AVAX':
+    case 'AVAXTEST':
+    case 'BNB_BSC':
+    case 'BNB_TEST':
+    case 'MATIC_POLYGON':
+    case 'MATIC_POLYGON_MUMBAI':
+    case 'ETH-AETH':
+    case 'ETH-AETH_RIN':
     case 'ETH':
     case 'ETH_TEST':
     case 'ETH_TEST2':

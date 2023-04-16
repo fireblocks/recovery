@@ -1,6 +1,8 @@
 import { Cardano } from './ADA';
+import { BitcoinCash } from './BCH';
 import { Bitcoin } from './BTC';
 import { Arbitrum } from './EVM/AETH';
+import { Avalanche } from './EVM/AVAX';
 import { BinanceSmartChain } from './EVM/BNB_BSC';
 import { Ethereum } from './EVM/ETH';
 import { Matic } from './EVM/MATIC';
@@ -9,8 +11,12 @@ import { Solana } from './SOL';
 export { BaseWallet } from './BaseWallet';
 
 export const WalletClasses = {
+  AVAX: Avalanche,
+  AVAXTEST: Avalanche,
   BTC: Bitcoin,
   BTC_TEST: Bitcoin,
+  BCH: BitcoinCash,
+  BCH_TEST: BitcoinCash,
   ETH: Ethereum,
   ETH_TEST3: Ethereum,
   ETH_TEST5: Ethereum,
