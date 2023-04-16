@@ -34,6 +34,7 @@ export const getWallet = (assetId: string) => {
     case 'BNB_TEST':
     case 'FTM_FANTOM':
     case 'EVMOS':
+    case 'MORV':
     case 'MATIC_POLYGON':
     case 'MATIC_POLYGON_MUMBAI':
     case 'ETH-AETH':

@@ -12,6 +12,7 @@ import { EVMOS } from './EVM/EVMOS';
 import { Fantom } from './EVM/FTM';
 import { Moonbeam } from './EVM/GLMR';
 import { Matic } from './EVM/MATIC';
+import { Moonriver } from './EVM/MOVR';
 import { Solana } from './SOL';
 
 export { BaseWallet } from './BaseWallet';
@@ -33,6 +34,7 @@ export const WalletClasses = {
   CELO: Celo,
   AOA: Aurora,
   SOL: Solana,
+  MOVR: Moonriver,
   SOL_TEST: Solana,
   ADA: Cardano,
   ADA_TEST: Cardano,
