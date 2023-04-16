@@ -5,6 +5,7 @@ import { Arbitrum } from './EVM/AETH';
 import { Avalanche } from './EVM/AVAX';
 import { BinanceSmartChain } from './EVM/BNB_BSC';
 import { Ethereum } from './EVM/ETH';
+import { Fantom } from './EVM/FTM';
 import { Matic } from './EVM/MATIC';
 import { Solana } from './SOL';
 
@@ -17,6 +18,7 @@ export const WalletClasses = {
   BTC_TEST: Bitcoin,
   BCH: BitcoinCash,
   BCH_TEST: BitcoinCash,
+  FTM_FANTOM: Fantom,
   ETH: Ethereum,
   ETH_TEST3: Ethereum,
   ETH_TEST5: Ethereum,
