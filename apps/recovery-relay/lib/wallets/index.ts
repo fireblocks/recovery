@@ -14,6 +14,7 @@ import { Moonbeam } from './EVM/GLMR';
 import { Matic } from './EVM/MATIC';
 import { Moonriver } from './EVM/MOVR';
 import { Optimism } from './EVM/OETH';
+import { RootstockBTC } from './EVM/RBTC';
 import { Ronin } from './EVM/RON';
 import { Solana } from './SOL';
 
@@ -37,6 +38,8 @@ export const WalletClasses = {
   AOA: Aurora,
   SOL: Solana,
   RON: Ronin,
+  RBTC: RootstockBTC,
+  RBTC_TEST: RootstockBTC,
   MOVR: Moonriver,
   SOL_TEST: Solana,
   ADA: Cardano,
