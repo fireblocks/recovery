@@ -18,6 +18,7 @@ import { RootstockBTC } from './EVM/RBTC';
 import { Ronin } from './EVM/RON';
 import { Songbird } from './EVM/SGB';
 import { Velas } from './EVM/VLX';
+import { XinFin } from './EVM/XDC';
 import { Solana } from './SOL';
 
 export { BaseWallet } from './BaseWallet';
@@ -40,6 +41,7 @@ export const WalletClasses = {
   AOA: Aurora,
   SOL: Solana,
   RON: Ronin,
+  XDC: XinFin,
   RBTC: RootstockBTC,
   RBTC_TEST: RootstockBTC,
   SGB: Songbird,

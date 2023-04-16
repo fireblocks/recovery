@@ -46,6 +46,7 @@ export const getWallet = (assetId: string) => {
     case 'RON':
     case 'SGB':
     case 'RBTC':
+    case 'XDC':
     case 'RBTC_TEST':
     case 'AOA':
     case 'VLX_VLX':
