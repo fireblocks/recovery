@@ -4,8 +4,6 @@ import { AccountData, TxPayload, RawSignature } from '../types';
 import { EVM } from '.';
 
 export class Ronin extends EVMBase implements LateInitBaseWallet {
-  private endpoint: string;
-
   private inputDup: Input;
 
   private subWallet: EVM | undefined;
@@ -16,7 +14,6 @@ export class Ronin extends EVMBase implements LateInitBaseWallet {
     }
     super(input);
     this.inputDup = JSON.parse(JSON.stringify(input)) as Input;
-    this.endpoint = '';
   }
 
   public async getBalance(): Promise<number> {
