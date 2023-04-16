@@ -17,7 +17,7 @@
     "@noble/curves": "^1.0.0",
     "@typescript-eslint/utils": "^5.58.0",
     "adm-zip": "^0.5.10",
-    "bigint-mod-arith": "^3.2.0",
+    "bigint-mod-arith": "^3.2.1",
     "bs58check": "^3.0.1",
     "inquirer": "^9.1.5",
     "jsrsasign": "^10.8.1",

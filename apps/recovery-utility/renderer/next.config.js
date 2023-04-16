@@ -1,13 +1,10 @@
 // @ts-check
-const withTM = require('next-transpile-modules')(
-  [
-    '@fireblocks/asset-config',
-    '@fireblocks/recovery-shared',
-    '@fireblocks/wallet-derivation',
-    '@fireblocks/extended-key-recovery',
-  ],
-  { debug: true },
-);
+const withTM = require('next-transpile-modules')([
+  '@fireblocks/asset-config',
+  '@fireblocks/recovery-shared',
+  '@fireblocks/wallet-derivation',
+  '@fireblocks/extended-key-recovery',
+]);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

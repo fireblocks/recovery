@@ -1,6 +1,7 @@
 import { Cardano } from './ADA';
 import { Algorand } from './ALGO';
 import { Cosmos } from './ATOM';
+import { BitcoinCash } from './BCH';
 import { Bitcoin } from './BTC';
 import { ERC20 } from './ERC20';
 import { EVMWallet } from './EVM';
@@ -24,6 +25,9 @@ export const getWallet = (assetId: string) => {
     case 'BTC':
     case 'BTC_TEST':
       return Bitcoin;
+    case 'BCH':
+    case 'BCH_TEST':
+      return BitcoinCash;
     case 'ETH':
     case 'ETH_TEST':
     case 'ETH_TEST2':
@@ -35,4 +39,4 @@ export const getWallet = (assetId: string) => {
   }
 };
 
-export { Bitcoin, EVMWallet, Solana, Algorand, Cardano, ERC20, Cosmos };
+export { Bitcoin, BitcoinCash, EVMWallet, Solana, Algorand, Cardano, ERC20, Cosmos };
