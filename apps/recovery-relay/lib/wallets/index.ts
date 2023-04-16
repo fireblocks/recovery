@@ -13,6 +13,7 @@ import { Fantom } from './EVM/FTM';
 import { Moonbeam } from './EVM/GLMR';
 import { Matic } from './EVM/MATIC';
 import { Moonriver } from './EVM/MOVR';
+import { Optimism } from './EVM/OETH';
 import { Solana } from './SOL';
 
 export { BaseWallet } from './BaseWallet';
@@ -40,6 +41,8 @@ export const WalletClasses = {
   ADA_TEST: Cardano,
   MATIC_POLYGON: Matic,
   MATIC_POLYGON_MUMBAI: Matic,
+  'ETH-OPT': Optimism,
+  'ETH-OPT_KOV': Optimism,
   'ETH-AETH': Arbitrum,
   'ETH-AETH_RIN': Arbitrum,
   BNB_BSC: BinanceSmartChain,

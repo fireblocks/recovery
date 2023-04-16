@@ -37,6 +37,8 @@ export const getWallet = (assetId: string) => {
     case 'MORV':
     case 'MATIC_POLYGON':
     case 'MATIC_POLYGON_MUMBAI':
+    case 'ETH-OPT':
+    case 'ETH-OPT_KOV':
     case 'ETH-AETH':
     case 'ETH-AETH_RIN':
     case 'GLMR':
