@@ -44,6 +44,7 @@ export const getWallet = (assetId: string) => {
     case 'GLMR':
     case 'CELO':
     case 'RON':
+    case 'SGB':
     case 'RBTC':
     case 'RBTC_TEST':
     case 'AOA':

@@ -16,6 +16,7 @@ import { Moonriver } from './EVM/MOVR';
 import { Optimism } from './EVM/OETH';
 import { RootstockBTC } from './EVM/RBTC';
 import { Ronin } from './EVM/RON';
+import { Songbird } from './EVM/SGB';
 import { Solana } from './SOL';
 
 export { BaseWallet } from './BaseWallet';
@@ -40,6 +41,7 @@ export const WalletClasses = {
   RON: Ronin,
   RBTC: RootstockBTC,
   RBTC_TEST: RootstockBTC,
+  SGB: Songbird,
   MOVR: Moonriver,
   SOL_TEST: Solana,
   ADA: Cardano,
