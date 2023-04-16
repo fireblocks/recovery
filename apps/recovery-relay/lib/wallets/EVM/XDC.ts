@@ -8,4 +8,9 @@ export class XinFin extends EVM implements BaseWallet {
     }
     super(input, 'https://rpc.xinfin.network');
   }
+
+  protected getAddress(): string {
+    const address = super.getAddress();
+    return address.replace('0x', 'xdc');
+  }
 }

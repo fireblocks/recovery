@@ -45,6 +45,7 @@ export const WalletClasses = {
   RBTC: RootstockBTC,
   RBTC_TEST: RootstockBTC,
   SGB: Songbird,
+  SGB_LEGACY: Songbird,
   MOVR: Moonriver,
   VLX_VLX: Velas,
   VLX_TEST: Velas,
