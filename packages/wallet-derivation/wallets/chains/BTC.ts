@@ -1,15 +1,13 @@
-import { Buffer } from 'buffer';
-import { p2pkh } from 'bitcoinjs-lib/src/payments/p2pkh';
-import { p2wpkh } from 'bitcoinjs-lib/src/payments/p2wpkh';
-import { ECDSAWallet } from '../ECDSAWallet';
+import { p2pkh, p2wpkh } from 'bitcoinjs-lib/src/payments';
 import { Input } from '../../types';
+import { BTCWalletBase } from './BTCBase';
 
-export class Bitcoin extends ECDSAWallet {
+export class Bitcoin extends BTCWalletBase {
   constructor(input: Input) {
     super(input, 0);
   }
 
-  protected getAddress() {
+  protected getAddress(): string {
     const publicKeyBuffer = Buffer.from(this.publicKey.slice(2), 'hex');
 
     const method = this.isLegacy ? p2pkh : p2wpkh;

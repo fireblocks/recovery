@@ -37,6 +37,7 @@
     "bigint-buffer": "^1.1.5",
     "bitcoinjs-lib": "^6.1.0",
     "bitcore-lib-cash": "^10.0.5",
+    "bsv": "^2.0.10",
     "buffer": "^6.0.3",
     "cbor-x": "^1.5.2",
     "cosmjs-types": "^0.7.2",

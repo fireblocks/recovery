@@ -1,11 +1,11 @@
-import { BitcoinCash as BaseBitcoinCash, Input } from '@fireblocks/wallet-derivation';
+import { BitcoinCash as BCHBase, Input } from '@fireblocks/wallet-derivation';
 import bchLib from 'bitcore-lib-cash';
 import axios from 'axios';
 import { AccountData, UTXO, TxPayload, RawSignature } from '../types';
 import { LateInitBaseWallet } from '../LateInitBaseWallet';
 import { BCHUTXO } from './types';
 
-export class BitcoinCash extends BaseBitcoinCash implements LateInitBaseWallet {
+export class BitcoinCash extends BCHBase implements LateInitBaseWallet {
   private endpoint: string;
 
   private network: bchLib.Networks.Network;

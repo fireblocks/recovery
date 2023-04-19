@@ -1,10 +1,10 @@
 import { Buffer } from 'buffer';
-import { Bitcoin as BaseBitcoin, Input } from '@fireblocks/wallet-derivation';
+import { Bitcoin as BaseBTC, Input } from '@fireblocks/wallet-derivation';
 import { AddressSummary, FullUTXO, UTXOSummary } from './types';
 import { AccountData } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
 
-export class Bitcoin extends BaseBitcoin implements ConnectedWallet {
+export class Bitcoin extends BaseBTC implements ConnectedWallet {
   private static readonly satsPerBtc = 100000000;
 
   private readonly baseUrl: string;

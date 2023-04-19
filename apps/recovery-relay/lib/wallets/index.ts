@@ -1,6 +1,5 @@
 import { Cardano } from './ADA';
-import { BitcoinCash } from './BCH';
-import { Bitcoin } from './BTC';
+import { Bitcoin, BitcoinCash, BitcoinSV } from './BTCBased';
 import { Arbitrum } from './EVM/AETH';
 import { Aurora } from './EVM/AOA';
 import { Avalanche } from './EVM/AVAX';
@@ -31,6 +30,8 @@ export const WalletClasses = {
   BTC_TEST: Bitcoin,
   BCH: BitcoinCash,
   BCH_TEST: BitcoinCash,
+  BSV: BitcoinSV,
+  BSV_TEST: BitcoinSV,
   FTM_FANTOM: Fantom,
   ETH: Ethereum,
   ETH_TEST3: Ethereum,
