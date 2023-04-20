@@ -5,6 +5,7 @@ import { Aurora } from './EVM/AOA';
 import { Avalanche } from './EVM/AVAX';
 import { BinanceSmartChain } from './EVM/BNB_BSC';
 import { Celo } from './EVM/CELO';
+import { EthereumClassic } from './EVM/ETC';
 import { Ethereum } from './EVM/ETH';
 import { EthereumPoW } from './EVM/ETHW';
 import { EVMOS } from './EVM/EVMOS';
@@ -40,6 +41,8 @@ export const WalletClasses = {
   ZEC_TEST: ZCash,
   DASH,
   FTM_FANTOM: Fantom,
+  ETC: EthereumClassic,
+  ETC_TEST: EthereumClassic,
   ETH: Ethereum,
   ETH_TEST3: Ethereum,
   ETH_TEST5: Ethereum,

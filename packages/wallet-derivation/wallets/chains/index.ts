@@ -7,6 +7,7 @@ import { Bitcoin } from './BTC';
 import { DASH } from './DASH';
 import { DogeCoin } from './DOGE';
 import { ERC20 } from './ERC20';
+import { ETC } from './ETC';
 import { EVMWallet } from './EVM';
 import { LiteCoin } from './LTC';
 import { Solana } from './SOL';
@@ -47,6 +48,9 @@ export const getWallet = (assetId: string) => {
       return ZCash;
     case 'DASH':
       return DASH;
+    case 'ETC':
+    case 'ETC_TEST':
+      return ETC;
     case 'AVAX':
     case 'AVAXTEST':
     case 'BNB_BSC':
@@ -84,4 +88,19 @@ export const getWallet = (assetId: string) => {
   }
 };
 
-export { BitcoinSV, Bitcoin, BitcoinCash, DogeCoin, LiteCoin, ZCash, DASH, EVMWallet, Solana, Algorand, Cardano, ERC20, Cosmos };
+export {
+  BitcoinSV,
+  Bitcoin,
+  BitcoinCash,
+  DogeCoin,
+  LiteCoin,
+  ZCash,
+  DASH,
+  EVMWallet,
+  ETC,
+  Solana,
+  Algorand,
+  Cardano,
+  ERC20,
+  Cosmos,
+};
