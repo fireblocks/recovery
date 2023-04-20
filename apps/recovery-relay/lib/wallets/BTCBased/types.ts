@@ -198,3 +198,49 @@ export interface LargestTransaction24h {
   hash: string;
   value_usd: number;
 }
+
+export interface BlockchairTx {
+  data: BlockchairTxData;
+  context: BlockchairContext;
+}
+
+export interface BlockchairTxData {
+  raw_transaction: string;
+  decoded_raw_transaction: BlockchairDecodedRawTransaction;
+}
+
+export interface BlockchairDecodedRawTransaction {
+  txid: string;
+  hash: string;
+  version: number;
+  size: number;
+  vsize: number;
+  weight: number;
+  locktime: number;
+  vin: BlockchairVin[];
+  vout: BlockchairVout[];
+}
+
+export interface BlockchairVin {
+  txid: string;
+  vout: number;
+  scriptSig: BlockchairScriptSig;
+  sequence: number;
+}
+
+export interface BlockchairScriptSig {
+  asm: string;
+  hex: string;
+}
+
+export interface BlockchairVout {
+  value: number;
+  n: number;
+  scriptPubKey: BlockchairScriptPubKey;
+}
+
+export interface BlockchairScriptPubKey {
+  asm: string;
+  hex: string;
+  type: string;
+}

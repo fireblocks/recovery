@@ -1,7 +1,7 @@
 import { networks, Psbt } from 'bitcoinjs-lib';
 import { Buffer } from 'buffer';
 import { DogeCoin as BaseDOGE, Input } from '@fireblocks/wallet-derivation';
-import { BlockchairAddressDetails, BlockchairStats, BlockchairUTXO, FullUTXO } from './types';
+import { BlockchairAddressDetails, BlockchairStats, BlockchairTx, BlockchairUTXO } from './types';
 import { UTXO, AccountData, TxPayload } from '../types';
 import { BaseWallet } from '../BaseWallet';
 
@@ -17,7 +17,7 @@ export class DOGE extends BaseDOGE implements BaseWallet {
       throw new Error('No DOGECoin testnet support.');
     }
 
-    this.baseUrl = 'https://api.blockchair.com/dogecoin/dashboards';
+    this.baseUrl = 'https://api.blockchair.com/dogecoin';
   }
 
   private async _request(path: string, init?: RequestInit) {
@@ -32,7 +32,7 @@ export class DOGE extends BaseDOGE implements BaseWallet {
   }
 
   private async _getAddressUTXOs() {
-    const details = await this._requestJson<BlockchairAddressDetails>(`/address/${this.address}`);
+    const details = await this._requestJson<BlockchairAddressDetails>(`/dashboards/address/${this.address}`);
     if (details.data === null) {
       if (details.context.code === 430) {
         throw new Error(details.context.error as string);
@@ -53,13 +53,14 @@ export class DOGE extends BaseDOGE implements BaseWallet {
   private async _addSegwitInput(tx: Psbt, utxo: UTXO) {
     const { txHash } = utxo;
     const { index } = utxo;
-    const fullUTxo = await this._requestJson<FullUTXO>(`/tx/${txHash}`);
-    const { scriptpubkey, value } = fullUTxo.vout[index];
+    const bcTx = await this._requestJson<BlockchairTx>(`/raw/transaction/${txHash}`);
+    const fullUTxo = bcTx.data.decoded_raw_transaction;
+    const { scriptPubKey, value } = fullUTxo.vout[index];
     tx.addInput({
       hash: utxo.txHash,
       index: utxo.index,
       witnessUtxo: {
-        script: Buffer.from(scriptpubkey, 'hex'),
+        script: Buffer.from(scriptPubKey.hex, 'hex'),
         value,
       },
     });
@@ -68,8 +69,9 @@ export class DOGE extends BaseDOGE implements BaseWallet {
 
   private async _addNonSegwitInput(tx: Psbt, utxo: UTXO) {
     const { txHash } = utxo;
-    const rawTxRes = await this._request(`/tx/${txHash}/raw`);
-    const rawTx = await rawTxRes.arrayBuffer();
+    const bcTx = await this._requestJson<BlockchairTx>(`/raw/transaction/${txHash}`);
+    const rawTxRes = bcTx.data.raw_transaction;
+    const rawTx = Buffer.from(rawTxRes, 'hex');
     const nonWitnessUtxo = Buffer.from(rawTx);
     tx.addInput({
       hash: utxo.txHash,
