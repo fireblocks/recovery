@@ -1,5 +1,5 @@
 import { Cardano } from './ADA';
-import { Bitcoin, BitcoinCash, BitcoinSV, DogeCoin, LiteCoin, ZCash } from './BTCBased';
+import { Bitcoin, BitcoinCash, BitcoinSV, DASH, DogeCoin, LiteCoin, ZCash } from './BTCBased';
 import { Arbitrum } from './EVM/AETH';
 import { Aurora } from './EVM/AOA';
 import { Avalanche } from './EVM/AVAX';
@@ -38,6 +38,7 @@ export const WalletClasses = {
   LTC_TEST: LiteCoin,
   ZEC: ZCash,
   ZEC_TEST: ZCash,
+  DASH,
   FTM_FANTOM: Fantom,
   ETH: Ethereum,
   ETH_TEST3: Ethereum,
