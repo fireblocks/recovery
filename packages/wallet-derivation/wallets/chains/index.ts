@@ -4,6 +4,7 @@ import { Cosmos } from './ATOM';
 import { BitcoinCash } from './BCH';
 import { BitcoinSV } from './BSV';
 import { Bitcoin } from './BTC';
+import { DogeCoin } from './DOGE';
 import { ERC20 } from './ERC20';
 import { EVMWallet } from './EVM';
 import { Solana } from './SOL';
@@ -32,6 +33,9 @@ export const getWallet = (assetId: string) => {
     case 'BCH':
     case 'BCH_TEST':
       return BitcoinCash;
+    case 'DOGE':
+    case 'DOGE_TEST':
+      return DogeCoin;
     case 'AVAX':
     case 'AVAXTEST':
     case 'BNB_BSC':
@@ -69,4 +73,4 @@ export const getWallet = (assetId: string) => {
   }
 };
 
-export { BitcoinSV, Bitcoin, BitcoinCash, EVMWallet, Solana, Algorand, Cardano, ERC20, Cosmos };
+export { BitcoinSV, Bitcoin, BitcoinCash, DogeCoin, EVMWallet, Solana, Algorand, Cardano, ERC20, Cosmos };

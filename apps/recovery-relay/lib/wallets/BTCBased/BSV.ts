@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable class-methods-use-this */
-import { BitcoinSV as BSVBase } from '@fireblocks/wallet-derivation';
+import { BitcoinSV as BSVBase, Input } from '@fireblocks/wallet-derivation';
 import { AccountData, UTXO, TxPayload, RawSignature } from '../types';
 import { LateInitBaseWallet } from '../LateInitBaseWallet';
 
@@ -12,7 +12,7 @@ export class BitcoinSV extends BSVBase implements LateInitBaseWallet {
   }
 
   public updateDataEndpoint(endpoint: string): void {
-    throw new Error('Method not implemented.');
+    this.baseUrl = endpoint;
   }
 
   public async prepare(): Promise<AccountData> {
