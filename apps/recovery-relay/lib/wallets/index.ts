@@ -23,6 +23,7 @@ import { TokenX } from './EVM/TKX';
 import { Velas } from './EVM/VLX';
 import { XinFin } from './EVM/XDC';
 import { Solana } from './SOL';
+import { Tron } from './TRON';
 
 export { ConnectedWallet as BaseWallet } from './ConnectedWallet';
 
@@ -79,6 +80,8 @@ export const WalletClasses = {
   EOS_TEST: EOS,
   ATOM_COS: Cosmos,
   ATOM_COS_TEST: Cosmos,
+  TRX: Tron,
+  TRX_TEST: Tron,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];

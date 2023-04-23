@@ -140,6 +140,12 @@ export const nativeAssetPatches: { [ID in AssetId]?: NativeAssetPatch } = {
   EOS_TEST: {
     derive: true,
   },
+  TRX: {
+    derive: true,
+  },
+  TRX_TEST: {
+    derive: true,
+  },
 };
 
 export const assetPatches: { [ID in AssetId]?: ChildAssetPatch } = {};

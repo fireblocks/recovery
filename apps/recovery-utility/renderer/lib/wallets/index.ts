@@ -3,6 +3,7 @@ import { Cosmos } from './ATOM';
 import { EOS } from './EOS';
 import { EVM } from './EVM';
 import { Solana } from './SOL';
+import { Tron } from './TRON';
 
 export { SigningWallet as BaseWallet } from './SigningWallet';
 
@@ -17,6 +18,8 @@ export const WalletClasses = {
   EOS_TEST: EOS,
   ATOM_COS: Cosmos,
   ATOM_COS_TEST: Cosmos,
+  TRX: Tron,
+  TRX_TEST: Tron,
 
   // EDDSA
   SOL: Solana,

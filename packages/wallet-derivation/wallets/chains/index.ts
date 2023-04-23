@@ -12,6 +12,7 @@ import { ETC } from './ETC';
 import { EVMWallet } from './EVM';
 import { LiteCoin } from './LTC';
 import { Solana } from './SOL';
+import { Tron } from './TRX';
 import { ZCash } from './ZEC';
 
 export const getWallet = (assetId: string) => {
@@ -52,6 +53,8 @@ export const getWallet = (assetId: string) => {
       return ZCash;
     case 'DASH':
       return DASH;
+    case 'TRX':
+      return Tron;
     case 'ETC':
     case 'ETC_TEST':
       return ETC;
@@ -108,4 +111,5 @@ export {
   Cardano,
   ERC20,
   Cosmos,
+  Tron,
 };

@@ -7929,6 +7929,7 @@ export const assets = {
     decimals: 6,
     exp: "tronscan.org",
     coinType: 195,
+    derive: true
   },
   TRX_BSC: {
     id: "TRX_BSC",
@@ -7946,6 +7947,7 @@ export const assets = {
     decimals: 6,
     exp: "shasta.tronscan.org",
     coinType: 195,
+    derive: true
   },
   TRX_USDC_6NU3: {
     id: "TRX_USDC_6NU3",
