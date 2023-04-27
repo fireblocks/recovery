@@ -13,6 +13,7 @@ import { EVMWallet } from './EVM';
 import { LiteCoin } from './LTC';
 import { Solana } from './SOL';
 import { Tron } from './TRX';
+import { Ripple } from './XRP';
 import { ZCash } from './ZEC';
 
 export const getWallet = (assetId: string) => {
@@ -58,6 +59,9 @@ export const getWallet = (assetId: string) => {
     case 'ETC':
     case 'ETC_TEST':
       return ETC;
+    case 'XRP':
+    case 'XRP_TEST':
+      return Ripple;
     case 'AVAX':
     case 'AVAXTEST':
     case 'BNB_BSC':
@@ -101,6 +105,7 @@ export {
   BitcoinCash,
   DogeCoin,
   LiteCoin,
+  Ripple,
   ZCash,
   DASH,
   EOS,

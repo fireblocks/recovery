@@ -33,7 +33,8 @@
     "bsv": "^2.0.10",
     "buffer": "^6.0.3",
     "ethers": "^6.3.0",
-    "tronweb": "^5.1.0"
+    "tronweb": "^5.1.0",
+    "xrpl": "^2.7.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.1",

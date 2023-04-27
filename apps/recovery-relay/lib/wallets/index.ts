@@ -24,6 +24,7 @@ import { Velas } from './EVM/VLX';
 import { XinFin } from './EVM/XDC';
 import { Solana } from './SOL';
 import { Tron } from './TRON';
+import { Ripple } from './XRP';
 
 export { ConnectedWallet as ConnectedWallet } from './ConnectedWallet';
 
@@ -57,6 +58,8 @@ export const WalletClasses = {
   SOL: Solana,
   RON: Ronin,
   XDC: XinFin,
+  XRP: Ripple,
+  XRP_TEST: Ripple,
   RBTC: RootstockBTC,
   RBTC_TEST: RootstockBTC,
   SGB: Songbird,

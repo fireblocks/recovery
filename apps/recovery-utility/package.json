@@ -38,6 +38,7 @@
     "superjson": "^1.12.3",
     "tiny-secp256k1": "^2.2.1",
     "tronweb": "^5.1.0",
+    "xrpl": "^2.7.0",
     "zod": "^3.21.4"
   },
   "devDependencies": {

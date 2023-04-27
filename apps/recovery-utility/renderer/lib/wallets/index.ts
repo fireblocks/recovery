@@ -1,3 +1,5 @@
+// import { Bitcoin } from './BTC';
+import { Ripple } from './XRP';
 import { Cosmos } from './ATOM';
 import { EOS } from './EOS';
 import { Bitcoin } from './BTC';
@@ -20,6 +22,8 @@ export const WalletClasses = {
   ATOM_COS_TEST: Cosmos,
   TRX: Tron,
   TRX_TEST: Tron,
+  XRP: Ripple,
+  XRP_TEST: Ripple,
 
   // EDDSA
   SOL: Solana,

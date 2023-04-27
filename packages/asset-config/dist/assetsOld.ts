@@ -9295,6 +9295,7 @@ export const assets = {
     decimals: 6,
     exp: "livenet.xrpl.org",
     coinType: 144,
+    derive: true,
   },
   XRP_TEST: {
     id: "XRP_TEST",
@@ -9304,6 +9305,7 @@ export const assets = {
     decimals: 6,
     exp: "testnet.xrpl.org",
     coinType: 144,
+    derive: true,
   },
   XSGD: {
     id: "XSGD",
