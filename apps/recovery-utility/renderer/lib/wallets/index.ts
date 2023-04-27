@@ -6,6 +6,7 @@ import { Bitcoin } from './BTC';
 import { EVM } from './EVM';
 import { Solana } from './SOL';
 import { Tron } from './TRON';
+import { Luna } from './LUNA';
 
 export { SigningWallet as BaseWallet } from './SigningWallet';
 
@@ -24,6 +25,8 @@ export const WalletClasses = {
   TRX_TEST: Tron,
   XRP: Ripple,
   XRP_TEST: Ripple,
+  LUNA2: Luna,
+  LUNA2_TEST: Luna,
 
   // EDDSA
   SOL: Solana,

@@ -11,6 +11,7 @@ import { ERC20 } from './ERC20';
 import { ETC } from './ETC';
 import { EVMWallet } from './EVM';
 import { LiteCoin } from './LTC';
+import { Luna } from './LUNA';
 import { Solana } from './SOL';
 import { Tron } from './TRX';
 import { Ripple } from './XRP';
@@ -52,6 +53,9 @@ export const getWallet = (assetId: string) => {
     case 'ZEC':
     case 'ZEC_TEST':
       return ZCash;
+    case 'LUNA2':
+    case 'LUNA2_TEST':
+      return Luna;
     case 'DASH':
       return DASH;
     case 'TRX':
@@ -117,4 +121,5 @@ export {
   ERC20,
   Cosmos,
   Tron,
+  Luna,
 };

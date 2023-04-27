@@ -91,12 +91,12 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
 
   // TODO: Show both original balance and adjusted balance in create tx UI
 
-  const prepareQueryKey = ['prepare', fromAddress];
+  const prepareQueryKey = ['prepare', fromAddress, values.memo];
 
   const prepareQuery = useQuery({
     queryKey: prepareQueryKey,
     enabled: !!derivation,
-    queryFn: async () => derivation!.prepare?.(),
+    queryFn: async () => derivation!.prepare?.(toAddress, values.memo),
     onSuccess: (prepare: AccountData) => {
       console.info('UTXOs', prepare.utxos);
 

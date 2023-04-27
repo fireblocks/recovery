@@ -1,5 +1,5 @@
 import { Ripple as BaseRipple, Input } from '@fireblocks/wallet-derivation';
-import { Client, Transaction, TxResponse } from 'xrpl';
+import { Client, TxResponse } from 'xrpl';
 import SuperJSON from 'superjson';
 import { BaseWallet } from '../BaseWallet';
 import { AccountData } from '../types';
@@ -22,7 +22,7 @@ export class Ripple extends BaseRipple implements BaseWallet {
       .map((tokenBalance) => parseFloat(tokenBalance.value))[0];
   }
 
-  public async prepare(to?: string, memo: string = '4083150184'): Promise<AccountData> {
+  public async prepare(to?: string, memo?: string): Promise<AccountData> {
     const balance = await this.getBalance();
     const preparedTx = await this.xrpClient.autofill({
       TransactionType: 'Payment',

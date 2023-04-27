@@ -4858,6 +4858,8 @@ export const assets = {
     nativeAsset: "LUNA2",
     decimals: 6,
     exp: "finder.terra.money",
+    derive: true,
+    coinType: 330,
   },
   LUNA2_TEST: {
     id: "LUNA2_TEST",
@@ -4866,6 +4868,8 @@ export const assets = {
     nativeAsset: "LUNA2_TEST",
     decimals: 6,
     exp: "finder.terra.money/testnet",
+    derive: true,
+    coinType: 330,
   },
   LUSD: {
     id: "LUSD",

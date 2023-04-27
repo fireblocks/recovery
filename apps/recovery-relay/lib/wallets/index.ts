@@ -22,6 +22,7 @@ import { Songbird } from './EVM/SGB';
 import { TokenX } from './EVM/TKX';
 import { Velas } from './EVM/VLX';
 import { XinFin } from './EVM/XDC';
+import { Luna } from './LUNA';
 import { Solana } from './SOL';
 import { Tron } from './TRON';
 import { Ripple } from './XRP';
@@ -85,6 +86,8 @@ export const WalletClasses = {
   ATOM_COS_TEST: Cosmos,
   TRX: Tron,
   TRX_TEST: Tron,
+  LUNA2: Luna,
+  LUNA2_TEST: Luna,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];
