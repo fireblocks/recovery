@@ -161,9 +161,11 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
       misc: {
         nonce: prepareQuery.data?.nonce,
         gasPrice: `${prepareQuery.data?.gasPrice}`,
+        feeRate: prepareQuery.data?.feeRate,
         extraParams: prepareQuery.data?.extraParams,
-        utxos,
+        memo: values.memo,
         endpoint: derivation.isLateInit() ? prepareQuery.data?.endpoint : undefined,
+        utxos,
       },
       // memo: data.memo,
     });
