@@ -38,10 +38,11 @@
     "@commitlint/config-conventional": "^17.6.1",
     "@commitlint/prompt-cli": "^17.6.1",
     "@manypkg/cli": "^0.20.0",
-    "@typescript-eslint/utils": "^5.59.0",
+    "@typescript-eslint/utils": "^5.59.1",
     "husky": "^8.0.3",
     "is-ci": "^3.0.1",
-    "lint-staged": "^13.2.1",
+    "lint-staged": "^13.2.2",
+    "react-dom": "^18.2.0",
     "turbo": "^1.9.3"
   }
 }
