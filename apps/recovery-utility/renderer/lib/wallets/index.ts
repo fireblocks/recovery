@@ -10,6 +10,7 @@ import { Luna } from './LUNA';
 import { Cardano } from './ADA';
 import { Stellar } from './XLM';
 import { Near } from './NEAR';
+import { Tezos } from './XTZ';
 
 export { SigningWallet as BaseWallet } from './SigningWallet';
 
@@ -40,6 +41,8 @@ export const WalletClasses = {
   XLM_TEST: Stellar,
   NEAR: Near,
   NEAR_TEST: Near,
+  XTZ: Tezos,
+  XTZ_TEST: Tezos,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];

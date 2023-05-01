@@ -17,6 +17,7 @@ import { Solana } from './SOL';
 import { Tron } from './Tron';
 import { Stellar } from './XLM';
 import { Ripple } from './XRP';
+import { Tezos } from './XTZ';
 import { ZCash } from './ZEC';
 
 export const getWallet = (assetId: string) => {
@@ -37,6 +38,9 @@ export const getWallet = (assetId: string) => {
     case 'NEAR_TEST':
       return Near;
 
+    case 'XTZ':
+    case 'XTZ_TEST':
+      return Tezos;
     // ECDSA
     case 'ATOM_COS':
     case 'ATOM_COS_TEST':
@@ -133,4 +137,5 @@ export {
   Luna,
   Stellar,
   Near,
+  Tezos,
 };

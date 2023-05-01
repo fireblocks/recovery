@@ -9355,6 +9355,7 @@ export const assets = {
     decimals: 6,
     exp: "tzkt.io",
     coinType: 1729,
+    derive: true
   },
   XTZ_BSC: {
     id: "XTZ_BSC",
@@ -9372,6 +9373,7 @@ export const assets = {
     decimals: 6,
     exp: "ghostnet.tzkt.io",
     coinType: 1729,
+    derive: true
   },
   XUSD_RBTC: {
     id: "XUSD_RBTC",

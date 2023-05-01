@@ -28,6 +28,7 @@ import { Solana } from './SOL';
 import { Tron } from './TRON';
 import { Stellar } from './XLM';
 import { Ripple } from './XRP';
+import { Tezos } from './XTZ';
 
 export { ConnectedWallet } from './ConnectedWallet';
 
@@ -94,6 +95,8 @@ export const WalletClasses = {
   XLM_TEST: Stellar,
   NEAR: Near,
   NEAR_TEST: Near,
+  XTZ: Tezos,
+  XTZ_TEST: Tezos,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];
