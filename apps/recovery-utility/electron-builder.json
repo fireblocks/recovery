@@ -8,9 +8,7 @@
   },
   "protocols": {
     "name": "Recovery Relay Responses",
-    "schemes": [
-      "fireblocks-recovery"
-    ],
+    "schemes": ["fireblocks-recovery"],
     "role": "Viewer"
   },
   "directories": {
@@ -20,10 +18,7 @@
   "files": [
     {
       "from": ".",
-      "filter": [
-        "package.json",
-        "app"
-      ]
+      "filter": ["package.json", "app"]
     },
     "!node_modules/**/*.{mk,a,o,h}",
     "!node_modules/py-dec"
@@ -31,10 +26,7 @@
   "extraFiles": [
     {
       "from": "../../packages/py-dec/dist",
-      "filter": [
-        "recover",
-        "recover.exe"
-      ]
+      "filter": ["decrypt", "decrypt.exe"]
     }
   ],
   "afterSign": "electron-builder-notarize",

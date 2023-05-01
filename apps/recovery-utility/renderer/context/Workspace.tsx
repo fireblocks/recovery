@@ -10,17 +10,18 @@ import { useRouter } from 'next/router';
 import packageJson from '../../package.json';
 import { initIdleDetector } from '../lib/idleDetector';
 import { handleRelayUrl } from '../lib/ipc/handleRelayUrl';
+import { SigningWallet } from '../lib/wallets/SigningWallet';
 import { useSettings } from './Settings';
 
 type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K> : never;
 
 type RelayRequestParamsInput = DistributiveOmit<RelayRequestParams, 'xpub' | 'fpub' | 'version' | 'platform'>;
 
-type WorkspaceContext = Omit<BaseWorkspaceContext<BaseWallet, 'utility'>, 'setWalletBalance' | 'getOutboundRelayUrl'> & {
+type WorkspaceContext = Omit<BaseWorkspaceContext<SigningWallet, 'utility'>, 'setWalletBalance' | 'getOutboundRelayUrl'> & {
   getOutboundRelayUrl: <Params extends RelayRequestParamsInput>(params: Params) => string;
 };
 
-const Context = createContext<WorkspaceContext>(defaultBaseWorkspaceContext as WorkspaceContext);
+const Context = createContext<WorkspaceContext>(defaultBaseWorkspaceContext as BaseWorkspaceContext<SigningWallet, 'utility'>);
 
 type Props = {
   children: ReactNode;

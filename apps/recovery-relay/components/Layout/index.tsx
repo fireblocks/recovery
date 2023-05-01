@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Verified, LeakAdd, ImportExport /* Settings */ } from '@mui/icons-material';
+import { Verified, LeakAdd, ImportExport, Settings } from '@mui/icons-material';
 import {
   Layout as BaseLayout,
   LayoutProps as BaseLayoutProps,
@@ -54,11 +54,11 @@ export const Layout = ({ children }: Props) => {
       icon: ImportExport,
       disabled: !hasExtendedPublicKeys,
     },
-    // {
-    //   label: 'Settings',
-    //   path: '/settings',
-    //   icon: Settings,
-    // },
+    {
+      label: 'Settings',
+      path: '/settings',
+      icon: Settings,
+    },
   ];
 
   return (

@@ -55,7 +55,20 @@ export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Pr
     const derivation = account.wallets.get(asset.id)?.derivations.get(unsignedTx.from);
 
     const hex = '00000000'; // TODO: Call derivation.generateTx()
-    const signature = '00000000';
+
+    console.info({ derivation, hex });
+
+    // const signature = derivation.generateTx({
+    //   to,
+    //   amount,
+    //   inputs,
+    //   feeRate,
+    //   nonce,
+    //   gasPrice,
+    //   blockHash
+    // });
+
+    console.info({ signature });
 
     setOutboundRelayUrl(
       getOutboundRelayUrl({

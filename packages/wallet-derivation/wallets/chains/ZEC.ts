@@ -1,8 +1,9 @@
 import bs58check from 'bs58check';
 import { Input } from '../../types';
 import { BTCWalletBase } from './BTCBase';
+import { BaseWallet } from '../BaseWallet';
 
-export class ZCash extends BTCWalletBase {
+export class ZCash extends BTCWalletBase implements BaseWallet {
   constructor(input: Input) {
     super(input, 133);
   }

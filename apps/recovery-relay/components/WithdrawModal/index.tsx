@@ -23,7 +23,7 @@ const getAssetId = (inboundRelayParams?: RelayRequestParams) => {
 };
 
 export const WithdrawModal = () => {
-  const { inboundRelayParams, getOutboundRelayUrl, setInboundRelayUrl, setTransaction } = useWorkspace();
+  const { accounts, inboundRelayParams, getOutboundRelayUrl, setInboundRelayUrl, setTransaction } = useWorkspace();
 
   const action = inboundRelayParams?.action;
 
@@ -84,7 +84,28 @@ export const WithdrawModal = () => {
               />
             ))}
           {action === 'tx/broadcast' && (
-            <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>WIP: Confirm and broadcast</pre>
+            <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
+              <button
+                type='button'
+                onClick={async () => {
+                  console.info({ inboundRelayParams });
+
+                  const wallet = accounts.get(inboundRelayParams?.accountId)?.wallets.get(inboundRelayParams?.signedTx.assetId);
+
+                  const derivation = wallet?.derivations?.get(inboundRelayParams?.signedTx.from);
+
+                  const tx = inboundRelayParams?.signedTx.hex;
+
+                  const sigs = [inboundRelayParams?.signedTx.signature];
+
+                  // const txHash = await derivation?.broadcastTx(tx, sigs);
+
+                  console.info({ derivation, tx, sigs });
+                }}
+              >
+                Confirm and broadcast
+              </button>
+            </pre>
           )}
         </>
       ) : (

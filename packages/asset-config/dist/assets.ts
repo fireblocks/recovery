@@ -3163,7 +3163,7 @@ export const assets = {
   },
   "ETH-AETH": {
     id: "ETH-AETH",
-    name: "Arbitrum",
+    name: "Ethereum (Arbitrum)",
     type: "BASE_ASSET",
     nativeAsset: "ETH-AETH",
     decimals: 18,
@@ -3690,7 +3690,7 @@ export const assets = {
   },
   GALA: {
     id: "GALA",
-    name: "Gala",
+    name: "Gala V1",
     type: "ERC20",
     contractAddress: "0x15D4c048F83bd7e37d49eA4C83a07267Ec4203dA",
     nativeAsset: "ETH",
@@ -6566,7 +6566,7 @@ export const assets = {
   },
   RPL: {
     id: "RPL",
-    name: "Rocket Pool",
+    name: "Rocket Pool (Old)",
     type: "ERC20",
     contractAddress: "0xB4EFd85c19999D84251304bDA99E90B92300Bd93",
     nativeAsset: "ETH",
@@ -6814,7 +6814,7 @@ export const assets = {
   },
   SHFT_WRAPPED: {
     id: "SHFT_WRAPPED",
-    name: "Shyft [ Wrapped ]",
+    name: "Shyft _ Wrapped _",
     type: "ERC20",
     contractAddress: "0xb17C88bDA07D28B3838E0c1dE6a30eAfBCF52D85",
     nativeAsset: "ETH",
@@ -7289,7 +7289,7 @@ export const assets = {
   },
   STETH_ETH: {
     id: "STETH_ETH",
-    name: "Liquid staked Ether 2.0",
+    name: "Liquid staked Ether 2_0",
     type: "ERC20",
     contractAddress: "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
     nativeAsset: "ETH",
@@ -9575,5 +9575,29 @@ export const assets = {
     contractAddress: "0xbf0f3cCB8fA385A287106FbA22e6BB722F94d686",
     nativeAsset: "ETH",
     decimals: 6,
+  },
+  DERC20_POLYGON_TEST_MUMBAI_12ME: {
+    id: "DERC20_POLYGON_TEST_MUMBAI_12ME",
+    name: "Dummy ERC20",
+    type: "ERC20",
+    contractAddress: "0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1",
+    nativeAsset: "MATIC_POLYGON_MUMBAI",
+    decimals: 18,
+  },
+  GALA2: {
+    id: "GALA2",
+    name: "Gala V2",
+    type: "ERC20",
+    contractAddress: "0xd1d2Eb1B1e90B638588728b4130137D262C87cae",
+    nativeAsset: "ETH",
+    decimals: 8,
+  },
+  RPL2: {
+    id: "RPL2",
+    name: "Rocket Pool (New)",
+    type: "ERC20",
+    contractAddress: "0xD33526068D116cE69F19A9ee46F0bd304F21A51f",
+    nativeAsset: "ETH",
+    decimals: 18,
   },
 };

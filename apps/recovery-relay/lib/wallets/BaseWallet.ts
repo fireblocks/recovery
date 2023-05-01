@@ -6,13 +6,5 @@ export abstract class BaseWallet extends DerivationBaseWallet {
 
   public abstract prepare(): Promise<AccountData>;
 
-  // public abstract generateTx(
-  //   to: string,
-  //   amount: number,
-  //   memo?: string,
-  //   utxos?: UTXO[],
-  //   additionalParameters?: Map<string, object>,
-  // ): Promise<TxPayload>;
-
   public abstract broadcastTx(txHex: string, sigs: RawSignature[], customUrl?: string): Promise<string>;
 }

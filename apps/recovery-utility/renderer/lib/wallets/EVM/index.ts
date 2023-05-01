@@ -1,9 +1,15 @@
 import { Transaction, Wallet } from 'ethers';
-import { Ethereum as BaseEthereum } from '@fireblocks/wallet-derivation';
+import { EVMWallet as EVMBase, Input } from '@fireblocks/wallet-derivation';
 import { TxPayload, GenerateTxInput } from '../types';
 import { SigningWallet } from '../SigningWallet';
 
-export class Ethereum extends BaseEthereum implements SigningWallet {
+export class EVM extends EVMBase implements SigningWallet {
+  constructor(input: Input, chainId?: number) {
+    console.info({ chainId });
+
+    super(input);
+  }
+
   public async generateTx({
     to,
     amount,

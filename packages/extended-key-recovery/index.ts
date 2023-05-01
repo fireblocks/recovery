@@ -1,4 +1,3 @@
-import { recoverKeys } from './recovery';
+export { recoverKeys } from './recovery';
 
 export type { KeyRecoveryConfig } from './types';
-export { recoverKeys };

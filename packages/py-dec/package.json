@@ -9,7 +9,7 @@
   "private": true,
   "main": "recover.py",
   "scripts": {
-    "build": "python -m PyInstaller --osx-bundle-identifier com.fireblocks.py_dec --osx-entitlements-file res/entitlements.plist --onefile recover.py",
+    "build": "python -m PyInstaller --osx-bundle-identifier com.fireblocks.py_dec --osx-entitlements-file res/entitlements.plist --onefile decrypt.py",
     "lint": "python -m pylint --recursive=y --rcfile=../../.pylintrc .",
     "format": "python -m black ."
   }

@@ -18,7 +18,7 @@ export type ExecArgs = {
   rsaPass: string;
 };
 
-const EXECUTABLE_NAME = 'recover';
+const EXECUTABLE_NAME = 'decrypt';
 
 const basePath = path.join(__dirname, '..', '..', '..');
 
@@ -30,11 +30,15 @@ export const getChildProcessInput = (args: ExecArgs) => {
   if (isDev) {
     const executablePath = path.join(basePath, 'packages', 'py-dec', `${EXECUTABLE_NAME}.py`);
 
+    console.info({ isDev, executablePath });
+
     file = 'python';
 
     processArgs.unshift(executablePath);
   } else {
     const executablePath = path.join(basePath, EXECUTABLE_NAME, process.platform === 'win32' ? '.exe' : '');
+
+    console.info({ isDev, executablePath });
 
     file = executablePath;
   }
