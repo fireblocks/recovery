@@ -228,8 +228,38 @@ export const nativeAssetPatches: NativeAssetPatches = {
   XDC: evm('observer.xdc.org', 'https://rpc.xinfin.network'),
   XEC: btc('explorer.bitcoinabc.org', false),
   XEC_TEST: btc('texplorer.bitcoinabc.org', false),
-  XEM: evm('explorer.nemtool.com', 'https://hugealice.nem.ninja:7891'),
-  XEM_TEST: evm('testnet-explorer.nemtool.com', 'https://hugealice.nem.ninja:7891'),
+  XEM: {
+    derive: true,
+    transfer: true,
+    utxo: false,
+    segwit: false,
+    minBalance: false,
+    memo: true,
+    getExplorerUrl: (type) => (value) => {
+      if (type === 'address') {
+        return `https://explorer.nemtool.com/#/s_account?account=${value}`;
+      } else {
+        return `https://explorer.nemtool.com/#/s_tx?hash=${value}`;
+      }
+    },
+    rpcUrl: 'http://hugealice3.nem.ninja:7778',
+  },
+  XEM_TEST: {
+    derive: true,
+    transfer: true,
+    utxo: false,
+    segwit: false,
+    minBalance: false,
+    memo: true,
+    getExplorerUrl: (type) => (value) => {
+      if (type === 'address') {
+        return `https://testnet-explorer.nemtool.com/#/s_account?account=${value}`;
+      } else {
+        return `https://testnet-explorer.nemtool.com/#/s_tx?hash=${value}`;
+      }
+    },
+    rpcUrl: 'http://hugetestalice.nem.ninja:7890',
+  },
   XLM: evm('stellarchain.io', 'https://horizon.stellar.org'),
   XLM_TEST: evm('testnet.stellarchain.io', 'https://horizon-testnet.stellar.org'),
   XRP: {

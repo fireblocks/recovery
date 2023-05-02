@@ -26,6 +26,7 @@ import { XinFin } from './EVM/XDC';
 import { Kusama } from './KSM';
 import { Luna } from './LUNA';
 import { Near } from './NEAR';
+import { NEM } from './NEM';
 import { Solana } from './SOL';
 import { Tron } from './TRON';
 import { Stellar } from './XLM';
@@ -102,6 +103,8 @@ export const WalletClasses = {
   NEAR_TEST: Near,
   XTZ: Tezos,
   XTZ_TEST: Tezos,
+  XEM: NEM,
+  XEM_TEST: NEM,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];

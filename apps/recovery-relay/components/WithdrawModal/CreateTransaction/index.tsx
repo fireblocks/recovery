@@ -115,8 +115,8 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
       return;
     }
 
-    if (typeof asset === 'undefined' || !('coinType' in asset)) {
-      console.error('No coin type found for asset', asset.id);
+    if (typeof asset === 'undefined') {
+      console.error('No asset defined');
       return;
     }
 

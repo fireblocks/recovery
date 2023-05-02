@@ -16,6 +16,7 @@ import { Kusama } from './KSM';
 import { LiteCoin } from './LTC';
 import { Luna } from './LUNA';
 import { Near } from './NEAR';
+import { NEM } from './NEM';
 import { Solana } from './SOL';
 import { Tron } from './Tron';
 import { Stellar } from './XLM';
@@ -63,7 +64,9 @@ export const getWallet = (assetId: string) => {
       return Polkadot;
     case 'KSM':
       return Kusama;
-
+    case 'XEM':
+    case 'XEM_TEST':
+      return NEM;
     // ECDSA
     case 'ATOM_COS':
     case 'ATOM_COS_TEST':
@@ -131,4 +134,5 @@ export {
   Tezos,
   Polkadot,
   Kusama,
+  NEM,
 };

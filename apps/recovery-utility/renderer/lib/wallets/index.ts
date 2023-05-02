@@ -13,6 +13,7 @@ import { Near } from './NEAR';
 import { Tezos } from './XTZ';
 import { Polkadot } from './DOT';
 import { Kusama } from './KSM';
+import { NEM } from './NEM';
 
 export { SigningWallet as BaseWallet } from './SigningWallet';
 
@@ -48,6 +49,8 @@ export const WalletClasses = {
   DOT: Polkadot,
   WND: Polkadot,
   KSM: Kusama,
+  XEM: NEM,
+  XEM_TEST: NEM,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];
