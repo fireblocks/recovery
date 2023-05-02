@@ -171,6 +171,16 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
     });
   };
 
+  const truncateBalance = (data: any) => {
+    const balance = data.balance;
+    if (`${balance}`.length > 6) {
+      const balanceStr = Math.floor(data.balance * 10 ** 6) / 10 ** 6;
+      return `${balanceStr}... ${asset?.id}`;
+    } else {
+      return `${data.balance} ${asset?.id}`;
+    }
+  };
+
   const fromAddressId = useId();
   const balanceId = useId();
   const addressExplorerId = useId();
@@ -247,7 +257,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
               >
                 {prepareQuery.error || typeof prepareQuery.data?.balance === 'undefined'
                   ? 'Could not get balance'
-                  : `${prepareQuery.data?.balance} ${asset?.id}`}
+                  : truncateBalance(prepareQuery.data)}
               </Typography>
             )}
           </Grid>
