@@ -135,35 +135,6 @@ export abstract class EdDSAWallet extends BaseWallet {
    * @param privateKey hex-encoded private key
    * @returns Fireblocks EdDSA signature
    */
-  // protected async sign(message: string | Uint8Array) {
-  //   if (!this.privateKey) {
-  //     throw new Error('Cannot sign without a derived private key');
-  //   }
-
-  //   const privateKeyInt = h2n(this.privateKey);
-  //   const privateKeyBytes = nble(privateKeyInt);
-  //   const messagesBytes = typeof message === 'string' ? Buffer.from(message) : message;
-  //   const messageBytes = concatBytes(messagesBytes);
-  //   const seed = randomBytes();
-
-  //   const nonceDigest = await sha512(seed, privateKeyBytes, messageBytes);
-  //   const nonce = modlLE(nonceDigest);
-
-  //   const R = scalarMult(G, nonce);
-  //   const A = scalarMult(G, privateKeyInt);
-
-  //   const serializedR = serialize(R);
-  //   const serializedA = serialize(A);
-
-  //   const hramDigest = await sha512(serializedR, serializedA, messageBytes);
-  //   const hram = modlLE(hramDigest);
-
-  //   const s = mod(hram * privateKeyInt + nonce, CURVE.l);
-  //   const signature = concatBytes(serializedR, nble(s));
-  //   const sig1 = await this.sign1(message, seed, nonceDigest);
-  //   return signature;
-  // }
-
   protected async sign(message: string | Uint8Array) {
     if (!this.privateKey) {
       throw new Error('Cannot sign without a derived private key');

@@ -41,7 +41,7 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(input: Deri
     privateKey,
     wif,
     isLegacy = !!input.address && testIsLegacy(input.assetId, input.address),
-    isTestnet = input.assetId.includes('TEST'),
+    isTestnet = input.assetId.includes('TEST') || input.assetId === 'WND',
     lastUpdated,
     balance,
     deriveWallet,

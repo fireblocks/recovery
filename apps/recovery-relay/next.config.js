@@ -13,13 +13,26 @@ const nextConfig = {
   // eslint-disable-next-line turbo/no-undeclared-env-vars
   eslint: { ignoreDuringBuilds: true }, // !!process.env.CI },
   transpilePackages: ['@fireblocks/asset-config', '@fireblocks/recovery-shared', '@fireblocks/wallet-derivation'],
-  webpack: (config) => ({
-    ...config,
-    experiments: {
-      ...config.experiments,
-      asyncWebAssembly: true,
-    },
-  }),
+  webpack: (config) => {
+    // Fixes npm packages that depend on `fs` module
+    config.resolve.fallback = { fs: false };
+
+    return {
+      ...config,
+      experiments: {
+        ...config.experiments,
+        asyncWebAssembly: true,
+      },
+    };
+
+    // webpack: (config) => ({
+    //   ...config,
+    //   experiments: {
+    //     ...config.experiments,
+    //     asyncWebAssembly: true,
+    //   },
+    // }),
+  },
 };
 
 // @ts-ignore

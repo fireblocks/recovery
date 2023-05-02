@@ -7,10 +7,12 @@ import { BitcoinSV } from './BSV';
 import { Bitcoin } from './BTC';
 import { DASH } from './DASH';
 import { DogeCoin } from './DOGE';
+import { Polkadot } from './DOT';
 import { EOS } from './EOS';
 import { ERC20 } from './ERC20';
 import { ETC } from './ETC';
 import { EVMWallet } from './EVM';
+import { Kusama } from './KSM';
 import { LiteCoin } from './LTC';
 import { Luna } from './LUNA';
 import { Near } from './NEAR';
@@ -56,6 +58,12 @@ export const getWallet = (assetId: string) => {
     case 'XTZ':
     case 'XTZ_TEST':
       return Tezos;
+    case 'DOT':
+    case 'WND':
+      return Polkadot;
+    case 'KSM':
+      return Kusama;
+
     // ECDSA
     case 'ATOM_COS':
     case 'ATOM_COS_TEST':
@@ -121,4 +129,6 @@ export {
   Stellar,
   Near,
   Tezos,
+  Polkadot,
+  Kusama,
 };

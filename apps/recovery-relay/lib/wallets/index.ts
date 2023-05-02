@@ -1,6 +1,7 @@
 import { Cardano } from './ADA';
 import { Cosmos } from './ATOM';
 import { Bitcoin, BitcoinCash, BitcoinSV, DASH, DogeCoin, LiteCoin, ZCash } from './BTCBased';
+import { Polkadot } from './DOT';
 import { EOS } from './EOS';
 import { Arbitrum } from './EVM/AETH';
 import { Aurora } from './EVM/AOA';
@@ -22,6 +23,7 @@ import { Songbird } from './EVM/SGB';
 import { TokenX } from './EVM/TKX';
 import { Velas } from './EVM/VLX';
 import { XinFin } from './EVM/XDC';
+import { Kusama } from './KSM';
 import { Luna } from './LUNA';
 import { Near } from './NEAR';
 import { Solana } from './SOL';
@@ -43,6 +45,9 @@ export const WalletClasses = {
   BSV_TEST: BitcoinSV,
   DOGE: DogeCoin,
   DOGE_TEST: DogeCoin,
+  DOT: Polkadot,
+  WND: Polkadot,
+  KSM: Kusama,
   LTC: LiteCoin,
   LTC_TEST: LiteCoin,
   ZEC: ZCash,

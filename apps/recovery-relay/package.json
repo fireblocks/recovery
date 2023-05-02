@@ -28,6 +28,8 @@
     "@mui/material": "^5.13.4",
     "@mui/styles": "^5.13.2",
     "@mui/x-data-grid": "^6.6.0",
+    "@polkadot/api": "^10.5.1",
+    "@polkadot/types": "^10.5.1",
     "@solana/web3.js": "^1.77.3",
     "@tanstack/react-query": "^4.29.12",
     "@taquito/signer": "^16.2.0",

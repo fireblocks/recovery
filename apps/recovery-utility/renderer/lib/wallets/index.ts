@@ -11,6 +11,8 @@ import { Cardano } from './ADA';
 import { Stellar } from './XLM';
 import { Near } from './NEAR';
 import { Tezos } from './XTZ';
+import { Polkadot } from './DOT';
+import { Kusama } from './KSM';
 
 export { SigningWallet as BaseWallet } from './SigningWallet';
 
@@ -43,6 +45,9 @@ export const WalletClasses = {
   NEAR_TEST: Near,
   XTZ: Tezos,
   XTZ_TEST: Tezos,
+  DOT: Polkadot,
+  WND: Polkadot,
+  KSM: Kusama,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];
