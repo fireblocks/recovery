@@ -60,7 +60,7 @@ const preparedTxSchema = newTxSchema.extend({
     nonnegativeIntSchema('Address index'),
   ]),
   from: z.string().nonempty('From address is required'),
-  amount: z.number().positive('Amount is required'),
+  amount: z.string().nonempty('Amount is required'),
 });
 
 const hexString = z.string().regex(/^[0-9a-fA-F]*$/, 'Invalid hex');
@@ -68,8 +68,7 @@ const hexString = z.string().regex(/^[0-9a-fA-F]*$/, 'Invalid hex');
 export const relayBroadcastTxRequestParams = relayBaseRequestParams.extend({
   action: actionSchema('tx/broadcast'),
   signedTx: preparedTxSchema.extend({
-    hex: hexString.nonempty('Serialized transaction is required'),
-    signature: hexString.nonempty('Signature is required'),
+    hex: z.string().nonempty('Serialized transaction is required'),
   }),
 });
 
@@ -88,7 +87,29 @@ const relayBaseResponseParams = z.object({
 export const relaySignTxResponseParams = relayBaseResponseParams.extend({
   action: actionSchema('tx/sign'),
   unsignedTx: preparedTxSchema.extend({
-    misc: z.record(z.string()).optional(),
+    misc: z
+      .object({
+        feeRate: z.number().nonnegative('Fee rate cannot be negative').optional(),
+        gasPrice: z.string().optional(),
+        nonce: nonnegativeIntSchema('Nonce').optional(),
+        blockhash: hexString.nonempty('Block hash is required').optional(),
+        inputs: z
+          .array(
+            z.object({
+              hash: hexString.nonempty('Input hash is required'),
+              index: nonnegativeIntSchema('Input index'),
+              witnessUtxo: z
+                .object({
+                  script: z.any(),
+                  value: z.number().nonnegative(),
+                })
+                .optional(),
+              nonWitnessUtxo: z.any().optional(),
+            }),
+          )
+          .optional(),
+      })
+      .optional(),
   }),
 });
 

@@ -14,6 +14,7 @@ import { AssetConfig } from '@fireblocks/asset-config';
 import { CallMade, CallReceived, LeakAdd, Toll } from '@mui/icons-material';
 import { useWorkspace } from '../../../../context/Workspace';
 import { useSettings } from '../../../../context/Settings';
+import { SigningWallet } from '../../../../lib/wallets/SigningWallet';
 
 const BlockedMessage = ({ children }: { children: ReactNode }) => (
   <Box>
@@ -45,30 +46,34 @@ export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Pr
 
   const [outboundRelayUrl, setOutboundRelayUrl] = useState<string | undefined>();
 
-  const onApproveTransaction = () => {
+  const onApproveTransaction = async () => {
     const { xprv, fprv } = extendedKeys || {};
 
     if (!xprv || !fprv) {
       return;
     }
 
+    const { to, amount, misc } = unsignedTx;
+
     const derivation = account.wallets.get(asset.id)?.derivations.get(unsignedTx.from);
 
-    const hex = '00000000'; // TODO: Call derivation.generateTx()
+    if (!derivation) {
+      throw new Error('Derivation not found');
+    }
 
-    console.info({ derivation, hex });
+    console.info(`About to sign tx to ${to}`, { derivation });
 
-    // const signature = derivation.generateTx({
-    //   to,
-    //   amount,
-    //   inputs,
-    //   feeRate,
-    //   nonce,
-    //   gasPrice,
-    //   blockHash
-    // });
+    const { tx } = await (derivation as SigningWallet).generateTx({
+      to,
+      amount,
+      // inputs: misc?.inputs,
+      feeRate: misc?.feeRate,
+      nonce: misc?.nonce,
+      gasPrice: misc?.gasPrice,
+      // blockHash: misc?.blockHash,
+    });
 
-    console.info({ signature });
+    console.info({ tx });
 
     setOutboundRelayUrl(
       getOutboundRelayUrl({
@@ -81,8 +86,7 @@ export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Pr
           from: unsignedTx.from,
           to: unsignedTx.to,
           amount: unsignedTx.amount,
-          hex,
-          signature,
+          hex: tx,
         },
       }),
     );

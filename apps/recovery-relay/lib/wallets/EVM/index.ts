@@ -1,6 +1,6 @@
-import { JsonRpcProvider, formatEther, Transaction } from 'ethers';
+import { JsonRpcProvider, formatEther, parseEther, Transaction } from 'ethers';
 import { EVMWallet as EVMBase, Input } from '@fireblocks/wallet-derivation';
-import { AccountData, RawSignature } from '../types';
+import { AccountData } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
 
 export class EVM extends EVMBase implements ConnectedWallet {
@@ -8,6 +8,9 @@ export class EVM extends EVMBase implements ConnectedWallet {
 
   constructor(input: Input, rpcEndpoint: string, chainId?: number) {
     super(input);
+
+    console.info('EVM', { rpcEndpoint, chainId, input });
+
     this.provider = new JsonRpcProvider(rpcEndpoint, chainId);
   }
 
@@ -15,6 +18,9 @@ export class EVM extends EVMBase implements ConnectedWallet {
     const wei = await this.provider.getBalance(this.address);
     const balance = formatEther(wei);
     const ethBalance = Number(balance);
+
+    console.info({ ethBalance });
+
     return ethBalance;
   }
 
@@ -26,8 +32,22 @@ export class EVM extends EVMBase implements ConnectedWallet {
     // Should we use maxGasPrice? i.e. EIP1559.
     const { gasPrice } = await this.provider.getFeeData();
 
+    if (!gasPrice) {
+      throw new Error('No gas price found');
+    }
+
+    const gas = gasPrice * 22000n;
+
+    const adjustedBalance = parseEther(String(balance)) - gas;
+
+    console.info({ gas: Number(gas), balance, adjustedBalance });
+
+    if (adjustedBalance < 0) {
+      console.error('Insufficient balance');
+    }
+
     return {
-      balance,
+      balance: formatEther(adjustedBalance),
       nonce,
       gasPrice,
     };
@@ -35,17 +55,23 @@ export class EVM extends EVMBase implements ConnectedWallet {
 
   public async broadcastTx(
     tx: string,
-    sigs: RawSignature[],
+    // sigs: RawSignature[],
     // customUrl?: string | undefined
   ): Promise<string> {
-    const transaction = Transaction.from(tx);
+    // const transaction = Transaction.from(tx);
 
     // eslint-disable-next-line prefer-destructuring
-    transaction.signature = sigs[0];
+    // transaction.signature = sigs[0];
 
-    const signer = await this.provider.getSigner();
+    // const signer = await this.provider.getSigner();
 
-    const { hash } = await signer.sendTransaction(transaction);
+    // Deserialize the transaction
+    const deserialized = Transaction.from(tx);
+    console.info(deserialized);
+
+    const { hash } = await this.provider.broadcastTransaction(tx);
+
+    console.info({ hash });
 
     return hash;
   }

@@ -56,6 +56,84 @@ export const nativeAssetPatches: { [ID in AssetId]?: NativeAssetPatch } = {
     utxo: true,
     derive: true,
   },
+  BCH: {
+    utxo: true,
+    derive: true,
+  },
+  BSV: {
+    utxo: true,
+    derive: true,
+  },
+  DASH: {
+    utxo: true,
+    derive: true,
+  },
+  DOGE: {
+    utxo: true,
+    derive: true,
+  },
+  LTC: {
+    utxo: true,
+    derive: true,
+  },
+  ZEC: {
+    utxo: true,
+    derive: true,
+  },
+  AETH: {
+    derive: true,
+  },
+  AOA: {
+    derive: true,
+  },
+  BNB_BSC: {
+    derive: true,
+  },
+  CELO: {
+    derive: true,
+  },
+  ETC: {
+    derive: true,
+  },
+  ETHW: {
+    derive: true,
+  },
+  EVMOS: {
+    derive: true,
+  },
+  FTM: {
+    derive: true,
+  },
+  GLMR_GLMR: {
+    derive: true,
+  },
+  MATIC: {
+    derive: true,
+  },
+  MOVR_MOVR: {
+    derive: true,
+  },
+  // OETH: {
+  //   derive: true,
+  // },
+  RBTC: {
+    derive: true,
+  },
+  RON: {
+    derive: true,
+  },
+  SGB: {
+    derive: true,
+  },
+  TKX: {
+    derive: true,
+  },
+  VLX_VLX: {
+    derive: true,
+  },
+  XDC: {
+    derive: true,
+  },
 };
 
 export const assetPatches: { [ID in AssetId]?: ChildAssetPatch } = {};

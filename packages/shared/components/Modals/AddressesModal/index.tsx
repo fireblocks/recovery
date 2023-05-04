@@ -50,7 +50,15 @@ function Addresses({ type, derivations, hasSegwit }: AddressProps) {
         {type} Address{addressesData.length > 1 ? 'es' : ''}
       </Typography>
       {data.map(({ address, label }, index, arr) => (
-        <Typography key={address} variant='body1' paragraph={index + 1 < arr.length}>
+        <Typography
+          key={address}
+          variant='body1'
+          paragraph={index + 1 < arr.length}
+          sx={{
+            userSelect: 'text',
+            cursor: 'text',
+          }}
+        >
           {label ? `${label}: ` : ''}
           {address}
         </Typography>

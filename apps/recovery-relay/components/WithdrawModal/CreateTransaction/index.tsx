@@ -79,14 +79,16 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
 
   const derivation = wallet?.derivations?.get(fromAddress);
 
-  const balanceQueryKey = ['balance', accountId, asset?.id, fromAddress];
+  // const balanceQueryKey = ['balance', accountId, asset?.id, fromAddress];
 
-  const balanceQuery = useQuery({
-    queryKey: balanceQueryKey,
-    enabled: !!derivation,
-    queryFn: async () => derivation!.getBalance?.(),
-    onError: (err: Error) => console.error('Failed to query balance', err),
-  });
+  // const balanceQuery = useQuery({
+  //   queryKey: balanceQueryKey,
+  //   enabled: !!derivation,
+  //   queryFn: async () => derivation!.getBalance?.(),
+  //   onError: (err: Error) => console.error('Failed to query balance', err),
+  // });
+
+  // TODO: Show both original balance and adjusted balance in create tx UI
 
   const prepareQueryKey = ['prepare', fromAddress];
 
@@ -102,7 +104,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
     onError: (err: Error) => console.error('Failed to prepare transaction parameters', err),
   });
 
-  const isLoading = balanceQuery.isLoading || prepareQuery.isLoading;
+  const isLoading = !!prepareQuery.isLoading; // || balanceQuery.isLoading
 
   const onSubmit = (data: TransactionInput) => {
     if (!asset?.id || !derivation) {
@@ -115,12 +117,13 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
       return;
     }
 
-    if (typeof balanceQuery.data === 'undefined') {
-      console.error('No balance found for derivation', derivation);
-      return;
-    }
+    // if (typeof balanceQuery.data === 'undefined') {
+    //   console.error('No balance found for derivation', derivation);
+    //   return;
+    // }
 
-    console.info('Balance:', balanceQuery.data);
+    // console.info('Balance:', prepareQuery.data);
+    console.info('Prepare:', prepareQuery.data);
 
     setSignTxResponseUrl({
       id: txId,
@@ -128,7 +131,11 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
       path: [44, derivation.path.coinType, derivation.path.account, derivation.path.changeIndex, derivation.path.addressIndex],
       from: data.fromAddress,
       to: toAddress,
-      amount: balanceQuery.data,
+      amount: `${prepareQuery.data?.balance}`,
+      misc: {
+        nonce: prepareQuery.data?.nonce,
+        gasPrice: `${prepareQuery.data?.gasPrice}`,
+      },
       // memo: data.memo,
       // misc: { utxos: data.utxos }, // TODO
     });
@@ -144,7 +151,6 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
     values,
     asset,
     derivation,
-    balance: balanceQuery.data,
     prepare: prepareQuery.data,
   });
 
@@ -209,9 +215,9 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
                 fontFamily={prepareQuery.error ? undefined : monospaceFontFamily}
                 sx={{ userSelect: 'text', cursor: 'default' }}
               >
-                {prepareQuery.error || typeof balanceQuery.data === 'undefined'
+                {prepareQuery.error || typeof prepareQuery.data?.balance === 'undefined'
                   ? 'Could not get balance'
-                  : `${balanceQuery.data} ${asset?.id}`}
+                  : `${prepareQuery.data?.balance} ${asset?.id}`}
               </Typography>
             )}
           </Grid>

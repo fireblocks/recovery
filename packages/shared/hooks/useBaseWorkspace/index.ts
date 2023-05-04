@@ -233,17 +233,6 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
     push('/');
   };
 
-  if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
-    // eslint-disable-next-line no-console
-    console.info('Workspace', {
-      extendedKeys: workspace.extendedKeys,
-      account,
-      accounts: workspace.accounts,
-      transactions: workspace.transactions,
-      inboundRelayParams,
-    });
-  }
-
   const value: BaseWorkspaceContext<Derivation, App> = {
     extendedKeys: workspace.extendedKeys,
     account,

@@ -1,15 +1,15 @@
-import { Bitcoin } from './BTC';
-import { Ethereum } from './ETH';
+// import { Bitcoin } from './BTC';
+import { EVM } from './EVM';
 import { Solana } from './SOL';
 
 export { SigningWallet as BaseWallet } from './SigningWallet';
 
 export const WalletClasses = {
-  BTC: Bitcoin,
-  BTC_TEST: Bitcoin,
-  ETH: Ethereum,
-  ETH_TEST3: Ethereum,
-  ETH_TEST5: Ethereum,
+  // BTC: Bitcoin,
+  // BTC_TEST: Bitcoin,
+  ETH: EVM,
+  ETH_TEST3: EVM,
+  ETH_TEST5: EVM,
   SOL: Solana,
   SOL_TEST: Solana,
 } as const;

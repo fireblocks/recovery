@@ -52,10 +52,10 @@ export type RawSignature = {
 
 export type GenerateTxInput = {
   to: string;
-  amount: number;
+  amount: string;
   inputs?: Inputs;
   feeRate?: number;
   nonce?: number;
-  gasPrice?: bigint;
+  gasPrice?: string;
   blockHash?: string;
 };

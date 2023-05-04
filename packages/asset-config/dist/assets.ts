@@ -1040,6 +1040,8 @@ export const assets = {
     decimals: 8,
     exp: "blockexplorer.one/bitcoin-cash/mainnet",
     coinType: 145,
+    utxo: true,
+    derive: true,
   },
   BCH_BSC: {
     id: "BCH_BSC",
@@ -1274,6 +1276,7 @@ export const assets = {
     decimals: 18,
     exp: "bscscan.com",
     coinType: 714,
+    derive: true,
   },
   BNB_ERC20: {
     id: "BNB_ERC20",
@@ -1436,6 +1439,8 @@ export const assets = {
     decimals: 8,
     exp: "whatsonchain.com",
     coinType: 236,
+    utxo: true,
+    derive: true,
   },
   BSV_TEST: {
     id: "BSV_TEST",
@@ -1726,6 +1731,7 @@ export const assets = {
     decimals: 18,
     exp: "explorer.celo.org",
     coinType: 52752,
+    derive: true,
   },
   CELO_ALF: {
     id: "CELO_ALF",
@@ -2402,6 +2408,8 @@ export const assets = {
     decimals: 8,
     exp: "blockexplorer.one/dash/mainnet",
     coinType: 5,
+    utxo: true,
+    derive: true,
   },
   DASH_TEST: {
     id: "DASH_TEST",
@@ -2668,6 +2676,8 @@ export const assets = {
     decimals: 8,
     exp: "dexplorer.dogechain.dog",
     coinType: 3,
+    utxo: true,
+    derive: true,
   },
   DOGE_BSC: {
     id: "DOGE_BSC",
@@ -3097,6 +3107,7 @@ export const assets = {
     decimals: 18,
     exp: "blockscout.com/etc/mainnet",
     coinType: 61,
+    derive: true,
   },
   ETC_TEST: {
     id: "ETC_TEST",
@@ -3199,6 +3210,7 @@ export const assets = {
     nativeAsset: "ETHW",
     decimals: 18,
     exp: "www.oklink.com/ethw",
+    derive: true,
   },
   ETRY: {
     id: "ETRY",
@@ -3263,6 +3275,7 @@ export const assets = {
     nativeAsset: "EVMOS",
     decimals: 18,
     exp: "bigdipper.live/evmos",
+    derive: true,
   },
   EVN: {
     id: "EVN",
@@ -3800,6 +3813,7 @@ export const assets = {
     decimals: 18,
     exp: "moonscan.io",
     coinType: 1284,
+    derive: true,
   },
   GNO: {
     id: "GNO",
@@ -4788,6 +4802,8 @@ export const assets = {
     decimals: 8,
     exp: "blockexplorer.one/litecoin/mainnet",
     coinType: 2,
+    utxo: true,
+    derive: true,
   },
   LTC_BSC: {
     id: "LTC_BSC",
@@ -5169,6 +5185,7 @@ export const assets = {
     decimals: 18,
     exp: "moonriver.moonscan.io",
     coinType: 1285,
+    derive: true,
   },
   MPL: {
     id: "MPL",
@@ -6338,6 +6355,7 @@ export const assets = {
     decimals: 18,
     exp: "explorer.rsk.co",
     coinType: 137,
+    derive: true,
   },
   RBTC_TEST: {
     id: "RBTC_TEST",
@@ -6547,6 +6565,7 @@ export const assets = {
     nativeAsset: "RON",
     decimals: 18,
     exp: "explorer.roninchain.com",
+    derive: true,
   },
   ROOK: {
     id: "ROOK",
@@ -6771,6 +6790,7 @@ export const assets = {
     nativeAsset: "SGB",
     decimals: 18,
     exp: "songbird-explorer.flare.network",
+    derive: true,
   },
   SGB_LEGACY: {
     id: "SGB_LEGACY",
@@ -7799,6 +7819,7 @@ export const assets = {
     nativeAsset: "TKX",
     decimals: 18,
     exp: "scan.tokenx.finance",
+    derive: true,
   },
   TLM1: {
     id: "TLM1",
@@ -8594,6 +8615,7 @@ export const assets = {
     decimals: 18,
     exp: "native.velas.com",
     coinType: 5655640,
+    derive: true,
   },
   VOXEL_POLYGON: {
     id: "VOXEL_POLYGON",
@@ -8987,6 +9009,7 @@ export const assets = {
     decimals: 18,
     exp: "observer.xdc.org",
     coinType: 550,
+    derive: true,
   },
   XEC: {
     id: "XEC",
@@ -9486,6 +9509,8 @@ export const assets = {
     decimals: 8,
     exp: "explorer.zcha.in",
     coinType: 133,
+    utxo: true,
+    derive: true,
   },
   ZEC_TEST: {
     id: "ZEC_TEST",

@@ -5,8 +5,10 @@ import {
   BaseWorkspaceContext,
   RelayRequestParams,
 } from '@fireblocks/recovery-shared';
-import { BaseWallet, deriveWallet } from '@fireblocks/wallet-derivation';
+import { getAssetConfig } from '@fireblocks/asset-config';
+
 import { useRouter } from 'next/router';
+import { WalletClasses } from '../lib/wallets';
 import packageJson from '../../package.json';
 import { initIdleDetector } from '../lib/idleDetector';
 import { handleRelayUrl } from '../lib/ipc/handleRelayUrl';
@@ -21,7 +23,12 @@ type WorkspaceContext = Omit<BaseWorkspaceContext<SigningWallet, 'utility'>, 'se
   getOutboundRelayUrl: <Params extends RelayRequestParamsInput>(params: Params) => string;
 };
 
-const Context = createContext<WorkspaceContext>(defaultBaseWorkspaceContext as BaseWorkspaceContext<SigningWallet, 'utility'>);
+const defaultValue: WorkspaceContext = {
+  ...(defaultBaseWorkspaceContext as BaseWorkspaceContext<SigningWallet, 'utility'>),
+  getOutboundRelayUrl: () => '',
+};
+
+const Context = createContext(defaultValue);
 
 type Props = {
   children: ReactNode;
@@ -51,7 +58,20 @@ export const WorkspaceProvider = ({ children }: Props) => {
   } = useBaseWorkspace({
     app: 'utility',
     relayBaseUrl,
-    deriveWallet,
+    deriveWallet: (input) => {
+      const nativeAssetId = (getAssetConfig(input.assetId)?.nativeAsset?.id ?? input.assetId) as keyof typeof WalletClasses;
+
+      const derivation = new WalletClasses[nativeAssetId](input);
+
+      console.info('Deriving wallet with input', { input, derivation });
+      console.info('Has generateTx method?', !!derivation.generateTx);
+
+      if (nativeAssetId in WalletClasses) {
+        return derivation;
+      }
+
+      throw new Error(`Unsupported asset: ${input.assetId}`);
+    },
   });
 
   const getOutboundRelayUrl = <Params extends RelayRequestParamsInput>(params: Params) => {

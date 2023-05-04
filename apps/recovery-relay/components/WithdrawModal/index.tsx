@@ -1,6 +1,13 @@
 import { ReactNode, useState } from 'react';
-import { Typography, Box } from '@mui/material';
-import { AssetIcon, BaseModal, RelayRequestParams, RelayRxTx, RelaySignTxResponseParams } from '@fireblocks/recovery-shared';
+import { Typography, Box, Link } from '@mui/material';
+import {
+  AssetIcon,
+  BaseModal,
+  Button,
+  RelayRequestParams,
+  RelayRxTx,
+  RelaySignTxResponseParams,
+} from '@fireblocks/recovery-shared';
 import { getDerivableAssetConfig } from '@fireblocks/asset-config';
 import { useWorkspace } from '../../context/Workspace';
 import { CreateTransaction } from './CreateTransaction';
@@ -31,8 +38,11 @@ export const WithdrawModal = () => {
   const asset = getDerivableAssetConfig(relayAssetId);
 
   const [outboundRelayUrl, setOutboundRelayUrl] = useState<string | undefined>();
+  const [txHash, setTxHash] = useState<string | undefined>();
 
-  const setSignTxResponseUrl = (unsignedTx: RelaySignTxResponseParams['unsignedTx']) =>
+  const setSignTxResponseUrl = (unsignedTx: RelaySignTxResponseParams['unsignedTx']) => {
+    console.info('setSignTxResponseUrl', { unsignedTx });
+
     setOutboundRelayUrl(
       getOutboundRelayUrl({
         action: 'tx/sign',
@@ -40,10 +50,13 @@ export const WithdrawModal = () => {
         unsignedTx,
       }),
     );
+  };
 
   const onDecodeInboundRelayQrCode = (url: string) => {
     setInboundRelayUrl(url);
   };
+
+  console.info({ outboundRelayUrl });
 
   return (
     <BaseModal
@@ -84,9 +97,8 @@ export const WithdrawModal = () => {
               />
             ))}
           {action === 'tx/broadcast' && (
-            <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
-              <button
-                type='button'
+            <Box flex alignItems='center' justifyContent='center'>
+              <Button
                 onClick={async () => {
                   console.info({ inboundRelayParams });
 
@@ -96,16 +108,38 @@ export const WithdrawModal = () => {
 
                   const tx = inboundRelayParams?.signedTx.hex;
 
-                  const sigs = [inboundRelayParams?.signedTx.signature];
+                  // const sigs = [inboundRelayParams?.signedTx.signature];
 
-                  // const txHash = await derivation?.broadcastTx(tx, sigs);
+                  console.info({ derivation, tx });
 
-                  console.info({ derivation, tx, sigs });
+                  const txHash = await derivation?.broadcastTx(tx);
+
+                  setTxHash(txHash);
+
+                  console.info({ txHash });
                 }}
               >
                 Confirm and broadcast
-              </button>
-            </pre>
+              </Button>
+              {!!txHash && (
+                <Typography
+                  variant='body1'
+                  paragraph
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    '& > *': {
+                      marginRight: '0.5rem',
+                    },
+                  }}
+                >
+                  <Typography variant='body1'>Transaction hash:</Typography>
+                  <Link href={`https://etherscan.io/tx/${txHash}`} target='_blank' rel='noopener noreferrer'>
+                    {txHash}
+                  </Link>
+                </Typography>
+              )}
+            </Box>
           )}
         </>
       ) : (

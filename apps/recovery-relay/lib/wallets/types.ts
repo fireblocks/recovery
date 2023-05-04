@@ -25,7 +25,7 @@ export type TxInput = {
 
 // TODO: WIP
 export type AccountData = {
-  balance: number;
+  balance: string;
   inputs?: TxInput[];
   utxos?: UTXO[];
   feeRate?: number;

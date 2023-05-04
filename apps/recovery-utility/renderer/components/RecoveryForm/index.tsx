@@ -128,7 +128,7 @@ export const RecoveryForm = ({ verifyOnly }: Props) => {
             <TextField
               id='agpRsaKeyPassphrase'
               type='password'
-              label='Auto generated passphrase Private Key Passphrase'
+              label='Auto-generated passphrase'
               error={errors.agpRsaPassphrase?.message}
               disabled={recoverMutation.isLoading}
               {...register('agpRsaPassphrase')}
@@ -163,7 +163,7 @@ export const RecoveryForm = ({ verifyOnly }: Props) => {
         </Grid>
         <Grid item xs={6}>
           <UploadWell
-            label='Auto-generated passphrase prv key'
+            label='Auto-generated passphrase private key'
             error={errors.agpRsaKey?.message}
             hasFile={!!agpRsaKey}
             accept={{ 'application/x-pem-file': ['.key', '.pem'] }}
