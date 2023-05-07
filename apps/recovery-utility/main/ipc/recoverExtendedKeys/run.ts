@@ -7,7 +7,14 @@ export const runChildProcess = async (file: string, args: string[]): Promise<str
     return stdout;
   } catch (error) {
     if ('stderr' in (error as ExecaError)) {
-      throw new Error((error as ExecaError).stderr);
+      const err = error as ExecaError;
+      if (err.exitCode === 3) {
+        throw new Error('RSA Key passphrase invalid');
+      }
+      if (err.exitCode === 2) {
+        throw new Error('Insufficient parameters in decryption call');
+      }
+      throw new Error(err.stderr);
     }
 
     throw error;
