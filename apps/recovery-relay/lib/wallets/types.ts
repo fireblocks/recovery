@@ -30,6 +30,7 @@ export type AccountData = {
   feeRate?: number;
   nonce?: number;
   gasPrice?: bigint | null;
+  extraParams?: Map<string, any>;
 };
 
 export type TxBroadcastVariables = {

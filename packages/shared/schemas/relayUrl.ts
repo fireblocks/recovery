@@ -108,6 +108,8 @@ export const relaySignTxResponseParams = relayBaseResponseParams.extend({
             }),
           )
           .optional(),
+        memo: z.string().optional(),
+        extraParams: z.map(z.string(), z.any()).optional(),
       })
       .optional(),
   }),

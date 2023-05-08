@@ -58,4 +58,6 @@ export type GenerateTxInput = {
   nonce?: number;
   gasPrice?: string;
   blockHash?: string;
+  memo?: string;
+  extraParams?: Map<string, any>;
 };

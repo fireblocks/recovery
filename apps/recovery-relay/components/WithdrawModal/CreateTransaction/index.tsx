@@ -136,6 +136,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
       misc: {
         nonce: prepareQuery.data?.nonce,
         gasPrice: `${prepareQuery.data?.gasPrice}`,
+        extraParams: prepareQuery.data?.extraParams,
       },
       // memo: data.memo,
       // misc: { utxos: data.utxos }, // TODO

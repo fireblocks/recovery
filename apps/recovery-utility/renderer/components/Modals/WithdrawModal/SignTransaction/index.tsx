@@ -70,7 +70,9 @@ export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Pr
       feeRate: misc?.feeRate,
       nonce: misc?.nonce,
       gasPrice: misc?.gasPrice,
+      memo: misc?.memo,
       // blockHash: misc?.blockHash,
+      extraParams: misc?.extraParams,
     });
 
     console.info({ tx });
