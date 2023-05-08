@@ -9,6 +9,7 @@ const withPWA = require('next-pwa')({
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  output: 'export',
   // eslint-disable-next-line turbo/no-undeclared-env-vars
   eslint: { ignoreDuringBuilds: true }, // !!process.env.CI },
   transpilePackages: ['@fireblocks/asset-config', '@fireblocks/recovery-shared', '@fireblocks/wallet-derivation'],

@@ -8,7 +8,7 @@ import { FireblocksSDK, AssetTypeResponse } from 'fireblocks-sdk';
 import { symbolCoinTypeMap } from '../config/bip44';
 import { explorers } from '../config/explorers';
 import { assetPatches, nativeAssetPatches } from '../config/patches';
-import { assets as existingAssets } from '../dist/assets';
+import { assets as existingAssets } from '../dist/assetsOld';
 import { Assets, AssetsConfigConstant, AssetId } from '../types';
 import { writeObject } from './writeObject';
 

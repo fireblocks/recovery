@@ -97,7 +97,7 @@ export const WithdrawModal = () => {
               />
             ))}
           {action === 'tx/broadcast' && (
-            <Box flex alignItems='center' justifyContent='center'>
+            <Box display='flex' alignItems='center' justifyContent='center'>
               <Button
                 onClick={async () => {
                   console.info({ inboundRelayParams });
@@ -112,11 +112,13 @@ export const WithdrawModal = () => {
 
                   console.info({ derivation, tx });
 
-                  const txHash = await derivation?.broadcastTx(tx);
+                  const sigs = []; // TODO: TEMPORARY-CLEAN UP!
 
-                  setTxHash(txHash);
+                  const newTxHash = await derivation?.broadcastTx(tx, sigs);
 
-                  console.info({ txHash });
+                  setTxHash(newTxHash);
+
+                  console.info({ newTxHash });
                 }}
               >
                 Confirm and broadcast

@@ -60,7 +60,7 @@ const preparedTxSchema = newTxSchema.extend({
     nonnegativeIntSchema('Address index'),
   ]),
   from: z.string().nonempty('From address is required'),
-  amount: z.string().nonempty('Amount is required'),
+  amount: z.number().positive('Amount must be positive'),
 });
 
 const hexString = z.string().regex(/^[0-9a-fA-F]*$/, 'Invalid hex');

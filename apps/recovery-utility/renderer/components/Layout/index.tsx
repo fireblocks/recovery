@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { CloudOutlined, Restore, Verified, LeakAdd, ImportExport, ManageHistory, Settings } from '@mui/icons-material';
+import { CloudOutlined, Restore, Verified, /* LeakAdd, */ ImportExport, ManageHistory, Settings } from '@mui/icons-material';
 import {
   Layout as BaseLayout,
   LayoutProps as BaseLayoutProps,
@@ -39,12 +39,12 @@ export const Layout = ({ children }: Props) => {
       icon: AccountsIcon,
       disabled: !hasExtendedKeys,
     },
-    {
-      label: 'Relay',
-      path: '/relay',
-      icon: LeakAdd,
-      disabled: !hasExtendedKeys,
-    },
+    // {
+    //   label: 'Relay',
+    //   path: '/relay',
+    //   icon: LeakAdd,
+    //   disabled: !hasExtendedKeys,
+    // },
     {
       label: 'Import / Export',
       path: '/csv',

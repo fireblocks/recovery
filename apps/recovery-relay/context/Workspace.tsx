@@ -8,7 +8,7 @@ import {
   RelayResponseParams,
 } from '@fireblocks/recovery-shared';
 import { getAssetConfig } from '@fireblocks/asset-config';
-import { useQuery, useQueries } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import packageJson from '../package.json';
 import { WalletClasses, Derivation } from '../lib/wallets';
 

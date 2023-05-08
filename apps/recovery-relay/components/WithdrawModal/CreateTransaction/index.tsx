@@ -66,7 +66,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
     watch,
     setValue,
     handleSubmit,
-    formState: { errors },
+    // formState: { errors },
   } = useForm<TransactionInput>({
     resolver: zodResolver(transactionInput),
     mode: 'onChange',
@@ -117,12 +117,13 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
       return;
     }
 
-    // if (typeof balanceQuery.data === 'undefined') {
-    //   console.error('No balance found for derivation', derivation);
-    //   return;
-    // }
+    const balance = prepareQuery.data?.balance;
 
-    // console.info('Balance:', prepareQuery.data);
+    if (typeof balance === 'undefined') {
+      console.error('No balance found for derivation', derivation);
+      return;
+    }
+
     console.info('Prepare:', prepareQuery.data);
 
     setSignTxResponseUrl({
@@ -131,7 +132,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
       path: [44, derivation.path.coinType, derivation.path.account, derivation.path.changeIndex, derivation.path.addressIndex],
       from: data.fromAddress,
       to: toAddress,
-      amount: `${prepareQuery.data?.balance}`,
+      amount: balance,
       misc: {
         nonce: prepareQuery.data?.nonce,
         gasPrice: `${prepareQuery.data?.gasPrice}`,

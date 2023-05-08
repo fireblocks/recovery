@@ -1,4 +1,4 @@
-import type { assets } from './dist/assets';
+import type { assets } from './dist/assetsOld';
 
 /** Full asset config */
 export type AssetsConfigConstant = typeof assets;

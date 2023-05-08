@@ -1,4 +1,4 @@
-import { JsonRpcProvider, formatEther, parseEther, Transaction } from 'ethers';
+import { JsonRpcProvider, formatEther, parseEther } from 'ethers';
 import { EVMWallet as EVMBase, Input } from '@fireblocks/wallet-derivation';
 import { AccountData } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
@@ -36,7 +36,7 @@ export class EVM extends EVMBase implements ConnectedWallet {
       throw new Error('No gas price found');
     }
 
-    const gas = gasPrice * 22000n;
+    const gas = gasPrice * 21000n;
 
     const adjustedBalance = parseEther(String(balance)) - gas;
 
@@ -47,31 +47,14 @@ export class EVM extends EVMBase implements ConnectedWallet {
     }
 
     return {
-      balance: formatEther(adjustedBalance),
+      balance: Number(formatEther(adjustedBalance)),
       nonce,
       gasPrice,
     };
   }
 
-  public async broadcastTx(
-    tx: string,
-    // sigs: RawSignature[],
-    // customUrl?: string | undefined
-  ): Promise<string> {
-    // const transaction = Transaction.from(tx);
-
-    // eslint-disable-next-line prefer-destructuring
-    // transaction.signature = sigs[0];
-
-    // const signer = await this.provider.getSigner();
-
-    // Deserialize the transaction
-    const deserialized = Transaction.from(tx);
-    console.info(deserialized);
-
+  public async broadcastTx(tx: string): Promise<string> {
     const { hash } = await this.provider.broadcastTransaction(tx);
-
-    console.info({ hash });
 
     return hash;
   }

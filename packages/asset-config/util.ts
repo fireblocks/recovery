@@ -1,4 +1,4 @@
-import { assets } from './dist/assets';
+import { assets } from './dist/assetsOld';
 import type { AssetId, AssetConfig } from './types';
 
 export const isAssetId = (assetId?: string): assetId is AssetId => !!assetId && assetId in assets;

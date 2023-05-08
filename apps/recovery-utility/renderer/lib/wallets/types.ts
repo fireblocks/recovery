@@ -7,7 +7,7 @@ export type UTXO = {
 
 export type AccountData = {
   balance: number;
-  utxos?: UTXO[];
+  inputs?: UTXO[];
 };
 
 export type TxBroadcastVariables = {
@@ -27,7 +27,7 @@ export type TxParamsResponse = {
   balance: string;
   fee: string;
   nonce?: string;
-  utxos?: {
+  inputs?: {
     rawTx: string;
     txid: string;
     vout: number;
@@ -52,7 +52,7 @@ export type RawSignature = {
 
 export type GenerateTxInput = {
   to: string;
-  amount: string;
+  amount: number;
   inputs?: Inputs;
   feeRate?: number;
   nonce?: number;

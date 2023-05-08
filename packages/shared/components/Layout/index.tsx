@@ -44,7 +44,7 @@ export const Layout = ({ children, title, description, navLinks, status, notice,
         <title>{fullTitle}</title>
         <meta
           name='viewport'
-          content='minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover'
+          content='minimum-scale=1, maximum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover'
         />
         <meta name='robots' content='noindex, nofollow' />
         <meta name='description' content={description} />

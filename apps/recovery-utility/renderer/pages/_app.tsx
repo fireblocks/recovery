@@ -11,6 +11,8 @@ type AppProps = NextAppProps & {
   emotionCache?: EmotionCache;
 };
 
+// Temporarily using @ts-ignore since TypeScript and React are not in sync
+
 // Override console.log with electron-log
 Object.assign(console, log.functions);
 
@@ -20,8 +22,10 @@ export default function App({ Component, emotionCache, pageProps }: AppProps) {
       <SettingsProvider>
         <ConnectionTestProvider>
           <WorkspaceProvider>
+            {/* @ts-ignore */}
             <ErrorBoundary>
               <Layout>
+                {/* @ts-ignore */}
                 <Component {...pageProps} />
               </Layout>
             </ErrorBoundary>

@@ -8,12 +8,16 @@ type AppProps = NextAppProps & {
   emotionCache?: EmotionCache;
 };
 
+// Temporarily using @ts-ignore since TypeScript and React are not in sync
+
 export default function App({ Component, emotionCache, pageProps }: AppProps) {
   return (
     <SharedProviders emotionCache={emotionCache}>
       <WorkspaceProvider>
+        {/* @ts-ignore */}
         <ErrorBoundary>
           <Layout>
+            {/* @ts-ignore */}
             <Component {...pageProps} />
           </Layout>
         </ErrorBoundary>

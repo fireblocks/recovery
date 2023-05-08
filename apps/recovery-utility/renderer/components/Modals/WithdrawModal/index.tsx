@@ -9,7 +9,7 @@ import { SignTransaction } from './SignTransaction';
 
 type Props = {
   assetId?: string;
-  accountId: number;
+  accountId?: number;
   open: boolean;
   onClose: VoidFunction;
 };
@@ -54,7 +54,7 @@ export const WithdrawModal = ({ assetId, accountId, open, onClose: onCloseModal 
 
   const [createTxOutboundRelayUrl, setCreateTxOutboundRelayUrl] = useState<string | null>(null);
 
-  const selectedAccount = accounts.get(accountId);
+  const selectedAccount = typeof accountId === 'number' ? accounts.get(accountId) : undefined;
 
   const selectedAsset = getAssetConfig(txInitData?.assetId);
 

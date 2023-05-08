@@ -1,4 +1,4 @@
-import { assets as assetsConst } from './dist/assets';
+import { assets as assetsConst } from './dist/assetsOld';
 import { isNativeAssetId, isDerivableAssetId } from './util';
 import type { AssetId, AssetConfig } from './types';
 
