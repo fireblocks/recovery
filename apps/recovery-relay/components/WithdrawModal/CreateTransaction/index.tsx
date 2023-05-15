@@ -95,7 +95,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
   const prepareQuery = useQuery({
     queryKey: prepareQueryKey,
     enabled: !!derivation,
-    queryFn: async () => derivation!.prepare?.(),
+    queryFn: async () => derivation!.prepare?.(toAddress),
     // onSuccess: (prepare: AccountData) => {
     //   if (prepare.utxos) {
     //     setTransactionInput((prev) => ({ ...prev, utxos: [] }));

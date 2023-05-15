@@ -6,6 +6,7 @@ import { BitcoinSV } from './BSV';
 import { Bitcoin } from './BTC';
 import { DASH } from './DASH';
 import { DogeCoin } from './DOGE';
+import { EOS } from './EOS';
 import { ERC20 } from './ERC20';
 import { ETC } from './ETC';
 import { EVMWallet } from './EVM';
@@ -40,6 +41,9 @@ export const getWallet = (assetId: string) => {
     case 'DOGE':
     case 'DOGE_TEST':
       return DogeCoin;
+    case 'EOS':
+    case 'EOS_TEST':
+      return EOS;
     case 'LTE':
     case 'LTE_TEST':
       return LiteCoin;
@@ -96,6 +100,7 @@ export {
   LiteCoin,
   ZCash,
   DASH,
+  EOS,
   EVMWallet,
   ETC,
   Solana,

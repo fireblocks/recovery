@@ -3025,6 +3025,7 @@ export const assets = {
     decimals: 4,
     exp: "bloks.io",
     coinType: 194,
+    derive: true
   },
   EOS_TEST: {
     id: "EOS_TEST",
@@ -3034,6 +3035,7 @@ export const assets = {
     decimals: 4,
     exp: "jungle3.bloks.io",
     coinType: 194,
+    derive: true,
   },
   EPK: {
     id: "EPK",

@@ -134,6 +134,12 @@ export const nativeAssetPatches: { [ID in AssetId]?: NativeAssetPatch } = {
   XDC: {
     derive: true,
   },
+  EOS: {
+    derive: true,
+  },
+  EOS_TEST: {
+    derive: true,
+  },
 };
 
 export const assetPatches: { [ID in AssetId]?: ChildAssetPatch } = {};

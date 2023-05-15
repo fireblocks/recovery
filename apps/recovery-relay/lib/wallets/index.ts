@@ -1,5 +1,6 @@
 import { Cardano } from './ADA';
 import { Bitcoin, BitcoinCash, BitcoinSV, DASH, DogeCoin, LiteCoin, ZCash } from './BTCBased';
+import { EOS } from './EOS';
 import { Arbitrum } from './EVM/AETH';
 import { Aurora } from './EVM/AOA';
 import { Avalanche } from './EVM/AVAX';
@@ -73,6 +74,8 @@ export const WalletClasses = {
   'ETH-AETH_RIN': Arbitrum,
   BNB_BSC: BinanceSmartChain,
   BNB_TEST: BinanceSmartChain,
+  EOS,
+  EOS_TEST: EOS,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];
