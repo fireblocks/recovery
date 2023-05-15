@@ -46,7 +46,7 @@ export class EOS extends BaseEOS implements BaseWallet {
     return parseFloat(account.core_liquid_balance!.replace(' EOS', ''));
   }
 
-  public async prepare(to?: string): Promise<AccountData> {
+  public async prepare(to?: string, memo?: string): Promise<AccountData> {
     const balance = await this.getBalance();
     const extraParams = new Map<string, any>();
     if (!this.accounts) {
@@ -55,7 +55,7 @@ export class EOS extends BaseEOS implements BaseWallet {
     await this.api.getAbi('eosio.token');
     const txBuilder = this.api.buildTransaction() as TransactionBuilder;
     const actionBuilder = txBuilder.with('eosio.token').as([{ actor: this.accounts![0], permission: 'owner' }]);
-    const action = await actionBuilder.transfer(this.accounts![0], to!, `${balance} EOS`, '25Mm6SRkw');
+    const action = await actionBuilder.transfer(this.accounts![0], to!, `${balance} EOS`, memo ?? '');
     const tx: PushTransactionArgs = (await this.api.transact(
       {
         actions: [action],
