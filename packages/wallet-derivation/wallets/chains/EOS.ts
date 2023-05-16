@@ -15,7 +15,7 @@ export class EOS extends ECDSAWallet {
     return `EOS${encode(wholeKey)}`;
   }
 
-  public readonly KEY_TX = 'tx';
+  public readonly KEY_TX = 't';
 
-  public readonly KEY_CHAIN_ID = 'chainId';
+  public readonly KEY_CHAIN_ID = 'c';
 }
