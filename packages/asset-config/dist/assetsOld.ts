@@ -741,6 +741,7 @@ export const assets = {
     decimals: 6,
     exp: "bigdipper.live/cosmos",
     coinType: 118,
+    derive: true
   },
   ATOM_COS_TEST: {
     id: "ATOM_COS_TEST",
@@ -750,6 +751,7 @@ export const assets = {
     decimals: 6,
     exp: "explorer.theta-testnet.polypore.xyz",
     coinType: 118,
+    derive: true
   },
   ATRI: {
     id: "ATRI",

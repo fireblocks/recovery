@@ -16,4 +16,14 @@ export class Cosmos extends ECDSAWallet {
       'cosmos',
     );
   }
+
+  protected readonly KEY_FEE = 'f';
+
+  protected readonly KEY_ACCOUNT_NUMBER = 'a';
+
+  protected readonly KEY_SEQUENCE = 's';
+
+  protected readonly KEY_CHAIN_ID = 'c';
 }
+
+export type CosmosFee = { gas: string; amount: { amount: string; denom: string }[] };

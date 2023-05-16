@@ -3,12 +3,41 @@ import type { EmotionCache } from '@emotion/react';
 import { ErrorBoundary, SharedProviders } from '@fireblocks/recovery-shared';
 import SuperJSON from 'superjson';
 import { PushTransactionArgs } from 'eosjs/dist/eosjs-rpc-interfaces';
+import { CosmosFee } from '@fireblocks/wallet-derivation/wallets/chains/ATOM';
 import { WorkspaceProvider } from '../context/Workspace';
 import { Layout } from '../components/Layout';
 
 type AppProps = NextAppProps & {
   emotionCache?: EmotionCache;
 };
+
+SuperJSON.registerCustom<CosmosFee, string>(
+  {
+    isApplicable(v: any): v is CosmosFee {
+      return typeof v === 'object' && 'gas' in v && 'amount' in v;
+    },
+    serialize(v: CosmosFee) {
+      return `${v.gas}:${v.amount.map((amount) => `${amount.amount}-${amount.denom}`).join('<>')}`;
+    },
+    deserialize(v: unknown) {
+      const [gas, amountArr] = Object.values(v as object).join('');
+      const amount: { amount: string; denom: string }[] = [];
+      amountArr.split('<>').forEach((amt) => {
+        const [amtValue, denom] = amt.split('-');
+        amount.push({
+          amount: amtValue,
+          denom,
+        });
+      });
+
+      return {
+        gas,
+        amount,
+      };
+    },
+  },
+  'cosmosFee',
+);
 
 SuperJSON.registerCustom<PushTransactionArgs, string>(
   {

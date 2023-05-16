@@ -4,6 +4,7 @@ import log from 'electron-log';
 import { ErrorBoundary, SharedProviders } from '@fireblocks/recovery-shared';
 import SuperJSON from 'superjson';
 import { PushTransactionArgs } from 'eosjs/dist/eosjs-rpc-interfaces';
+import { CosmosFee } from '@fireblocks/wallet-derivation/wallets/chains/ATOM';
 import { SettingsProvider } from '../context/Settings';
 import { ConnectionTestProvider } from '../context/ConnectionTest';
 import { WorkspaceProvider } from '../context/Workspace';
@@ -14,6 +15,34 @@ type AppProps = NextAppProps & {
 };
 
 // Temporarily using @ts-ignore since TypeScript and React are not in sync
+
+SuperJSON.registerCustom<CosmosFee, string>(
+  {
+    isApplicable(v: any): v is CosmosFee {
+      return typeof v === 'object' && 'gas' in v && 'amount' in v;
+    },
+    serialize(v: CosmosFee) {
+      return `${v.gas}:${v.amount.map((amount) => `${amount.amount}-${amount.denom}`).join('<>')}`;
+    },
+    deserialize(v: unknown) {
+      const [gas, amountArr] = Object.values(v as object).join('');
+      const amount: { amount: string; denom: string }[] = [];
+      amountArr.split('<>').forEach((amt) => {
+        const [amtValue, denom] = amt.split('-');
+        amount.push({
+          amount: amtValue,
+          denom,
+        });
+      });
+
+      return {
+        gas,
+        amount,
+      };
+    },
+  },
+  'cosmosFee',
+);
 
 SuperJSON.registerCustom<PushTransactionArgs, string>(
   {

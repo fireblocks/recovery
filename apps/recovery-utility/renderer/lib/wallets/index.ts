@@ -1,4 +1,5 @@
 // import { Bitcoin } from './BTC';
+import { Cosmos } from './ATOM';
 import { EOS } from './EOS';
 import { EVM } from './EVM';
 import { Solana } from './SOL';
@@ -14,6 +15,8 @@ export const WalletClasses = {
   ETH_TEST5: EVM,
   EOS,
   EOS_TEST: EOS,
+  ATOM_COS: Cosmos,
+  ATOM_COS_TEST: Cosmos,
 
   // EDDSA
   SOL: Solana,

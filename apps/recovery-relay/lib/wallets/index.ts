@@ -1,4 +1,5 @@
 import { Cardano } from './ADA';
+import { Cosmos } from './ATOM';
 import { Bitcoin, BitcoinCash, BitcoinSV, DASH, DogeCoin, LiteCoin, ZCash } from './BTCBased';
 import { EOS } from './EOS';
 import { Arbitrum } from './EVM/AETH';
@@ -76,6 +77,8 @@ export const WalletClasses = {
   BNB_TEST: BinanceSmartChain,
   EOS,
   EOS_TEST: EOS,
+  ATOM_COS: Cosmos,
+  ATOM_COS_TEST: Cosmos,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];
