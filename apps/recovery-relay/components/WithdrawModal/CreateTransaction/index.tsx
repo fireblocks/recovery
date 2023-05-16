@@ -16,7 +16,7 @@ import {
 } from '@fireblocks/recovery-shared';
 import { AssetConfig } from '@fireblocks/asset-config';
 import { useWorkspace } from '../../../context/Workspace';
-import { Derivation } from '../../../lib/wallets';
+import { Derivation, AccountData } from '../../../lib/wallets';
 
 const getWallet = (accounts: Map<number, VaultAccount<Derivation>>, accountId?: number, assetId?: string) => {
   if (typeof accountId === 'undefined' || typeof assetId === 'undefined') {
@@ -66,7 +66,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
     watch,
     setValue,
     handleSubmit,
-    // formState: { errors },
+    formState: { errors },
   } = useForm<TransactionInput>({
     resolver: zodResolver(transactionInput),
     mode: 'onChange',
@@ -95,12 +95,14 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
   const prepareQuery = useQuery({
     queryKey: prepareQueryKey,
     enabled: !!derivation,
-    queryFn: async () => derivation!.prepare?.(toAddress),
-    // onSuccess: (prepare: AccountData) => {
-    //   if (prepare.utxos) {
-    //     setTransactionInput((prev) => ({ ...prev, utxos: [] }));
-    //   }
-    // },
+    queryFn: async () => derivation!.prepare?.(),
+    onSuccess: (prepare: AccountData) => {
+      console.info('UTXOs', prepare.utxos);
+
+      // if (prepare.utxos) {
+      //   setTransactionInput((prev) => ({ ...prev, utxos: [] }));
+      // }
+    },
     onError: (err: Error) => console.error('Failed to prepare transaction parameters', err),
   });
 
@@ -133,13 +135,14 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
       from: data.fromAddress,
       to: toAddress,
       amount: balance,
+      balance,
       misc: {
         nonce: prepareQuery.data?.nonce,
         gasPrice: `${prepareQuery.data?.gasPrice}`,
         extraParams: prepareQuery.data?.extraParams,
+        utxos: prepareQuery.data?.utxos,
       },
       // memo: data.memo,
-      // misc: { utxos: data.utxos }, // TODO
     });
   };
 
@@ -240,27 +243,15 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
         </Grid>
       </Grid>
       <Grid item xs={12}>
-        <TextField
-          id='toAddress'
-          label='Recipient Address'
-          autoComplete='off'
-          autoCapitalize='off'
-          spellCheck={false}
-          isMonospace
-          readOnly
-          value={toAddress}
-        />
-      </Grid>
-      <Grid item xs={12}>
         <Typography variant='body1' paragraph>
           The entire balance will be sent so that you can migrate to a new wallet.
         </Typography>
       </Grid>
-      {/* <Grid item xs={12}>
+      <Grid item xs={12}>
         <TextField
           id='memo'
           label='Memo or Tag field (when applicable)'
-          error={formErrors.toAddress?.message}
+          error={errors.memo?.message}
           disabled={isLoading}
           autoComplete='off'
           autoCapitalize='off'
@@ -268,7 +259,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
           isMonospace
           {...register('memo')}
         />
-      </Grid> */}
+      </Grid>
       {/* {prepareQuery.isError
           ? 'Could not check UTXO data'
           : prepareQuery.data &&
@@ -320,7 +311,9 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
               </Grid>
             )} */}
       <Grid item xs={12} display='flex' justifyContent='flex-end'>
-        <Button type='submit'>Prepare Transaction</Button>
+        <Button type='submit' disabled={!prepareQuery.data?.balance}>
+          Prepare Transaction
+        </Button>
       </Grid>
     </Grid>
   );

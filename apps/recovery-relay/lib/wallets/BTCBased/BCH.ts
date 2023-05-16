@@ -1,11 +1,11 @@
 import { BitcoinCash as BCHBase, Input } from '@fireblocks/wallet-derivation';
 import bchLib from 'bitcore-lib-cash';
 import axios from 'axios';
-import { AccountData, UTXO, TxPayload, RawSignature } from '../types';
-import { LateInitBaseWallet } from '../LateInitBaseWallet';
+import { AccountData, TxInput, TxPayload, RawSignature } from '../types';
+import { LateInitConnectedWallet } from '../LateInitConnectedWallet';
 import { BCHUTXO } from './types';
 
-export class BitcoinCash extends BCHBase implements LateInitBaseWallet {
+export class BitcoinCash extends BCHBase implements LateInitConnectedWallet {
   private endpoint: string;
 
   private network: bchLib.Networks.Network;
@@ -35,26 +35,37 @@ export class BitcoinCash extends BCHBase implements LateInitBaseWallet {
     if (this.isLateInit() && this.endpoint === '') {
       throw new Error('Endpoint not initialized yet');
     }
-    const utxos: UTXO[] = (await this._getBCHUTXOs()).map(
-      (bchutxo) => ({ txHash: bchutxo.txid, value: bchutxo.amount, index: bchutxo.vout, confirmed: true } as UTXO),
-    );
-    const balance = utxos.map((utxo) => utxo.value).reduce((p, c) => p + c);
+
+    const utxos: TxInput[] = (await this._getBCHUTXOs()).map((bchutxo) => ({
+      hash: bchutxo.txid,
+      value: bchutxo.amount,
+      index: bchutxo.vout,
+      confirmed: bchutxo.confirmations > 0,
+    }));
+
+    const balance = utxos.map((utxo) => utxo.value as number).reduce((p, c) => p + c);
+
     return {
       utxos,
       balance,
     };
   }
 
-  public async generateTx(to: string, amount: number, memo?: string | undefined, utxos?: UTXO[] | undefined): Promise<TxPayload> {
+  public async generateTx(
+    to: string,
+    amount: number,
+    memo?: string | undefined,
+    utxos?: TxInput[] | undefined,
+  ): Promise<TxPayload> {
     const bchUTXOs = new Map((await this._getBCHUTXOs()).map((utxo) => [utxo.txid, utxo]));
-    const allowedUTXOs = utxos!.filter((utxo) => bchUTXOs.get(utxo.txHash) !== undefined);
+    const allowedUTXOs = utxos!.filter((utxo) => bchUTXOs.get(utxo.hash) !== undefined);
     let currentSum = 0;
     let utxoCount = 0;
     allowedUTXOs.forEach((utxo) => {
       if (currentSum / 10 ** 8 > amount) {
         return;
       }
-      currentSum += utxo.value;
+      currentSum += utxo.value as number;
       utxoCount += 1;
     });
     if (currentSum / 10 ** 8 < amount) {
@@ -62,7 +73,7 @@ export class BitcoinCash extends BCHBase implements LateInitBaseWallet {
     }
 
     const utxosToUse: bchLib.Transaction.UnspentOutput[] = allowedUTXOs.slice(0, utxoCount).map((utxo) => {
-      const bchUTXO = bchUTXOs.get(utxo.txHash)!;
+      const bchUTXO = bchUTXOs.get(utxo.hash)!;
       return bchLib.Transaction.UnspentOutput.fromObject({
         address: bchLib.Address.fromScript(bchLib.Script.fromString(bchUTXO.scriptPubKey), this.network),
         txId: bchUTXO.txid,

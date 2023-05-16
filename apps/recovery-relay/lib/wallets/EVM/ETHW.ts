@@ -1,8 +1,8 @@
 import { Input } from '@fireblocks/wallet-derivation';
-import { BaseWallet } from '../BaseWallet';
+import { ConnectedWallet } from '../ConnectedWallet';
 import { EVM } from '.';
 
-export class EthereumPoW extends EVM implements BaseWallet {
+export class EthereumPoW extends EVM implements ConnectedWallet {
   constructor(input: Input) {
     if (input.isTestnet) {
       throw new Error('No EthereumPOW Testnet support.');

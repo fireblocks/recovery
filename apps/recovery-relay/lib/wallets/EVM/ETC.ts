@@ -1,9 +1,9 @@
 import { Input, ETC as BaseETC } from '@fireblocks/wallet-derivation';
-import { BaseWallet } from '../BaseWallet';
+import { ConnectedWallet } from '../ConnectedWallet';
 import { EVM } from '.';
 import { AccountData, TxPayload, RawSignature } from '../types';
 
-export class EthereumClassic extends BaseETC implements BaseWallet {
+export class EthereumClassic extends BaseETC implements ConnectedWallet {
   private evmWallet: EVM;
 
   constructor(input: Input) {

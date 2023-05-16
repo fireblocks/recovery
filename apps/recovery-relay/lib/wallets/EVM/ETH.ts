@@ -1,8 +1,8 @@
 import { Input } from '@fireblocks/wallet-derivation';
-import { BaseWallet } from '../BaseWallet';
+import { ConnectedWallet } from '../ConnectedWallet';
 import { EVM } from '.';
 
-export class Ethereum extends EVM implements BaseWallet {
+export class Ethereum extends EVM implements ConnectedWallet {
   constructor(input: Input) {
     let cluster: string;
 

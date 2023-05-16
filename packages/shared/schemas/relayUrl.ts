@@ -87,17 +87,19 @@ const relayBaseResponseParams = z.object({
 export const relaySignTxResponseParams = relayBaseResponseParams.extend({
   action: actionSchema('tx/sign'),
   unsignedTx: preparedTxSchema.extend({
+    balance: z.number().nonnegative('Balance cannot be negative'),
     misc: z
       .object({
         feeRate: z.number().nonnegative('Fee rate cannot be negative').optional(),
         gasPrice: z.string().optional(),
         nonce: nonnegativeIntSchema('Nonce').optional(),
         blockhash: hexString.nonempty('Block hash is required').optional(),
-        inputs: z
+        utxos: z
           .array(
             z.object({
               hash: hexString.nonempty('Input hash is required'),
               index: nonnegativeIntSchema('Input index'),
+              confirmed: z.boolean(),
               witnessUtxo: z
                 .object({
                   script: z.any(),

@@ -1,9 +1,9 @@
 import { Tron as BaseTron, Input } from '@fireblocks/wallet-derivation';
 import superjson from 'superjson';
-import { BaseWallet } from '../BaseWallet';
+import { ConnectedWallet } from '../ConnectedWallet';
 import { AccountData } from '../types';
 
-export class Tron extends BaseTron implements BaseWallet {
+export class Tron extends BaseTron implements ConnectedWallet {
   private tronWeb;
 
   constructor(input: Input) {

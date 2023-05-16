@@ -3,9 +3,9 @@ import { Buffer } from 'buffer';
 import { DogeCoin as BaseDOGE, Input } from '@fireblocks/wallet-derivation';
 import { BlockchairAddressDetails, BlockchairStats, BlockchairTx, BlockchairUTXO } from './types';
 import { UTXO, AccountData, TxPayload } from '../types';
-import { BaseWallet } from '../BaseWallet';
+import { ConnectedWallet } from '../ConnectedWallet';
 
-export class DOGE extends BaseDOGE implements BaseWallet {
+export class DOGE extends BaseDOGE implements ConnectedWallet {
   private static readonly satsPerBtc = 100000000;
 
   private readonly baseUrl: string;

@@ -25,7 +25,7 @@ import { XinFin } from './EVM/XDC';
 import { Solana } from './SOL';
 import { Tron } from './TRON';
 
-export { ConnectedWallet as BaseWallet } from './ConnectedWallet';
+export { ConnectedWallet as ConnectedWallet } from './ConnectedWallet';
 
 export const WalletClasses = {
   AVAX: Avalanche,
@@ -88,12 +88,4 @@ type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];
 
 export type Derivation = InstanceType<WalletClass>;
 
-export type {
-  UTXO,
-  AccountData,
-  TxParamsRequest,
-  TxParamsResponse,
-  TxBroadcastVariables,
-  TxPayload,
-  RawSignature,
-} from './types';
+export type { AccountData, TxBroadcastVariables, TxPayload, RawSignature } from './types';

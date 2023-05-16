@@ -97,32 +97,34 @@ export const WithdrawModal = () => {
               />
             ))}
           {action === 'tx/broadcast' && (
-            <Box display='flex' alignItems='center' justifyContent='center'>
-              <Button
-                onClick={async () => {
-                  console.info({ inboundRelayParams });
+            <Box display='flex' alignItems='center' justifyContent='center' flexDirection='column'>
+              {!txHash && (
+                <Button
+                  onClick={async () => {
+                    console.info({ inboundRelayParams });
 
-                  const wallet = accounts.get(inboundRelayParams?.accountId)?.wallets.get(inboundRelayParams?.signedTx.assetId);
+                    const wallet = accounts.get(inboundRelayParams?.accountId)?.wallets.get(inboundRelayParams?.signedTx.assetId);
 
-                  const derivation = wallet?.derivations?.get(inboundRelayParams?.signedTx.from);
+                    const derivation = wallet?.derivations?.get(inboundRelayParams?.signedTx.from);
 
-                  const tx = inboundRelayParams?.signedTx.hex;
+                    const tx = inboundRelayParams?.signedTx.hex;
 
-                  // const sigs = [inboundRelayParams?.signedTx.signature];
+                    // const sigs = [inboundRelayParams?.signedTx.signature];
 
-                  console.info({ derivation, tx });
+                    console.info({ derivation, tx });
 
-                  const sigs = []; // TODO: TEMPORARY-CLEAN UP!
+                    const sigs = []; // TODO: TEMPORARY-CLEAN UP!
 
-                  const newTxHash = await derivation?.broadcastTx(tx, sigs);
+                    const newTxHash = await derivation?.broadcastTx(tx, sigs);
 
-                  setTxHash(newTxHash);
+                    setTxHash(newTxHash);
 
-                  console.info({ newTxHash });
-                }}
-              >
-                Confirm and broadcast
-              </Button>
+                    console.info({ newTxHash });
+                  }}
+                >
+                  Confirm and broadcast
+                </Button>
+              )}
               {!!txHash && (
                 <Typography
                   variant='body1'

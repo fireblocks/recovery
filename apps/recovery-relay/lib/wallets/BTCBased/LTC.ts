@@ -3,9 +3,9 @@ import { Buffer } from 'buffer';
 import { LiteCoin as BaseLTC, Input } from '@fireblocks/wallet-derivation';
 import { BlockchairAddressDetails, BlockchairStats, BlockchairTx, BlockchairUTXO } from './types';
 import { UTXO, AccountData, TxPayload } from '../types';
-import { BaseWallet } from '../BaseWallet';
+import { ConnectedWallet } from '../ConnectedWallet';
 
-export class LTC extends BaseLTC implements BaseWallet {
+export class LTC extends BaseLTC implements ConnectedWallet {
   private static readonly satsPerBtc = 100000000;
 
   private readonly baseUrl: string;

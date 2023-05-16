@@ -66,7 +66,7 @@ export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Pr
     const { tx } = await (derivation as SigningWallet).generateTx({
       to,
       amount,
-      // inputs: misc?.inputs,
+      utxos: misc?.utxos as any, // TODO: Fix type
       feeRate: misc?.feeRate,
       nonce: misc?.nonce,
       gasPrice: misc?.gasPrice,

@@ -133,11 +133,6 @@ export const WorkspaceProvider = ({ children }: Props) => {
     reset,
   };
 
-  if (process.env.NODE_ENV === 'development') {
-    // eslint-disable-next-line no-console
-    console.info('Settings', settings);
-  }
-
   return <Context.Provider value={value}>{children}</Context.Provider>;
 };
 

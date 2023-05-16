@@ -1,7 +1,7 @@
-import { BaseWallet as DerivationBaseWallet } from '@fireblocks/wallet-derivation';
+import { ConnectedWallet as DerivationConnectedWallet } from '@fireblocks/wallet-derivation';
 import { AccountData, RawSignature } from './types';
 
-export abstract class ConnectedWallet extends DerivationBaseWallet {
+export abstract class ConnectedWallet extends DerivationConnectedWallet {
   public abstract getBalance(): Promise<number>;
 
   public abstract prepare(): Promise<AccountData>;

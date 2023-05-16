@@ -1,9 +1,9 @@
 import { EVMWallet as EVMBase, Input } from '@fireblocks/wallet-derivation';
-import { EVM } from '.';
-import { LateInitBaseWallet } from '../LateInitBaseWallet';
+import { LateInitConnectedWallet } from '../LateInitConnectedWallet';
 import { AccountData, RawSignature, TxPayload } from '../types';
+import { EVM } from '.';
 
-export class TokenX extends EVMBase implements LateInitBaseWallet {
+export class TokenX extends EVMBase implements LateInitConnectedWallet {
   private inputDup: Input;
 
   private subWallet: EVM | undefined;

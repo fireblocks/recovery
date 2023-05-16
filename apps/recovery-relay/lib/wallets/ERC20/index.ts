@@ -55,7 +55,7 @@ export class ERC20 extends Ethereum implements ConnectedWallet {
     };
   }
 
-  public async broadcastTx(txHex: string, sigs: RawSignature[]): Promise<string> {
-    return super.broadcastTx(txHex, sigs);
+  public async broadcastTx(txHex: string): Promise<string> {
+    return super.broadcastTx(txHex);
   }
 }

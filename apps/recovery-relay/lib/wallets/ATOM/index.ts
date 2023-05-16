@@ -1,13 +1,11 @@
-import { Cosmos as BaseCosmos, BaseWallet, Input } from '@fireblocks/wallet-derivation';
+import { Cosmos as BaseCosmos, Input } from '@fireblocks/wallet-derivation';
 import { Tendermint34Client } from '@cosmjs/tendermint-rpc';
 import { StargateClient, defaultRegistryTypes } from '@cosmjs/stargate';
-import { encodeSecp256k1Pubkey } from '@cosmjs/amino';
-import { encodePubkey, Registry, makeAuthInfoBytes, makeSignDoc } from '@cosmjs/proto-signing';
-import { Int53 } from '@cosmjs/math';
 import { SignDoc, TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-import { AccountData, RawSignature, TxPayload, UTXO } from '../types';
+import { AccountData, RawSignature, TxPayload, TxInput } from '../types';
+import { ConnectedWallet } from '../ConnectedWallet';
 
-export class Cosmos extends BaseCosmos implements BaseWallet {
+export class Cosmos extends BaseCosmos implements ConnectedWallet {
   private tendermintClient: Tendermint34Client | undefined;
 
   private stargateClient: StargateClient | undefined;
@@ -22,6 +20,11 @@ export class Cosmos extends BaseCosmos implements BaseWallet {
     this.tendermintClient = undefined;
     this.restURL = input.isTestnet ? 'https://cosmos-testnet-rpc.allthatnode.com:1317/' : 'https://cosmos-rpc.quickapi.com/';
     this.rpcURL = input.isTestnet ? 'https://cosmos-testnet-rpc.allthatnode.com:26657' : 'https://cosmos-lcd.quickapi.com/';
+  }
+
+  public async getBalance(): Promise<number> {
+    const balanceCoin = await this.stargateClient!.getBalance(this.address, 'uatom');
+    return parseInt(balanceCoin.amount, 10) / 1_000_000;
   }
 
   public async prepare(): Promise<AccountData> {

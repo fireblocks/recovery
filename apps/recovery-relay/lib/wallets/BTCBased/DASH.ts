@@ -3,9 +3,9 @@ import { Buffer } from 'buffer';
 import { DASH as BaseDASH, Input } from '@fireblocks/wallet-derivation';
 import { BlockchairAddressDetails, BlockchairStats, BlockchairTx, BlockchairUTXO } from './types';
 import { UTXO, AccountData, TxPayload } from '../types';
-import { BaseWallet } from '../BaseWallet';
+import { ConnectedWallet } from '../ConnectedWallet';
 
-export class DASH extends BaseDASH implements BaseWallet {
+export class DASH extends BaseDASH implements ConnectedWallet {
   private static readonly satsPerBtc = 100000000;
 
   private readonly baseUrl: string;

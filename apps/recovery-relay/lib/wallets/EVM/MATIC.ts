@@ -1,7 +1,8 @@
-import { BaseWallet, Input } from '@fireblocks/wallet-derivation';
+import { Input } from '@fireblocks/wallet-derivation';
+import { ConnectedWallet } from '../ConnectedWallet';
 import { EVM } from '.';
 
-export class Matic extends EVM implements BaseWallet {
+export class Matic extends EVM implements ConnectedWallet {
   constructor(input: Input) {
     super(
       input,

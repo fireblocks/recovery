@@ -55,6 +55,7 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
         script: Buffer.from(scriptpubkey, 'hex'),
         value,
       },
+      confirmed: true,
     };
   }
 
@@ -69,6 +70,7 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
       hash,
       index,
       nonWitnessUtxo,
+      confirmed: true,
     };
   }
 
@@ -89,7 +91,7 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
 
     return {
       balance,
-      inputs,
+      utxos: inputs,
       feeRate,
     };
   }

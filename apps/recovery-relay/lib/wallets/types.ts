@@ -1,32 +1,28 @@
 import type { Buffer } from 'buffer';
 
-export type UTXO = {
-  txHash: string;
-  index: number;
-  value: number;
-  confirmed: boolean;
-};
-
 // TEMP
 export type TxInput = {
   hash: string;
   index: number;
+  value?: number;
+  confirmed: boolean;
 } & (
   | {
-      witnessUtxo: {
+      /* SegWit */
+      witnessUtxo?: {
         script: Buffer;
         value: number;
       };
     }
   | {
-      nonWitnessUtxo: Buffer;
+      /* Legacy */
+      nonWitnessUtxo?: Buffer;
     }
 );
 
 export type AccountData = {
   balance: number;
-  inputs?: TxInput[];
-  utxos?: UTXO[];
+  utxos?: TxInput[];
   feeRate?: number;
   nonce?: number;
   gasPrice?: bigint | null;
@@ -36,26 +32,6 @@ export type AccountData = {
 export type TxBroadcastVariables = {
   tx: string;
   signature: RawSignature;
-};
-
-export type TxParamsRequest = {
-  assetId: string;
-  hdPath: string[];
-  xpub: string;
-  chainId?: number;
-};
-
-export type TxParamsResponse = {
-  fromAddress: string;
-  balance: string;
-  fee: string;
-  nonce?: string;
-  utxos?: {
-    rawTx: string;
-    txid: string;
-    vout: number;
-  }[];
-  blockhash?: string;
 };
 
 export type TxPayload = {

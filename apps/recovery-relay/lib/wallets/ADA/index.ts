@@ -19,8 +19,8 @@ import {
   Vkeywitness,
   Vkeywitnesses,
 } from '@emurgo/cardano-serialization-lib-asmjs';
-import { AccountData, UTXO, TxPayload, RawSignature } from '../types';
-import { LateInitBaseWallet } from '../LateInitBaseWallet';
+import { AccountData, TxInput, TxPayload, RawSignature } from '../types';
+import { LateInitConnectedWallet } from '../LateInitConnectedWallet';
 import { BlockFrostAPI } from './BlockfrostAPI';
 
 interface ADAGQLUtxo {
@@ -48,7 +48,7 @@ interface SubmittedTx {
   };
 }
 
-export class Cardano extends BaseCardano implements LateInitBaseWallet {
+export class Cardano extends BaseCardano implements LateInitConnectedWallet {
   private gqlClient: ApolloClient<NormalizedCacheObject> | undefined = undefined;
 
   private bkfClient: BlockFrostAPI | undefined = undefined;
@@ -75,7 +75,7 @@ export class Cardano extends BaseCardano implements LateInitBaseWallet {
 
   public async prepare(): Promise<AccountData> {
     let balance: number = 0;
-    const utxos: UTXO[] = [];
+    const utxos: TxInput[] = [];
     if (this.gqlClient) {
       const utxosResult = (
         await this.gqlClient.query<{ utxos: ADAGQLUtxo[] }>({
@@ -106,7 +106,9 @@ export class Cardano extends BaseCardano implements LateInitBaseWallet {
       utxosResult.forEach((utxo: ADAGQLUtxo) => {
         balance += utxo.transaction.block.number ? utxo.value : 0;
         utxos.push({
-          ...utxo,
+          hash: utxo.txHash,
+          index: utxo.index,
+          value: utxo.value,
           confirmed: !!utxo.transaction.block,
         });
       });
@@ -117,7 +119,7 @@ export class Cardano extends BaseCardano implements LateInitBaseWallet {
         const value = lovelaceAmount.length > 0 ? parseInt(lovelaceAmount[0].quantity, 10) : 0;
         balance += value;
         utxos.push({
-          txHash: utxo.tx_hash,
+          hash: utxo.tx_hash,
           index: utxo.output_index,
           value,
           confirmed: !!utxo.block,
@@ -136,7 +138,7 @@ export class Cardano extends BaseCardano implements LateInitBaseWallet {
     to: string,
     amount: number,
     memo?: string | undefined,
-    utxos?: UTXO[] | undefined,
+    utxos?: TxInput[] | undefined,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     additionalParameters?: Map<string, object> | undefined,
   ): Promise<TxPayload> {
@@ -152,8 +154,8 @@ export class Cardano extends BaseCardano implements LateInitBaseWallet {
       const utxo = utxos[i];
       txBuilder.add_input(
         Address.from_bech32(this.address),
-        TransactionInput.new(TransactionHash.from_hex(utxo.txHash), utxo.index),
-        Value.new(BigNum.from_str(utxo.value.toString())),
+        TransactionInput.new(TransactionHash.from_hex(utxo.hash), utxo.index),
+        Value.new(BigNum.from_str(utxo.value!.toString())),
       );
     }
 

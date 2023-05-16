@@ -4,11 +4,11 @@ import { EOS as BaseEOS, Input } from '@fireblocks/wallet-derivation';
 import { TransactionBuilder } from 'eosjs/dist/eosjs-api';
 import { PushTransactionArgs } from 'eosjs/dist/eosjs-rpc-interfaces';
 import superjson from 'superjson';
-import { BaseWallet } from '../BaseWallet';
+import { ConnectedWallet } from '../ConnectedWallet';
 import { AccountData } from '../types';
 import { EmptySigProvider } from './EmptySigProvider';
 
-export class EOS extends BaseEOS implements BaseWallet {
+export class EOS extends BaseEOS implements ConnectedWallet {
   private api: Api;
 
   private accounts: string[] | undefined;

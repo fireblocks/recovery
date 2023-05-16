@@ -1,4 +1,4 @@
-import { Network, networks, Psbt } from 'bitcoinjs-lib';
+import { Network, networks, Psbt, initEccLib } from 'bitcoinjs-lib';
 import tinysecp from 'tiny-secp256k1';
 import { ECPairFactory } from 'ecpair';
 import { Buffer } from 'buffer';
@@ -6,9 +6,9 @@ import { Bitcoin as BaseBitcoin, Input } from '@fireblocks/wallet-derivation';
 import { TxPayload, GenerateTxInput } from '../types';
 import { SigningWallet } from '../SigningWallet';
 
-export class Bitcoin extends BaseBitcoin implements SigningWallet {
-  private static readonly ECPair = ECPairFactory(tinysecp);
+initEccLib(tinysecp);
 
+export class Bitcoin extends BaseBitcoin implements SigningWallet {
   private static readonly satsPerBtc = 100000000;
 
   private readonly network: Network;
@@ -23,12 +23,12 @@ export class Bitcoin extends BaseBitcoin implements SigningWallet {
     return btc * Bitcoin.satsPerBtc;
   }
 
-  public async generateTx({ to, amount, inputs, feeRate }: GenerateTxInput): Promise<TxPayload> {
+  public async generateTx({ to, amount, utxos, feeRate }: GenerateTxInput): Promise<TxPayload> {
     if (!this.privateKey) {
       throw new Error('No private key found');
     }
 
-    if (!inputs?.length) {
+    if (!utxos?.length) {
       throw new Error('No inputs found');
     }
 
@@ -39,7 +39,7 @@ export class Bitcoin extends BaseBitcoin implements SigningWallet {
     const tx = new Psbt({ network: this.network });
 
     // eslint-disable-next-line no-restricted-syntax
-    for (const input of inputs) {
+    for (const input of utxos) {
       tx.addInput({
         hash: input.hash,
         index: input.index,
@@ -55,7 +55,7 @@ export class Bitcoin extends BaseBitcoin implements SigningWallet {
     }
 
     const satAmount = Bitcoin._btcToSats(amount);
-    const vBytes = this.isLegacy ? 148 * inputs.length + 34 + 10 : 68 * inputs.length + 31 + 10.5;
+    const vBytes = this.isLegacy ? 148 * utxos.length + 34 + 10 : 68 * utxos.length + 31 + 10.5;
     const fee = feeRate * Math.ceil(vBytes);
     const actualAmount = Math.ceil(satAmount - fee);
 
@@ -64,7 +64,8 @@ export class Bitcoin extends BaseBitcoin implements SigningWallet {
       value: actualAmount,
     });
 
-    const signer = Bitcoin.ECPair.fromPrivateKey(Buffer.from(this.privateKey, 'hex'));
+    const signer = ECPairFactory(tinysecp).fromPrivateKey(Buffer.from(this.privateKey, 'hex'));
+
     tx.signAllInputs(signer);
     tx.finalizeAllInputs();
 

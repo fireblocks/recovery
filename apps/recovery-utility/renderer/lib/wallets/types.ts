@@ -15,34 +15,14 @@ export type TxBroadcastVariables = {
   signature: RawSignature;
 };
 
-export type TxParamsRequest = {
-  assetId: string;
-  hdPath: string[];
-  xpub: string;
-  chainId?: number;
-};
-
-export type TxParamsResponse = {
-  fromAddress: string;
-  balance: string;
-  fee: string;
-  nonce?: string;
-  inputs?: {
-    rawTx: string;
-    txid: string;
-    vout: number;
-  }[];
-  blockhash?: string;
-};
-
 export type TxPayload = {
   tx: string;
   signature?: RawSignature;
 };
 
 type Inputs =
-  | { hash: string; index: number; witnessUtxo: { script: string; value: number } }[]
-  | { hash: string; index: number; nonWitnessUtxo: string }[];
+  | { confirmed: boolean; hash: string; index: number; witnessUtxo: { script: any; value: number } }[]
+  | { confirmed: boolean; hash: string; index: number; nonWitnessUtxo: any }[];
 
 export type RawSignature = {
   r: string;
@@ -53,7 +33,7 @@ export type RawSignature = {
 export type GenerateTxInput = {
   to: string;
   amount: number;
-  inputs?: Inputs;
+  utxos?: Inputs;
   feeRate?: number;
   nonce?: number;
   gasPrice?: string;

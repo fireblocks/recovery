@@ -2,9 +2,9 @@
 /* eslint-disable class-methods-use-this */
 import { BitcoinSV as BSVBase, Input } from '@fireblocks/wallet-derivation';
 import { AccountData, UTXO, TxPayload, RawSignature } from '../types';
-import { LateInitBaseWallet } from '../LateInitBaseWallet';
+import { LateInitConnectedWallet } from '../LateInitConnectedWallet';
 
-export class BitcoinSV extends BSVBase implements LateInitBaseWallet {
+export class BitcoinSV extends BSVBase implements LateInitConnectedWallet {
   private baseUrl: string = '';
 
   public async getBalance(): Promise<number> {

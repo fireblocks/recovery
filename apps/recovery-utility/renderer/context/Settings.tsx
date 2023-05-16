@@ -36,6 +36,7 @@ export const SettingsProvider = ({ children }: Props) => {
     setSettings((prev) => ({ ...prev, ...data }));
   };
 
+  // eslint-disable-next-line react/jsx-no-constructed-context-values
   const value: ISettingsContext = {
     ...settings,
     saveSettings,
