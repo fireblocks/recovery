@@ -17,6 +17,7 @@ import {
 import { AssetConfig } from '@fireblocks/asset-config';
 import { useWorkspace } from '../../../context/Workspace';
 import { Derivation, AccountData } from '../../../lib/wallets';
+import { TxInput } from '../../../lib/wallets/types';
 
 const getWallet = (accounts: Map<number, VaultAccount<Derivation>>, accountId?: number, assetId?: string) => {
   if (typeof accountId === 'undefined' || typeof assetId === 'undefined') {
@@ -128,6 +129,26 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
 
     console.info('Prepare:', prepareQuery.data);
 
+    // TODO: Update UTXOs in response to maximize how many we can fit in the QR code up to the target balance
+    let maxUtxo: TxInput | undefined = undefined;
+
+    if (prepareQuery.data?.utxos) {
+      maxUtxo = prepareQuery.data.utxos.reduce((prev, curr) => {
+        if (
+          typeof prev.value !== 'undefined' &&
+          typeof curr.value !== 'undefined' &&
+          prev.value < curr.value &&
+          curr.value <= balance
+        ) {
+          return curr;
+        }
+
+        return prev;
+      });
+    }
+
+    const utxos = maxUtxo ? [maxUtxo] : undefined;
+
     setSignTxResponseUrl({
       id: txId,
       assetId: asset.id,
@@ -140,7 +161,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
         nonce: prepareQuery.data?.nonce,
         gasPrice: `${prepareQuery.data?.gasPrice}`,
         extraParams: prepareQuery.data?.extraParams,
-        utxos: prepareQuery.data?.utxos,
+        utxos,
       },
       // memo: data.memo,
     });
