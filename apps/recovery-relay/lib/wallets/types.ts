@@ -29,11 +29,6 @@ export type AccountData = {
   extraParams?: Map<string, any>;
 };
 
-export type TxBroadcastVariables = {
-  tx: string;
-  signature: RawSignature;
-};
-
 export type TxPayload = {
   derivationPath: [44, number, number, number, number];
   tx: string;

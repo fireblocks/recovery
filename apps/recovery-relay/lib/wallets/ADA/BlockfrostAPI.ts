@@ -1,6 +1,3 @@
-/* eslint-disable no-await-in-loop */
-import axios from 'axios';
-
 export type ADAUTXO = {
   address: string;
   tx_hash: string;
@@ -24,39 +21,41 @@ export class BlockFrostAPI {
   }
 
   async txSubmit(tx: Buffer): Promise<string> {
-    const res = await axios({
-      method: 'post',
-      data: tx,
-      url: `${this.baseUrl}/tx/submit`,
+    const res = await fetch(`${this.baseUrl}/tx/submit`, {
+      method: 'POST',
+      body: tx,
       headers: {
         project_id: this.projectId,
-        'Content-type': 'application/cbor',
+        'Content-Type': 'application/cbor',
       },
     });
-    return res.data as string;
+
+    const txHex = await res.text();
+
+    return txHex;
   }
 
   async getUtxos(addr: string): Promise<ADAUTXO[]> {
     const utxos: ADAUTXO[] = [];
     const page = 1;
     let resultLength = 0;
+
     do {
-      const pageResult = (
-        await axios({
-          method: 'get',
-          url: `${this.baseUrl}/addresses/${addr}/utxos`,
-          data: {
-            page,
-            count: 100,
-          },
-          headers: {
-            project_id: this.projectId,
-          },
-        })
-      ).data as ADAUTXO[];
+      const params = new URLSearchParams({ page: page.toString(), count: '100' });
+
+      const res = await fetch(`${this.baseUrl}/addresses/${addr}/utxos?${params.toString()}`, {
+        headers: {
+          project_id: this.projectId,
+        },
+      });
+
+      const pageResult: ADAUTXO[] = await res.json();
+
       resultLength = pageResult.length;
+
       utxos.push(...pageResult);
     } while (resultLength !== 100);
+
     return utxos;
   }
 }

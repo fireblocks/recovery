@@ -1,6 +1,5 @@
 import { BitcoinCash as BCHBase, Input } from '@fireblocks/wallet-derivation';
 import bchLib from 'bitcore-lib-cash';
-import axios from 'axios';
 import { AccountData, TxInput, TxPayload, RawSignature } from '../types';
 import { LateInitConnectedWallet } from '../LateInitConnectedWallet';
 import { BCHUTXO } from './types';
@@ -107,23 +106,19 @@ export class BitcoinCash extends BCHBase implements LateInitConnectedWallet {
   }
 
   private async _get<T>(path: string) {
-    return (
-      await axios({
-        url: `${this.endpoint}${path}`,
-        method: 'GET',
-      })
-    ).data as T;
+    const res = await fetch(`${this.endpoint}${path}`);
+
+    const data: Promise<T> = res.json();
+
+    return data;
   }
 
   private async _post(path: string) {
-    return (
-      (
-        await axios({
-          url: `${this.endpoint}${path}`,
-          method: 'POST',
-        })
-      ).status === 200
-    );
+    const res = await fetch(`${this.endpoint}${path}`, {
+      method: 'POST',
+    });
+
+    return res.status === 200;
   }
 
   private async _getBCHUTXOs(): Promise<BCHUTXO[]> {

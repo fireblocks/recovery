@@ -107,15 +107,13 @@ export const WithdrawModal = () => {
 
                     const derivation = wallet?.derivations?.get(inboundRelayParams?.signedTx.from);
 
-                    const tx = inboundRelayParams?.signedTx.hex;
+                    const signedTxHex = inboundRelayParams?.signedTx.hex;
 
                     // const sigs = [inboundRelayParams?.signedTx.signature];
 
-                    console.info({ derivation, tx });
+                    console.info({ derivation, signedTxHex });
 
-                    const sigs = []; // TODO: TEMPORARY-CLEAN UP!
-
-                    const newTxHash = await derivation?.broadcastTx(tx, sigs);
+                    const newTxHash = await derivation?.broadcastTx(signedTxHex);
 
                     setTxHash(newTxHash);
 

@@ -10,11 +10,6 @@ export type AccountData = {
   inputs?: UTXO[];
 };
 
-export type TxBroadcastVariables = {
-  tx: string;
-  signature: RawSignature;
-};
-
 export type TxPayload = {
   tx: string;
   signature?: RawSignature;

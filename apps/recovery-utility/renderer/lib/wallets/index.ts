@@ -30,4 +30,4 @@ type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];
 
 export type Derivation = InstanceType<WalletClass>;
 
-export type { UTXO, AccountData, TxBroadcastVariables, TxPayload, RawSignature } from './types';
+export type { UTXO, AccountData, TxPayload, RawSignature } from './types';

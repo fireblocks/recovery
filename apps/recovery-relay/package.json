@@ -30,7 +30,6 @@
     "@mui/x-data-grid": "^6.4.0",
     "@solana/web3.js": "^1.76.0",
     "@tanstack/react-query": "^4.29.7",
-    "axios": "^1.4.0",
     "base58": "^2.0.1",
     "bigint-buffer": "^1.1.5",
     "bitcoinjs-lib": "^6.1.0",
