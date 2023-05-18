@@ -8,7 +8,7 @@
   Connect recovered wallets to query balances and send transactions without revealing private keys.
   <br />
   <br />
-  <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Ffireblocks%2Frecovery%2Ftree%2Fmain%2Fapps%2Frecovery-relay&build-command=cd%20..%2F..%20%26%26%20npx%20turbo%20run%20build%20--filter%3D%40fireblocks%2Frecovery-relay&project-name=recovery-relay&demo-title=Fireblocks%20Recovery%20Relay&demo-description=Connect%20recovered%20wallets%20to%20query%20balances%20and%20send%20transactions.&demo-url=https%3A%2F%2Frelay.fireblocks.solutions&demo-image=https%3A%2F%2Fraw.githubusercontent.com%2Ffireblocks%2Frecovery%2Fmain%2Fdocs%2Fimg%2Frelay.png&root-directory=apps%2Frecovery-relay" target="_blank">
+  <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Ffireblocks%2Frecovery%2Ftree%2Fmain%2Fapps%2Frecovery-relay&build-command=cd%20..%2F..%20%26%26%20npx%20turbo%20run%20build%20--filter%3D%40fireblocks%2Frecovery-relay&project-name=recovery-relay&demo-title=Fireblocks%20Recovery%20Relay&demo-description=Connect%20recovered%20wallets%20to%20query%20balances%20and%20send%20transactions.&root-directory=apps%2Frecovery-relay" target="_blank">
     <img src="https://vercel.com/button" alt="Deploy with Vercel" />
   </a>
   <a href="https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/fireblocks/recovery/tree/main/apps/recovery-relay" target="_blank">
@@ -16,7 +16,7 @@
   </a>
   <br />
   <br />
-  <a href="https://relay.fireblocks.solutions" target="_blank">
+  <a href="https://github.com/fireblocks/recovery" target="_blank">
     <img src="../../docs/img/relay.png" alt="Screenshot" />
   </a>
 </p>
@@ -31,7 +31,7 @@ After using [Recovery Utility](../recovery-utility/) on on an airgapped device t
 - Scan the QR code shown in Recovery Utility with a phone or an internet-connected computer to open a Recovery Relay URL.
 - To send data back to Recovery Utility, use a webcam on the airgapped to scan a QR code from Recovery Relay.
 
-You can set the Recovery Relay URL in Recovery Utility settings. The default instance is hosted on Vercel at [relay.fireblocks.solutions](relay.fireblocks.solutions). You can also use this repository to build and host the static files yourself.
+You can set the Recovery Relay URL in Recovery Utility settings. You can use this repository to build and host the site static files yourself.
 
 ## Development Scripts
 

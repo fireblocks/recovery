@@ -1,0 +1,3 @@
+{
+  "buildCommand": "cd ../.. && npx turbo run build --filter=@fireblocks/recovery-relay"
+}
