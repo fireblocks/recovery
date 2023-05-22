@@ -741,6 +741,7 @@ export const assets = {
     decimals: 6,
     exp: "bigdipper.live/cosmos",
     coinType: 118,
+    derive: true,
   },
   ATOM_COS_TEST: {
     id: "ATOM_COS_TEST",
@@ -750,6 +751,7 @@ export const assets = {
     decimals: 6,
     exp: "explorer.theta-testnet.polypore.xyz",
     coinType: 118,
+    derive: true,
   },
   ATRI: {
     id: "ATRI",
@@ -4856,6 +4858,7 @@ export const assets = {
     nativeAsset: "LUNA2",
     decimals: 6,
     exp: "finder.terra.money",
+    derive: true,
   },
   LUNA2_TEST: {
     id: "LUNA2_TEST",
@@ -4864,6 +4867,7 @@ export const assets = {
     nativeAsset: "LUNA2_TEST",
     decimals: 6,
     exp: "finder.terra.money/testnet",
+    derive: true,
   },
   LUSD: {
     id: "LUSD",
@@ -7927,6 +7931,7 @@ export const assets = {
     decimals: 6,
     exp: "tronscan.org",
     coinType: 195,
+    derive: true,
   },
   TRX_BSC: {
     id: "TRX_BSC",
@@ -7944,6 +7949,7 @@ export const assets = {
     decimals: 6,
     exp: "shasta.tronscan.org",
     coinType: 195,
+    derive: true,
   },
   TRX_USDC_6NU3: {
     id: "TRX_USDC_6NU3",
@@ -9291,6 +9297,7 @@ export const assets = {
     decimals: 6,
     exp: "livenet.xrpl.org",
     coinType: 144,
+    derive: true,
   },
   XRP_TEST: {
     id: "XRP_TEST",
@@ -9300,6 +9307,7 @@ export const assets = {
     decimals: 6,
     exp: "testnet.xrpl.org",
     coinType: 144,
+    derive: true,
   },
   XSGD: {
     id: "XSGD",
@@ -9626,5 +9634,13 @@ export const assets = {
     contractAddress: "0xD33526068D116cE69F19A9ee46F0bd304F21A51f",
     nativeAsset: "ETH",
     decimals: 18,
+  },
+  TL_B7B22QF3_ZFYQ: {
+    id: "TL_B7B22QF3_ZFYQ",
+    name: "TalebLove",
+    type: "XLM_ASSET",
+    nativeAsset: "XLM_TEST",
+    decimals: 7,
+    issuerAddress: "GAR33KYLGKHE5LLJZFBHMQE7UGVX4Z2CVT2HWPMYHZ22I2ERM7BFHTJA",
   },
 };

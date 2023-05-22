@@ -19,7 +19,7 @@
     "@typescript-eslint/parser": "^5.59.6",
     "bip44-constants": "^218.0.0",
     "dotenv": "^16.0.3",
-    "eslint": "^8.40.0",
+    "eslint": "^8.41.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-typescript": "^17.0.0",
     "eslint-config-prettier": "^8.8.0",
@@ -27,7 +27,7 @@
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "fireblocks-sdk": "^5.1.0",
+    "fireblocks-sdk": "^5.1.1",
     "prettier": "^2.8.8",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
