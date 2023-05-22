@@ -1,10 +1,12 @@
 import { Ripple as BaseRipple, Input } from '@fireblocks/wallet-derivation';
-import { Client, TxResponse } from 'xrpl';
+import { Client, TxResponse, xrpToDrops } from 'xrpl';
+import getFeeXrp from 'xrpl/dist/npm/sugar/getFeeXrp';
 import SuperJSON from 'superjson';
-import { BaseWallet } from '../BaseWallet';
+import { ConnectedWallet } from '../ConnectedWallet';
 import { AccountData } from '../types';
+import BigNumber from 'bignumber.js';
 
-export class Ripple extends BaseRipple implements BaseWallet {
+export class Ripple extends BaseRipple implements ConnectedWallet {
   private xrpClient: Client;
 
   constructor(input: Input) {
@@ -41,10 +43,31 @@ export class Ripple extends BaseRipple implements BaseWallet {
       LastLedgerSequence: (await this.xrpClient.getLedgerIndex()) + 100, // ~5 Minutes
     });
 
+    // Fee calculation
+    const netFeeXRP = await getFeeXrp(this.xrpClient);
+    const netFeeDrops = xrpToDrops(netFeeXRP);
+    let baseFee = new BigNumber(netFeeDrops);
+    baseFee = BigNumber.sum(baseFee, new BigNumber(netFeeDrops).times(2).toString());
+    const maxFeeDrops = xrpToDrops(this.xrpClient.maxFeeXRP);
+    const totalFee = BigNumber.min(baseFee, maxFeeDrops);
+    const fee = totalFee.dp(0, BigNumber.ROUND_CEIL).toString(10);
+
     const extraParams = new Map<string, any>();
-    extraParams.set(this.KEY_TX, SuperJSON.stringify(preparedTx));
+    extraParams.set(this.KEY_LEDGER_SEQUENCE, (await this.xrpClient.getLedgerIndex()) + 100);
+    extraParams.set(this.KEY_FEE, fee);
+    extraParams.set(
+      this.KEY_SEQUENCE,
+      (
+        await this.xrpClient.request({
+          command: 'account_info',
+          account: this.address,
+          ledger_index: 'current',
+        })
+      ).result.account_data.Sequence,
+    );
+
     return {
-      balance: balance - 10,
+      balance: balance - this.MIN_XRP_BALANCE,
       extraParams,
     };
   }

@@ -13,4 +13,9 @@ export class Ripple extends BTCWalletBase {
   }
 
   protected readonly KEY_TX = 't';
+  protected readonly KEY_SEQUENCE = 's';
+  protected readonly KEY_FEE = 'f';
+  protected readonly KEY_LEDGER_SEQUENCE = 'l';
+
+  protected readonly MIN_XRP_BALANCE = 10;
 }
