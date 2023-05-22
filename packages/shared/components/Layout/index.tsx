@@ -43,6 +43,10 @@ export const Layout = ({ children, title, description, navLinks, status, notice,
       <Head>
         <title>{fullTitle}</title>
         <meta
+          httpEquiv='Content-Security-Policy'
+          content={`default-src 'self' data: 'unsafe-inline' ${process.env.NODE_ENV === 'development' ? "'unsafe-eval'" : ''}`}
+        />
+        <meta
           name='viewport'
           content='minimum-scale=1, maximum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover'
         />
