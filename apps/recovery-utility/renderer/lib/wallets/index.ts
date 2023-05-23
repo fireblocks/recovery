@@ -7,11 +7,14 @@ import { EVM } from './EVM';
 import { Solana } from './SOL';
 import { Tron } from './TRON';
 import { Luna } from './LUNA';
+import { Cardano } from './ADA';
 
 export { SigningWallet as BaseWallet } from './SigningWallet';
 
 export const WalletClasses = {
   // ECDSA
+  ADA: Cardano,
+  ADA_TEST: Cardano,
   BTC: Bitcoin,
   BTC_TEST: Bitcoin,
   ETH: EVM,

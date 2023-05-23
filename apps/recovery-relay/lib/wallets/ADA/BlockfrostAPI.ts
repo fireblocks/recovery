@@ -54,7 +54,7 @@ export class BlockFrostAPI {
       resultLength = pageResult.length;
 
       utxos.push(...pageResult);
-    } while (resultLength !== 100);
+    } while (resultLength === 100);
 
     return utxos;
   }

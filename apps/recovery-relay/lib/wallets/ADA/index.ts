@@ -19,7 +19,7 @@ import {
   Vkeywitness,
   Vkeywitnesses,
 } from '@emurgo/cardano-serialization-lib-asmjs';
-import { AccountData, TxInput, TxPayload, RawSignature } from '../types';
+import { AccountData, StdUTXO } from '../types';
 import { LateInitConnectedWallet } from '../LateInitConnectedWallet';
 import { BlockFrostAPI } from './BlockfrostAPI';
 
@@ -53,12 +53,19 @@ export class Cardano extends BaseCardano implements LateInitConnectedWallet {
 
   private bkfClient: BlockFrostAPI | undefined = undefined;
 
+  private endpoint: string | undefined = undefined;
+
   constructor(input: Input) {
     super(input);
     this.isLateInit = () => true;
   }
 
+  public getLateInitLabel(): string {
+    return 'Blockfrost Project ID or GraphQL Url';
+  }
+
   public updateDataEndpoint(endpoint: string): void {
+    this.endpoint = endpoint;
     if (endpoint.startsWith('http')) {
       this.gqlClient = new ApolloClient({
         uri: endpoint,
@@ -75,7 +82,7 @@ export class Cardano extends BaseCardano implements LateInitConnectedWallet {
 
   public async prepare(): Promise<AccountData> {
     let balance: number = 0;
-    const utxos: TxInput[] = [];
+    const utxos: StdUTXO[] = [];
     if (this.gqlClient) {
       const utxosResult = (
         await this.gqlClient.query<{ utxos: ADAGQLUtxo[] }>({
@@ -130,62 +137,13 @@ export class Cardano extends BaseCardano implements LateInitConnectedWallet {
     }
     return {
       utxos,
-      balance,
+      balance: balance / 1_000_000,
+      endpoint: this.endpoint,
     };
   }
 
-  public async generateTx(
-    to: string,
-    amount: number,
-    memo?: string | undefined,
-    utxos?: TxInput[] | undefined,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    additionalParameters?: Map<string, object> | undefined,
-  ): Promise<TxPayload> {
-    if (!utxos || utxos.length === 0) {
-      throw Error('No UTXOs selected or exist');
-    }
-    const txBuilderConfig = TransactionBuilderConfigBuilder.new()
-      .fee_algo(LinearFee.new(BigNum.from_str('44'), BigNum.from_str('155381')))
-      .build();
-    const txBuilder = TransactionBuilder.new(txBuilderConfig);
-
-    for (let i = 0; i < utxos.length; i += 1) {
-      const utxo = utxos[i];
-      txBuilder.add_input(
-        Address.from_bech32(this.address),
-        TransactionInput.new(TransactionHash.from_hex(utxo.hash), utxo.index),
-        Value.new(BigNum.from_str(utxo.value!.toString())),
-      );
-    }
-
-    txBuilder.add_output(TransactionOutput.new(Address.from_bech32(to), Value.new(BigNum.from_str(amount.toString()))));
-    txBuilder.add_change_if_needed(Address.from_bech32(this.address));
-    const txBody = txBuilder.build();
-    return {
-      tx: txBody.to_hex(),
-      derivationPath: [44, this.path.coinType, this.path.account, this.path.changeIndex, this.path.changeIndex],
-    };
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async broadcastTx(txHex: string, sigs: RawSignature[], customUrl?: string | undefined): Promise<string> {
-    const txBody = TransactionBody.from_hex(txHex);
-    const witnesses = TransactionWitnessSet.new();
-
-    sigs.forEach((sig: RawSignature) => {
-      const signature = Ed25519Signature.from_hex(`0x${sig.r.replace('0x', '')}${sig.s.replace('0x', '')}`);
-      const publicKey = PublicKey.from_hex(this.publicKey);
-
-      const vkey = Vkey.new(publicKey);
-      const witness = Vkeywitness.new(vkey, signature);
-
-      const vkeyWitnesses = Vkeywitnesses.new();
-      vkeyWitnesses.add(witness);
-      witnesses.set_vkeys(vkeyWitnesses);
-    });
-
-    const signedTx = Transaction.new(txBody, witnesses);
+  public async broadcastTx(txHex: string): Promise<string> {
+    const signedTx = Transaction.from_hex(txHex);
     let signedTxHash;
     if (this.gqlClient) {
       signedTxHash = (
@@ -207,6 +165,6 @@ export class Cardano extends BaseCardano implements LateInitConnectedWallet {
     } else {
       throw Error('Endpoint not initialized yet.');
     }
-    return signedTxHash;
+    return signedTxHash.replace('"', '');
   }
 }
