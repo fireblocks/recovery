@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import crypto from 'crypto';
+import { getRandomValues, randomBytes as cRandomBytes } from 'crypto';
 
 // Be friendly to bad ECMAScript parsers by not using bigint literals like 123n
 export const _0n = BigInt(0);
@@ -102,7 +102,13 @@ export const numberTo4BytesBE = (number: number) => Buffer.from([number >> 24, n
  * @param length length of byte array
  * @returns byte array
  */
-export const randomBytes = (length = 32) => crypto.getRandomValues(new Uint8Array(length));
+export const randomBytes = (length = 32) => {
+  if (typeof getRandomValues !== 'function') {
+    return cRandomBytes(length);
+  } else {
+    return getRandomValues(new Uint8Array(length));
+  }
+};
 
 /**
  * Concatenate a list of byte arrays.
