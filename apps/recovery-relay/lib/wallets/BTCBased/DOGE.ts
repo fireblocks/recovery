@@ -2,7 +2,7 @@ import { networks, Psbt } from 'bitcoinjs-lib';
 import { Buffer } from 'buffer';
 import { DogeCoin as BaseDOGE, Input } from '@fireblocks/wallet-derivation';
 import { BlockchairAddressDetails, BlockchairStats, BlockchairTx, BlockchairUTXO } from './types';
-import { UTXO, AccountData, TxPayload } from '../types';
+import { UTXO, AccountData, TxPayload, StdUTXO, BaseUTXOType } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
 
 export class DOGE extends BaseDOGE implements ConnectedWallet {
@@ -98,12 +98,13 @@ export class DOGE extends BaseDOGE implements ConnectedWallet {
       utxos: utxos.map(
         (utxo: BlockchairUTXO) =>
           ({
-            txHash: utxo.transaction_hash,
+            hash: utxo.transaction_hash,
             confirmed: utxo.block_id > 0,
             index: utxo.index,
             value: DOGE._satsToBtc(utxo.value),
-          } as UTXO),
+          } as StdUTXO),
       ),
+      utxoType: BaseUTXOType,
     };
   }
 

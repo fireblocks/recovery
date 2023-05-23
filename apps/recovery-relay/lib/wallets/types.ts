@@ -1,32 +1,33 @@
 import type { Buffer } from 'buffer';
 
 // TEMP
-export type TxInput = {
-  hash: string;
-  index: number;
-  value?: number;
-  confirmed: boolean;
-} & (
-  | {
-      /* SegWit */
-      witnessUtxo?: {
-        script: Buffer;
-        value: number;
-      };
-    }
-  | {
-      /* Legacy */
-      nonWitnessUtxo?: Buffer;
-    }
-);
+type Buf = any; // Placeholder for buffer
+
+export type UTXO = BTCLegacyUTXO | BTCSegwitUTXO | StdUTXO;
+
+export type BTCLegacyUTXO = StdUTXO & { nonWitnessUtxo: Buf };
+
+export type BTCSegwitUTXO = StdUTXO & { witnessUtxoScript: Buf };
+
+export type StdUTXO = { confirmed?: boolean; hash: string; index: number; value: number };
+
+export const BaseUTXOType = 'b';
+
+export const SegwitUTXOType = 'bs';
+
+export const LegacyUTXOType = 'bl';
+
+export type UTXOType = 'b' | 'bs' | 'bl';
 
 export type AccountData = {
   balance: number;
-  utxos?: TxInput[];
+  utxos?: UTXO[];
+  utxoType?: UTXOType;
   feeRate?: number;
   nonce?: number;
   gasPrice?: bigint | null;
   extraParams?: Map<string, any>;
+  endpoint?: string;
 };
 
 export type TxPayload = {

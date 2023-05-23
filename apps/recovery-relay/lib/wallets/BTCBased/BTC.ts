@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import { Bitcoin as BaseBTC, Input } from '@fireblocks/wallet-derivation';
 import { AddressSummary, FullUTXO, UTXOSummary } from './types';
-import { AccountData } from '../types';
+import { AccountData, BTCLegacyUTXO, BTCSegwitUTXO, LegacyUTXOType, SegwitUTXOType } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
 
 export class Bitcoin extends BaseBTC implements ConnectedWallet {
@@ -42,7 +42,7 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
     return feeRate;
   }
 
-  private async _getSegwitInput(utxo: UTXOSummary) {
+  private async _getSegwitInput(utxo: UTXOSummary): Promise<BTCSegwitUTXO> {
     const { txid: hash } = utxo;
     const index = Bitcoin._satsToBtc(utxo.value);
     const fullUtxo = await this._requestJson<FullUTXO>(`/tx/${hash}`);
@@ -51,15 +51,13 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
     return {
       hash,
       index,
-      witnessUtxo: {
-        script: Buffer.from(scriptpubkey, 'hex'),
-        value,
-      },
+      witnessUtxoScript: scriptpubkey,
       confirmed: true,
+      value,
     };
   }
 
-  private async _getNonSegwitInput(utxo: UTXOSummary) {
+  private async _getNonSegwitInput(utxo: UTXOSummary): Promise<BTCLegacyUTXO> {
     const { txid: hash } = utxo;
     const index = Bitcoin._satsToBtc(utxo.value);
     const rawTxRes = await this._request(`/tx/${hash}/raw`);
@@ -71,6 +69,7 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
       index,
       nonWitnessUtxo,
       confirmed: true,
+      value: utxo.value,
     };
   }
 
@@ -92,6 +91,7 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
     return {
       balance,
       utxos: inputs,
+      utxoType: this.isLegacy ? LegacyUTXOType : SegwitUTXOType,
       feeRate,
     };
   }

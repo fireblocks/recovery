@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable class-methods-use-this */
 import { BitcoinSV as BSVBase, Input } from '@fireblocks/wallet-derivation';
-import { AccountData, TxInput, TxPayload, RawSignature } from '../types';
+import { AccountData, UTXO, TxPayload, RawSignature } from '../types';
 import { LateInitConnectedWallet } from '../LateInitConnectedWallet';
 
 export class BitcoinSV extends BSVBase implements LateInitConnectedWallet {
@@ -23,7 +23,7 @@ export class BitcoinSV extends BSVBase implements LateInitConnectedWallet {
     to: string,
     amount: number,
     memo?: string | undefined,
-    utxos?: TxInput[] | undefined,
+    utxos?: UTXO[] | undefined,
     additionalParameters?: Map<string, object> | undefined,
   ): Promise<TxPayload> {
     throw new Error('Method not implemented.');

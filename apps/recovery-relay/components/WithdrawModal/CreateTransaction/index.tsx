@@ -17,7 +17,8 @@ import {
 import { AssetConfig } from '@fireblocks/asset-config';
 import { useWorkspace } from '../../../context/Workspace';
 import { Derivation, AccountData } from '../../../lib/wallets';
-import { TxInput } from '../../../lib/wallets/types';
+import { UTXO } from '../../../lib/wallets/types';
+import { LateInitConnectedWallet } from '../../../lib/wallets/LateInitConnectedWallet';
 
 const getWallet = (accounts: Map<number, VaultAccount<Derivation>>, accountId?: number, assetId?: string) => {
   if (typeof accountId === 'undefined' || typeof assetId === 'undefined') {
@@ -130,7 +131,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
     console.info('Prepare:', prepareQuery.data);
 
     // TODO: Update UTXOs in response to maximize how many we can fit in the QR code up to the target balance
-    let maxUtxo: TxInput | undefined = undefined;
+    let maxUtxo: UTXO | undefined = undefined;
 
     if (prepareQuery.data?.utxos) {
       maxUtxo = prepareQuery.data.utxos.reduce((prev, curr) => {
@@ -162,6 +163,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
         gasPrice: `${prepareQuery.data?.gasPrice}`,
         extraParams: prepareQuery.data?.extraParams,
         utxos,
+        endpoint: derivation.isLateInit() ? prepareQuery.data?.endpoint : undefined,
       },
       // memo: data.memo,
     });
@@ -281,6 +283,20 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
           {...register('memo')}
         />
       </Grid>
+      {derivation && derivation.isLateInit() ? (
+        <Grid item xs={12}>
+          <TextField
+            id='endpoint'
+            label={(derivation as LateInitConnectedWallet).getLateInitLabel()}
+            onChange={async (e) => {
+              (derivation as LateInitConnectedWallet).updateDataEndpoint(e.target.value as string);
+              await prepareQuery.refetch();
+            }}
+          />
+        </Grid>
+      ) : (
+        ''
+      )}
       {/* {prepareQuery.isError
           ? 'Could not check UTXO data'
           : prepareQuery.data &&

@@ -1,6 +1,6 @@
 import { BitcoinCash as BCHBase, Input } from '@fireblocks/wallet-derivation';
 import bchLib from 'bitcore-lib-cash';
-import { AccountData, TxInput, TxPayload, RawSignature } from '../types';
+import { AccountData, TxInput, TxPayload, RawSignature, BaseUTXOType } from '../types';
 import { LateInitConnectedWallet } from '../LateInitConnectedWallet';
 import { BCHUTXO } from './types';
 
@@ -45,6 +45,7 @@ export class BitcoinCash extends BCHBase implements LateInitConnectedWallet {
     const balance = utxos.map((utxo) => utxo.value as number).reduce((p, c) => p + c);
 
     return {
+      utxoType: BaseUTXOType,
       utxos,
       balance,
     };

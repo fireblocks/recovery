@@ -15,6 +15,14 @@ import { CallMade, CallReceived, LeakAdd, Toll } from '@mui/icons-material';
 import { useWorkspace } from '../../../../context/Workspace';
 import { useSettings } from '../../../../context/Settings';
 import { SigningWallet } from '../../../../lib/wallets/SigningWallet';
+import {
+  StdUTXO,
+  BaseUTXOType,
+  LegacyUTXOType,
+  SegwitUTXOType,
+  BTCSegwitUTXO,
+  BTCLegacyUTXO,
+} from '../../../../lib/wallets/types';
 
 const BlockedMessage = ({ children }: { children: ReactNode }) => (
   <Box>
@@ -63,10 +71,18 @@ export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Pr
 
     console.info(`About to sign tx to ${to}`, { derivation });
 
+    const utxos = misc
+      ? misc?.utxoType === BaseUTXOType
+        ? (misc?.utxos as StdUTXO[])
+        : misc?.utxoType === SegwitUTXOType
+        ? (misc?.utxos as BTCSegwitUTXO[])
+        : (misc?.utxos as BTCLegacyUTXO[])
+      : undefined;
+
     const { tx } = await (derivation as SigningWallet).generateTx({
       to,
       amount,
-      utxos: misc?.utxos as any, // TODO: Fix type
+      utxos: utxos, // TODO: Fix type
       feeRate: misc?.feeRate,
       nonce: misc?.nonce,
       gasPrice: misc?.gasPrice,
@@ -90,6 +106,7 @@ export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Pr
           amount: unsignedTx.amount,
           hex: tx,
         },
+        endpoint: misc?.endpoint,
       }),
     );
   };

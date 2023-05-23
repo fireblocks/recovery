@@ -11,6 +11,7 @@ import {
 import { getDerivableAssetConfig } from '@fireblocks/asset-config';
 import { useWorkspace } from '../../context/Workspace';
 import { CreateTransaction } from './CreateTransaction';
+import { LateInitConnectedWallet } from '../../lib/wallets/LateInitConnectedWallet';
 
 const getAssetId = (inboundRelayParams?: RelayRequestParams) => {
   let assetId: string;
@@ -106,6 +107,10 @@ export const WithdrawModal = () => {
                     const wallet = accounts.get(inboundRelayParams?.accountId)?.wallets.get(inboundRelayParams?.signedTx.assetId);
 
                     const derivation = wallet?.derivations?.get(inboundRelayParams?.signedTx.from);
+
+                    if (derivation?.isLateInit()) {
+                      (derivation as LateInitConnectedWallet).updateDataEndpoint(inboundRelayParams.endpoint!);
+                    }
 
                     const signedTxHex = inboundRelayParams?.signedTx.hex;
 

@@ -2,7 +2,7 @@ import { networks, Psbt } from 'bitcoinjs-lib';
 import { Buffer } from 'buffer';
 import { ZCash as BaseZEC, Input } from '@fireblocks/wallet-derivation';
 import { BlockchairAddressDetails, BlockchairStats, BlockchairTx, BlockchairUTXO } from './types';
-import { TxInput, AccountData, TxPayload } from '../types';
+import { AccountData, TxPayload, StdUTXO, BaseUTXOType } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
 
 export class ZEC extends BaseZEC implements ConnectedWallet {
@@ -100,8 +100,9 @@ export class ZEC extends BaseZEC implements ConnectedWallet {
             confirmed: utxo.block_id > 0,
             index: utxo.index,
             value: ZEC._satsToBtc(utxo.value),
-          } as TxInput),
+          } as StdUTXO),
       ),
+      utxoType: BaseUTXOType,
     };
   }
 

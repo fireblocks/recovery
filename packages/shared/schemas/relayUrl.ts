@@ -70,6 +70,7 @@ export const relayBroadcastTxRequestParams = relayBaseRequestParams.extend({
   signedTx: preparedTxSchema.extend({
     hex: z.string().nonempty('Serialized transaction is required'),
   }),
+  endpoint: z.string().optional(),
 });
 
 /** Request transaction broadcast from Recovery Relay */
@@ -107,11 +108,14 @@ export const relaySignTxResponseParams = relayBaseResponseParams.extend({
                 })
                 .optional(),
               nonWitnessUtxo: z.any().optional(),
+              value: z.number().nonnegative(),
             }),
           )
           .optional(),
+        utxoType: z.enum(['b', 'bs', 'bl']).optional(),
         memo: z.string().optional(),
         extraParams: z.map(z.string(), z.any()).optional(),
+        endpoint: z.string().optional(),
       })
       .optional(),
   }),

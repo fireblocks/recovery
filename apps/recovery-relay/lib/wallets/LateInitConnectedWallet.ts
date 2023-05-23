@@ -6,4 +6,6 @@ export abstract class LateInitConnectedWallet extends ConnectedWallet {
   }
 
   public abstract updateDataEndpoint(endpoint: string): void;
+
+  public abstract getLateInitLabel(): string;
 }
