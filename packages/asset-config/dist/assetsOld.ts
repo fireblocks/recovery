@@ -9080,7 +9080,8 @@ export const assets = {
     nativeAsset: "XLM",
     decimals: 7,
     exp: "stellarchain.io",
-    coinType: 148,
+    coinType: 146,
+    derive: true,
   },
   XLM_AKN_GNFL: {
     id: "XLM_AKN_GNFL",
@@ -9233,7 +9234,8 @@ export const assets = {
     nativeAsset: "XLM_TEST",
     decimals: 7,
     exp: "testnet.stellarchain.io",
-    coinType: 148,
+    coinType: 146,
+    derive: true
   },
   XLM_TLFTST_UH6X: {
     id: "XLM_TLFTST_UH6X",

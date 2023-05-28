@@ -8,6 +8,7 @@ import { Solana } from './SOL';
 import { Tron } from './TRON';
 import { Luna } from './LUNA';
 import { Cardano } from './ADA';
+import { Stellar } from './XLM';
 
 export { SigningWallet as BaseWallet } from './SigningWallet';
 
@@ -34,6 +35,8 @@ export const WalletClasses = {
   // EDDSA
   SOL: Solana,
   SOL_TEST: Solana,
+  XLM: Stellar,
+  XLM_TEST: Stellar,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];

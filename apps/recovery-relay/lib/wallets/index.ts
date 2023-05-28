@@ -25,9 +25,10 @@ import { XinFin } from './EVM/XDC';
 import { Luna } from './LUNA';
 import { Solana } from './SOL';
 import { Tron } from './TRON';
+import { Stellar } from './XLM';
 import { Ripple } from './XRP';
 
-export { ConnectedWallet as ConnectedWallet } from './ConnectedWallet';
+export { ConnectedWallet } from './ConnectedWallet';
 
 export const WalletClasses = {
   AVAX: Avalanche,
@@ -88,6 +89,8 @@ export const WalletClasses = {
   TRX_TEST: Tron,
   LUNA2: Luna,
   LUNA2_TEST: Luna,
+  XLM: Stellar,
+  XLM_TEST: Stellar,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];

@@ -52,6 +52,7 @@
     "react-hook-form": "^7.43.9",
     "semver": "^7.5.1",
     "superjson": "^1.12.3",
+    "stellar-sdk": "^10.4.1",
     "tronweb": "^5.2.0",
     "xrpl": "^2.7.0",
     "zod": "^3.21.4"

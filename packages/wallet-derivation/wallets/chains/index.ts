@@ -14,6 +14,7 @@ import { LiteCoin } from './LTC';
 import { Luna } from './LUNA';
 import { Solana } from './SOL';
 import { Tron } from './TRX';
+import { Stellar } from './XLM';
 import { Ripple } from './XRP';
 import { ZCash } from './ZEC';
 
@@ -28,6 +29,9 @@ export const getWallet = (assetId: string) => {
     case 'SOL':
     case 'SOL_TEST':
       return Solana;
+    case 'XLM':
+    case 'XLM_TEST':
+      return Stellar;
     // ECDSA
     case 'ATOM_COS':
     case 'ATOM_COS_TEST':
@@ -122,4 +126,5 @@ export {
   Cosmos,
   Tron,
   Luna,
+  Stellar,
 };
