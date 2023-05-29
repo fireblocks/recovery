@@ -23,6 +23,7 @@ import { TokenX } from './EVM/TKX';
 import { Velas } from './EVM/VLX';
 import { XinFin } from './EVM/XDC';
 import { Luna } from './LUNA';
+import { Near } from './NEAR';
 import { Solana } from './SOL';
 import { Tron } from './TRON';
 import { Stellar } from './XLM';
@@ -91,6 +92,8 @@ export const WalletClasses = {
   LUNA2_TEST: Luna,
   XLM: Stellar,
   XLM_TEST: Stellar,
+  NEAR: Near,
+  NEAR_TEST: Near,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];

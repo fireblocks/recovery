@@ -9,6 +9,7 @@ import { Tron } from './TRON';
 import { Luna } from './LUNA';
 import { Cardano } from './ADA';
 import { Stellar } from './XLM';
+import { Near } from './NEAR';
 
 export { SigningWallet as BaseWallet } from './SigningWallet';
 
@@ -37,6 +38,8 @@ export const WalletClasses = {
   SOL_TEST: Solana,
   XLM: Stellar,
   XLM_TEST: Stellar,
+  NEAR: Near,
+  NEAR_TEST: Near,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];

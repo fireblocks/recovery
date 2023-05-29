@@ -12,6 +12,7 @@ import { ETC } from './ETC';
 import { EVMWallet } from './EVM';
 import { LiteCoin } from './LTC';
 import { Luna } from './LUNA';
+import { Near } from './NEAR';
 import { Solana } from './SOL';
 import { Tron } from './TRX';
 import { Stellar } from './XLM';
@@ -32,6 +33,10 @@ export const getWallet = (assetId: string) => {
     case 'XLM':
     case 'XLM_TEST':
       return Stellar;
+    case 'NEAR':
+    case 'NEAR_TEST':
+      return Near;
+
     // ECDSA
     case 'ATOM_COS':
     case 'ATOM_COS_TEST':
@@ -127,4 +132,5 @@ export {
   Tron,
   Luna,
   Stellar,
+  Near,
 };

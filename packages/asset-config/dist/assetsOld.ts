@@ -5371,6 +5371,7 @@ export const assets = {
     decimals: 24,
     exp: "explorer.near.org",
     coinType: 397,
+    derive: true
   },
   NEAR_BSC: {
     id: "NEAR_BSC",
@@ -5388,6 +5389,7 @@ export const assets = {
     decimals: 24,
     exp: "explorer.testnet.near.org",
     coinType: 397,
+    derive: true,
   },
   NEC: {
     id: "NEC",
