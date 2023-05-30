@@ -30,4 +30,5 @@ export class Tron extends ECDSAWallet {
   }
 
   protected readonly KEY_TX = 't';
+  protected readonly KEY_METADATA = 'm';
 }

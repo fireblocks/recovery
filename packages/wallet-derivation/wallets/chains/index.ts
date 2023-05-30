@@ -14,7 +14,7 @@ import { LiteCoin } from './LTC';
 import { Luna } from './LUNA';
 import { Near } from './NEAR';
 import { Solana } from './SOL';
-import { Tron } from './TRX';
+import { Tron } from './Tron';
 import { Stellar } from './XLM';
 import { Ripple } from './XRP';
 import { ZCash } from './ZEC';

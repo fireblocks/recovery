@@ -23,10 +23,19 @@ export class Tron extends BaseTron implements ConnectedWallet {
 
   public async prepare(to?: string): Promise<AccountData> {
     const balance = await this.getBalance();
-    let tx = await this.tronWeb.transactionBuilder.sendTrx(to, balance * 1_000_000, this.address);
-    tx = await this.tronWeb.transactionBuilder.extendExpiration(tx, 600); // 10 minutes
+    const blockData = await this.tronWeb.fullNode.request('wallet/getblock', { detail: false }, 'post');
+    const metadata = {
+      ref_block_bytes: blockData.block_header.raw_data.number.toString(16).slice(-4).padStart(4, '0'),
+      ref_block_hash: blockData.blockID.slice(16, 32),
+      expiration: blockData.block_header.raw_data.timestamp + 600 * 1000,
+      timestamp: blockData.block_header.raw_data.timestamp,
+    };
+
+    // let tx = await this.tronWeb.transactionBuilder.sendTrx(to, balance * 1_000_000, this.address);
+    // tx = await this.tronWeb.transactionBuilder.extendExpiration(tx, 600); // 10 minutes
     const extraParams = new Map<string, any>();
-    extraParams.set(this.KEY_TX, superjson.stringify(tx));
+    // extraParams.set(this.KEY_TX, superjson.stringify(tx));
+    extraParams.set(this.KEY_METADATA, metadata);
     return {
       balance,
       extraParams,
