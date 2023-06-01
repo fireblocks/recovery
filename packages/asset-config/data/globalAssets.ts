@@ -1,4 +1,9 @@
-export const rawAssetsArray = [
+/**
+ * Fireblocks global assets
+ *
+ * Exported from Support Hub as CSV
+ */
+export const globalAssets = [
   {
     id: '$ACM_$CHZ',
     symbol: '$ACM',

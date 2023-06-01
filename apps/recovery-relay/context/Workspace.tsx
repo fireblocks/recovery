@@ -98,7 +98,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
     app: 'relay',
     relayBaseUrl: 'fireblocks-recovery:/',
     deriveWallet: (input) => {
-      const nativeAssetId = (getAssetConfig(input.assetId)?.nativeAsset?.id ?? input.assetId) as keyof typeof WalletClasses;
+      const nativeAssetId = (getAssetConfig(input.assetId)?.nativeAsset ?? input.assetId) as keyof typeof WalletClasses;
 
       if (nativeAssetId in WalletClasses) {
         return new WalletClasses[nativeAssetId](input);

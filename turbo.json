@@ -18,9 +18,7 @@
         "APPLE_KEYCHAIN",
         "APPLE_KEYCHAIN_PROFILE",
         "CSC_LINK",
-        "CSC_KEY_PASSWORD",
-        "FIREBLOCKS_API_KEY",
-        "FIREBLOCKS_API_PRIVATE_KEY"
+        "CSC_KEY_PASSWORD"
       ]
     },
     "dev": {

@@ -4,7 +4,7 @@ import { BaseWallet } from './wallets/BaseWallet';
 import { getWallet } from './wallets/chains';
 
 export const deriveWallet = (input: Input): BaseWallet => {
-  const nativeAssetId = getAssetConfig(input.assetId)?.nativeAsset?.id ?? input.assetId;
+  const nativeAssetId = getAssetConfig(input.assetId)?.nativeAsset ?? input.assetId;
 
   const WalletInstance = getWallet(nativeAssetId);
 

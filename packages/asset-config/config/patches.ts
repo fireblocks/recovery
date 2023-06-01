@@ -1,151 +1,273 @@
-import { AssetId } from '../types';
+import type { NativeAssetPatch, NativeAssetPatches, GetExplorerUrl } from '../types';
 
-export type NativeAssetPatch = ChildAssetPatch & {
-  /** If true asset is UTxO-based */
-  readonly utxo?: boolean;
-  /** If true asset has Segwit addresses which should be included with legacy derivations */
-  readonly segwit?: boolean;
-  /** Explorer base URL */
-  readonly exp?: string;
-  /**
-   * Explorer path segment template
-   *
-   * * 0: Etherscan
-   * * 1: Solana
-   * * 2. Polkadot
-   * * 3. Cosmos
-   */
-  readonly expPath?: 0 | 1 | 2 | 3;
+// Native asset explorer handlers
+
+type ExplorerUrlBuilder = (baseUrl: string) => GetExplorerUrl;
+
+const getStandardExplorer = (baseUrl: string) => (type: string) => (value: string) => `https://${baseUrl}/${type}/${value}`;
+
+const getAdaExplorer: ExplorerUrlBuilder = (baseUrl) => (type) => {
+  const segment = type === 'tx' ? 'transaction' : type;
+
+  return getStandardExplorer(baseUrl)(segment);
 };
 
-export type ChildAssetPatch = {
-  /** If true the asset's wallets can be recovered with @fireblocks/wallet-derivation */
-  readonly derive?: boolean;
-  /** RPC API URL */
-  readonly rpc?: string;
+const getAtomExplorer: ExplorerUrlBuilder = (baseUrl) => (type) => {
+  const segment = type === 'tx' ? 'transactions' : 'accounts';
+
+  return getStandardExplorer(baseUrl)(segment);
 };
 
-export const nativeAssetPatches: { [ID in AssetId]?: NativeAssetPatch } = {
-  BTC: {
-    derive: true,
-    utxo: true,
-    segwit: true,
-  },
-  BTC_TEST: {
-    derive: true,
-    utxo: true,
-    segwit: true,
-  },
-  ETH: {
-    derive: true,
-  },
-  ETH_TEST3: {
-    derive: true,
-  },
-  ETH_TEST5: {
-    derive: true,
-  },
-  SOL: {
-    derive: true,
-  },
+const getSolanaExplorer: ExplorerUrlBuilder = (cluster?: string) => (type) => (value) => {
+  const baseUrl = getStandardExplorer('explorer.solana.com')(type)(value);
+
+  return `${baseUrl}?cluster=${cluster}`;
+};
+
+const evm = (baseExplorerUrl: string, rpcUrl?: string): NativeAssetPatch => ({
+  derive: true,
+  transfer: true,
+  rpcUrl,
+  getExplorerUrl: getStandardExplorer(baseExplorerUrl),
+});
+
+const btc = (baseExplorerUrl: string, segwit: boolean): NativeAssetPatch => ({
+  derive: true,
+  transfer: true,
+  utxo: true,
+  segwit,
+  getExplorerUrl: getStandardExplorer(baseExplorerUrl),
+});
+
+/**
+ * Patches for supported native assets.
+ */
+export const nativeAssetPatches: NativeAssetPatches = {
   ADA: {
-    utxo: true,
     derive: true,
+    transfer: true,
+    utxo: true,
+    rpcUrl: 'https://cardano-mainnet.blockfrost.io/api/v0',
+    getExplorerUrl: getAdaExplorer('cardanoscan.io'),
   },
   ADA_TEST: {
+    derive: true,
+    transfer: true,
     utxo: true,
-    derive: true,
+    rpcUrl: 'https://cardano-preprod.blockfrost.io/api/v0',
+    getExplorerUrl: getAdaExplorer('preprod.cardanoscan.io'),
   },
-  BCH: {
-    utxo: true,
-    derive: true,
+  ALGO: {
+    getExplorerUrl: getStandardExplorer('algoexplorer.io'),
   },
-  BSV: {
-    utxo: true,
-    derive: true,
+  ALGO_TEST: {
+    getExplorerUrl: getStandardExplorer('testnet.algoexplorer.io'),
   },
-  DASH: {
-    utxo: true,
+  AOA: evm('browser.aurorachain.io', 'https://mainnet.aurora.dev'),
+  ATOM_COS: {
     derive: true,
+    transfer: true,
+    rpcUrl: 'cosmos-rpc.quickapi.com',
+    getExplorerUrl: getAtomExplorer('bigdipper.live/cosmos'),
   },
-  DOGE: {
-    utxo: true,
+  ATOM_COS_TEST: {
     derive: true,
+    transfer: true,
+    rpcUrl: 'cosmos-lcd.quickapi.com',
+    getExplorerUrl: getAtomExplorer('explorer.theta-testnet.polypore.xyz'),
   },
-  LTC: {
-    utxo: true,
+  AURORA_DEV: {
     derive: true,
+    transfer: true,
+    rpcUrl: 'https://mainnet.aurora.dev',
   },
-  ZEC: {
-    utxo: true,
-    derive: true,
-  },
-  AETH: {
-    derive: true,
-  },
-  AOA: {
-    derive: true,
-  },
-  BNB_BSC: {
-    derive: true,
-  },
-  CELO: {
-    derive: true,
-  },
-  ETC: {
-    derive: true,
-  },
-  ETHW: {
-    derive: true,
-  },
-  EVMOS: {
-    derive: true,
-  },
-  FTM: {
-    derive: true,
-  },
-  GLMR_GLMR: {
-    derive: true,
-  },
-  MATIC: {
-    derive: true,
-  },
-  MOVR_MOVR: {
-    derive: true,
-  },
-  // OETH: {
-  //   derive: true,
-  // },
-  RBTC: {
-    derive: true,
-  },
-  RON: {
-    derive: true,
-  },
-  SGB: {
-    derive: true,
-  },
-  TKX: {
-    derive: true,
-  },
-  VLX_VLX: {
-    derive: true,
-  },
-  XDC: {
-    derive: true,
-  },
+  AVAX: evm('cchain.explorer.avax.network', 'https://api.avax.network/ext/bc/C/rpc'),
+  AVAXTEST: evm('subnets-test.avax.network', 'https://api.avax-test.network/ext/bc/C/rpc'),
+  BCH: btc('blockexplorer.one/bitcoin-cash/mainnet', false),
+  BCH_TEST: btc('blockexplorer.one/bitcoin-cash/testnet', false),
+  BNB_BSC: evm('bscscan.com'),
+  BNB_TEST: evm('test.bscscan.com'),
+  BSV: btc('whatsonchain.com', false),
+  BSV_TEST: btc('test.whatsonchain.com', false),
+  BTC: btc('blockstream.info', true),
+  BTC_TEST: btc('blockstream.info/testnet', true),
+  CELO: evm('explorer.celo.org'),
+  CELO_ALF: evm('alfajores-blockscout.celo-testnet.org'),
+  CELO_BAK: evm('baklava-blockscout.celo-testnet.org'),
+  CHZ_$CHZ: evm('explorer.chiliz.com'),
+  DASH: btc('blockexplorer.one/dash/mainnet', false),
+  DASH_TEST: btc('blockexplorer.one/dash/testnet', false),
+  DOGE: btc('dexplorer.dogechain.dog', false),
+  DOGE_TEST: btc('explorer-testnet.dogechain.dog', false),
+  DOT: evm('polkascan.io/polkadot', 'https://rpc.polkadot.io'),
   EOS: {
     derive: true,
+    transfer: true,
+    utxo: false,
+    segwit: false,
+    minBalance: false,
+    memo: true,
+    getExplorerUrl: getStandardExplorer('bloks.io'),
   },
   EOS_TEST: {
     derive: true,
+    transfer: true,
+    utxo: false,
+    segwit: false,
+    minBalance: false,
+    memo: true,
+    getExplorerUrl: getStandardExplorer('jungle3.bloks.io'),
   },
+  ETC: evm('blockscout.com/etc/mainnet', 'https://geth-de.etc-network.info'),
+  ETC_TEST: evm('blockscout.com/etc/kotti', 'https://geth-mordor.etc-network.info'),
+  ETH: evm('etherscan.io', 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'),
+  ETH_TEST3: evm('goerli.etherscan.io', 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'),
+  ETH_TEST5: evm('sepolia.etherscan.io', 'https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'),
+  'ETH-AETH': evm('arbiscan.io'),
+  'ETH-AETH_RIN': evm('testnet.arbiscan.io'),
+  'ETH-OPT': evm('optimistic.etherscan.io'),
+  'ETH-OPT_KOV': evm('kovan-optimistic.etherscan.io'),
+  ETHW: evm('www.oklink.com/ethw'),
+  EVMOS: evm('bigdipper.live/evmos', 'https://rpc.evmos.org'),
+  FTM_FANTOM: evm('ftmscan.com', 'https://rpcapi.fantom.network'),
+  GLMR_GLMR: evm('moonscan.io', 'https://rpc.moonriver.moonbeam.network'),
+  HBAR: {
+    getExplorerUrl: getStandardExplorer('explorer.arkhia.io/#/mainnet'),
+  },
+  HBAR_TEST: {
+    getExplorerUrl: getStandardExplorer('explorer.arkhia.io/#/testnet'),
+  },
+  KSM: evm('polkascan.io/kusama', 'https://kusama-rpc.polkadot.io'),
+  LTC: btc('blockexplorer.one/litecoin/mainnet', false),
+  LTC_TEST: btc('blockexplorer.one/litecoin/testnet', false),
+  LUNA: {
+    getExplorerUrl: getStandardExplorer('finder.terra.money/classic'),
+  },
+  LUNA2: {
+    getExplorerUrl: getStandardExplorer('finder.terra.money'),
+  },
+  LUNA2_TEST: {
+    getExplorerUrl: getStandardExplorer('finder.terra.money/testnet'),
+  },
+  MATIC_POLYGON: evm('polygonscan.com', 'https://polygon-rpc.com/'),
+  MATIC_POLYGON_MUMBAI: evm('mumbai.polygonscan.com', 'https://polygon-mumbai.infura.io/v3/4458cf4d1689497b9a38b1d6bbf05e78'),
+  MOVR_MOVR: evm('moonriver.moonscan.io'),
+  NEAR: {
+    derive: true,
+    transfer: true,
+    utxo: false,
+    segwit: false,
+    minBalance: false,
+    memo: false,
+    getExplorerUrl: getAtomExplorer('explorer.near.org'),
+  },
+  NEAR_TEST: {
+    derive: true,
+    transfer: true,
+    utxo: false,
+    segwit: false,
+    minBalance: false,
+    memo: false,
+    getExplorerUrl: getAtomExplorer('explorer.testnet.near.org'),
+  },
+  RBTC: evm('explorer.rsk.co'),
+  RBTC_TEST: evm('explorer.testnet.rsk.co'),
+  RON: evm('explorer.roninchain.com'),
+  SGB: evm('songbird-explorer.flare.network', 'https://sgb.ftso.com.au/ext/bc/C/rpc'),
+  SGB_LEGACY: evm('songbird-explorer.flare.network', 'https://sgb.ftso.com.au/ext/bc/C/rpc'),
+  SMARTBCH: evm('sonar.cash', 'https://smartbch-wss.greyh.at'),
+  SOL: {
+    derive: true,
+    transfer: true,
+    utxo: false,
+    segwit: false,
+    minBalance: false,
+    memo: false,
+    getExplorerUrl: getSolanaExplorer('mainnet'),
+  },
+  SOL_TEST: {
+    derive: true,
+    transfer: true,
+    utxo: false,
+    segwit: false,
+    minBalance: false,
+    memo: false,
+    getExplorerUrl: getSolanaExplorer('devnet'),
+  },
+  // TERRA_KRW: evm('finder.terra.money/columbus-4', 'https://lcd.terra.dev'),
+  // TERRA_KRW_TEST: evm('finder.terra.money/tequila-0004', 'https://tequila-lcd.terra.dev'),
+  // TERRA_MNT: evm('finder.terra.money/moonshine', 'https://moonshine-lcd.terra.dev'),
+  // TERRA_MNT_TEST: evm('finder.terra.money/moonshine-testnet', 'https://moonshine-testnet-lcd.terra.dev'),
+  // TERRA_SDR: evm('finder.terra.money/sputnik', 'https://sputnik-lcd.terra.dev'),
+  // TERRA_SDR_TEST: evm('finder.terra.money/sputnik-testnet', 'https://sputnik-testnet-lcd.terra.dev'),
+  // TERRA_USD: evm('finder.terra.money/columbus-5', 'https://lcd.terra.dev'),
+  TKX: evm('scan.tokenx.finance'),
   TRX: {
     derive: true,
+    transfer: true,
+    utxo: false,
+    segwit: false,
+    minBalance: false,
+    memo: false,
+    getExplorerUrl: getStandardExplorer('tronscan.org'),
   },
   TRX_TEST: {
     derive: true,
+    transfer: true,
+    utxo: false,
+    segwit: false,
+    minBalance: false,
+    memo: false,
+    getExplorerUrl: getStandardExplorer('shasta.tronscan.org'),
+  },
+  VLX_TEST: evm('testnet.velas.com', 'https://api.testnet.velas.com'),
+  VLX_VLX: evm('native.velas.com', 'https://api.velas.com'),
+  WND: evm('westend.subscan.io', 'https://rpc.westend.subscan.io'),
+  XDB: evm('xdbexplorer.com', 'https://rpc.xdbchain.com'),
+  XDB_TEST: evm('xdbexplorer.com', 'https://rpc.xdbchain.com'),
+  XDC: evm('observer.xdc.org', 'https://rpc.xinfin.network'),
+  XEC: btc('explorer.bitcoinabc.org', false),
+  XEC_TEST: btc('texplorer.bitcoinabc.org', false),
+  XEM: evm('explorer.nemtool.com', 'https://hugealice.nem.ninja:7891'),
+  XEM_TEST: evm('testnet-explorer.nemtool.com', 'https://hugealice.nem.ninja:7891'),
+  XLM: evm('stellarchain.io', 'https://horizon.stellar.org'),
+  XLM_TEST: evm('testnet.stellarchain.io', 'https://horizon-testnet.stellar.org'),
+  XRP: {
+    derive: true,
+    transfer: true,
+    utxo: false,
+    segwit: false,
+    minBalance: false,
+    memo: true,
+    getExplorerUrl: getStandardExplorer('livenet.xrpl.org'),
+  },
+  XRP_TEST: {
+    derive: true,
+    transfer: true,
+    utxo: false,
+    segwit: false,
+    minBalance: false,
+    memo: true,
+    getExplorerUrl: getStandardExplorer('testnet.xrpl.org'),
+  },
+  XTZ: evm('tzkt.io', 'https://mainnet-tezos.giganode.io'),
+  XTZ_TEST: evm('ghostnet.tzkt.io', 'https://testnet-tezos.giganode.io'),
+  ZEC: {
+    derive: true,
+    transfer: true,
+    utxo: true,
+    segwit: false,
+    minBalance: false,
+    memo: false,
+    getExplorerUrl: getStandardExplorer('explorer.zcha.in'),
+  },
+  ZEC_TEST: {
+    derive: true,
+    transfer: true,
+    utxo: true,
+    segwit: false,
+    minBalance: false,
+    memo: false,
+    getExplorerUrl: getStandardExplorer('explorer.testnet.z.cash'),
   },
 };
-
-export const assetPatches: { [ID in AssetId]?: ChildAssetPatch } = {};

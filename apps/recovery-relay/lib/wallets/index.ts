@@ -58,7 +58,7 @@ export const WalletClasses = {
   EVMOS,
   GLMR: Moonbeam,
   CELO: Celo,
-  AOA: Aurora,
+  AURORA_DEV: Aurora,
   SOL: Solana,
   RON: Ronin,
   XDC: XinFin,

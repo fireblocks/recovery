@@ -1,13 +1,11 @@
-import type { Buffer } from 'buffer';
-
 // TEMP
-type Buf = any; // Placeholder for buffer
+type Buffer = any; // Placeholder for buffer
 
 export type UTXO = BTCLegacyUTXO | BTCSegwitUTXO | StdUTXO;
 
-export type BTCLegacyUTXO = StdUTXO & { nonWitnessUtxo: Buf };
+export type BTCLegacyUTXO = StdUTXO & { nonWitnessUtxo: Buffer };
 
-export type BTCSegwitUTXO = StdUTXO & { witnessUtxoScript: Buf };
+export type BTCSegwitUTXO = StdUTXO & { witnessUtxoScript: Buffer };
 
 export type StdUTXO = { confirmed?: boolean; hash: string; index: number; value: number };
 

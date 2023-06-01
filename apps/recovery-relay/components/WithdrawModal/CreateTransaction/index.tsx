@@ -17,7 +17,6 @@ import {
 import { AssetConfig } from '@fireblocks/asset-config';
 import { useWorkspace } from '../../../context/Workspace';
 import { Derivation, AccountData } from '../../../lib/wallets';
-import { UTXO } from '../../../lib/wallets/types';
 import { LateInitConnectedWallet } from '../../../lib/wallets/LateInitConnectedWallet';
 
 const getWallet = (accounts: Map<number, VaultAccount<Derivation>>, accountId?: number, assetId?: string) => {
@@ -128,27 +127,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
       return;
     }
 
-    console.info('Prepare:', prepareQuery.data);
-
-    // TODO: Update UTXOs in response to maximize how many we can fit in the QR code up to the target balance
-    let maxUtxo: UTXO | undefined = undefined;
-
-    if (prepareQuery.data?.utxos) {
-      maxUtxo = prepareQuery.data.utxos.reduce((prev, curr) => {
-        if (
-          typeof prev.value !== 'undefined' &&
-          typeof curr.value !== 'undefined' &&
-          prev.value < curr.value &&
-          curr.value <= balance
-        ) {
-          return curr;
-        }
-
-        return prev;
-      });
-    }
-
-    const utxos = maxUtxo ? [maxUtxo] : undefined;
+    const sortedUtxos = prepareQuery.data?.utxos?.sort((a, b) => b.value - a.value) ?? [];
 
     setSignTxResponseUrl({
       id: txId,
@@ -165,20 +144,19 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
         extraParams: prepareQuery.data?.extraParams,
         memo: values.memo,
         endpoint: derivation.isLateInit() ? prepareQuery.data?.endpoint : undefined,
-        utxos,
+        utxos: sortedUtxos?.length ? sortedUtxos : undefined,
       },
       // memo: data.memo,
     });
   };
 
   const truncateBalance = (data: any) => {
-    const balance = data.balance;
+    const { balance } = data;
     if (`${balance}`.length > 6) {
       const balanceStr = Math.floor(data.balance * 10 ** 6) / 10 ** 6;
       return `${balanceStr}... ${asset?.id}`;
-    } else {
-      return `${data.balance} ${asset?.id}`;
     }
+    return `${data.balance} ${asset?.id}`;
   };
 
   const fromAddressId = useId();

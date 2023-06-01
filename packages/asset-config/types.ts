@@ -1,23 +1,27 @@
-import type { assets } from './dist/assetsOld';
+import { type globalAssets } from './data/globalAssets';
 
-/** Full asset config */
-export type AssetsConfigConstant = typeof assets;
+type RawAssets = typeof globalAssets;
+type RawAsset = RawAssets[number];
 
-/** Asset ID */
-export type AssetId = keyof AssetsConfigConstant;
+export type NativeAssetId = RawAsset['nativeAsset'];
 
-/** Typed asset config */
-export type AssetConfig<ID extends string = AssetId> = ID extends AssetId
-  ? ResolvedAssetConfig<ID>
-  : string extends ID
-  ? ResolvedAssetConfig<AssetId> | undefined
-  : never;
+export type GetExplorerUrl = (type: 'tx' | 'address') => (value: string) => string;
 
-type ResolvedAssetConfig<ID extends AssetId> = Omit<AssetsConfigConstant[ID], 'nativeAsset'> & {
-  nativeAsset?: Omit<ResolvedAssetConfig<AssetId>, 'nativeAsset'>;
+export type NativeAssetPatch = {
+  derive?: boolean;
+  transfer?: boolean;
+  utxo?: boolean;
+  segwit?: boolean;
+  minBalance?: boolean | number;
+  memo?: boolean;
+  rpcUrl?: string;
+  getExplorerUrl?: GetExplorerUrl;
 };
 
-/** Typed full asset config */
-export type Assets = {
-  [ID in AssetId]?: AssetsConfigConstant[ID];
-};
+export type NativeAssetPatches = Partial<Record<NativeAssetId, NativeAssetPatch>>;
+
+export type AssetConfig = RawAsset & NativeAssetPatch;
+
+export type AssetsConfig = Record<string, AssetConfig>;
+
+export type NativeAssetsConfig = Record<NativeAssetId, AssetConfig>;

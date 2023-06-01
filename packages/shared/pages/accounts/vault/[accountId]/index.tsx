@@ -81,7 +81,6 @@ export const VaultAccountBasePage = ({ account, withdrawModal: WithdrawModal, ad
             getAssetConfig(assetId) ?? {
               id: assetId,
               name: assetId,
-              type: 'BASE_ASSET',
               nativeAsset: assetId,
               decimals: 18,
             },

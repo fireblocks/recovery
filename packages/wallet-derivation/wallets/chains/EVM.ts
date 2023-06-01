@@ -3,7 +3,6 @@ import { ECDSAWallet } from '../ECDSAWallet';
 
 export class EVMWallet extends ECDSAWallet {
   constructor(input: Input) {
-    // TODO: Import coin type from assets list
     super(input, 60);
   }
 

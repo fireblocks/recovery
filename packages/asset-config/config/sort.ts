@@ -1,4 +1,6 @@
-export const ASSETS_IDS_ORDER = [
+import { AssetConfig } from '../types';
+
+const ASSETS_IDS_ORDER = [
   'BTC',
   'BTC_TEST',
   'USDT_ERC20',
@@ -46,77 +48,23 @@ export const ASSETS_IDS_ORDER = [
   'LEND',
 ];
 
-export const ASSETS_SYMBOLS_ORDER = [
-  'USD',
-  'BTC',
-  'BTC_TEST',
-  'USDT',
-  'ETH',
-  'ETH_TEST',
-  'USDC',
-  'CUSDC_T',
-  'XRP',
-  'XRP_TEST',
-  'HUSD',
-  'LTC',
-  'LTC_TEST',
-  'EOS',
-  'EOS_TEST',
-  'BCH',
-  'BCH_TEST',
-  'BUSD',
-  'PAX',
-  'XTP',
-  'ETC',
-  'ETC_TEST',
-  'XAUT',
-  'XLM',
-  'XLM_TEST',
-  'DAI',
-  'DAI_T',
-  'TUSD',
-  'BSV',
-  'BSV_TEST',
-  'CEL',
-  'DASH',
-  'DASH_TEST',
-  'FTT',
-  'GUSD',
-  'LINK',
-  'OMG',
-  'ZRX',
-  'PAXG',
-  'MKR',
-  'LEND',
-];
+export const orderId = (a: string, b: string) => {
+  const aIndex = ASSETS_IDS_ORDER.indexOf(a);
+  const bIndex = ASSETS_IDS_ORDER.indexOf(b);
 
-// function fixedOrderSort<T>(assets: T[], field: string, order: string[]): T[] {
-//   type TGroupsType = { preOrderedGroup: T[]; rest: T[] };
-//   const groups = assets.reduce<TGroupsType>(
-//     (prev, cur) => {
-//       if (order.indexOf(cur[field]) > -1) {
-//         prev.preOrderedGroup.push(cur);
-//       } else {
-//         prev.rest.push(cur);
-//       }
-//       return prev;
-//     },
-//     { preOrderedGroup: [], rest: [] },
-//   );
+  if (aIndex === -1 && bIndex === -1) {
+    return a.localeCompare(b);
+  }
 
-//   const sortedPreOrderedGroup = groups.preOrderedGroup.sort((a, b) => {
-//     const aIdx = order.indexOf(a[field]);
-//     const bIdx = order.indexOf(b[field]);
-//     return aIdx - bIdx;
-//   });
-//   const sortedRestGroup = groups.rest.sort((a, b) => (a[field] > b[field] ? 1 : -1));
-//   return [...sortedPreOrderedGroup, ...sortedRestGroup];
-// }
+  if (aIndex === -1) {
+    return 1;
+  }
 
-// export function sortBySymbol<T extends { symbol: string }>(assets: T[]): T[] {
-//   return fixedOrderSort(assets, 'symbol', ASSETS_SYMBOLS_ORDER);
-// }
+  if (bIndex === -1) {
+    return -1;
+  }
 
-// export function sortByAssetId<T extends { id: string }>(assets: T[]): T[] {
-//   return fixedOrderSort(assets, 'id', ASSETS_IDS_ORDER);
-// }
+  return aIndex - bIndex;
+};
+
+export const orderAssetById = (a: AssetConfig, b: AssetConfig) => orderId(a.id, b.id);

@@ -1,3 +1,4 @@
+import { assets } from '@fireblocks/asset-config';
 import { Cardano } from './ADA';
 import { Algorand } from './ALGO';
 import { Cosmos } from './ATOM';
@@ -21,6 +22,20 @@ import { Tezos } from './XTZ';
 import { ZCash } from './ZEC';
 
 export const getWallet = (assetId: string) => {
+  const asset = assets[assetId];
+
+  if (!asset) {
+    throw new Error(`Unknown asset "${assetId}"`);
+  }
+
+  if (!asset.derive) {
+    throw new Error(`Asset "${assetId}" is not derivable`);
+  }
+
+  if (asset.protocol === 'ETH') {
+    return EVMWallet;
+  }
+
   switch (assetId) {
     // EdDSA
     case 'ADA':
@@ -60,8 +75,8 @@ export const getWallet = (assetId: string) => {
     case 'EOS':
     case 'EOS_TEST':
       return EOS;
-    case 'LTE':
-    case 'LTE_TEST':
+    case 'LTC':
+    case 'LTC_TEST':
       return LiteCoin;
     case 'ZEC':
     case 'ZEC_TEST':
@@ -79,38 +94,6 @@ export const getWallet = (assetId: string) => {
     case 'XRP':
     case 'XRP_TEST':
       return Ripple;
-    case 'AVAX':
-    case 'AVAXTEST':
-    case 'BNB_BSC':
-    case 'BNB_TEST':
-    case 'FTM_FANTOM':
-    case 'EVMOS':
-    case 'MORV':
-    case 'MATIC_POLYGON':
-    case 'MATIC_POLYGON_MUMBAI':
-    case 'ETH-OPT':
-    case 'ETH-OPT_KOV':
-    case 'ETH-AETH':
-    case 'ETH-AETH_RIN':
-    case 'GLMR':
-    case 'CELO':
-    case 'RON':
-    case 'SGB':
-    case 'SGB_LEGACY':
-    case 'RBTC':
-    case 'XDC':
-    case 'RBTC_TEST':
-    case 'AOA':
-    case 'TKX':
-    case 'VLX_VLX':
-    case 'VLX_TEST':
-    case 'ETHW':
-    case 'ETH':
-    case 'ETH_TEST':
-    case 'ETH_TEST2':
-    case 'ETH_TEST3':
-    case 'ETH_TEST5':
-      return EVMWallet;
     default:
       throw new Error(`Unsupported asset "${assetId}"`);
   }

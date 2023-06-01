@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { Box, Typography, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
-import { assets } from '@fireblocks/asset-config';
+import { assetsArray } from '@fireblocks/asset-config';
 import { VaultAccount } from '../../../types';
 import { BaseModal } from '../../BaseModal';
 import { Button } from '../../Button';
 import { AssetIcon } from '../../Icons';
 
 type Props = {
-  assets?: { id: string; name: string; type: string }[];
+  assets?: { id: string; name: string }[];
   account?: VaultAccount;
   open: boolean;
   onClose: VoidFunction;
   addWallet: (assetId: string, accountId: number) => void;
 };
 
-export const RecoverWalletModal = ({ assets: _assets = assets, account, open, onClose: _onClose, addWallet }: Props) => {
+export const RecoverWalletModal = ({ assets: _assets = assetsArray, account, open, onClose: _onClose, addWallet }: Props) => {
   const [assetId, setAssetId] = useState<string | null>(null);
 
   const onClose = () => {
