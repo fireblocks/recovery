@@ -1,3 +1,0 @@
-# For development — not to be included in bundle
-black==22.10.0
-pylint==2.15.7

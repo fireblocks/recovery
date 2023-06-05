@@ -5,7 +5,6 @@
     "packages/shared",
     "packages/wallet-derivation",
     "packages/extended-key-recovery",
-    "packages/py-dec",
     "apps/recovery-utility",
     "apps/recovery-relay"
   ],
