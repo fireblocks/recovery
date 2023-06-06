@@ -1,18 +1,7 @@
 import { Stellar as BaseXLM, Input } from '@fireblocks/wallet-derivation';
-import {
-  Account,
-  AccountResponse,
-  Asset,
-  Memo,
-  Networks,
-  Operation,
-  Server,
-  Transaction,
-  TransactionBuilder,
-  xdr,
-} from 'stellar-sdk';
+import { AccountResponse, Networks, Server, Transaction, xdr } from 'stellar-sdk';
 import { ConnectedWallet } from '../ConnectedWallet';
-import { AccountData, TxPayload, RawSignature } from '../types';
+import { AccountData } from '../types';
 
 export class Stellar extends BaseXLM implements ConnectedWallet {
   private xlmServer: Server;
@@ -46,6 +35,7 @@ export class Stellar extends BaseXLM implements ConnectedWallet {
       balance,
       feeRate: await this.xlmServer.fetchBaseFee(),
       extraParams,
+      insufficientBalance: balance < 0.00001,
     };
   }
 

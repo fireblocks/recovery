@@ -37,10 +37,11 @@ export class Cosmos extends BaseCosmos implements ConnectedWallet {
     extraParams.set(this.KEY_CHAIN_ID, chainId);
     extraParams.set(this.KEY_SEQUENCE, sequence);
     // TODO: Add option for cusom fee
-    return { balance: parseInt(balanceCoin.amount, 10) / 1_000_000, extraParams };
+    const balance = parseInt(balanceCoin.amount, 10) / 1_000_000;
+    return { balance, extraParams, insufficientBalance: balance < 0.001 };
   }
 
-  public async broadcastTx(txHex: string, sigs: RawSignature[]): Promise<string> {
+  public async broadcastTx(txHex: string): Promise<string> {
     await this.prepareClients();
 
     const sig = sigs[0];

@@ -22,6 +22,12 @@ export class Tezos extends BaseXTZ implements ConnectedWallet {
 
   public async prepare(to?: string): Promise<AccountData> {
     const balance = await this.getBalance();
+    if (balance < 1) {
+      return {
+        balance,
+        insufficientBalance: true,
+      };
+    }
     const estimate = await this.tezos.estimate.transfer({
       to: to!,
       source: this.address,

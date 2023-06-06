@@ -33,11 +33,18 @@ export class Luna extends BaseLuna implements ConnectedWallet {
       return 0;
     }
 
-    return allLunaCoins[0].amount.toNumber() / 1000000;
+    return allLunaCoins[0].amount.toNumber() / 1_000_000;
   }
 
   public async prepare(to?: string, memo?: string): Promise<AccountData> {
     const balance = await this.getBalance();
+
+    if (balance < 0.001) {
+      return {
+        balance,
+        insufficientBalance: true,
+      };
+    }
 
     const account = await this.lcdClient.auth.accountInfo(this.address);
     const sequence = account.getSequenceNumber();

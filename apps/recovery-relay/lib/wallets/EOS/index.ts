@@ -52,6 +52,12 @@ export class EOS extends BaseEOS implements ConnectedWallet {
     if (!this.accounts) {
       await this._getAccounts();
     }
+    if (balance < 0.001) {
+      return {
+        balance,
+        insufficientBalance: true,
+      };
+    }
     await this.api.getAbi('eosio.token');
     const txBuilder = this.api.buildTransaction() as TransactionBuilder;
     const actionBuilder = txBuilder.with('eosio.token').as([{ actor: this.accounts![0], permission: 'owner' }]);

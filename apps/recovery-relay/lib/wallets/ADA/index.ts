@@ -139,6 +139,7 @@ export class Cardano extends BaseCardano implements LateInitConnectedWallet {
       utxos,
       balance: balance / 1_000_000,
       endpoint: this.endpoint,
+      insufficientBalance: balance / 1_000_000 < 0.001,
     };
   }
 

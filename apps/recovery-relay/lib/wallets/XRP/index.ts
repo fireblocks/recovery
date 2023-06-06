@@ -1,10 +1,9 @@
 import { Ripple as BaseRipple, Input } from '@fireblocks/wallet-derivation';
 import { Client, TxResponse, xrpToDrops } from 'xrpl';
 import getFeeXrp from 'xrpl/dist/npm/sugar/getFeeXrp';
-import SuperJSON from 'superjson';
+import BigNumber from 'bignumber.js';
 import { ConnectedWallet } from '../ConnectedWallet';
 import { AccountData } from '../types';
-import BigNumber from 'bignumber.js';
 
 export class Ripple extends BaseRipple implements ConnectedWallet {
   private xrpClient: Client;
@@ -24,25 +23,8 @@ export class Ripple extends BaseRipple implements ConnectedWallet {
       .map((tokenBalance) => parseFloat(tokenBalance.value))[0];
   }
 
-  public async prepare(to?: string, memo?: string): Promise<AccountData> {
+  public async prepare(): Promise<AccountData> {
     const balance = await this.getBalance();
-    const preparedTx = await this.xrpClient.autofill({
-      TransactionType: 'Payment',
-      Account: `${this.address}`,
-      Amount: `${(balance - 10) * 10 ** 6}`,
-      Destination: `${to}`,
-      Memos: memo
-        ? [
-            {
-              Memo: {
-                MemoData: memo,
-              },
-            },
-          ]
-        : undefined,
-      LastLedgerSequence: (await this.xrpClient.getLedgerIndex()) + 100, // ~5 Minutes
-    });
-
     // Fee calculation
     const netFeeXRP = await getFeeXrp(this.xrpClient);
     const netFeeDrops = xrpToDrops(netFeeXRP);
@@ -69,6 +51,7 @@ export class Ripple extends BaseRipple implements ConnectedWallet {
     return {
       balance: balance - this.MIN_XRP_BALANCE,
       extraParams,
+      insufficientBalance: balance - this.MIN_XRP_BALANCE < 0.0001,
     };
   }
 

@@ -28,6 +28,7 @@ export type AccountData = {
   gasPrice?: bigint | null;
   extraParams?: Map<string, any>;
   endpoint?: string;
+  insufficientBalance?: boolean;
 };
 
 export type TxPayload = {

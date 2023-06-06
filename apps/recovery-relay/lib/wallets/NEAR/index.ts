@@ -29,6 +29,7 @@ export class Near extends BaseNEAR implements ConnectedWallet {
     return {
       balance,
       extraParams,
+      insufficientBalance: balance < 1e-10,
     };
   }
 

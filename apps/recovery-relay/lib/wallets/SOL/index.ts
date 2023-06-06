@@ -37,6 +37,7 @@ export class Solana extends BaseSolana implements ConnectedWallet {
     const accountBalance = await this.getBalance();
     return {
       balance: accountBalance,
+      insufficientBalance: accountBalance < 0.00000001,
     } as AccountData;
   }
 

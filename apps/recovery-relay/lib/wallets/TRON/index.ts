@@ -39,6 +39,7 @@ export class Tron extends BaseTron implements ConnectedWallet {
     return {
       balance,
       extraParams,
+      insufficientBalance: balance < 0.001,
     };
   }
 

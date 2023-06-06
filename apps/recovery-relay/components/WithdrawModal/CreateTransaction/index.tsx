@@ -2,7 +2,7 @@ import { useId } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
-import { Typography, Grid, InputLabel, CircularProgress, Autocomplete, TextField as MuiTextField } from '@mui/material';
+import { Typography, Grid, InputLabel, CircularProgress, Autocomplete, TextField as MuiTextField, colors } from '@mui/material';
 import {
   Button,
   TextField,
@@ -359,8 +359,25 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
                 />
               </Grid>
             )} */}
-      <Grid item xs={12} display='flex' justifyContent='flex-end'>
-        <Button type='submit' disabled={!prepareQuery.data?.balance}>
+      <Grid item xs={6}>
+        {prepareQuery.data &&
+        (!prepareQuery.data?.balance ||
+          (prepareQuery.data?.insufficientBalance !== undefined && prepareQuery.data.insufficientBalance)) ? (
+          <Typography variant='body1' color={(theme) => theme.palette.error.main}>
+            Insufficient balance for transaction
+          </Typography>
+        ) : (
+          ''
+        )}
+      </Grid>
+      <Grid item xs={6} display='flex' justifyContent='flex-end'>
+        <Button
+          type='submit'
+          disabled={
+            !prepareQuery.data?.balance ||
+            (prepareQuery.data && prepareQuery.data?.insufficientBalance !== undefined && prepareQuery.data.insufficientBalance)
+          }
+        >
           Prepare Transaction
         </Button>
       </Grid>
