@@ -8,6 +8,10 @@ export class Ronin extends EVMBase implements LateInitConnectedWallet {
 
   private subWallet: EVM | undefined;
 
+  public getLateInitLabel() {
+    return 'Ronin';
+  }
+
   constructor(input: Input) {
     if (input.isTestnet) {
       throw new Error('No Ronin testnet support.');
@@ -30,18 +34,18 @@ export class Ronin extends EVMBase implements LateInitConnectedWallet {
     return (await this.subWallet!.prepare()) as AccountData;
   }
 
-  public async generateTx(to: string, amount: number): Promise<TxPayload> {
-    if (this.subWallet === undefined) {
-      throw new Error('Wallet not initalized yet');
-    }
-    return (await this.subWallet!.generateTx(to, amount)) as TxPayload;
-  }
+  // public async generateTx(to: string, amount: number): Promise<TxPayload> {
+  //   if (this.subWallet === undefined) {
+  //     throw new Error('Wallet not initalized yet');
+  //   }
+  //   return (await this.subWallet!.generateTx(to, amount)) as TxPayload;
+  // }
 
-  public async broadcastTx(txHex: string, sigs: RawSignature[]): Promise<string> {
+  public async broadcastTx(txHex: string): Promise<string> {
     if (this.subWallet === undefined) {
       throw new Error('Wallet not initalized yet');
     }
-    return (await this.subWallet!.broadcastTx(txHex, sigs)) as string;
+    return (await this.subWallet!.broadcastTx(txHex)) as string;
   }
 
   public updateDataEndpoint(endpoint: string): void {

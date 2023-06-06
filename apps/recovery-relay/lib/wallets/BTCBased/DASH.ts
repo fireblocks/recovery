@@ -50,36 +50,36 @@ export class DASH extends BaseDASH implements ConnectedWallet {
     return feeRate;
   }
 
-  // private async _addSegwitInput(tx: Psbt, utxo: UTXO) {
-  //   const { txHash } = utxo;
-  //   const { index } = utxo;
-  //   const bcTx = await this._requestJson<BlockchairTx>(`/raw/transaction/${txHash}`);
-  //   const fullUTxo = bcTx.data.decoded_raw_transaction;
-  //   const { scriptPubKey, value } = fullUTxo.vout[index];
-  //   tx.addInput({
-  //     hash: utxo.txHash,
-  //     index: utxo.index,
-  //     witnessUtxo: {
-  //       script: Buffer.from(scriptPubKey.hex, 'hex'),
-  //       value,
-  //     },
-  //   });
-  //   return tx;
-  // }
+  private async _addSegwitInput(tx: Psbt, utxo: UTXO) {
+    const { hash } = utxo;
+    const { index } = utxo;
+    const bcTx = await this._requestJson<BlockchairTx>(`/raw/transaction/${hash}`);
+    const fullUTxo = bcTx.data.decoded_raw_transaction;
+    const { scriptPubKey, value } = fullUTxo.vout[index];
+    tx.addInput({
+      hash: utxo.hash,
+      index: utxo.index,
+      witnessUtxo: {
+        script: Buffer.from(scriptPubKey.hex, 'hex'),
+        value,
+      },
+    });
+    return tx;
+  }
 
-  // private async _addNonSegwitInput(tx: Psbt, utxo: UTXO) {
-  //   const { txHash } = utxo;
-  //   const bcTx = await this._requestJson<BlockchairTx>(`/raw/transaction/${txHash}`);
-  //   const rawTxRes = bcTx.data.raw_transaction;
-  //   const rawTx = Buffer.from(rawTxRes, 'hex');
-  //   const nonWitnessUtxo = Buffer.from(rawTx);
-  //   tx.addInput({
-  //     hash: utxo.txHash,
-  //     index: utxo.index,
-  //     nonWitnessUtxo,
-  //   });
-  //   return tx;
-  // }
+  private async _addNonSegwitInput(tx: Psbt, utxo: UTXO) {
+    const { hash } = utxo;
+    const bcTx = await this._requestJson<BlockchairTx>(`/raw/transaction/${hash}`);
+    const rawTxRes = bcTx.data.raw_transaction;
+    const rawTx = Buffer.from(rawTxRes, 'hex');
+    const nonWitnessUtxo = Buffer.from(rawTx);
+    tx.addInput({
+      hash: utxo.hash,
+      index: utxo.index,
+      nonWitnessUtxo,
+    });
+    return tx;
+  }
 
   private static _satsToBtc(sats: number) {
     return sats / DASH.satsPerBtc;
@@ -121,7 +121,7 @@ export class DASH extends BaseDASH implements ConnectedWallet {
         : (await this._getAddressUTXOs()).map(
             (utxo: BlockchairUTXO) =>
               ({
-                txHash: utxo.transaction_hash,
+                hash: utxo.transaction_hash,
                 confirmed: utxo.block_id > 0,
                 index: utxo.index,
                 value: DASH._satsToBtc(utxo.value),

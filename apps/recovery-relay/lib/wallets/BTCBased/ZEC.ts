@@ -2,7 +2,7 @@ import { networks, Psbt } from 'bitcoinjs-lib';
 import { Buffer } from 'buffer';
 import { ZCash as BaseZEC, Input } from '@fireblocks/wallet-derivation';
 import { BlockchairAddressDetails, BlockchairStats, BlockchairTx, BlockchairUTXO } from './types';
-import { AccountData, TxPayload, StdUTXO, BaseUTXOType } from '../types';
+import { AccountData, TxPayload, StdUTXO, BaseUTXOType, UTXO } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
 
 export class ZEC extends BaseZEC implements ConnectedWallet {
@@ -50,14 +50,14 @@ export class ZEC extends BaseZEC implements ConnectedWallet {
     return feeRate;
   }
 
-  private async _addSegwitInput(tx: Psbt, utxo: TxInput) {
-    const { index } = utxo;
-    const bcTx = await this._requestJson<BlockchairTx>(`/raw/transaction/${utxo.hash}`);
+  private async _addSegwitInput(tx: Psbt, utxo: UTXO) {
+    const { hash, index } = utxo;
+    const bcTx = await this._requestJson<BlockchairTx>(`/raw/transaction/${hash}`);
     const fullUTxo = bcTx.data.decoded_raw_transaction;
     const { scriptPubKey, value } = fullUTxo.vout[index];
     tx.addInput({
-      hash: utxo.hash,
-      index: utxo.index,
+      hash,
+      index,
       witnessUtxo: {
         script: Buffer.from(scriptPubKey.hex, 'hex'),
         value,
@@ -66,14 +66,15 @@ export class ZEC extends BaseZEC implements ConnectedWallet {
     return tx;
   }
 
-  private async _addNonSegwitInput(tx: Psbt, utxo: TxInput) {
-    const bcTx = await this._requestJson<BlockchairTx>(`/raw/transaction/${utxo.hash}`);
+  private async _addNonSegwitInput(tx: Psbt, utxo: UTXO) {
+    const { hash, index } = utxo;
+    const bcTx = await this._requestJson<BlockchairTx>(`/raw/transaction/${hash}`);
     const rawTxRes = bcTx.data.raw_transaction;
     const rawTx = Buffer.from(rawTxRes, 'hex');
     const nonWitnessUtxo = Buffer.from(rawTx);
     tx.addInput({
-      hash: utxo.hash,
-      index: utxo.index,
+      hash,
+      index,
       nonWitnessUtxo,
     });
     return tx;
@@ -110,10 +111,10 @@ export class ZEC extends BaseZEC implements ConnectedWallet {
     to: string,
     amount: number,
     memo?: string | undefined,
-    utxos?: TxInput[] | undefined,
+    utxos?: UTXO[] | undefined,
     // additionalParameters?: Map<string, object> | undefined
   ): Promise<TxPayload> {
-    const utxosToUse: TxInput[] =
+    const utxosToUse: UTXO[] =
       utxos !== undefined
         ? utxos!
         : (await this._getAddressUTXOs()).map(
@@ -123,7 +124,7 @@ export class ZEC extends BaseZEC implements ConnectedWallet {
                 confirmed: utxo.block_id > 0,
                 index: utxo.index,
                 value: ZEC._satsToBtc(utxo.value),
-              } as TxInput),
+              } as UTXO),
           );
 
     const tx = new Psbt({ network: networks.bitcoin });

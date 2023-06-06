@@ -7,6 +7,10 @@ import { LateInitConnectedWallet } from '../LateInitConnectedWallet';
 export class BitcoinSV extends BSVBase implements LateInitConnectedWallet {
   private baseUrl: string = '';
 
+  public getLateInitLabel() {
+    return '';
+  }
+
   public async getBalance(): Promise<number> {
     return (await this.prepare()).balance;
   }
@@ -29,7 +33,7 @@ export class BitcoinSV extends BSVBase implements LateInitConnectedWallet {
     throw new Error('Method not implemented.');
   }
 
-  public broadcastTx(txHex: string, sigs: RawSignature[], customUrl?: string | undefined): Promise<string> {
+  public broadcastTx(): Promise<string> {
     throw new Error('Method not implemented.');
   }
 

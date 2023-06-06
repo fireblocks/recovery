@@ -144,6 +144,8 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
         extraParams: prepareQuery.data?.extraParams,
         memo: values.memo,
         endpoint: derivation.isLateInit() ? prepareQuery.data?.endpoint : undefined,
+        // TODO: FIX UTXO TYPE
+        // @ts-ignore
         utxos: sortedUtxos?.length ? sortedUtxos : undefined,
       },
       // memo: data.memo,

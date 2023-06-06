@@ -1,6 +1,6 @@
 import { BitcoinCash as BCHBase, Input } from '@fireblocks/wallet-derivation';
 import bchLib from 'bitcore-lib-cash';
-import { AccountData, TxInput, TxPayload, RawSignature, BaseUTXOType } from '../types';
+import { AccountData, TxPayload, RawSignature, BaseUTXOType, UTXO } from '../types';
 import { LateInitConnectedWallet } from '../LateInitConnectedWallet';
 import { BCHUTXO } from './types';
 
@@ -13,6 +13,10 @@ export class BitcoinCash extends BCHBase implements LateInitConnectedWallet {
     super(input);
     this.endpoint = input.isTestnet ? '' : 'https://rest.bch.actorforth.org/v2';
     this.network = input.isTestnet ? bchLib.Networks.testnet : bchLib.Networks.mainnet;
+  }
+
+  public getLateInitLabel() {
+    return '';
   }
 
   public isLateInit(): boolean {
@@ -35,7 +39,7 @@ export class BitcoinCash extends BCHBase implements LateInitConnectedWallet {
       throw new Error('Endpoint not initialized yet');
     }
 
-    const utxos: TxInput[] = (await this._getBCHUTXOs()).map((bchutxo) => ({
+    const utxos = (await this._getBCHUTXOs()).map((bchutxo) => ({
       hash: bchutxo.txid,
       value: bchutxo.amount,
       index: bchutxo.vout,
@@ -51,12 +55,7 @@ export class BitcoinCash extends BCHBase implements LateInitConnectedWallet {
     };
   }
 
-  public async generateTx(
-    to: string,
-    amount: number,
-    memo?: string | undefined,
-    utxos?: TxInput[] | undefined,
-  ): Promise<TxPayload> {
+  public async generateTx(to: string, amount: number, utxos?: UTXO[] | undefined): Promise<TxPayload> {
     const bchUTXOs = new Map((await this._getBCHUTXOs()).map((utxo) => [utxo.txid, utxo]));
     const allowedUTXOs = utxos!.filter((utxo) => bchUTXOs.get(utxo.hash) !== undefined);
     let currentSum = 0;
@@ -83,21 +82,21 @@ export class BitcoinCash extends BCHBase implements LateInitConnectedWallet {
       });
     });
 
-    const unsignedTx = new bchLib.Transaction()
+    const signedTx = new bchLib.Transaction()
       .from(utxosToUse)
       .to(to, amount * 10 ** 8)
+      .sign(bchLib.PrivateKey.fromString(this.privateKey as string))
       .serialize();
+
     return {
       derivationPath: this.pathParts,
-      tx: unsignedTx,
+      tx: signedTx,
     };
   }
 
-  public async broadcastTx(txHex: string, sigs: RawSignature[]): Promise<string> {
+  public async broadcastTx(txHex: string): Promise<string> {
     const tx = bchLib.Transaction.fromString(txHex);
-    sigs.forEach((sig) => {
-      tx.applySignature(bchLib.crypto.Signature.fromString(`${sig.r + sig.s}${Buffer.from([sig.v]).toString('hex')}`));
-    });
+
     const path = `/rawtransactions/sendRawTransaction/${tx.serialize()}`;
     const res = await this._post(path);
     if (res === true) {

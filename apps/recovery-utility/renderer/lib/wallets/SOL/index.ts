@@ -14,18 +14,6 @@ export class Solana extends BaseSolana implements SigningWallet {
     this.connection = new web3.Connection(endpoint, 'confirmed');
   }
 
-  // public async broadcastTx(
-  //   tx: string,
-  //   sig: RawSignature,
-  //   // _?: string | undefined
-  // ): Promise<string> {
-  //   const unsignedTx = web3.VersionedTransaction.deserialize(Buffer.from(tx, 'hex'));
-  //   unsignedTx.addSignature(this.web3PubKey, Buffer.concat([Buffer.from(sig.r, 'hex'), Buffer.from(sig.s, 'hex')]));
-  //   const txHash = await this.connection.sendRawTransaction(unsignedTx.serialize());
-
-  //   return txHash;
-  // }
-
   public async generateTx({ to, amount, blockHash }: GenerateTxInput): Promise<TxPayload> {
     const tx = new web3.Transaction({ feePayer: this.web3PubKey, recentBlockhash: blockHash });
 
@@ -46,6 +34,7 @@ export class Solana extends BaseSolana implements SigningWallet {
     const signature = await this.sign(serializedTx);
 
     tx.addSignature(this.web3PubKey, signature as Buffer);
+    // unsignedTx.addSignature(this.web3PubKey, Buffer.concat([Buffer.from(sig.r, 'hex'), Buffer.from(sig.s, 'hex')]));
 
     const encodedSerializedTx = tx.serialize();
 

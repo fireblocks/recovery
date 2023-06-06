@@ -38,6 +38,8 @@ export class Bitcoin extends BaseBitcoin implements SigningWallet {
 
     const tx = new Psbt({ network: this.network });
 
+    console.info({ utxos });
+
     // eslint-disable-next-line no-restricted-syntax
     for (const input of utxos) {
       tx.addInput({
@@ -46,11 +48,11 @@ export class Bitcoin extends BaseBitcoin implements SigningWallet {
         ...('witnessUtxo' in input
           ? {
               witnessUtxo: {
-                script: Buffer.from(input.witnessUtxo.script, 'hex'),
-                value: input.witnessUtxo.value,
+                script: Buffer.from((input as any).witnessUtxoScript, 'hex'),
+                value: (input as any).witnessUtxo.value,
               },
             }
-          : { nonWitnessUtxo: Buffer.from(input.nonWitnessUtxo, 'hex') }),
+          : { nonWitnessUtxo: Buffer.from((input as any).nonWitnessUtxo, 'hex') }),
       });
     }
 

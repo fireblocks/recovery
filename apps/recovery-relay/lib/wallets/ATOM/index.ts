@@ -1,8 +1,8 @@
 import { Cosmos as BaseCosmos, Input } from '@fireblocks/wallet-derivation';
 import { Tendermint34Client } from '@cosmjs/tendermint-rpc';
-import { StargateClient, defaultRegistryTypes } from '@cosmjs/stargate';
+import { StargateClient } from '@cosmjs/stargate';
 import { SignDoc, TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-import { AccountData, RawSignature, TxPayload, TxInput } from '../types';
+import { AccountData, RawSignature } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
 
 export class Cosmos extends BaseCosmos implements ConnectedWallet {
@@ -10,15 +10,12 @@ export class Cosmos extends BaseCosmos implements ConnectedWallet {
 
   private stargateClient: StargateClient | undefined;
 
-  private restURL: string;
-
   private rpcURL: string;
 
   constructor(input: Input) {
     super(input);
 
     this.tendermintClient = undefined;
-    this.restURL = input.isTestnet ? 'https://cosmos-testnet-rpc.allthatnode.com:1317/' : 'https://cosmos-rpc.quickapi.com/';
     this.rpcURL = input.isTestnet ? 'https://cosmos-testnet-rpc.allthatnode.com:26657' : 'https://cosmos-lcd.quickapi.com/';
   }
 
@@ -44,14 +41,15 @@ export class Cosmos extends BaseCosmos implements ConnectedWallet {
   public async broadcastTx(txHex: string): Promise<string> {
     await this.prepareClients();
 
-    const sig = sigs[0];
-    const signature: string = `${sig.r}${sig.s}`;
+    // TODO: Serialize tx with signature
+    // const sig = sigs[0];
+    // const signature: string = `${sig.r}${sig.s}`;
     const signDoc: SignDoc = SignDoc.fromJSON(JSON.parse(Buffer.from(txHex, 'hex').toString()));
     // Continuation of SigningStargateClient.signDirect from after "this.sign...."
     const txRaw: TxRaw = TxRaw.fromPartial({
       bodyBytes: signDoc.bodyBytes,
       authInfoBytes: signDoc.authInfoBytes,
-      signatures: [Buffer.from(signature, 'hex')],
+      // signatures: [Buffer.from(signature, 'hex')],
     });
 
     const { transactionHash } = await this.stargateClient!.broadcastTx(TxRaw.encode(txRaw).finish());

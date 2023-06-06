@@ -114,13 +114,9 @@ export const WithdrawModal = () => {
 
                     const signedTxHex = inboundRelayParams?.signedTx.hex;
 
-                    // TODO: ALIGN ALL DERIVATION METHOD SIGNATURES
-                    // @ts-ignore
-                    const sigs = [inboundRelayParams?.signedTx.signature];
-
                     console.info({ derivation, signedTxHex });
 
-                    const newTxHash = await derivation?.broadcastTx(signedTxHex, sigs);
+                    const newTxHash = await derivation?.broadcastTx(signedTxHex);
 
                     setTxHash(newTxHash);
 

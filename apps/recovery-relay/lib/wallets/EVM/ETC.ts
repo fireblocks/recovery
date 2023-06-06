@@ -23,17 +23,7 @@ export class EthereumClassic extends BaseETC implements ConnectedWallet {
     return this.evmWallet.prepare();
   }
 
-  public async generateTx(
-    to: string,
-    amount: number,
-    // memo?: string | undefined,
-    // utxos?: UTXO[] | undefined,
-    // additionalParameters?: Map<string, object> | undefined,
-  ): Promise<TxPayload> {
-    return this.evmWallet.generateTx(to, amount);
-  }
-
-  public broadcastTx(txHex: string, sigs: RawSignature[]): Promise<string> {
-    return this.evmWallet.broadcastTx(txHex, sigs);
+  public broadcastTx(txHex: string): Promise<string> {
+    return this.evmWallet.broadcastTx(txHex);
   }
 }
