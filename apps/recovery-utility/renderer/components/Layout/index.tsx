@@ -84,7 +84,6 @@ export const Layout = ({ children }: Props) => {
       title='Recovery Utility'
       description='Recover Fireblocks assets and keys in a disaster, verify a Recovery Kit, or generate keys to set up a new Recovery Kit.'
       navLinks={navLinks}
-      status={status}
       notice={
         isOnline ? (
           <>

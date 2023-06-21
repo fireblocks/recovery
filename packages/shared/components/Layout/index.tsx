@@ -35,7 +35,7 @@ const icons = [32, 180, 192, 270].reduce(
   {} as Record<number, string>,
 );
 
-export const Layout = ({ children, title, description, navLinks, status, notice, noticeLevel = 'info' }: LayoutProps) => {
+export const Layout = ({ children, title, description, navLinks, notice, noticeLevel = 'info' }: LayoutProps) => {
   const fullTitle = `Fireblocks ${title}`;
 
   return (
@@ -100,7 +100,7 @@ export const Layout = ({ children, title, description, navLinks, status, notice,
             {notice}
           </Box>
         )}
-        <Sidebar title={title} navLinks={navLinks} status={status} />
+        <Sidebar title={title} navLinks={navLinks} />
         <Box component='main' gridArea='main' padding='1em' overflow='auto'>
           {children}
         </Box>

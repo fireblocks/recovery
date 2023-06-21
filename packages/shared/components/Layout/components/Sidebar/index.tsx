@@ -1,6 +1,6 @@
 import React, { ComponentType } from 'react';
 import { useRouter } from 'next/router';
-import { Box, Grid, lighten, SxProps, Theme } from '@mui/material';
+import { Box, Grid, SxProps, Theme } from '@mui/material';
 import type { SvgIcon } from '@mui/material';
 import { Button, ButtonProps } from '../../../Button';
 import { Glyph } from '../../../Glyph';
@@ -22,33 +22,15 @@ export type StatusBoxProps = {
   text: string;
 };
 
-const StatusBox = ({ icon: Icon, text }: StatusBoxProps) => (
-  <Box
-    sx={(theme) => ({
-      color: theme.palette.primary.main,
-      border: `solid 1px ${theme.palette.primary.main}`,
-      background: lighten(theme.palette.primary.main, 0.95),
-      borderRadius: '0.5rem',
-      padding: '0.5rem',
-      display: 'flex',
-      alignItems: 'center',
-    })}
-  >
-    <Icon sx={{ marginRight: '0.5rem' }} />
-    {text}
-  </Box>
-);
-
 export type Props = {
   title: string;
   navLinks: ({ label: string; path: string; icon: typeof SvgIcon | ComponentType<{ active?: boolean }> } & Omit<
     ButtonProps,
     'title'
   >)[];
-  status?: StatusBoxProps;
 };
 
-export const Sidebar = ({ title, navLinks, status }: Props) => {
+export const Sidebar = ({ title, navLinks }: Props) => {
   const router = useRouter();
 
   const isActive = (pathname: string) => router.pathname.startsWith(pathname);
@@ -106,7 +88,6 @@ export const Sidebar = ({ title, navLinks, status }: Props) => {
           </Grid>
         ))}
       </Grid>
-      {!!status && <StatusBox icon={status.icon} text={status.text} />}
     </Box>
   );
 };

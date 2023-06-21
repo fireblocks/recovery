@@ -1,9 +1,8 @@
 import { ReactNode } from 'react';
-import { Verified, LeakAdd, ImportExport, Settings } from '@mui/icons-material';
+import { LeakAdd, ImportExport, Settings } from '@mui/icons-material';
 import {
   Layout as BaseLayout,
   LayoutProps as BaseLayoutProps,
-  StatusBoxProps,
   AccountsIcon,
   RelayRequestParams,
 } from '@fireblocks/recovery-shared';
@@ -29,12 +28,6 @@ export const Layout = ({ children }: Props) => {
   const { extendedKeys: { xpub, fpub } = {}, inboundRelayParams } = useWorkspace();
 
   const hasExtendedPublicKeys = !!xpub || !!fpub;
-
-  let status: StatusBoxProps | undefined;
-
-  if (hasExtendedPublicKeys) {
-    status = { icon: Verified, text: 'Extended public keys set' };
-  }
 
   const navLinks: BaseLayoutProps['navLinks'] = [
     {
@@ -66,7 +59,6 @@ export const Layout = ({ children }: Props) => {
       title='Recovery Relay'
       description='Query balances and send transactions from your recovered Fireblocks wallets'
       navLinks={navLinks}
-      status={status}
     >
       {children}
       <WithdrawModal key={getWithdrawModalKey(inboundRelayParams)} />;
