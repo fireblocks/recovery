@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { CloudOutlined, Restore, Verified, /* LeakAdd, */ ImportExport, ManageHistory, Settings } from '@mui/icons-material';
+import { Report, Restore, Verified, /* LeakAdd, */ ImportExport, ManageHistory, Settings } from '@mui/icons-material';
 import {
   Layout as BaseLayout,
   LayoutProps as BaseLayoutProps,
@@ -87,7 +87,7 @@ export const Layout = ({ children }: Props) => {
       notice={
         isOnline ? (
           <>
-            <CloudOutlined sx={{ marginRight: '0.5rem' }} />
+            <Report sx={{ marginRight: '0.5rem' }} />
             This machine is connected to a network. Please disconnect.
           </>
         ) : undefined

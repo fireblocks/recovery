@@ -65,7 +65,7 @@ const Index = () => {
           <Grid item xs={4}>
             <BoxButton
               icon={ManageHistory}
-              title='Set Up Recovery Kit'
+              title='Generate Keys'
               description='Back up your Workspace'
               color='primary'
               href='/setup'

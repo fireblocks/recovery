@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { darken, Box, SxProps, Theme } from '@mui/material';
 import { theme } from '../../theme';
 import { Sidebar, Props as SidebarProps } from './components/Sidebar';
+import { useRouter } from 'next/router';
 
 export type { StatusBoxProps } from './components/Sidebar';
 
@@ -36,6 +37,10 @@ const icons = [32, 180, 192, 270].reduce(
 );
 
 export const Layout = ({ children, title, description, navLinks, notice, noticeLevel = 'info' }: LayoutProps) => {
+  const { pathname } = useRouter();
+
+  const isHome = pathname === '/';
+
   const fullTitle = `Fireblocks ${title}`;
 
   return (
@@ -77,9 +82,9 @@ export const Layout = ({ children, title, description, navLinks, notice, noticeL
       <Box
         height='100%'
         display='grid'
-        gridTemplateColumns='225px 1fr'
+        gridTemplateColumns={`${isHome ? '1fr' : '225px 1fr'}`}
         gridTemplateRows={`${notice ? 'min-content ' : ''} 1fr`}
-        gridTemplateAreas={`${notice ? '"notice notice" ' : ''} "sidebar main"`}
+        gridTemplateAreas={`${notice ? '"notice notice" ' : ''} ${isHome ? '"main main"' : '"sidebar main"'}`}
       >
         {!!notice && (
           <Box
@@ -100,7 +105,7 @@ export const Layout = ({ children, title, description, navLinks, notice, noticeL
             {notice}
           </Box>
         )}
-        <Sidebar title={title} navLinks={navLinks} />
+        {!isHome && <Sidebar title={title} navLinks={navLinks} />}
         <Box component='main' gridArea='main' padding='1em' overflow='auto'>
           {children}
         </Box>

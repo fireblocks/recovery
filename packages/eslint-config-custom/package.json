@@ -11,9 +11,9 @@
   "devDependencies": {
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-typescript": "^17.0.0",
-    "eslint-config-next": "^13.4.4",
+    "eslint-config-next": "^13.4.7",
     "eslint-config-prettier": "^8.8.0",
-    "eslint-config-turbo": "^1.10.1",
+    "eslint-config-turbo": "^1.10.6",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-react": "^7.32.2"
   }

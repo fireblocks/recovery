@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  output: 'export',
+  // output: 'export', // Cannot be used with nextron
   // eslint-disable-next-line turbo/no-undeclared-env-vars
   eslint: { ignoreDuringBuilds: true }, // !!process.env.CI },
   transpilePackages: ['@fireblocks/asset-config', '@fireblocks/recovery-shared', '@fireblocks/wallet-derivation'],
