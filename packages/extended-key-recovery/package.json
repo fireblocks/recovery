@@ -11,7 +11,7 @@
   "scripts": {
     "lint": "eslint --fix .",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "test": "jest"
+    "test": "jest --passWithNoTests"
   },
   "dependencies": {
     "@noble/curves": "^1.1.0",
