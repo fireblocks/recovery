@@ -48,7 +48,7 @@ yarn build
 When configuring in CI such as Vercel, set the root directory to `apps/recovery-relay` and the build script to:
 
 ```
-cd ../.. && npx turbo run build --filter=@fireblocks/recovery-relay
+cd ../.. && yarn turbo run build --filter=@fireblocks/recovery-relay
 ```
 
 ### Start development server

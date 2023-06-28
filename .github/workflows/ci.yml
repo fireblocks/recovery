@@ -33,7 +33,7 @@ jobs:
   build:
     name: Build for ${{ matrix.os }}
     runs-on: ${{ matrix.runs-on }}
-    timeout-minutes: 20
+    timeout-minutes: 35
 
     strategy:
       matrix:
@@ -121,7 +121,7 @@ jobs:
       - name: Build packages
         run: |
           export NODE_OPTIONS="--max_old_space_size=4096"
-          yarn build
+          yarn forcebuild
         env:
           APPLE_KEYCHAIN: ${{ env.KEYCHAIN_PATH }}
           APPLE_KEYCHAIN_PROFILE: ${{ env.KEYCHAIN_PROFILE }}

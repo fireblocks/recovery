@@ -1,5 +1,5 @@
 import { Network, networks, Psbt, initEccLib } from 'bitcoinjs-lib';
-import tinysecp from 'tiny-secp256k1';
+import * as tinysecp from 'tiny-secp256k1';
 import { ECPairFactory } from 'ecpair';
 import { Buffer } from 'buffer';
 import { Bitcoin as BaseBitcoin, Input } from '@fireblocks/wallet-derivation';
