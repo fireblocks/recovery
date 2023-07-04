@@ -14,6 +14,7 @@ import { Tezos } from './XTZ';
 import { Polkadot } from './DOT';
 import { Kusama } from './KSM';
 import { NEM } from './NEM';
+import { Hedera } from './HBAR';
 
 export { SigningWallet as BaseWallet } from './SigningWallet';
 
@@ -51,6 +52,8 @@ export const WalletClasses = {
   KSM: Kusama,
   XEM: NEM,
   XEM_TEST: NEM,
+  HBAR: Hedera,
+  HBAR_TEST: Hedera,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];

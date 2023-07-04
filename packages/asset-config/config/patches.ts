@@ -132,9 +132,13 @@ export const nativeAssetPatches: NativeAssetPatches = {
   FTM_FANTOM: evm('ftmscan.com', 'https://rpcapi.fantom.network'),
   GLMR_GLMR: evm('moonscan.io', 'https://rpc.moonriver.moonbeam.network'),
   HBAR: {
+    derive: true,
+    memo: true,
     getExplorerUrl: getStandardExplorer('explorer.arkhia.io/#/mainnet'),
   },
   HBAR_TEST: {
+    derive: true,
+    memo: true,
     getExplorerUrl: getStandardExplorer('explorer.arkhia.io/#/testnet'),
   },
   KSM: evm('polkascan.io/kusama', 'https://kusama-rpc.polkadot.io'),

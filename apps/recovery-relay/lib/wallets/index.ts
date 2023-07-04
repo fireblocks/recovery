@@ -23,6 +23,7 @@ import { Songbird } from './EVM/SGB';
 import { TokenX } from './EVM/TKX';
 import { Velas } from './EVM/VLX';
 import { XinFin } from './EVM/XDC';
+import { Hedera } from './HBAR';
 import { Kusama } from './KSM';
 import { Luna } from './LUNA';
 import { Near } from './NEAR';
@@ -105,6 +106,8 @@ export const WalletClasses = {
   XTZ_TEST: Tezos,
   XEM: NEM,
   XEM_TEST: NEM,
+  HBAR: Hedera,
+  HBAR_TEST: Hedera,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];

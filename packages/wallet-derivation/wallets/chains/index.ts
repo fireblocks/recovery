@@ -23,6 +23,7 @@ import { Stellar } from './XLM';
 import { Ripple } from './XRP';
 import { Tezos } from './XTZ';
 import { ZCash } from './ZEC';
+import { Hedera } from './HBAR';
 
 export const getWallet = (assetId: string) => {
   const asset = assets[assetId];
@@ -55,7 +56,6 @@ export const getWallet = (assetId: string) => {
     case 'NEAR':
     case 'NEAR_TEST':
       return Near;
-
     case 'XTZ':
     case 'XTZ_TEST':
       return Tezos;
@@ -67,6 +67,10 @@ export const getWallet = (assetId: string) => {
     case 'XEM':
     case 'XEM_TEST':
       return NEM;
+    case 'HBAR':
+    case 'HBAR_TEST':
+      return Hedera;
+
     // ECDSA
     case 'ATOM_COS':
     case 'ATOM_COS_TEST':
@@ -135,4 +139,5 @@ export {
   Polkadot,
   Kusama,
   NEM,
+  Hedera,
 };
