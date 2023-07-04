@@ -77,12 +77,15 @@ export type RecoveredKeys = {
   fpub: string;
   xprv?: string;
   fprv?: string;
+  chainCodeEcdsa?: string;
+  chainCodeEddsa?: string;
 };
 
 export type CalculatedPrivateKey = {
   [key: string]: {
     prvKey: string;
     pubKey: string;
+    chainCode: string;
   };
 };
 

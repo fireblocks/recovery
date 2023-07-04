@@ -257,7 +257,7 @@ export async function recoverKeys(params: KeyRecoveryConfig): Promise<RecoveredK
     backupKeys = {
       [metadata.keyId!]: {
         publicKey: metadata.publicKey!,
-        algo: Algorithm.MPC_ECDSA_SECP256K1,
+        algo: 'MPC_ECDSA_SECP256K1' as unknown as Algorithm,
       },
     };
   }
@@ -377,6 +377,7 @@ export async function recoverKeys(params: KeyRecoveryConfig): Promise<RecoveredK
         prvKeys[algoIndex] = {
           prvKey: _encodeKey(prvKey, algo, chainCode, false),
           pubKey: _encodeKey(pubKey, algo, chainCode, true),
+          chainCode: chainCode.toString('hex'),
         };
       }
     }
@@ -393,11 +394,16 @@ export async function recoverKeys(params: KeyRecoveryConfig): Promise<RecoveredK
   }
 
   const keys = {
-    xprv: prvKeys[ecdsaIdx!].prvKey,
     xpub: prvKeys[ecdsaIdx!].pubKey,
-    fprv: prvKeys[eddsaIdx!].prvKey,
-    fpub: prvKeys[eddsaIdx!].pubKey,
+    xprv: prvKeys[ecdsaIdx!] ? prvKeys[ecdsaIdx!].prvKey : undefined,
+    chainCodeEcdsa: prvKeys[ecdsaIdx!].chainCode ?? undefined,
   } as RecoveredKeys;
+
+  if (prvKeys[eddsaIdx!]) {
+    keys.fpub = prvKeys[eddsaIdx!].pubKey;
+    keys.fprv = prvKeys[eddsaIdx!].prvKey ?? undefined;
+    keys.chainCodeEddsa = prvKeys[eddsaIdx!].chainCode ?? undefined;
+  }
 
   if (!params.recoveryPrv) {
     delete keys.xprv;

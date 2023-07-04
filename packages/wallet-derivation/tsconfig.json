@@ -14,6 +14,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "include": ["**/*.ts", ".eslintrc.js", "../../apps/recovery-utility/renderer/lib/nem-sdk.d.ts"],
+  "include": ["**/*.ts", ".eslintrc.js"],
   "exclude": ["node_modules"]
 }
