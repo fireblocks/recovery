@@ -31,11 +31,12 @@ const sha512 = async (...messages: Uint8Array[]) => {
 const randomBytes = (length = 32) => {
   if (typeof getRandomValues !== 'function') {
     return cRandomBytes(length);
-  } else {
-    return getRandomValues(new Uint8Array(length));
   }
+
+  return getRandomValues(new Uint8Array(length));
 };
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const _0n = 0n;
 
 /**
@@ -46,11 +47,7 @@ const _0n = 0n;
  */
 const numberTo4BytesBE = (number: number) => Buffer.from([number >> 24, number >> 16, number >> 8, number]);
 
-const flatten = (p: ExtendedPoint): ExtendedPoint => {
-  return ExtendedPoint.fromAffine(p.toAffine());
-};
-
-var x: ExtendedPoint | undefined;
+const flatten = (p: ExtendedPoint): ExtendedPoint => ExtendedPoint.fromAffine(p.toAffine());
 
 export abstract class EdDSAWallet extends BaseWallet {
   constructor(input: Input, defaultCoinType: number) {

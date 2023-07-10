@@ -14,7 +14,7 @@ export class Tron extends ECDSAWallet {
   }
 
   protected getAddress(): string {
-    const compPubKey = BigInt('0x' + this.publicKey.replace('0x', '').slice(2));
+    const compPubKey = BigInt(`0x${this.publicKey.replace('0x', '').slice(2)}`);
     const fieldP = secp256k1.CURVE.Fp.ORDER;
     const ySquared = (modPow(compPubKey, 3, fieldP) + BigInt(7)) % fieldP;
     let y = modPow(ySquared, (fieldP + BigInt(1)) / BigInt(4), fieldP);
@@ -25,10 +25,11 @@ export class Tron extends ECDSAWallet {
 
     this.decompressedPubKey = `04${this.publicKey.replace('0x', '').slice(2)}${y.toString(16).replace('0x', '')}`;
 
-    const hash = `41${keccak256(Buffer.from(this.decompressedPubKey!.slice(2), 'hex')).slice(-40)}`;
+    const hash = `41${keccak256(Buffer.from(this.decompressedPubKey?.slice(2), 'hex')).slice(-40)}`;
     return bs58check.encode(Buffer.from(hash, 'hex'));
   }
 
   protected readonly KEY_TX = 't';
+
   protected readonly KEY_METADATA = 'm';
 }
