@@ -32,17 +32,28 @@
     "format": "turbo run format",
     "changeset": "changeset"
   },
+  "resolutions": {
+    "@polkadot/keyring": "^12.3.2",
+    "@polkadot/rpc-augment": "^10.9.1",
+    "@polkadot/types": "^10.9.1",
+    "@polkadot/types-codec": "^10.9.1",
+    "@polkadot/types-create": "^10.9.1",
+    "@polkadot/types-known": "^10.9.1",
+    "@polkadot/util": "^12.3.2",
+    "@polkadot/util-crypto": "^12.3.2",
+    "@polkadot/wasm-crypto": "^7.2.1"
+  },
   "dependencies": {
-    "@changesets/cli": "^2.26.1",
+    "@changesets/cli": "^2.26.2",
     "@commitlint/cli": "^17.6.6",
     "@commitlint/config-conventional": "^17.6.6",
     "@commitlint/prompt-cli": "^17.6.6",
     "@manypkg/cli": "^0.21.0",
-    "@typescript-eslint/utils": "^5.60.0",
+    "@typescript-eslint/utils": "^5.61.0",
     "husky": "^8.0.3",
     "is-ci": "^3.0.1",
-    "lint-staged": "^13.2.2",
+    "lint-staged": "^13.2.3",
     "react-dom": "^18.2.0",
-    "turbo": "^1.10.6"
+    "turbo": "^1.10.7"
   }
 }
