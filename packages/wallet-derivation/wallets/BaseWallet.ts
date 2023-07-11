@@ -4,6 +4,9 @@ export abstract class BaseWallet implements Derivation {
   /** Asset ID */
   public assetId: string;
 
+  /** Signature algorithm */
+  public algorithm: 'ECDSA' | 'EDDSA';
+
   /** BIP44 path */
   public path: HDPath;
 
@@ -39,6 +42,7 @@ export abstract class BaseWallet implements Derivation {
 
   constructor(input: Input, defaultCoinType: number, algorithm: Algorithm) {
     this.assetId = input.assetId;
+    this.algorithm = algorithm;
     this.isLegacy = input.isLegacy ?? false;
     this.isTestnet = input.isTestnet ?? false;
 

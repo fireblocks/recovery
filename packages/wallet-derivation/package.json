@@ -10,7 +10,7 @@
   "scripts": {
     "lint": "eslint --fix .",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "test": "jest --passWithNoTests"
+    "test": "yarn node --experimental-vm-modules $(yarn bin jest)"
   },
   "dependencies": {
     "@fireblocks/asset-config": "^0.0.0",
@@ -42,7 +42,7 @@
     "xrpl": "^2.8.1"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.2",
+    "@types/jest": "^29.5.3",
     "@types/node": "^18.16.19",
     "eslint": "^8.44.0",
     "eslint-config-airbnb": "^19.0.4",

@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import { toBigIntBE } from 'bigint-buffer';
-import { decode } from 'bs58check';
-import { createHmac, getRandomValues, randomBytes as cRandomBytes } from 'crypto';
+import bs58check from 'bs58check';
+import { createHmac, webcrypto, randomBytes as cRandomBytes } from 'crypto';
 import { toBeHex } from 'ethers';
 import { ExtendedPoint, CURVE as edCURVE, etc } from '@noble/ed25519';
 import { bytesToNumberLE, concatBytes, numberToBytesBE, numberToBytesLE, hexToNumber } from '@noble/curves/abstract/utils';
@@ -29,11 +29,11 @@ const sha512 = async (...messages: Uint8Array[]) => {
  * @returns byte array
  */
 const randomBytes = (length = 32) => {
-  if (typeof getRandomValues !== 'function') {
+  if (typeof webcrypto.getRandomValues !== 'function') {
     return cRandomBytes(length);
   }
 
-  return getRandomValues(new Uint8Array(length));
+  return webcrypto.getRandomValues(new Uint8Array(length));
 };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -83,7 +83,7 @@ export abstract class EdDSAWallet extends BaseWallet {
    * @param derivationPath The derivation path to use
    */
   protected derive(extendedKey: string): KeyDerivation {
-    const decodedKey = decode(extendedKey);
+    const decodedKey = bs58check.decode(extendedKey);
 
     if (decodedKey.length !== 78) {
       throw new Error('Extended key is not a valid FPRV or FPUB');

@@ -2,8 +2,8 @@ import type { Config } from '@jest/types';
 
 const config: Config.InitialOptions = {
   verbose: true,
-  transform: {
-    '^.+\\.ts?$': 'ts-jest',
-  },
+  transform: { '\\.ts$': ['ts-jest', { useESM: true }] },
+  extensionsToTreatAsEsm: ['.ts'],
 };
+
 export default config;

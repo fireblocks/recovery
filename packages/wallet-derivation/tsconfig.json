@@ -14,6 +14,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "include": ["**/*.ts", ".eslintrc.js"],
+  "include": ["**/*.ts", ".eslintrc.js", "babel.config.js"],
   "exclude": ["node_modules"]
 }

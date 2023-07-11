@@ -10,5 +10,5 @@ export const assets = globalAssets.reduce<AssetsConfig>(
       ...nativeAssetPatches[asset.nativeAsset],
     },
   }),
-  {} as AssetsConfig,
+  {},
 );
