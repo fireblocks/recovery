@@ -10,7 +10,7 @@
   "scripts": {
     "lint": "eslint --fix .",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "test": "yarn node --experimental-vm-modules $(yarn bin jest)"
+    "test": "yarn node --experimental-vm-modules --openssl-legacy-provider $(yarn bin jest)"
   },
   "dependencies": {
     "@fireblocks/asset-config": "^0.0.0",

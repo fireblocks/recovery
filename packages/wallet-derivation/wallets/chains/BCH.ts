@@ -8,10 +8,12 @@ export class BitcoinCash extends BTCWalletBase {
   }
 
   protected getAddress(): string {
-    const addr = bitcore.Address.fromPublicKey(
-      new bitcore.PublicKey(this.publicKey),
-      this.isTestnet ? bitcore.Networks.testnet : bitcore.Networks.mainnet,
-    );
-    return this.isLegacy ? addr.toLegacyAddress() : addr.toCashAddress();
+    const publicKey = new bitcore.PublicKey(this.publicKey.replace(/^0x/, ''));
+
+    const network = this.isTestnet ? bitcore.Networks.testnet : bitcore.Networks.mainnet;
+
+    const address = new bitcore.Address(publicKey, network);
+
+    return this.isLegacy ? address.toLegacyAddress() : address.toCashAddress();
   }
 }
