@@ -61,7 +61,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
     deriveWallet: (input) => {
       const nativeAssetId = (getAssetConfig(input.assetId)?.nativeAsset ?? input.assetId) as keyof typeof WalletClasses;
 
-      const derivation = new WalletClasses[nativeAssetId](input);
+      const derivation = new WalletClasses[nativeAssetId](input, 0);
 
       console.info('Deriving wallet with input', { input, derivation });
       console.info('Has generateTx method?', !!derivation.generateTx);

@@ -101,7 +101,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
       const nativeAssetId = (getAssetConfig(input.assetId)?.nativeAsset ?? input.assetId) as keyof typeof WalletClasses;
 
       if (nativeAssetId in WalletClasses) {
-        return new WalletClasses[nativeAssetId](input);
+        return new WalletClasses[nativeAssetId](input, 0);
       }
 
       throw new Error(`Unsupported asset: ${input.assetId}`);
