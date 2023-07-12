@@ -241,13 +241,13 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
               </Typography>
             )}
           </Grid>
-          {!!asset && 'expUrl' in asset && (
+          {!!asset && 'getExplorerUrl' in asset && (
             <Grid item flex='1'>
               <Button
                 id={addressExplorerId}
                 variant='outlined'
                 component={NextLinkComposed}
-                to={`${asset.expUrl}/address/${fromAddress}`}
+                to={asset.getExplorerUrl?.('tx')(txId)}
                 target='_blank'
                 rel='noopener noreferrer'
               >
