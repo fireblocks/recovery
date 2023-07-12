@@ -23,7 +23,15 @@ const Key = ({ type, keyData }: KeyProps) => (
     <Typography variant='h6' textTransform='uppercase' marginTop='0'>
       {type}
     </Typography>
-    <Typography variant='body1'>{keyData}</Typography>
+    <Typography
+      variant='body1'
+      sx={{
+        userSelect: 'text',
+        cursor: 'text',
+      }}
+    >
+      {keyData}
+    </Typography>
   </Box>
 );
 

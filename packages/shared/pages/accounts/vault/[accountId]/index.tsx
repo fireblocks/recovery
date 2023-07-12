@@ -278,7 +278,7 @@ export const VaultAccountBasePage = ({ account, withdrawModal: WithdrawModal, ad
         }}
       />
       <RecoverWalletModal
-        assets={assetsNotInAccount}
+        assetsNotInAccount={assetsNotInAccount}
         account={account}
         open={isRestoreWalletModalOpen}
         onClose={handleCloseRestoreWalletModal}
