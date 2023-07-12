@@ -7,9 +7,6 @@ This guide is meant to cover all operational aspects of the recovery tool, inclu
 3. Generating a self-serve recovery package
 
 This guide does not cover technical aspects such as the source code, classes, architecture of flow within the software.
-<br><br>
-
----
 
 ## <u>Table of Contents</u>
 
@@ -20,10 +17,6 @@ This guide does not cover technical aspects such as the source code, classes, ar
 - [Reconstructing your workspace after verification or recovery](#reconstructing-your-workspace-after-verification-or-recovery)
 - [Creating a Withdrawal Transactions](#creating-a-withdrawl-transaction)
 - [Changing the Settings](#configuration)
-
-<br><br>
-
----
 
 ## <u>Purpose, Usages and Requirements</u>
 

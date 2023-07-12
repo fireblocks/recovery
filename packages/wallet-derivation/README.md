@@ -8,7 +8,32 @@ TypeScript methods and classes for deriving a wallet's private/public keys and a
 
 Included in the [Next.js](https://nextjs.org/) frontends using [next-transpile-modules](https://www.npmjs.com/package/next-transpile-modules).
 
-## 📚 Usage
+## :hammer: Development
+
+In some scenarios you will want to either fix some incorrect derivation, or to add completely new wallets to the Recovery tool.
+
+To do this perform the following:
+
+1. (Only relevant for new assets) Identify which curve is the asset using - currently only `ECDSA` and `EdDSA` are supported, so only assets using those chains can be supported
+2. Create a backup of the relevant wallet file in the folder `wallets/chains` (or create a new file named `<CHAIN>.ts` with `<CHAIN>` being a placeholder for the id of the wallet), note we consider it best practice for the name of the file (without `.ts`) to match the corresponding key in the [`asset-config`](../asset-config/README.md) package
+
+The wallet must extends either `ECDSAWallet` or `EdDSAWallet` classes according to step 1 above.
+
+You will need to implement two methods:
+
+1. A constructor with the following signature: `constructor(input: Input)`. The constructor receives an [`Input`](./types.ts#L21) object which contains relevant information. Usually the implementation of the constructor will simply be `super(input, <COIN-ID>)` with `<COIN-ID>` being a placeholder for a number value corresponding to the coin Id used in the derivation path.<br> The system is set up in such a way that all "hard work" needed for derivation is handled by the corresponding curve wallets with the provided `input` field and `<COIN-ID>` value
+2. An implementation of the `getAddress(evmAddress?: string) => string` method. This method will take the provided public key and compute the address of wallet corresponding to the public key.<br>Note: for an example of a wallet that is unable to deteremine the address from the public key see Hedera
+
+In case you added a new wallet, the last step is to export the wallet. To do this:
+
+1. Edit the file [`wallets/chains/index.ts`](./wallets/chains/index.ts).<br>
+2. Add the relevant import statement
+3. Add the newly imported wallet at the bottom of `export` statement
+4. In the large `switch` statement, add a new case with the key is the same as the name of the file (which should match the `id` of the asset in the [`asset-config`](../asset-config/README.md)'s native assets), and the content of the case should be returning the class itself (**not initiated, the class as type**).
+
+## :books: Usage
+
+In case you want to use the `wallet-derivation` package in some other code, below you will be able to find the relevant functions that can be used from this package
 
 ### `deriveWallet(input: Input)`
 
