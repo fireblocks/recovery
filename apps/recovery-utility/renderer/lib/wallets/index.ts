@@ -15,11 +15,14 @@ import { Polkadot } from './DOT';
 import { Kusama } from './KSM';
 import { NEM } from './NEM';
 import { Hedera } from './HBAR';
+// import { Algorand } from './ALGO';
 
 export { SigningWallet as BaseWallet } from './SigningWallet';
 
 export const WalletClasses = {
   // ECDSA
+  // ALGO: Algorand,
+  // ALGO_TEST: Algorand,
   ADA: Cardano,
   ADA_TEST: Cardano,
   BTC: Bitcoin,

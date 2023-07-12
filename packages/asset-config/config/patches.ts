@@ -59,9 +59,11 @@ export const nativeAssetPatches: NativeAssetPatches = {
   },
   ALGO: {
     getExplorerUrl: getStandardExplorer('algoexplorer.io'),
+    derive: true,
   },
   ALGO_TEST: {
     getExplorerUrl: getStandardExplorer('testnet.algoexplorer.io'),
+    derive: true,
   },
   AOA: evm('browser.aurorachain.io', 'https://mainnet.aurora.dev'),
   ATOM_COS: {
@@ -148,9 +150,11 @@ export const nativeAssetPatches: NativeAssetPatches = {
     getExplorerUrl: getStandardExplorer('finder.terra.money/classic'),
   },
   LUNA2: {
+    derive: true,
     getExplorerUrl: getStandardExplorer('finder.terra.money'),
   },
   LUNA2_TEST: {
+    derive: true,
     getExplorerUrl: getStandardExplorer('finder.terra.money/testnet'),
   },
   MATIC_POLYGON: evm('polygonscan.com', 'https://polygon-rpc.com/'),
@@ -242,9 +246,9 @@ export const nativeAssetPatches: NativeAssetPatches = {
     getExplorerUrl: (type) => (value) => {
       if (type === 'address') {
         return `https://explorer.nemtool.com/#/s_account?account=${value}`;
-      } else {
-        return `https://explorer.nemtool.com/#/s_tx?hash=${value}`;
       }
+
+      return `https://explorer.nemtool.com/#/s_tx?hash=${value}`;
     },
     rpcUrl: 'http://hugealice3.nem.ninja:7778',
   },
@@ -258,9 +262,9 @@ export const nativeAssetPatches: NativeAssetPatches = {
     getExplorerUrl: (type) => (value) => {
       if (type === 'address') {
         return `https://testnet-explorer.nemtool.com/#/s_account?account=${value}`;
-      } else {
-        return `https://testnet-explorer.nemtool.com/#/s_tx?hash=${value}`;
       }
+
+      return `https://testnet-explorer.nemtool.com/#/s_tx?hash=${value}`;
     },
     rpcUrl: 'http://hugetestalice.nem.ninja:7890',
   },

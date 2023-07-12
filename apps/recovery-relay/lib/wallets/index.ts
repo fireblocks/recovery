@@ -33,10 +33,12 @@ import { Tron } from './TRON';
 import { Stellar } from './XLM';
 import { Ripple } from './XRP';
 import { Tezos } from './XTZ';
-
+// import { Algorand } from './ALGO';
 export { ConnectedWallet } from './ConnectedWallet';
 
 export const WalletClasses = {
+  // ALGO: Algorand,
+  // ALGO_TEST: Algorand,
   AVAX: Avalanche,
   AVAXTEST: Avalanche,
   BTC: Bitcoin,
