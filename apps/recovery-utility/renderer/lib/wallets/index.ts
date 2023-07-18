@@ -1,4 +1,5 @@
 // import { Bitcoin } from './BTC';
+import { assets } from '@fireblocks/asset-config';
 import { Ripple } from './XRP';
 import { Cosmos } from './ATOM';
 import { EOS } from './EOS';
@@ -15,7 +16,25 @@ import { Polkadot } from './DOT';
 import { Kusama } from './KSM';
 import { NEM } from './NEM';
 import { Hedera } from './HBAR';
+import { ERC20 } from '@fireblocks/wallet-derivation';
 // import { Algorand } from './ALGO';
+
+const fillEVMs = () => {
+  const evms = Object.keys(assets).reduce(
+    (o, assetId) => ({
+      ...o,
+      [assets[assetId].id]:
+        assets[assetId].protocol === 'ETH' && assets[assetId].address
+          ? ERC20
+          : assets[assetId].protocol === 'ETH' && !assets[assetId].address
+          ? EVM
+          : undefined,
+    }),
+    {},
+  ) as any;
+  Object.keys(evms).forEach((key) => (evms[key] === undefined ? delete evms[key] : {}));
+  return evms;
+};
 
 export { SigningWallet as BaseWallet } from './SigningWallet';
 
@@ -57,6 +76,8 @@ export const WalletClasses = {
   XEM_TEST: NEM,
   HBAR: Hedera,
   HBAR_TEST: Hedera,
+
+  ...fillEVMs(),
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];
