@@ -44,7 +44,7 @@ jobs:
             runs-on: macos-13
           - os: macOS 13 (ARM64)
             runs-on: [self-hosted, macos-13, ARM64]
-          - os-name: Windows (x86-64)
+          - os: Windows (x86-64)
             runs-on: windows-latest
 
     steps:
