@@ -17,4 +17,4 @@
 # APPLE_API_KEY_ID="0000000000" \
 #   APPLE_API_KEY="private_keys/AuthKey_0000000000.p8" \
 #   APPLE_API_KEY_ISSUER="00000000-0000-0000-0000-000000000000" \
-  yarn turbo run build --openssl-legacy-provider
+  yarn turbo run build
