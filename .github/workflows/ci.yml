@@ -38,14 +38,14 @@ jobs:
     strategy:
       matrix:
         include:
-          # - os: Ubuntu (x86-64)
-          #   runs-on: ubuntu-latest
+          - os: Ubuntu (x86-64)
+            runs-on: ubuntu-latest
           - os: macOS 12 (x86-64)
             runs-on: macos-12
-          # - os: macOS 13 (ARM64)
-          #   runs-on: [self-hosted, macos-13, ARM64]
+          - os: macOS 13 (ARM64)
+            runs-on: [self-hosted, macos-13, ARM64]
           # - os-name: Windows (x86-64)
-          #   runs-on: windows-latest
+          # runs-on: windows-latest
 
     steps:
       - name: Check out code
