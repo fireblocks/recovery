@@ -9,7 +9,7 @@
   "private": true,
   "main": "app/background.js",
   "scripts": {
-    "postinstall": "electron-builder install-app-deps",
+    "postinstall": "ls -lah && electron-builder install-app-deps",
     "audit": "npx electronegativity -i ./ -x LimitNavigationGlobalCheck,PermissionRequestHandlerGlobalCheck",
     "dev": "nextron dev",
     "build": "nextron build",
