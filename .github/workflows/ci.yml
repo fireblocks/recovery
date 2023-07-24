@@ -63,7 +63,7 @@ jobs:
           cache: yarn
 
       - name: Install Node.js dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile --network-timeout 100000
 
       # - name: Scan licenses
       #   uses: fossas/fossa-action@main # Use a specific version if locking is preferred
