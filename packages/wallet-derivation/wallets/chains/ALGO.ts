@@ -13,4 +13,6 @@ export class Algorand extends EdDSAWallet {
 
     return encodeAddress(publicKeyBytes);
   }
+
+  protected readonly KEY_SUGGESTED_PARAMS = 's';
 }
