@@ -36,6 +36,7 @@
     "@taquito/signer": "^16.2.0",
     "@taquito/taquito": "^16.2.0",
     "@terra-money/terra.js": "^3.1.10",
+    "algosdk": "^2.4.0",
     "axios": "^1.4.0",
     "base58": "^2.0.1",
     "bigint-buffer": "^1.1.5",
