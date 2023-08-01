@@ -7,6 +7,7 @@ export type BaseWorkspaceInput<Derivation extends BaseWallet = BaseWallet> = {
   extendedKeys?: ExtendedKeys;
   accounts: Map<number, VaultAccount<Derivation>>;
   transactions: Map<string, Transaction>;
+  derivationError?: string;
 };
 
 export type BaseWorkspace<
@@ -29,7 +30,12 @@ export type BaseWorkspaceContext<
   importCsv: (addressesCsv?: LocalFile, balancesCsv?: LocalFile) => Promise<void>;
   setTransaction: (transaction: Transaction) => void;
   addAccount: (name: string, accountId?: number) => number;
-  addWallet: (assetId: string, accountId: number, addressIndex?: number) => Wallet<Derivation> | undefined;
+  addWallet: (
+    assetId: string,
+    accountId: number,
+    setDerivationError?: (err: string) => void,
+    addressIndex?: number,
+  ) => Wallet<Derivation> | undefined;
   setWalletBalance: (assetId: string, accountId: number, balance: number) => void;
   reset: () => void;
 };

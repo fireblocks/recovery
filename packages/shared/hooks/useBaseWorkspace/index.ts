@@ -72,24 +72,32 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
 
   const setDerivation = (
     derivationInput: Omit<DerivationReducerInput<Derivation>, 'accounts' | 'deriveWallet'> & { extendedKeys?: ExtendedKeys },
-  ) =>
+    setDerivationError?: (err: string) => void,
+  ) => {
     setWorkspace((prev) => {
       const accounts = new Map(prev.accounts);
+      try {
+        const updatedAccount = reduceDerivations({
+          ...derivationInput,
+          deriveWallet,
+          accounts,
+          extendedKeys: {
+            ...prev.extendedKeys,
+            ...derivationInput.extendedKeys,
+          },
+        });
 
-      const updatedAccount = reduceDerivations({
-        ...derivationInput,
-        deriveWallet,
-        accounts,
-        extendedKeys: {
-          ...prev.extendedKeys,
-          ...derivationInput.extendedKeys,
-        },
-      });
+        accounts.set(updatedAccount.id, updatedAccount);
 
-      accounts.set(updatedAccount.id, updatedAccount);
-
-      return { ...prev, accounts };
+        return { ...prev, accounts };
+      } catch (e) {
+        if (setDerivationError !== undefined) {
+          setDerivationError((e as Error).message);
+        }
+        return { ...prev };
+      }
     });
+  };
 
   const handleAddressCsvRow = useCallback(
     (parsedRow: AddressesCsv, extendedKeys = workspace.extendedKeys) => {
@@ -176,7 +184,7 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
     [setWorkspace],
   );
 
-  const addWallet = (assetId: string, accountId: number, addressIndex = 0) => {
+  const addWallet = (assetId: string, accountId: number, setDerivationError?: (err: string) => void, addressIndex = 0) => {
     if (typeof accountId !== 'number') {
       throw new Error('Wallet needs an account ID');
     }
@@ -185,11 +193,14 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
       throw new Error('Wallet needs an asset ID');
     }
 
-    setDerivation({
-      assetId,
-      accountId,
-      path: { addressIndex },
-    });
+    setDerivation(
+      {
+        assetId,
+        accountId,
+        path: { addressIndex },
+      },
+      setDerivationError,
+    );
 
     return workspace.accounts.get(accountId)?.wallets.get(assetId);
   };

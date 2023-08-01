@@ -13,6 +13,7 @@ import { Button } from '../../../../components/Button';
 import { DataGrid } from '../../../../components/DataGrid';
 import { Link } from '../../../../components/Link';
 import { VaultAccountIcon, AssetIcon, WithdrawIcon, DepositAddressesIcon, KeyIcon } from '../../../../components/Icons';
+import { ErrorModal } from '../../../../components';
 
 export type Row = {
   assetId: string;
@@ -67,6 +68,8 @@ type Props = {
 
 export const VaultAccountBasePage = ({ account, withdrawModal: WithdrawModal, addWallet }: Props) => {
   const router = useRouter();
+
+  const [derivationError, setDerivationError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (!account) {
@@ -283,6 +286,7 @@ export const VaultAccountBasePage = ({ account, withdrawModal: WithdrawModal, ad
         open={isRestoreWalletModalOpen}
         onClose={handleCloseRestoreWalletModal}
         addWallet={addWallet}
+        setDerivationError={setDerivationError}
       />
       <AddressesModal open={!!addressesModalRow} row={addressesModalRow} onClose={handleCloseAddressesModal} />
       <KeysModal open={!!keysModalRow} row={keysModalRow} onClose={handleCloseKeysModal} />
@@ -295,6 +299,12 @@ export const VaultAccountBasePage = ({ account, withdrawModal: WithdrawModal, ad
           onClose={handleCloseWithdrawModal}
         />
       )}
+      <ErrorModal
+        open={derivationError !== undefined}
+        onClose={() => setDerivationError(undefined)}
+        title='Add Wallet Failed'
+        error={derivationError as string}
+      />
     </>
   );
 };

@@ -60,8 +60,13 @@ export const WorkspaceProvider = ({ children }: Props) => {
     relayBaseUrl,
     deriveWallet: (input) => {
       const nativeAssetId = (getAssetConfig(input.assetId)?.nativeAsset ?? input.assetId) as keyof typeof WalletClasses;
-
-      const derivation = new WalletClasses[nativeAssetId](input, 0);
+      let derivation;
+      try {
+        derivation = new WalletClasses[nativeAssetId](input, 0);
+      } catch (e) {
+        console.error(`Failed to create new wallet: ${JSON.stringify(e, null, 2)}`);
+        throw new Error(`Failed to create new wallet ${e}`);
+      }
 
       console.info('Deriving wallet with input', { input, derivation });
       console.info('Has generateTx method?', !!derivation.generateTx);

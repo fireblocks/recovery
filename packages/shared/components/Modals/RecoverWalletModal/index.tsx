@@ -21,10 +21,18 @@ type Props = {
   account?: VaultAccount;
   open: boolean;
   onClose: VoidFunction;
-  addWallet: (assetId: string, accountId: number) => void;
+  addWallet: (assetId: string, accountId: number, setDerivationError?: (err: string) => void) => void;
+  setDerivationError: (err: string) => void;
 };
 
-export const RecoverWalletModal = ({ assetsNotInAccount = assetsArray, account, open, onClose: _onClose, addWallet }: Props) => {
+export const RecoverWalletModal = ({
+  assetsNotInAccount = assetsArray,
+  account,
+  open,
+  onClose: _onClose,
+  addWallet,
+  setDerivationError,
+}: Props) => {
   const searchId = useId();
 
   const [assetId, setAssetId] = useState<string | null>(null);
@@ -58,10 +66,13 @@ export const RecoverWalletModal = ({ assetsNotInAccount = assetsArray, account, 
 
   const onClickRecover = () => {
     if (typeof account?.id === 'number' && assetId) {
-      addWallet(assetId, account.id);
+      try {
+        addWallet(assetId, account.id, setDerivationError);
+      } catch (e) {
+        setDerivationError((e as Error).message);
+      }
+      onClose();
     }
-
-    onClose();
   };
 
   return (
