@@ -94,7 +94,18 @@ export const RecoveryForm = ({ verifyOnly }: Props) => {
 
   return (
     <>
-      <Box component='form' height='100%' display='flex' flexDirection='column' onSubmit={handleSubmit(onSubmit)}>
+      <Box
+        component='form'
+        height='100%'
+        display='flex'
+        flexDirection='column'
+        onSubmit={handleSubmit(onSubmit)}
+        onKeyUp={(event) => {
+          if (event.shiftKey === false && event.key === 'Enter') {
+            handleSubmit(onSubmit);
+          }
+        }}
+      >
         <Typography variant='h1'>{verifyOnly ? 'Verify Recovery Kit' : 'Recover Private Keys'}</Typography>
         {verifyOnly ? (
           <Typography variant='body1' paragraph>
