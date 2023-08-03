@@ -64,7 +64,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
       try {
         derivation = new WalletClasses[nativeAssetId](input, 0);
       } catch (e) {
-        console.error(`Failed to create new wallet: ${JSON.stringify(e, null, 2)}`);
+        console.error(`Failed to create new wallet (${nativeAssetId.toString()}): ${(e as Error).message}`);
         throw new Error(`Failed to create new wallet ${e}`);
       }
 
