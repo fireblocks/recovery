@@ -42,7 +42,9 @@ export class InvalidRSAPrivateKeyError extends Error {
 
 export class InvalidRecoveryKitError extends Error {
   constructor() {
-    super('Failed obtaining data from the recovery kit - make sure you use the correct recovery kit and RSA key');
+    super(
+      'Failed obtaining data from the recovery kit - make sure you use the correct (and uncorrupted) recovery kit and RSA key',
+    );
   }
 }
 

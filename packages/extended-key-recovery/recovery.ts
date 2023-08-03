@@ -343,8 +343,9 @@ export async function recoverKeys(params: KeyRecoveryConfig): Promise<RecoveredK
 
       if (keyId) {
         let privateKey;
+        let data;
         try {
-          const data = file.getData().toString('binary');
+          data = file.getData().toString('binary');
           privateKey = forge.pki.decryptRsaPrivateKey(rsaFileData, params.rsaPass);
         } catch (e) {
           throw new DecryptRSAPrivateKeyError();
@@ -359,10 +360,7 @@ export async function recoverKeys(params: KeyRecoveryConfig): Promise<RecoveredK
           // @ts-ignore
           decrypted = Buffer.from(privateKey.decrypt(data, 'RSA-OAEP'), 'binary').toString('hex');
         } catch (e) {
-          if ((e as Error).message.startsWith('data is not defined')) {
-            throw new InvalidRecoveryKitError();
-          }
-          throw e;
+          throw new InvalidRecoveryKitError();
         }
 
         const playerId = getPlayerId(keyId, cosigner!, true).toString();
