@@ -24,7 +24,25 @@ export class KeyIdNotInMetadata extends Error {
 
 export class DecryptMobileKeyError extends Error {
   constructor() {
-    super('Mobile key decryption error');
+    super('Mobile key decryption error - make sure mobile key passphrase is correct');
+  }
+}
+
+export class DecryptRSAPrivateKeyError extends Error {
+  constructor() {
+    super('RSA Private key decryption error - make sure the RSA passphrase is correct');
+  }
+}
+
+export class InvalidRSAPrivateKeyError extends Error {
+  constructor() {
+    super('Failed getting RSA private key - make sure the RSA passphrase is correct');
+  }
+}
+
+export class InvalidRecoveryKitError extends Error {
+  constructor() {
+    super('Failed obtaining data from the recovery kit - make sure you use the correct recovery kit and RSA key');
   }
 }
 
