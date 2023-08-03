@@ -1,4 +1,4 @@
-import React, { useId, ReactNode } from 'react';
+import React, { useId, ReactNode, useState } from 'react';
 import { useDropzone, Accept } from 'react-dropzone';
 import { Box, FormHelperText, Typography } from '@mui/material';
 import { FileUpload, CheckCircle, Cancel } from '@mui/icons-material';
@@ -16,12 +16,17 @@ type Props = {
 export const UploadWell = ({ label, error, hasFile, accept, disabled, hidden = false, onDrop: _onDrop }: Props) => {
   const labelId = useId();
 
+  const [fileName, setFileName] = useState<string | undefined>();
+
   const extensions = Object.values(accept || {})
     .flat()
     .join(' / ')
     .toUpperCase();
 
-  const onDropAccepted = (files: File[]) => _onDrop(files[0]);
+  const onDropAccepted = (files: File[]) => {
+    setFileName(files[0].name);
+    _onDrop(files[0]);
+  };
 
   const { getRootProps, getInputProps, isDragAccept, isDragReject } = useDropzone({
     accept,
@@ -40,7 +45,12 @@ export const UploadWell = ({ label, error, hasFile, accept, disabled, hidden = f
   }
 
   if (hasFile) {
-    inputText = 'File selected';
+    inputText = (
+      <span>
+        File selected
+        <br />({fileName})
+      </span>
+    );
   }
 
   if (isDragAccept) {
