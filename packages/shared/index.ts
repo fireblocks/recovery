@@ -52,6 +52,8 @@ export { getRelayUrl, getRelayParams, getTxFromRelay } from './lib/relayUrl';
 
 export { stringToBytes, bytesToString } from './lib/stringBytes';
 
+export { download } from './lib/download';
+
 // Theme
 export { monospaceFontFamily, theme } from './theme';
 export { heebo } from './theme/fonts/heebo';

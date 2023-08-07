@@ -106,7 +106,7 @@ export const WithdrawModal = ({ assetId, accountId, open, onClose: onCloseModal 
       {inboundRelayParams?.action === 'tx/sign' && !!selectedAccount && !!selectedAsset && (
         <SignTransaction txId={newTxId} account={selectedAccount} asset={selectedAsset} inboundRelayParams={inboundRelayParams} />
       )}
-      {!!createTxOutboundRelayUrl && !!txInitData && inboundRelayParams?.action !== 'tx/sign' ? (
+      {!!createTxOutboundRelayUrl && !!txInitData && inboundRelayParams?.action !== 'tx/sign' && (
         <>
           <Typography variant='body1' paragraph>
             Scan the QR code with an online device to create a transaction with Recovery Relay. Pass QR codes back and forth to
@@ -123,7 +123,8 @@ export const WithdrawModal = ({ assetId, accountId, open, onClose: onCloseModal 
             }}
           />
         </>
-      ) : (
+      )}
+      {!txInitData && (
         <InitiateTransaction
           accountsArray={accountsArray}
           assetsInAccount={assetsInAccount as unknown as AssetConfig[]}

@@ -8,6 +8,8 @@ import extendedKeyRecoveryPackage from '@fireblocks/extended-key-recovery/packag
 import utilityPackage from '../../package.json';
 import { useSettings, defaultSettings } from '../context/Settings';
 import { useWorkspace } from '../context/Workspace';
+import { download } from '@fireblocks/recovery-shared';
+import { getLogs as ipcGetLogs } from '../lib/ipc';
 
 type FormData = z.infer<typeof settingsInput>;
 
@@ -29,6 +31,11 @@ const Settings = () => {
       relayBaseUrl,
     },
   });
+
+  const downloadLogs = async () => {
+    const logsZip = await ipcGetLogs();
+    download(logsZip, 'recovery-utility-logs.zip', 'application/zip');
+  };
 
   const onSubmit = async (formData: FormData) => saveSettings(formData);
 
@@ -89,6 +96,16 @@ const Settings = () => {
             <Grid item>
               <Button type='submit' color='primary'>
                 Save
+              </Button>
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant='h2'>Logs</Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <Button type='submit' size='large' variant='outlined' fullWidth color='primary' onClick={downloadLogs}>
+                Download Logs
               </Button>
             </Grid>
           </Grid>

@@ -161,15 +161,6 @@ export const VaultAccountBasePage = ({ account, withdrawModal: WithdrawModal, ad
         },
       },
       {
-        field: 'balance',
-        headerName: 'Balance',
-        type: 'number',
-        width: 150,
-        sortable: true,
-        filterable: false,
-        getApplyQuickFilterFn: undefined,
-      },
-      {
         field: 'derivations',
         headerName: 'Derivations',
         sortable: false,

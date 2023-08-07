@@ -1,4 +1,4 @@
 export { closeWindow } from './closeWindow';
-export { recoverExtendedKeys } from './recoverExtendedKeys';
+export { getLogs } from './getLogs';
 export { restoreSettings } from './restoreSettings';
 export { saveSettings } from './saveSettings';

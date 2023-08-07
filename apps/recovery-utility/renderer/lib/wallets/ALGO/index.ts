@@ -4,7 +4,7 @@ import algoSdk from 'algosdk';
 import { SigningWallet } from '../SigningWallet';
 import { GenerateTxInput, TxPayload } from '../types';
 
-export class ALGO extends BaseALGO implements SigningWallet {
+export class Algorand extends BaseALGO implements SigningWallet {
   public async generateTx({ to, amount, extraParams }: GenerateTxInput): Promise<TxPayload> {
     const tx = algoSdk.makePaymentTxnWithSuggestedParamsFromObject({
       from: this.address,

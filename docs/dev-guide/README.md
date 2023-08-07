@@ -1,6 +1,6 @@
-# <u>**Recovery Tool Developer Guide**</u>
+# Fireblocks Recovery Utility Developer Guide
 
-This guide's purpose is to provide a detailed explanation of the technical aspects of the Recovery tool. This includes but is not limited to:
+This guide's purpose is to provide a detailed explanation of the technical aspects of Fireblocks Recovery Utility and Recovery Relay. This includes but is not limited to:
 
 - High level architecture
 - Flow explanation
@@ -10,9 +10,9 @@ This guide's purpose is to provide a detailed explanation of the technical aspec
 
 The guide can be used to add capabilities or new blockchains in case of disaster recovery.
 
-<sub>Note: xprivate and xpublic is the extended private and extended public key, these are the root keys of the workspace and </sub>
+> **Note:** `xprv/fprv` and `xpub/fpub` are the extended private and extended public keys. These are the root keys of the workspace from which all wallet keys are derived. `xprv/xpub` are ECDSA keys, compatible with BIP32 wallet derivation. `fprv/fpub` are EdDSA keys and use Fireblocks-specific implementations for wallet derivation.
 
-## <u>Table of Contents</u>
+## Table of Contents
 
 - [Operations Flow](#operations-flow)
 - [Package Structure](#package-structure)
@@ -24,23 +24,19 @@ The guide can be used to add capabilities or new blockchains in case of disaster
   - [Shared](#shared)
 - [Adding Assets](#adding-assets)
 
-## <u> Operations Flow</u>
-
-This section reviews the architecture of the recovery tool as well as how operations take place.
-
-As an introductory portion, we first describe the main components of the recovery tool.
-
-After understanding the main components we then review the architecture and finally how operations are performed. Where applicable we include dependency information.
+## Operations Flow
 
 ### Main Components
 
-The main components of the Recovery Utility are the `Recovery Utility` and `Recovery Relay`. Both of them make use of some of the packages as well as 3rd party dependencies.
+The main components of Recovery Utility are the `Recovery Utility` and `Recovery Relay` applications. Both of them utilize shared packages from the recovery monorepo as well as 3rd party dependencies.
 
-`Recovery Utility` - this component **must** be used **only** on the offline machine. It houses the private key material and is responsible for transaction creating and signing. It uses data provided to it from the external `Recovery Relay` to construct the transaction.
+#### Recovery Utility
 
-`Recovery Relay` - this component runs on the online machine and houses blockchain interaction logic. It is responsible for obtaining data from the relevant blockchain and to perform the broadcast of the transaction.
+A desktop application that **must** be used **only** on an offline, air-gapped machine. Recovery Utility is used to set up Backup Kit encryption keys, verify a Backup Kit, and recover a Backup Kit in a disaster recovery scenario. In a disaster recovery scenario, `Recovery Utility` houses private key material and is responsible for transaction creation and signing. It uses inputs provided from the online `Recovery Relay` to construct transactions, then passes signed transactions back to `Recovery Relay` for broadcasting.
 
-These two components are the main part of the recovery tool and all flows involve these two components.
+#### Recovery Relay
+
+A web application running on an Internet-connected server that houses blockchain interaction logic. It is responsible for deriving wallet public keys to obtain transaction inputs from the relevant blockchain and to broadcast transactions. `Recovery Relay` never handles private keys.
 
 ### Operations Flow
 
@@ -54,106 +50,101 @@ The operations that are covered are the following:
 
 ![verify package](./verify-flow.png)
 
-The package verification process recovers the xprivate key material to compute the xpublic key, and compares it to the provided xpublic key in the metadata of the package.<br>
+The package verification process recovers the `xprv` and `fprv` extended private keys, computes the `xpub` and `fpub` extended public keys, discards the private keys, and compares the public keys to the ones provided in the Backup Kit metadata. After a successful verification, wallet public keys may be derived and verified.
 
-Due to this, this operation **must** be done on a offline machine.<br>
-<sub>Note: AGP means Auto-Generate Passphrase</sub>
+> **Note:** AGP means Auto-Generate Passphrase
 
-#### Recovery of the xPrivate Key Material
+#### Recovery of the `xprv/fprv` Key Material
 
 ![recover package](./recovery-flow.png)
 
-The private key material recovery process recovers the private key material along with computing the xpublic key. The xpublic key is verified in the same process as in the verification flow (against the metadata).
+The disaster recovery process recovers the `xprv/fprv` extended private key material along with computing the `xpub/fpub` extended public keys. The `xpub/fpub` keys are verified in the same process as in the verification flow (against the Backup Kit metadata).
 
-If there is an error it is displayed to the user, otherwise the xprivate key value is stored in the followed by showing the user the "Accounts" view.
+If there is an error, the recovery process is haulted and an error is displayed. Otherwise the `xprv/fprv` key values are stored in memory, followed by rendering the "Accounts" view.
 
 #### Withdrawing Funds
 
 ![withdrawing funds](./withdrawing-funds.png)
 
-The main item missing from the above diagram is the actual key derivation process, however key derivation is extensively covered throughout resources online, therefore we do not discuss it.
+Recovery Utility works in tandem with Recovery Relay to securely withdraw an entire wallet's balance to a separate wallet address. Recovery Relay must be separately configured on a web server with access to the Internet, and its URL must be set in Recovery Utility's settings. Recovery Relay requires internet access to make outbound requests, but it does **not** need to listen on an Internet-accessible port for inbound requests.
 
-## <u>Package Structure</u>
+After a user performs a workspace recovery in Recovery Utility and derives a wallet's private keys, the user may initiate a withdraw. After the user provides a destination address, Recovery Utility generates a URL and a QR code which may be opened from a **separate** online machine with access to the Recovery Relay web server. This URL encodes the destination address, workspace extended **public** keys, and targeted wallet derivation path. Recovery Relay will derive wallet public keys from this information and then fetch wallet balances and any required parameters for creating a transaction. It will then encode another URL/QR code to be opened on the air-gapped offline machine with Recovery Utility. This URL contains all parameters necessary for creating a transaction, except for keys. The user opens Recovery Relay's URL with Recovery Utility, confirms the transaction details to securely sign the transaction offline, and is then presented with a final URL/QR code containing the signed transaction. The user opens this URL/QR code on the online machine to broadcast the transaction to the blockchain with Recovery Relay.
 
-This section covers the structure of the packages within the Recovery tool and their purposes.
+The main item missing from the above diagram is the actual wallet key derivation process. Key derivation is extensively covered throughout resources online, therefore we do not discuss it.
+
+## Package Structure
 
 ### Recovery Utility
 
-The recovery utility package is the corner-stone of the recovery utility, and contains the main UI and logic for the entire tool.
+The [`@fireblocks/recovery-utility`](../../apps/recovery-utility/) application is the corner-stone of the disaster recovery process. It is a hardened Electron application containing utilities for extended private key recovery, wallet key derivation, and the main Next.js UI and logic. It must be run from an air-gapped offline machine.
 
-#### `main`
+#### `main` directory
 
-This folder contains general utilities for Electron.
+Houses the Electron `main` process which is the application entrypoint, responsible for launching the `renderer` web UI process.
 
-- [`helpers`](../../apps/recovery-utility/main/helper/README.md) - @GRANT
-- [`ipc`](../../apps/recovery-utility/main/ipc/README.md) - @GRANT
-- [`store`](../../apps/recovery-utility/main/store/README.md) - @GRANT
+- [`helpers`](../../apps/recovery-utility/main/helper/README.md): Browser window helpers
+- [`ipc`](../../apps/recovery-utility/main/ipc/README.md): Electron inter-process communication handlers
+- [`store`](../../apps/recovery-utility/main/store/README.md): classes for data persistence using `electron-store`. Extended workspace keys and wallet keys are never persisted.
 
 #### `renderer`
 
-This folder contains the main UI and logic for transaction creation and signing.
+Houses the Electron `renderer` process which is a Next.js/React.js web application.
 
-- [`components`](../../apps//recovery-utility/renderer/components/README.md) - @GRANT
-- [`context`](../../apps/recovery-utility/renderer/context/README.md) - @GRANT
-- [`lib`](../../apps/recovery-utility/renderer/lib/README.md)
-- [`pages`](../../apps/recovery-utility/renderer/pages/README.md) - @GRANT
-- [`public`](../../apps/recovery-utility/renderer/public/README.md) - @GRANT
-
-<br>
+- [`components`](../../apps//recovery-utility/renderer/components): shared React components
+- [`context`](../../apps/recovery-utility/renderer/context): React context, most importantly for workspace management
+- [`lib`](../../apps/recovery-utility/renderer/lib/README.md): `renderer` libraries including IPC handlers and cold wallets
+- [`pages`](../../apps/recovery-utility/renderer/pages): Next.js pages
+- [`public`](../../apps/recovery-utility/renderer/public): Static web assets
 
 ---
 
 ### Recovery Relay
 
-The recovery relay is responsible for all communication with the blockchain be it gathering information from the blockchain (such as balances, UTXOs or other metadata needed for transaction creation).
+The [`@fireblocks/recovery-relay`](../../apps/recovery-relay/) web application is responsible for all blockchain communications to enable transaction creation and broadcasting. It retrieves blockchain data such as balances, UTXOs, and other metadata needed for transaction creation.
 
 The following are the main folders for the relay code.
 
-- [`components`](../../apps//recovery-relay/components/README.md) - @GRANT
-- [`context`](../../apps/recovery-relay/context/README.md) - @GRANT
-- [`lib`](../../apps/recovery-relay/lib/README.md)
-- [`pages`](../../apps/recovery-relay/pages/README.md) - @GRANT
-- [`public`](../../apps/recovery-relay/public/README.md) - @GRANT
+- [`components`](../../apps//recovery-relay/components): shared React components
+- [`context`](../../apps/recovery-relay/context): React context, most importantly for workspace management
+- [`lib`](../../apps/recovery-relay/lib/README.md): public key -based wallet handlers
+- [`pages`](../../apps/recovery-relay/pages): Next.js pages
+- [`public`](../../apps/recovery-relay/public): Static web assets
 
 ---
 
 ### Shared - Extended Key Recovery
 
-The Extended Key Recovery package provides the cryptography code that is used to take the individual shards of the private key and combining them into the real private key material.
+The [`@fireblocks/extended-key-recovery`](../../packages/extended-key-recovery/) package provides the cryptography code to take the encrypted extended private key shards of the Backup Kit and combine them into the real extended private/public key materials. All logic is in [`recovery.ts`](../../packages/extended-key-recovery/recovery.ts).
 
-This package does not contain any folders, only two relevant files.
-
-Extendability is not meant to be part of this package, since addition of curves to the Fireblocks key capabilities (such as Stark Curve or JubJub) will be added to the recovery tool as soon as they have been added into the production code itself.
+This package is not intended to be extended or modified, since Fireblocks will roll out any new curves or key capabilities to this repository as they are implemented on the Fireblocks platform.
 
 ---
 
 ### Shared - Asset Config
 
-The Asset Configuration package provides the Recovery tool with all the assets that are currently available in your workspace. By default the Recovery tool is shipped out with only the global tokens that are added and available for all Fireblocks customers.
+The [`@fireblocks/asset-config`](../../packages/asset-config/) package provides Recovery Utility and Recovery Relay with asset metadata for assets supported by Fireblocks. By default we provide only the global tokens that are added and available for all Fireblocks customers.
 
-To extend asset config with additional assets or to fix existing assets please follow the `Developement` section of [this readme](../../packages/asset-config/README.md).
+To extend asset config with additional assets or to fix existing assets please follow the `Development` section of [this README](../../packages/asset-config/README.md).
 
 ---
 
 ### Shared - Wallet Derivation
 
-The wallet derivation package provides the Recovery tool (both relay and utility) with the ability to take an xPublic key or xPrivate key and derive the public and private key corresponding to a derivation path. As a derivation path is a thoroughly explored concept we will not define or elaborate on it.
+The [`@fireblocks/wallet-derivation`](../../packages/wallet-derivation/) package provides Recovery Utility and Recovery Relay with the ability to take an `xpub/fpub` key or `xprv/fprv` key and derive a wallet's public or private key corresponding to a BIP44 derivation path. As a derivation path is a thoroughly explored concept we will not define or elaborate on it.
 
-To extend wallet derivation with additional assets or to fix existing assets please follow the `Development` section of [this readme](../../packages/wallet-derivation/README.md)
+To extend wallet derivation with additional assets or to fix existing assets please follow the `Development` section of [this README](../../packages/wallet-derivation/README.md).
 
 ---
 
 ### Shared
 
-The shared package contains multiple pieces of "generic" code which is used across various almost all packages.
-
-There is no extendability relevant for this package in particular.
+The [`@fireblocks/recovery-shared`](../../packages/shared/) package contains React components, hooks, and utilities shared across Recovery Utility and Recovery Relay. There is no extendability relevant for this package.
 
 ## Adding Assets
 
-Adding assets requires multiple changes, to make such an operation easier we have prepared the following steps here:
+Adding assets requires multiple changes:
 
-1. If this is a new native asset (i.e. is not an EVM or BTC style chain, using the same code) - add a new native asset as per [`asset-config` readme](../../packages/asset-config/README.md#native-asset-support)<br>If this is not a new native asset, only [add a `globalAsset`](../../packages/asset-config/README.md#token-or-new-base-asset-support)
+1. If this is a new native asset (i.e. is not an EVM or BTC style chain, using the same code) - add a new native asset as per the [`asset-config` readme](../../packages/asset-config/README.md#native-asset-support). If this is not a new native asset, only [add a `globalAsset`](../../packages/asset-config/README.md#token-or-new-base-asset-support)
 2. Add a new wallet as per [`wallet-derivation` readme](../../packages/wallet-derivation/README.md#🔨-development)
 3. Add balance fetching and broadcasting logic as per [`recovery-relay/lib` readme](../../apps/recovery-relay/lib/README.md)
 4. Add transaction creating and signing logic as per [`recovery-utility/renderer/lib readme`](../../apps/recovery-utility/renderer/lib/README.md)

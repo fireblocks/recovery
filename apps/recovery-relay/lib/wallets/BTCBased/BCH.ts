@@ -1,6 +1,6 @@
 import { BitcoinCash as BCHBase, Input } from '@fireblocks/wallet-derivation';
-import { Address, Networks, Transaction, Script, PrivateKey } from 'bitcore-lib-cash';
-import { AccountData, TxPayload, BaseUTXOType, UTXO } from '../types';
+import { Networks, Transaction } from 'bitcore-lib-cash';
+import { AccountData, BaseUTXOType } from '../types';
 import { LateInitConnectedWallet } from '../LateInitConnectedWallet';
 import { BCHUTXO } from './types';
 
@@ -56,45 +56,6 @@ export class BitcoinCash extends BCHBase implements LateInitConnectedWallet {
     };
   }
 
-  public async generateTx(to: string, amount: number, utxos?: UTXO[] | undefined): Promise<TxPayload> {
-    const bchUTXOs = new Map((await this._getBCHUTXOs()).map((utxo) => [utxo.txid, utxo]));
-    const allowedUTXOs = utxos!.filter((utxo) => bchUTXOs.get(utxo.hash) !== undefined);
-    let currentSum = 0;
-    let utxoCount = 0;
-    allowedUTXOs.forEach((utxo) => {
-      if (currentSum / 10 ** 8 > amount) {
-        return;
-      }
-      currentSum += utxo.value as number;
-      utxoCount += 1;
-    });
-    if (currentSum / 10 ** 8 < amount) {
-      throw new Error('Insufficient amount selected.');
-    }
-
-    const utxosToUse: Transaction.UnspentOutput[] = allowedUTXOs.slice(0, utxoCount).map((utxo) => {
-      const bchUTXO = bchUTXOs.get(utxo.hash)!;
-      return Transaction.UnspentOutput.fromObject({
-        address: Address.fromScript(Script.fromString(bchUTXO.scriptPubKey), this.network),
-        txId: bchUTXO.txid,
-        outputIndex: bchUTXO.vout,
-        script: Script.fromString(bchUTXO.scriptPubKey),
-        satoshis: bchUTXO.satoshis,
-      });
-    });
-
-    const signedTx = new Transaction()
-      .from(utxosToUse)
-      .to(to, amount * 10 ** 8)
-      .sign(PrivateKey.fromString(this.privateKey as string))
-      .serialize();
-
-    return {
-      derivationPath: this.pathParts,
-      tx: signedTx,
-    };
-  }
-
   public async broadcastTx(txHex: string): Promise<string> {
     const tx = Transaction.fromString(txHex);
 
@@ -122,7 +83,8 @@ export class BitcoinCash extends BCHBase implements LateInitConnectedWallet {
     return res.status === 200;
   }
 
-  private async _getBCHUTXOs(): Promise<BCHUTXO[]> {
-    return this._get<BCHUTXO[]>(`/address/utxo/${this.address}`);
+  private async _getBCHUTXOs() {
+    const { utxos } = await this._get<{ utxos: BCHUTXO[] }>(`/address/utxo/${this.address}`);
+    return utxos;
   }
 }

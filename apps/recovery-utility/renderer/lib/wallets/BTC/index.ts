@@ -38,8 +38,6 @@ export class Bitcoin extends BaseBitcoin implements SigningWallet {
 
     const tx = new Psbt({ network: this.network });
 
-    console.info({ utxos });
-
     // eslint-disable-next-line no-restricted-syntax
     for (const input of utxos) {
       tx.addInput({

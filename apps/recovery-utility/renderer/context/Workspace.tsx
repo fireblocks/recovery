@@ -60,6 +60,9 @@ export const WorkspaceProvider = ({ children }: Props) => {
     relayBaseUrl,
     deriveWallet: (input) => {
       const nativeAssetId = (getAssetConfig(input.assetId)?.nativeAsset ?? input.assetId) as keyof typeof WalletClasses;
+
+      console.info('Deriving native asset', nativeAssetId);
+
       let derivation;
       try {
         derivation = new WalletClasses[nativeAssetId](input, 0);

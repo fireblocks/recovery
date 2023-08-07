@@ -8,7 +8,7 @@ import { recoverKeysInput, TextField, Button, UploadWell, BaseModal } from '@fir
 import { Checkbox, FormControlLabel, Typography, Box, Grid } from '@mui/material';
 import { readFileToBase64 } from '@fireblocks/recovery-shared/lib/readFile';
 import { useWorkspace } from '../../context/Workspace';
-import { recoverExtendedKeys } from '../../lib/ipc';
+import { recoverExtendedKeys } from '../../lib/recoverExtendedKeys';
 
 type FormData = z.infer<typeof recoverKeysInput>;
 
@@ -229,13 +229,15 @@ export const RecoveryForm = ({ verifyOnly }: Props) => {
         onClose={() => setRecoveryData(undefined)}
       >
         <Typography variant='body1' color={(theme) => theme.palette.error.main}>
-          You are about to recover the private key material this means that for the first time since it's creation the private key
-          will be reconstructed in a single location.
+          You are about to recover the workspace private key materials. This means that for the first time since their creation,
+          the private keys will be reconstructed in a single location.
           <br />
-          Recovering will allow you to withdraw your assets, if you are only interested in verifying please go to the verify
+          <br />
+          Recovering will allow you to withdraw your assets. If you are only interested in verifying, please use the verify
           operation instead.
           <br />
-          Please confirm you would like to reconstruct the private key
+          <br />
+          Please confirm you would like to reconstruct the private keys.
         </Typography>
       </BaseModal>
     </>

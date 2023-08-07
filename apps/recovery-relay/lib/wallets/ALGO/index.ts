@@ -4,7 +4,7 @@ import { LateInitConnectedWallet } from '../LateInitConnectedWallet';
 
 import { Algodv2 } from 'algosdk';
 
-export class ALGO extends BaseALGO implements LateInitConnectedWallet {
+export class Algorand extends BaseALGO implements LateInitConnectedWallet {
   private endpoint: string | undefined;
   private algoClient: Algodv2 | undefined;
 

@@ -4,6 +4,7 @@ import { Ripple } from './XRP';
 import { Cosmos } from './ATOM';
 import { EOS } from './EOS';
 import { Bitcoin } from './BTC';
+import { BitcoinCash } from './BCH';
 import { EVM } from './EVM';
 import { Solana } from './SOL';
 import { Tron } from './TRON';
@@ -17,7 +18,7 @@ import { Kusama } from './KSM';
 import { NEM } from './NEM';
 import { Hedera } from './HBAR';
 import { ERC20 } from '@fireblocks/wallet-derivation';
-// import { Algorand } from './ALGO';
+import { Algorand } from './ALGO';
 
 const fillEVMs = () => {
   const evms = Object.keys(assets).reduce(
@@ -40,12 +41,14 @@ export { SigningWallet as BaseWallet } from './SigningWallet';
 
 export const WalletClasses = {
   // ECDSA
-  // ALGO: Algorand,
-  // ALGO_TEST: Algorand,
+  ALGO: Algorand,
+  ALGO_TEST: Algorand,
   ADA: Cardano,
   ADA_TEST: Cardano,
   BTC: Bitcoin,
   BTC_TEST: Bitcoin,
+  BCH: BitcoinCash,
+  BCH_TEST: BitcoinCash,
   ETH: EVM,
   ETH_TEST3: EVM,
   ETH_TEST5: EVM,
