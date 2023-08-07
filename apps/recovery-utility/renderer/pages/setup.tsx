@@ -4,8 +4,20 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { pki } from 'node-forge';
 import { NextLinkComposed, TextField, Button, generateRsaKeypairInput, theme } from '@fireblocks/recovery-shared';
-import { Box, Grid, Typography, List, ListItem, ListItemText, ListItemAvatar, Avatar } from '@mui/material';
+import {
+  Box,
+  Grid,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemAvatar,
+  Avatar,
+  FormControlLabel,
+  Checkbox,
+} from '@mui/material';
 import { download } from '@fireblocks/recovery-shared/lib/download';
+import AdmZip from 'adm-zip';
 import { useConnectionTest } from '../context/ConnectionTest';
 import { ChecksumModal } from '../components/Modals/ChecksumModal';
 
@@ -56,11 +68,13 @@ const generateRsaKeypair = (passphrase: string) =>
 const Setup = () => {
   const { isOnline } = useConnectionTest();
 
-  const [activeStep, setActiveStep] = useState<2 | 3 | 4 | 5>(2);
+  const [activeStep, setActiveStep] = useState<2 | 3 | 4 | 5 | 6 | 7>(2);
 
   const [rsaKeypair, setRsaKeypair] = useState<Keypair | null>(null);
 
   const [isChecksumModalOpen, setIsChecksumModalOpen] = useState(false);
+
+  const [step6Checked, setStep6Checked] = useState<boolean>(false);
 
   const onOpenChecksumModal = () => {
     setActiveStep(5);
@@ -69,11 +83,6 @@ const Setup = () => {
   };
 
   const onCloseChecksumModal = () => setIsChecksumModalOpen(false);
-
-  const downloadedFilesRef = useRef({
-    privateKey: false,
-    publicKey: false,
-  });
 
   useEffect(
     () => () => {
@@ -86,18 +95,6 @@ const Setup = () => {
     [rsaKeypair],
   );
 
-  const onDownload = (key: keyof typeof downloadedFilesRef.current) => {
-    downloadedFilesRef.current[key] = true;
-
-    const downloadedFiles = downloadedFilesRef.current;
-
-    if (downloadedFiles.privateKey && downloadedFiles.publicKey) {
-      setActiveStep(4);
-    } else if (downloadedFiles.privateKey) {
-      setActiveStep(3);
-    }
-  };
-
   const onGenerateRsaKeypair = async ({ passphrase }: FormData) => {
     if (!passphrase?.trim()) {
       return;
@@ -107,9 +104,19 @@ const Setup = () => {
 
     setRsaKeypair(keypair);
 
-    download(keypair.privateKey.data, 'fb-recovery-prv.pem', 'text/plain');
+    setActiveStep(3);
+  };
 
-    onDownload('privateKey');
+  const downloadKeys = async () => {
+    const zip = new AdmZip();
+    zip.addFile('privateKey.pem', Buffer.from(rsaKeypair!.privateKey.data));
+    zip.addFile('publicKey.pem', Buffer.from(rsaKeypair!.publicKey.data));
+
+    const zipBuf = zip.toBuffer();
+
+    download(zipBuf, `keys_${Math.floor(Date.now() / 1000)}.zip`, 'application/zip');
+
+    setActiveStep(4);
   };
 
   const {
@@ -124,13 +131,9 @@ const Setup = () => {
     },
   });
 
-  const hasPassphrase = !!watch('passphrase')?.trim();
-
   const machineSetupColor = isOnline ? theme.palette.error.main : theme.palette.success.main;
 
-  const finalStepsColor = activeStep > 4 ? theme.palette.primary.main : undefined;
-
-  const stepColor = (step: 2 | 3 | 4 | 5) => {
+  const stepColor = (step: 2 | 3 | 4 | 5 | 6 | 7) => {
     if (activeStep > step) {
       return theme.palette.success.main;
     }
@@ -156,18 +159,16 @@ const Setup = () => {
             secondary={
               <>
                 Ensure that this dedicated recovery machine is:
-                <ol>
-                  <li>
-                    <Typography color={machineSetupColor} fontWeight={isOnline ? 600 : undefined}>
-                      Offline and air-gapped
-                      {isOnline && '. This machine is connected to a network. Please disconnect.'}
-                    </Typography>
-                  </li>
-                  <li>Accessible only by necessary, authorized personnel</li>
-                  <li>Protected with a very strong password</li>
-                  <li>Encrypted on all partitions</li>
-                  <li>Stored in a safe box when not in use</li>
-                </ol>
+                <br />
+                <Typography color={machineSetupColor} fontWeight={isOnline ? 600 : undefined}>
+                  &nbsp;&nbsp;&nbsp;1.&nbsp; Offline and air-gapped
+                  {isOnline && ' This machine is connected to a network. Please disconnect.'}
+                </Typography>
+                &nbsp;&nbsp;&nbsp;2.&nbsp; Accessible only by necessary, authorized personnel
+                <br />
+                &nbsp;&nbsp;&nbsp;3.&nbsp; Protected with a very strong password <br />
+                &nbsp;&nbsp;&nbsp;4.&nbsp; Encrypted on all partitions <br />
+                &nbsp;&nbsp;&nbsp;5.&nbsp; Stored in a safe box when not in use
               </>
             }
           />
@@ -182,11 +183,12 @@ const Setup = () => {
             secondary={
               <>
                 <Typography variant='body1' paragraph>
-                  The recovery keypair is used for encrypting Fireblocks key shares and decrypting them in a disaster scenario.
+                  The recovery keypair is used as part of the key backup process to encrypt (and decrypt during disaster recovery)
+                  the key shares that form your private key.
                 </Typography>
                 <Typography fontWeight={600} paragraph>
                   Store your recovery private key and its passphrase redundantly in a secure location! You will need them to
-                  recover your Fireblocks assets.
+                  recover the assets you have stored in your Fireblocks wallets.
                 </Typography>
               </>
             }
@@ -200,16 +202,16 @@ const Setup = () => {
                 type='password'
                 label='Recovery Private Key Passphrase'
                 error={errors.passphrase?.message}
-                disabled={activeStep < 2}
+                disabled={activeStep < 2 || !!rsaKeypair}
                 {...register('passphrase')}
               />
             </Grid>
             <Grid item xs={6}>
-              <Button type='submit' color='primary' fullWidth disabled={!hasPassphrase || activeStep < 2}>
+              <Button type='submit' color='primary' fullWidth disabled={activeStep > 2}>
                 Generate Recovery Keys
               </Button>
             </Grid>
-            <Grid item xs={6}>
+            {/* <Grid item xs={6}>
               <Button
                 color='primary'
                 fullWidth
@@ -221,7 +223,7 @@ const Setup = () => {
               >
                 Download Private Key
               </Button>
-            </Grid>
+            </Grid> */}
           </Grid>
         </ListItem>
         <ListItem sx={{ alignItems: 'flex-start' }}>
@@ -229,24 +231,16 @@ const Setup = () => {
             <Avatar sx={{ background: stepColor(3) }}>3</Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary='Send the recovery public key to Fireblocks'
+            primary='Download the recovery keys and start backup process'
             primaryTypographyProps={{ variant: 'h2' }}
-            secondary='Upload the recovery public key to the Fireblocks Console > Settings > Key backup and recovery.'
+            secondary='Download the keys zip, extract the public key from the zip file and upload it to the Fireblocks Console by going to Settings > (General) > Key backup and recovery.'
           />
         </ListItem>
         <ListItem sx={{ paddingLeft: '4.5rem' }}>
           <Grid container spacing={2}>
             <Grid item xs={6}>
-              <Button
-                color='primary'
-                fullWidth
-                disabled={activeStep < 3}
-                onClick={() => onDownload('publicKey')}
-                component='a'
-                href={rsaKeypair?.publicKey.uri ?? ''}
-                download='fb-recovery-pub.pem'
-              >
-                Download Public Key
+              <Button color='primary' fullWidth disabled={activeStep < 3} onClick={() => downloadKeys()}>
+                Download Keys Zip
               </Button>
             </Grid>
           </Grid>
@@ -272,7 +266,7 @@ const Setup = () => {
         </ListItem>
         <ListItem sx={{ alignItems: 'flex-start' }}>
           <ListItemAvatar>
-            <Avatar sx={{ background: finalStepsColor }}>5</Avatar>
+            <Avatar sx={{ background: stepColor(5) }}>5</Avatar>
           </ListItemAvatar>
           <ListItemText
             primary='Download and secure the Recovery Kit'
@@ -289,13 +283,25 @@ const Setup = () => {
                   Store your Recovery Kit redundantly in a secure location, preferably not on the same machine that stores the
                   recovery private key! You will need it to recover your Fireblocks assets.
                 </Typography>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      onChange={(_, checked) => {
+                        setStep6Checked(!checked ? false : step6Checked);
+                        setActiveStep(checked ? 6 : 5);
+                      }}
+                    />
+                  }
+                  disabled={activeStep < 5}
+                  label='I have downloaded and secured the recovery kit'
+                />
               </>
             }
           />
         </ListItem>
         <ListItem sx={{ alignItems: 'flex-start' }}>
           <ListItemAvatar>
-            <Avatar sx={{ background: finalStepsColor }}>6</Avatar>
+            <Avatar sx={{ background: stepColor(6) }}>6</Avatar>
           </ListItemAvatar>
           <ListItemText
             primary='Check your key recovery materials'
@@ -306,24 +312,37 @@ const Setup = () => {
                   Ensure that you have securely and redundantly stored all key recovery materials to prepare for a disaster
                   recovery. All of the following materials must be accessible to recover your Fireblocks assets:
                 </Typography>
-                <ol>
-                  <li>Recovery private key</li>
-                  <li>Recovery private key passphrase</li>
-                  <li>Recovery Kit .ZIP file</li>
-                  <li>Owner&apos;s mobile app recovery passphrase</li>
-                </ol>
+                &nbsp;&nbsp;&nbsp;1.&nbsp;Recovery private key
+                <br />
+                &nbsp;&nbsp;&nbsp;2.&nbsp;Recovery private key passphrase
+                <br />
+                &nbsp;&nbsp;&nbsp;3.&nbsp;Recovery Kit .ZIP file <br />
+                &nbsp;&nbsp;&nbsp;4.&nbsp;Owner&apos;s mobile app recovery passphrase
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      onChange={(_, checked) => {
+                        setStep6Checked(checked);
+                        setActiveStep(checked ? 7 : 6);
+                      }}
+                    />
+                  }
+                  checked={step6Checked}
+                  disabled={activeStep < 6}
+                  label='I have verified I have all the recovery materials'
+                />
               </>
             }
           />
         </ListItem>
         <ListItem sx={{ alignItems: 'flex-start' }}>
           <ListItemAvatar>
-            <Avatar sx={{ background: finalStepsColor }}>7</Avatar>
+            <Avatar sx={{ background: stepColor(7) }}>7</Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary='Verify Recovery Kit'
+            primary='Verify the recovery kit'
             primaryTypographyProps={{ variant: 'h2' }}
-            secondary='Use Recovery Utility to verify that your recovery system can restore access to your Fireblocks assets in a disaster scenario. Check that the recovered Fireblocks extended public keys match the keys in your Fireblocks Console Settings. The public keys and private keys of all of wallets in this workspace are derived from the extended public keys and private keys.'
+            secondary='Use Recovery Utility to verify that your recovery kit infact matches the your workspace. Check that the recovered Fireblocks extended public keys match the keys in your Fireblocks Console Settings.'
           />
         </ListItem>
         <ListItem sx={{ paddingLeft: '4.5rem' }}>

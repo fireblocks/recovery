@@ -8,6 +8,6 @@ export const download = (data: BlobPart, filename: string, type: string) => {
   element.click();
 
   // TODO: Free up memory
-  // URL.revokeObjectURL(element.href);
-  // document.body.removeChild(element);
+  URL.revokeObjectURL(element.href);
+  document.body.removeChild(element);
 };
