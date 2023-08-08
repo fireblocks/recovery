@@ -59,9 +59,9 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
     const copiedTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const getData = () => {
-      if (typeof inputRef === 'function') {
-        return '';
-      }
+      // if (typeof inputRef === 'function') {
+      //   return '';
+      // }
 
       return (value as string) || inputRef?.current?.value || (defaultValue as string) || '';
     };

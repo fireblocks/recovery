@@ -3574,7 +3574,7 @@
     rxjs "^7.8.1"
     tslib "^2.5.3"
 
-"@polkadot/keyring@^12.2.1", "@polkadot/keyring@^12.3.1":
+"@polkadot/keyring@^12.2.1", "@polkadot/keyring@^12.3.1", "@polkadot/keyring@^12.3.2":
   version "12.3.2"
   resolved "https://registry.yarnpkg.com/@polkadot/keyring/-/keyring-12.3.2.tgz#112a0c28816a1f47edad6260dc94222c29465a54"
   integrity sha512-NTdtDeI0DP9l/45hXynNABeP5VB8piw5YR+CbUxK2e36xpJWVXwbcOepzslg5ghE9rs8UKJb30Z/HqTU4sBY0Q==
@@ -3592,7 +3592,7 @@
     "@substrate/ss58-registry" "^1.40.0"
     tslib "^2.5.3"
 
-"@polkadot/rpc-augment@10.9.1":
+"@polkadot/rpc-augment@10.9.1", "@polkadot/rpc-augment@^10.9.1":
   version "10.9.1"
   resolved "https://registry.yarnpkg.com/@polkadot/rpc-augment/-/rpc-augment-10.9.1.tgz#214ec3ee145d20caa61ea204041a3aadb89c6b0f"
   integrity sha512-MaLHkNlyqN20ZRYr6uNd1BZr1OsrnX9qLAmsl0mcrri1vPGRH6VHjfFH1RBLkikpWD82v17g0l2hLwdV1ZHMcw==
@@ -3645,7 +3645,7 @@
     "@polkadot/util" "^12.3.1"
     tslib "^2.5.3"
 
-"@polkadot/types-codec@10.9.1":
+"@polkadot/types-codec@10.9.1", "@polkadot/types-codec@^10.9.1":
   version "10.9.1"
   resolved "https://registry.yarnpkg.com/@polkadot/types-codec/-/types-codec-10.9.1.tgz#f30026d3dfeaa69c07c45fa66d1c39318fd232cc"
   integrity sha512-mJ5OegKGraY1FLvEa8FopRCr3pQrhDkcn5RNOjmgJQozENVeRaxhk0NwxYz7IojFvSDnKnc6lNQfKaaSe5pLHg==
@@ -3654,7 +3654,7 @@
     "@polkadot/x-bigint" "^12.3.1"
     tslib "^2.5.3"
 
-"@polkadot/types-create@10.9.1":
+"@polkadot/types-create@10.9.1", "@polkadot/types-create@^10.9.1":
   version "10.9.1"
   resolved "https://registry.yarnpkg.com/@polkadot/types-create/-/types-create-10.9.1.tgz#087d7e2af51cce558b67e3859613b932a3bdc0a3"
   integrity sha512-OVz50MGTTuiuVnRP/zAx4CTuLioc0hsiwNwqN2lNhmIJGtnQ4Vy/7mQRsIWehiYz6g0Vzzm5B3qWkTXO1NSN5w==
@@ -3663,7 +3663,7 @@
     "@polkadot/util" "^12.3.1"
     tslib "^2.5.3"
 
-"@polkadot/types-known@10.9.1":
+"@polkadot/types-known@10.9.1", "@polkadot/types-known@^10.9.1":
   version "10.9.1"
   resolved "https://registry.yarnpkg.com/@polkadot/types-known/-/types-known-10.9.1.tgz#fe0c7e55191aa843119edcaf9abb5d2471463a7d"
   integrity sha512-zCMVWc4pJtkbMFPu72bD4IhvV/gkHXPX3C5uu92WdmCfnn0vEIEsMKWlVXVVvQQZKAqvs/awpqIfrUtEViOGEA==
@@ -3713,7 +3713,7 @@
     "@scure/base" "1.1.1"
     tslib "^2.5.3"
 
-"@polkadot/util@12.3.2", "@polkadot/util@^12.3.1":
+"@polkadot/util@12.3.2", "@polkadot/util@^12.3.1", "@polkadot/util@^12.3.2":
   version "12.3.2"
   resolved "https://registry.yarnpkg.com/@polkadot/util/-/util-12.3.2.tgz#f46e147b0e6a426da5ba59df4ce65de1a3effe4a"
   integrity sha512-y/JShcGyOamCUiSIg++XZuLHt1ktSKBaSH2K5Nw5NXlgP0+7am+GZzqPB8fQ4qhYLruEOv+YRiz0GC1Zr9S+wg==

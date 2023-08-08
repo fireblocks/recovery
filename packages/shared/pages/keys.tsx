@@ -60,7 +60,8 @@ export const ExtendedKeysBasePage = ({ supportsPrivateKeys, extendedKeys, setExt
         </Typography>
       )}
       <Typography variant='body1' paragraph>
-        Addresses, public keys, and private keys of all of Fireblocks wallets are derived from extended public and private keys.
+        Addresses, public keys, and private keys of all of Fireblocks wallets are derived from your workspace's extended public
+        and private key.
       </Typography>
       <Typography variant='body1' paragraph>
         ECDSA extended keys (
@@ -105,6 +106,7 @@ export const ExtendedKeysBasePage = ({ supportsPrivateKeys, extendedKeys, setExt
             label='xpub (ECDSA)'
             error={errors.xpub?.message}
             enableCopy={!!extendedKeys?.xpub}
+            value={extendedKeys?.xpub}
             isMonospace
             endAdornment={
               extendedKeys?.xpub && extendedKeys.xprv ? (
@@ -123,6 +125,7 @@ export const ExtendedKeysBasePage = ({ supportsPrivateKeys, extendedKeys, setExt
             label='fpub (Fireblocks EdDSA)'
             error={errors.fpub?.message}
             enableCopy={!!extendedKeys?.fpub}
+            value={extendedKeys?.fpub}
             isMonospace
             endAdornment={
               extendedKeys?.fpub && extendedKeys.fprv ? (
