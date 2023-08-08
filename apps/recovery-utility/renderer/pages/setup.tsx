@@ -3,7 +3,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { pki } from 'node-forge';
-import { NextLinkComposed, TextField, Button, generateRsaKeypairInput, theme } from '@fireblocks/recovery-shared';
+import {
+  NextLinkComposed,
+  TextField,
+  Button,
+  generateRsaKeypairInput,
+  theme,
+  BaseModal,
+  monospaceFontFamily,
+} from '@fireblocks/recovery-shared';
 import {
   Box,
   Grid,
@@ -20,6 +28,7 @@ import { download } from '@fireblocks/recovery-shared/lib/download';
 import AdmZip from 'adm-zip';
 import { useConnectionTest } from '../context/ConnectionTest';
 import { ChecksumModal } from '../components/Modals/ChecksumModal';
+import { PublicKeyModal } from '../components/Modals/PublicKeyModal';
 
 type FormData = z.infer<typeof generateRsaKeypairInput>;
 
@@ -76,6 +85,8 @@ const Setup = () => {
 
   const [step6Checked, setStep6Checked] = useState<boolean>(false);
 
+  const [isPublicKeyModalOpen, setIsPublicKeyModalOpen] = useState<boolean>(false);
+
   const onOpenChecksumModal = () => {
     setActiveStep(5);
 
@@ -83,6 +94,8 @@ const Setup = () => {
   };
 
   const onCloseChecksumModal = () => setIsChecksumModalOpen(false);
+
+  const onClosePublicKeyModal = () => setIsPublicKeyModalOpen(false);
 
   useEffect(
     () => () => {
@@ -145,6 +158,8 @@ const Setup = () => {
 
     return undefined;
   };
+
+  const onShowPublicKeyModal = () => setIsPublicKeyModalOpen(true);
 
   return (
     <Box component='form' display='flex' flexDirection='column' marginBottom='2em' onSubmit={handleSubmit(onGenerateRsaKeypair)}>
@@ -263,6 +278,11 @@ const Setup = () => {
                 Start Approval
               </Button>
             </Grid>
+            <Grid item xs={6}>
+              <Button color='primary' fullWidth disabled={activeStep < 5} onClick={onShowPublicKeyModal}>
+                View Public Key
+              </Button>
+            </Grid>
           </Grid>
         </ListItem>
         <ListItem sx={{ alignItems: 'flex-start' }}>
@@ -357,6 +377,7 @@ const Setup = () => {
         </ListItem>
       </List>
       <ChecksumModal publicKey={rsaKeypair?.publicKey.data ?? ''} open={isChecksumModalOpen} onClose={onCloseChecksumModal} />
+      <PublicKeyModal publicKey={rsaKeypair?.publicKey.data ?? ''} open={isPublicKeyModalOpen} onClose={onClosePublicKeyModal} />
     </Box>
   );
 };
