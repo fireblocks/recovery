@@ -109,12 +109,13 @@ const Setup = () => {
 
   const downloadKeys = async () => {
     const zip = new AdmZip();
-    zip.addFile('privateKey.pem', Buffer.from(rsaKeypair!.privateKey.data));
-    zip.addFile('publicKey.pem', Buffer.from(rsaKeypair!.publicKey.data));
+    const timestamp = Math.floor(Date.now() / 1000);
+    zip.addFile(`privateKey_${timestamp}.pem`, Buffer.from(rsaKeypair!.privateKey.data));
+    zip.addFile(`publicKey_${timestamp}.pem`, Buffer.from(rsaKeypair!.publicKey.data));
 
     const zipBuf = zip.toBuffer();
 
-    download(zipBuf, `keys_${Math.floor(Date.now() / 1000)}.zip`, 'application/zip');
+    download(zipBuf, `keys_${timestamp}.zip`, 'application/zip');
 
     setActiveStep(4);
   };
