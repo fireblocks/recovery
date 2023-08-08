@@ -88,7 +88,7 @@ export const RecoveryForm = ({ verifyOnly }: Props) => {
 
   const onDropAGPRsaPrivateKey = async (file: File) => setValue('agpRsaKey', await readFileToBase64(file));
 
-  const onSubmit = (formData: FormData) => setRecoveryData(formData);
+  const onSubmit = (formData: FormData) => (verifyOnly ? recoverMutation.mutate(formData) : setRecoveryData(formData));
 
   const onConfirmRecover = () => recoverMutation.mutate(recoveryData as FormData);
 
@@ -204,7 +204,7 @@ export const RecoveryForm = ({ verifyOnly }: Props) => {
         </Grid>
       </Box>
       <BaseModal
-        open={!!recoveryData}
+        open={!!recoveryData && !verifyOnly}
         actions={
           <>
             <FormControlLabel
