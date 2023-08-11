@@ -8,9 +8,7 @@
   },
   "protocols": {
     "name": "Recovery Relay Responses",
-    "schemes": [
-      "fireblocks-recovery"
-    ],
+    "schemes": ["fireblocks-recovery"],
     "role": "Viewer"
   },
   "directories": {
@@ -20,10 +18,11 @@
   "files": [
     {
       "from": ".",
-      "filter": [
-        "package.json",
-        "app"
-      ]
+      "filter": ["package.json", "app"]
+    },
+    {
+      "from": "../recovery-relay",
+      "filter": ["package.json", "out"]
     },
     "!node_modules/**/*.{mk,a,o,h}"
   ],

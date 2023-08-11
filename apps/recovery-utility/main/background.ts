@@ -6,6 +6,7 @@ import isDev from 'electron-is-dev';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import path from 'path';
 import { registerFileProtocol } from './helpers';
+import { DeploymentStore } from './store/deployment';
 import './ipc';
 
 Object.assign(console, log.functions);
@@ -17,15 +18,32 @@ export let win: BrowserWindow | null = null;
 
 let relayUrl: string | undefined;
 
-const PROTOCOL = 'app';
+const deployment = DeploymentStore.get();
+
+console.info({ deployment });
+
+const PROTOCOLS = {
+  APP: {
+    directory: 'app',
+    scheme: 'app',
+    port: 8888,
+  },
+  RELAY: {
+    directory: '../recovery-relay/.out/',
+    scheme: 'relay',
+    port: 3000,
+  },
+} as const;
+
+const protocol = PROTOCOLS.RELAY;
+
 const RELAY_RESPONSE_PROTOCOL = 'fireblocks-recovery';
-const PORT = 8888; // Hardcoded; needs to match webpack.development.js and package.json
-const SELF_HOST = `http://localhost:${PORT}`;
+const SELF_HOST = `http://localhost:${protocol.port}`;
 const validOrigins = [SELF_HOST];
 
 const loadUrl = isDev
   ? async (window_ = win, params?: string) => window_?.loadURL(`${SELF_HOST}${params ? `?${params}` : ''}`)
-  : registerFileProtocol({ directory: PROTOCOL, scheme: PROTOCOL });
+  : registerFileProtocol({ directory: PROTOCOLS.RELAY.directory, scheme: PROTOCOLS.RELAY.scheme });
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -36,7 +54,11 @@ if (!gotTheLock) {
 const isValidUrl = (url: string) => {
   const parsedUrl = new URL(url);
 
-  return parsedUrl.protocol === `${PROTOCOL}:` || validOrigins.includes(parsedUrl.origin);
+  return (
+    parsedUrl.protocol === `${PROTOCOLS.APP}:` ||
+    parsedUrl.protocol === `${PROTOCOLS.RELAY}:` ||
+    validOrigins.includes(parsedUrl.origin)
+  );
 };
 
 const handleRelayUrl = (url = relayUrl) => {

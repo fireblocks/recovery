@@ -12,7 +12,7 @@ export class SettingsStore {
     /** only for obfuscation */
     encryptionKey: 'VmYq3t6v9y$B&E)H@McQfTjWnZr4u7x!',
     defaults: {
-      relayBaseUrl: 'https://relay.fireblocks.solutions',
+      relayBaseUrl: 'https://localhost:3000',
     },
   });
 
