@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Report, Restore, Verified, /* LeakAdd, */ ImportExport, ManageHistory, Settings } from '@mui/icons-material';
 import {
   Layout as BaseLayout,
@@ -9,6 +9,7 @@ import {
 } from '@fireblocks/recovery-shared';
 import { useConnectionTest } from '../../context/ConnectionTest';
 import { useWorkspace } from '../../context/Workspace';
+import { getDeployment } from '../../lib/ipc';
 
 type Props = {
   children: ReactNode;
@@ -18,6 +19,16 @@ export const Layout = ({ children }: Props) => {
   const { isOnline } = useConnectionTest();
 
   const { extendedKeys: { xpub, fpub, xprv, fprv } = {} } = useWorkspace();
+
+  const [protocol, setProtocol] = useState<'UTILITY' | 'RELAY' | null>(null);
+
+  useEffect(
+    () =>
+      void getDeployment().then((protocol) => {
+        setProtocol(protocol);
+      }),
+    [],
+  );
 
   const hasExtendedPrivateKeys = !!xprv || !!fprv;
   const hasExtendedPublicKeys = !!xpub || !!fpub;
@@ -84,8 +95,9 @@ export const Layout = ({ children }: Props) => {
       title='Recovery Utility'
       description='Recover Fireblocks assets and keys in a disaster, verify a Recovery Kit, or generate keys to set up a new Recovery Kit.'
       navLinks={navLinks}
+      isLoaded={!!protocol}
       notice={
-        isOnline ? (
+        isOnline && protocol === 'UTILITY' ? (
           <>
             <Report sx={{ marginRight: '0.5rem' }} />
             This machine is connected to a network. Please disconnect.

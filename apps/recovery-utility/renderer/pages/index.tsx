@@ -1,8 +1,9 @@
-import { ReactNode } from 'react';
-import { Grid, Typography, SxProps } from '@mui/material';
-import { ImportExport, ManageHistory, Restore, Verified, Warning } from '@mui/icons-material';
+import { ReactNode, useEffect, useState } from 'react';
+import { Grid, Typography, SxProps, CircularProgress, Box } from '@mui/material';
+import { ImportExport, ManageHistory, Restore, Verified, Warning, LeakAdd } from '@mui/icons-material';
 import { Button, NextLinkComposed, KeyIcon, VaultAccountIcon } from '@fireblocks/recovery-shared';
 import { useWorkspace } from '../context/Workspace';
+import { getDeployment, saveDeployment } from '../lib/ipc';
 
 const buttonStyles: SxProps = {
   padding: '0.2rem',
@@ -23,20 +24,21 @@ type BoxButtonProps = {
   title: ReactNode;
   description: ReactNode;
   color: 'primary' | 'error';
-  href: string;
+  href?: string;
   disabled?: boolean;
+  onClick?: VoidFunction;
 };
 
-const BoxButton = ({ icon: Icon, title, description, color = 'primary', href, disabled }: BoxButtonProps) => (
+const BoxButton = ({ icon: Icon, title, description, color = 'primary', href, disabled, onClick }: BoxButtonProps) => (
   <Button
-    component={NextLinkComposed}
-    to={href}
+    {...(href ? { to: href, component: NextLinkComposed } : {})}
     size='large'
     variant='outlined'
     color={color}
     fullWidth
     disabled={disabled}
     sx={buttonStyles}
+    onClick={onClick}
   >
     <Icon sx={iconStyles} />
     <Typography fontWeight='600' fontSize='1rem'>
@@ -52,6 +54,70 @@ const Index = () => {
   const { extendedKeys: { xpub, fpub, xprv, fprv } = {} } = useWorkspace();
 
   const hasExtendedKeys = !!xpub || !!fpub || !!xprv || !!fprv;
+
+  const [loading, setLoading] = useState(true);
+  const [protocol, setProtocol] = useState<'UTILITY' | 'RELAY' | null>(null);
+
+  const onClickDeployment = async (_protocol: 'UTILITY' | 'RELAY') => saveDeployment(_protocol);
+
+  useEffect(
+    () =>
+      void getDeployment().then((protocol) => {
+        setLoading(false);
+        setProtocol(protocol);
+      }),
+    [],
+  );
+
+  if (loading) {
+    return (
+      <Box display='flex' alignItems='center' justifyContent='center' height='100%'>
+        <CircularProgress
+          size='48px'
+          color='primary'
+          sx={(theme) => ({
+            color: theme.palette.primary.main,
+            marginTop: '-24px',
+            marginLeft: '-24px',
+          })}
+        />
+      </Box>
+    );
+  }
+
+  if (!protocol) {
+    return (
+      <Grid container justifyContent='center' alignItems='center' height='100%' padding='0.5rem'>
+        <Grid item xs={11}>
+          <Grid container spacing={2} display='flex' alignItems='center' justifyContent='center'>
+            <Grid item xs={12}>
+              <Typography variant='h2' marginBottom='0' textAlign='center'>
+                Install Fireblocks Recovery
+              </Typography>
+            </Grid>
+            <Grid item xs={4}>
+              <BoxButton
+                icon={Restore}
+                title='Install Recovery Utility'
+                description='Prepare, verify, and perform workspace recovery. ONLY INSTALL ON AN OFFLINE, AIR-GAPPED MACHINE!'
+                color='error'
+                onClick={() => onClickDeployment('UTILITY')}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <BoxButton
+                icon={LeakAdd}
+                title='Install Recovery Relay'
+                description='Securely withdraw from recovered wallets'
+                color='primary'
+                onClick={() => onClickDeployment('RELAY')}
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    );
+  }
 
   return (
     <Grid container justifyContent='center' alignItems='center' height='100%' padding='0.5rem'>

@@ -52,10 +52,6 @@ venv.bak/
 .env.test.local
 .env.production.local
 
-# Service worker
-sw.js
-workbox-*.js
-
 # Custom scripts w/ environment variables
 *.local.sh
 

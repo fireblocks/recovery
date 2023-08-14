@@ -21,8 +21,9 @@
     "defaultBranch": "main"
   },
   "scripts": {
-    "postinstall": "manypkg check",
+    "postinstall": "manypkg fix",
     "prepare": "./scripts/prepare.sh",
+    "dev": "concurrently \"yarn workspace @fireblocks/recovery-relay dev\" \"yarn wait-on tcp:3000 && yarn workspace @fireblocks/recovery-utility dev\"",
     "clean": "[ -f scripts/clean.local.sh ] && ./scripts/clean.local.sh || ./scripts/clean.sh",
     "build": "[ -f scripts/build.local.sh ] && ./scripts/build.local.sh || ./scripts/build.sh",
     "forcebuild": "yarn turbo run build --force",
@@ -49,10 +50,12 @@
     "@commitlint/prompt-cli": "^17.6.6",
     "@manypkg/cli": "^0.21.0",
     "@typescript-eslint/utils": "^5.61.0",
+    "concurrently": "^8.2.0",
     "husky": "^8.0.3",
     "is-ci": "^3.0.1",
     "lint-staged": "^13.2.3",
     "react-dom": "^18.2.0",
-    "turbo": "^1.10.7"
+    "turbo": "^1.10.12",
+    "wait-on": "^7.0.1"
   }
 }

@@ -11,6 +11,7 @@ export type LayoutProps = SidebarProps & {
   description: string;
   notice?: ReactNode;
   noticeLevel?: 'error' | 'warning' | 'info' | 'success';
+  isLoaded?: boolean;
   children: ReactNode;
 };
 
@@ -36,7 +37,15 @@ const icons = [32, 180, 192, 270].reduce(
   {} as Record<number, string>,
 );
 
-export const Layout = ({ children, title, description, navLinks, notice, noticeLevel = 'info' }: LayoutProps) => {
+export const Layout = ({
+  children,
+  title,
+  description,
+  navLinks,
+  notice,
+  noticeLevel = 'info',
+  isLoaded = true,
+}: LayoutProps) => {
   const { pathname } = useRouter();
 
   const isHome = pathname === '/';
@@ -79,37 +88,43 @@ export const Layout = ({ children, title, description, navLinks, notice, noticeL
         <link rel='icon' href={icons[192]} sizes='192x192' />
         <link rel='apple-touch-icon' href={icons[180]} />
       </Head>
-      <Box
-        height='100%'
-        display='grid'
-        gridTemplateColumns={`${isHome ? '1fr' : '225px 1fr'}`}
-        gridTemplateRows={`${notice ? 'min-content ' : ''} 1fr`}
-        gridTemplateAreas={`${notice ? '"notice notice" ' : ''} ${isHome ? '"main main"' : '"sidebar main"'}`}
-      >
-        {!!notice && (
-          <Box
-            component='aside'
-            gridArea='notice'
-            padding='0.5em 1em'
-            display='flex'
-            alignItems='center'
-            justifyContent='center'
-            textAlign='center'
-            fontWeight='600'
-            color='#FFF'
-            zIndex='2'
-            sx={(t) => ({
-              ...(noticeLevel === 'error' ? errorNoticeSx(t) : { backgroundColor: t.palette[noticeLevel].main }),
-            })}
-          >
-            {notice}
+      {isLoaded ? (
+        <Box
+          height='100%'
+          display='grid'
+          gridTemplateColumns={`${isHome ? '1fr' : '225px 1fr'}`}
+          gridTemplateRows={`${notice ? 'min-content ' : ''} 1fr`}
+          gridTemplateAreas={`${notice ? '"notice notice" ' : ''} ${isHome ? '"main main"' : '"sidebar main"'}`}
+        >
+          {!!notice && (
+            <Box
+              component='aside'
+              gridArea='notice'
+              padding='0.5em 1em'
+              display='flex'
+              alignItems='center'
+              justifyContent='center'
+              textAlign='center'
+              fontWeight='600'
+              color='#FFF'
+              zIndex='2'
+              sx={(t) => ({
+                ...(noticeLevel === 'error' ? errorNoticeSx(t) : { backgroundColor: t.palette[noticeLevel].main }),
+              })}
+            >
+              {notice}
+            </Box>
+          )}
+          {!isHome && <Sidebar title={title} navLinks={navLinks} />}
+          <Box component='main' gridArea='main' padding='1em' overflow='auto'>
+            {children}
           </Box>
-        )}
-        {!isHome && <Sidebar title={title} navLinks={navLinks} />}
-        <Box component='main' gridArea='main' padding='1em' overflow='auto'>
+        </Box>
+      ) : (
+        <Box height='100%' padding='1em' overflow='auto'>
           {children}
         </Box>
-      </Box>
+      )}
     </>
   );
 };

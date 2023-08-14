@@ -1,11 +1,24 @@
 import Store from 'electron-store';
 
+export const PROTOCOLS = {
+  UTILITY: {
+    directory: 'app',
+    scheme: 'app',
+    port: 8888,
+  },
+  RELAY: {
+    directory: 'relay',
+    scheme: 'relay',
+    port: 3000,
+  },
+} as const;
+
 export type Deployment = {
-  app: 'utility' | 'relay';
+  protocol: keyof typeof PROTOCOLS | null;
 };
 
 export class DeploymentStore {
-  private static _keys = ['app'] as const;
+  private static _keys = ['protocol'] as const;
 
   private static _store = new Store<Deployment>({
     name: 'deployment',
@@ -20,8 +33,8 @@ export class DeploymentStore {
     return deployment;
   }
 
-  public static set(data: Deployment) {
-    DeploymentStore._keys.forEach((key) => DeploymentStore._store.set(key, data[key]));
+  public static set(protocol: 'UTILITY' | 'RELAY') {
+    DeploymentStore._store.set('protocol', protocol);
   }
 
   public static reset() {

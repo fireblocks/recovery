@@ -21,8 +21,8 @@
       "filter": ["package.json", "app"]
     },
     {
-      "from": "../recovery-relay",
-      "filter": ["package.json", "out"]
+      "from": "../recovery-relay/out",
+      "to": "relay"
     },
     "!node_modules/**/*.{mk,a,o,h}"
   ],

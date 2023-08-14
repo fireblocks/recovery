@@ -1,10 +1,3 @@
-// @ts-ignore
-const withPWA = require('next-pwa')({
-  dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
-  reloadOnOnline: false,
-});
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -13,9 +6,13 @@ const nextConfig = {
   // eslint-disable-next-line turbo/no-undeclared-env-vars
   eslint: { ignoreDuringBuilds: true }, // !!process.env.CI },
   transpilePackages: ['@fireblocks/asset-config', '@fireblocks/recovery-shared', '@fireblocks/wallet-derivation'],
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     // Fixes npm packages that depend on `fs` module
     config.resolve.fallback = { fs: false };
+
+    if (!isServer) {
+      config.target = 'electron-renderer';
+    }
 
     return {
       ...config,
@@ -24,16 +21,8 @@ const nextConfig = {
         asyncWebAssembly: true,
       },
     };
-
-    // webpack: (config) => ({
-    //   ...config,
-    //   experiments: {
-    //     ...config.experiments,
-    //     asyncWebAssembly: true,
-    //   },
-    // }),
   },
 };
 
 // @ts-ignore
-module.exports = withPWA(nextConfig);
+module.exports = nextConfig;

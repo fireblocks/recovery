@@ -3,10 +3,10 @@ import log from 'electron-log';
 
 import { app, session, systemPreferences, BrowserWindow } from 'electron';
 import isDev from 'electron-is-dev';
-import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
+// import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import path from 'path';
 import { registerFileProtocol } from './helpers';
-import { DeploymentStore } from './store/deployment';
+import { DeploymentStore, PROTOCOLS } from './store/deployment';
 import './ipc';
 
 Object.assign(console, log.functions);
@@ -18,32 +18,18 @@ export let win: BrowserWindow | null = null;
 
 let relayUrl: string | undefined;
 
+const DEFAULT_PROTOCOL = 'UTILITY';
 const deployment = DeploymentStore.get();
-
-console.info({ deployment });
-
-const PROTOCOLS = {
-  APP: {
-    directory: 'app',
-    scheme: 'app',
-    port: 8888,
-  },
-  RELAY: {
-    directory: '../recovery-relay/.out/',
-    scheme: 'relay',
-    port: 3000,
-  },
-} as const;
-
-const protocol = PROTOCOLS.RELAY;
+const protocol = deployment?.protocol || DEFAULT_PROTOCOL;
+const { directory, scheme, port } = PROTOCOLS[protocol];
+const schemes = Object.keys(PROTOCOLS).map((key) => PROTOCOLS[key as keyof typeof PROTOCOLS].scheme);
 
 const RELAY_RESPONSE_PROTOCOL = 'fireblocks-recovery';
-const SELF_HOST = `http://localhost:${protocol.port}`;
-const validOrigins = [SELF_HOST];
+const validOrigins = [`http://localhost:${PROTOCOLS.UTILITY.port}`, `http://localhost:${PROTOCOLS.RELAY.port}`];
 
 const loadUrl = isDev
-  ? async (window_ = win, params?: string) => window_?.loadURL(`${SELF_HOST}${params ? `?${params}` : ''}`)
-  : registerFileProtocol({ directory: PROTOCOLS.RELAY.directory, scheme: PROTOCOLS.RELAY.scheme });
+  ? async (window_ = win, params?: string) => window_?.loadURL(`http://localhost:${port}${params ? `?${params}` : ''}`)
+  : registerFileProtocol({ directory, scheme });
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -53,12 +39,7 @@ if (!gotTheLock) {
 
 const isValidUrl = (url: string) => {
   const parsedUrl = new URL(url);
-
-  return (
-    parsedUrl.protocol === `${PROTOCOLS.APP}:` ||
-    parsedUrl.protocol === `${PROTOCOLS.RELAY}:` ||
-    validOrigins.includes(parsedUrl.origin)
-  );
+  return (schemes as string[]).map((s) => `${s}:`).includes(parsedUrl.protocol) || validOrigins.includes(parsedUrl.origin);
 };
 
 const handleRelayUrl = (url = relayUrl) => {
@@ -69,7 +50,7 @@ const handleRelayUrl = (url = relayUrl) => {
   }
 };
 
-async function createWindow() {
+export async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
     width: 845,
@@ -107,23 +88,23 @@ async function createWindow() {
   });
 
   // Only do these things when in development
-  if (isDev) {
-    // Errors are thrown if the dev tools are opened
-    // before the DOM is ready
-    win.webContents.once('dom-ready', async () => {
-      try {
-        const extensionName = await installExtension([REACT_DEVELOPER_TOOLS]);
-        // eslint-disable-next-line no-console
-        console.info(`Added Chrome extension: ${extensionName}`);
-      } catch (error) {
-        console.error('An error occurred: ', error);
-      } finally {
-        // eslint-disable-next-line global-require
-        require('electron-debug')(); // https://github.com/sindresorhus/electron-debug
-        win?.webContents.openDevTools();
-      }
-    });
-  }
+  // if (isDev) {
+  //   // Errors are thrown if the dev tools are opened
+  //   // before the DOM is ready
+  //   win.webContents.once('dom-ready', async () => {
+  //     try {
+  //       const extensionName = await installExtension([REACT_DEVELOPER_TOOLS]);
+  //       // eslint-disable-next-line no-console
+  //       console.info(`Added Chrome extension: ${extensionName}`);
+  //     } catch (error) {
+  //       console.error('An error occurred: ', error);
+  //     } finally {
+  //       // eslint-disable-next-line global-require
+  //       require('electron-debug')(); // https://github.com/sindresorhus/electron-debug
+  //       win?.webContents.openDevTools();
+  //     }
+  //   });
+  // }
 
   // Handle Relay URLs
   win.webContents.once('dom-ready', () => handleRelayUrl());
@@ -239,7 +220,5 @@ app.on('second-instance', (event, commandLine) => {
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
   createWindow();
-
-  // TODO: Use IPC to request camera access only when on /relay page
-  systemPreferences.askForMediaAccess('camera');
+  void systemPreferences.askForMediaAccess('camera');
 });
