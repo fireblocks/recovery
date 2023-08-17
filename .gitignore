@@ -54,6 +54,7 @@ venv.bak/
 
 # Custom scripts w/ environment variables
 *.local.sh
+*.p8
 
 # App Store Connect API keys
 private_keys/
@@ -83,16 +84,6 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
