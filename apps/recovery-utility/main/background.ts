@@ -222,3 +222,7 @@ app.on('ready', () => {
   createWindow();
   void systemPreferences.askForMediaAccess('camera');
 });
+
+app.on('window-all-closed', () => {
+  DeploymentStore.set(null);
+});

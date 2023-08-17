@@ -3,7 +3,7 @@ import { Grid, Typography, SxProps, CircularProgress, Box } from '@mui/material'
 import { ImportExport, ManageHistory, Restore, Verified, Warning, LeakAdd } from '@mui/icons-material';
 import { Button, NextLinkComposed, KeyIcon, VaultAccountIcon } from '@fireblocks/recovery-shared';
 import { useWorkspace } from '../context/Workspace';
-import { getDeployment, saveDeployment } from '../lib/ipc';
+import { getDeployment, useDeployment } from '../lib/ipc';
 
 const buttonStyles: SxProps = {
   padding: '0.2rem',
@@ -58,7 +58,7 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const [protocol, setProtocol] = useState<'UTILITY' | 'RELAY' | null>(null);
 
-  const onClickDeployment = async (_protocol: 'UTILITY' | 'RELAY') => saveDeployment(_protocol);
+  const onClickDeployment = async (_protocol: 'UTILITY' | 'RELAY') => useDeployment(_protocol);
 
   useEffect(
     () =>
@@ -92,14 +92,20 @@ const Index = () => {
           <Grid container spacing={2} display='flex' alignItems='center' justifyContent='center'>
             <Grid item xs={12}>
               <Typography variant='h2' marginBottom='0' textAlign='center'>
-                Install Fireblocks Recovery
+                Fireblocks Recovery Configuration
               </Typography>
             </Grid>
             <Grid item xs={4}>
               <BoxButton
                 icon={Restore}
-                title='Install Recovery Utility'
-                description='Prepare, verify, and perform workspace recovery. ONLY INSTALL ON AN OFFLINE, AIR-GAPPED MACHINE!'
+                title='Use the Recovery Utility'
+                description={
+                  <>
+                    Prepare, verify, and perform workspace recovery.
+                    <br />
+                    ONLY USE ON AN OFFLINE, AIR-GAPPED MACHINE!
+                  </>
+                }
                 color='error'
                 onClick={() => onClickDeployment('UTILITY')}
               />
@@ -107,7 +113,7 @@ const Index = () => {
             <Grid item xs={4}>
               <BoxButton
                 icon={LeakAdd}
-                title='Install Recovery Relay'
+                title='Use the Recovery Relay'
                 description='Securely withdraw from recovered wallets'
                 color='primary'
                 onClick={() => onClickDeployment('RELAY')}

@@ -33,7 +33,7 @@ export class DeploymentStore {
     return deployment;
   }
 
-  public static set(protocol: 'UTILITY' | 'RELAY') {
+  public static set(protocol: 'UTILITY' | 'RELAY' | null) {
     DeploymentStore._store.set('protocol', protocol);
   }
 
