@@ -6,11 +6,13 @@ import {
   BaseWorkspaceContext,
   RelayRequestParams,
   RelayResponseParams,
+  getLogger,
 } from '@fireblocks/recovery-shared';
 import { getAssetConfig } from '@fireblocks/asset-config';
 import { useQuery } from '@tanstack/react-query';
 import packageJson from '../package.json';
 import { WalletClasses, Derivation } from '../lib/wallets';
+import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
 
 type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K> : never;
 
@@ -19,6 +21,8 @@ type RelayResponseParamsInput = DistributiveOmit<RelayResponseParams, 'version' 
 type WorkspaceContext = Omit<BaseWorkspaceContext<Derivation, 'relay'>, 'getOutboundRelayUrl'> & {
   getOutboundRelayUrl: <Params extends RelayResponseParamsInput>(params: Params) => string;
 };
+
+const logger = getLogger(LOGGER_NAME_RELAY);
 
 const defaultValue: WorkspaceContext = {
   ...(defaultBaseWorkspaceContext as BaseWorkspaceContext<Derivation, 'relay'>),
@@ -39,6 +43,8 @@ const fetchUtilityReleasesUrl = async (currentUtilityVersion: string) => {
 
   const latestUtilityVersion = remotePackageJson.version;
 
+  logger.info('Checking for Recovery Utility releases', { currentUtilityVersion, latestUtilityVersion });
+
   if (semver.gt(latestUtilityVersion, currentUtilityVersion)) {
     const releasesUrl = remotePackageJson.repository.replace(/tree.*/g, 'releases');
 
@@ -53,6 +59,7 @@ const getInboundRelayWalletIds = (inboundRelayParams?: RelayRequestParams) => {
     return null;
   }
 
+  logger.info('Inbound Relay params', inboundRelayParams);
   switch (inboundRelayParams.action) {
     case 'import':
       return {

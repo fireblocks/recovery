@@ -54,11 +54,13 @@ export class Tezos extends BaseXTZ implements ConnectedWallet {
     extraParams.set(this.KEY_HEAD_COUNTER, headCounter);
     extraParams.set(this.KEY_REVEAL, revealNeeded);
 
-    return {
+    const preparedData = {
       balance,
       extraParams,
       feeRate: estimate.totalCost,
     };
+    this.relayLogger.debug(`Tezos: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData;
   }
 
   public async broadcastTx(tx: string): Promise<string> {
@@ -71,10 +73,12 @@ export class Tezos extends BaseXTZ implements ConnectedWallet {
           'Content-Type': 'application/json',
         },
       });
+      this.relayLogger.debug(`Tezos: Tx broadcasted: ${JSON.stringify(res, null, 2)}`);
       return res.data;
       // return await this.tezos.rpc.injectOperation(tx);
     } catch (e: any) {
       const resData = e.response.data;
+      this.relayLogger.error(`Tezos: Error broadcasting tx: ${JSON.stringify(resData, null, 2)}`);
       if (resData) {
         throw Error(resData.map((data: any) => data.msg).join(' and '));
       } else {

@@ -92,7 +92,7 @@ export class ZEC extends BaseZEC implements ConnectedWallet {
     const utxos = await this._getAddressUTXOs();
     const balance = ZEC._satsToBtc(utxos.map((utxo) => utxo.value).reduce((p, c) => p + c));
 
-    return {
+    const preparedData = {
       balance,
       utxos: utxos.map(
         (utxo: BlockchairUTXO) =>
@@ -105,6 +105,9 @@ export class ZEC extends BaseZEC implements ConnectedWallet {
       ),
       utxoType: BaseUTXOType,
     };
+
+    this.relayLogger.debug(`ZEC: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData as AccountData;
   }
 
   public async generateTx(
@@ -165,14 +168,19 @@ export class ZEC extends BaseZEC implements ConnectedWallet {
   ): Promise<string> {
     // BTC Tx are automatically signed and resulting hex is signed, so no need to do anything special.
     // const tx = Psbt.fromHex(txHex, { network: this.network });
-    const txBroadcastRes = await this._request('/push/transaction', {
-      method: 'POST',
-      body: txHex,
-    });
+    try {
+      const txBroadcastRes = await this._request('/push/transaction', {
+        method: 'POST',
+        body: txHex,
+      });
 
-    const txHash = await txBroadcastRes.text();
-
-    return txHash;
+      const txHash = await txBroadcastRes.text();
+      this.relayLogger.debug(`ZEC: Tx broadcasted: ${JSON.stringify(txBroadcastRes, null, 2)}`);
+      return txHash;
+    } catch (e) {
+      this.relayLogger.error(`ZEC: Error broadcasting tx: ${(e as Error).message}`);
+      throw e;
+    }
   }
 
   public async getBalance() {

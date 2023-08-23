@@ -64,6 +64,8 @@ export class Cardano extends BaseCardano implements SigningWallet {
     txBuilder.add_change_if_needed(Address.from_bech32(this.address));
     const txBody = txBuilder.build();
 
+    this.utilityLogger.debug(`Cardano: Signing tx: ${JSON.stringify(txBody.to_json(), null, 2)}`);
+
     const sigHex = Buffer.from(await this.sign(blake2b(32).update(txBody.to_bytes()).digest())).toString('hex');
     const sig = Ed25519Signature.from_hex(sigHex);
     const publicKey = PublicKey.from_hex(this.publicKey.replace('0x', ''));

@@ -122,6 +122,8 @@ export abstract class EdDSAWallet extends BaseWallet {
     const publicKey = `0x${pubKey.toHex()}`;
     const privateKey = prvKey ? toBeHex(prvKey) : undefined;
 
+    this.sharedLogger.info('Derived EdDSA wallet', { publicKey });
+
     return { publicKey, privateKey };
   }
 

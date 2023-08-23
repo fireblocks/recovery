@@ -45,11 +45,14 @@ export class Kusama extends BaseKSM implements ConnectedWallet {
     extraParams.set(this.KEY_SPEC_NAME, specName);
     extraParams.set(this.KEY_TX_VER, transactionVersion);
 
-    return {
+    const preparedData = {
       balance,
       nonce: nonce.toNumber(),
       extraParams,
     };
+
+    this.relayLogger.debug(`Kusama: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData;
   }
 
   public async broadcastTx(tx: string): Promise<string> {
@@ -57,9 +60,10 @@ export class Kusama extends BaseKSM implements ConnectedWallet {
     try {
       const txHash = construct.txHash(tx);
       await this.api!.rpc.author.submitAndWatchExtrinsic(tx);
+      this.relayLogger.debug(`Kusama: Tx broadcasted: ${txHash}`);
       return txHash;
     } catch (e) {
-      console.log(e);
+      this.relayLogger.error(`Kusama: Error broadcasting tx: ${e}`);
       throw e;
     }
   }

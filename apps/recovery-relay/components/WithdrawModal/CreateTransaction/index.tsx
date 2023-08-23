@@ -13,11 +13,15 @@ import {
   transactionInput,
   RelayCreateTxRequestParams,
   RelaySignTxResponseParams,
+  getLogger,
 } from '@fireblocks/recovery-shared';
 import { AssetConfig } from '@fireblocks/asset-config';
 import { useWorkspace } from '../../../context/Workspace';
 import { Derivation, AccountData } from '../../../lib/wallets';
 import { LateInitConnectedWallet } from '../../../lib/wallets/LateInitConnectedWallet';
+import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
+
+const logger = getLogger(LOGGER_NAME_RELAY);
 
 const getWallet = (accounts: Map<number, VaultAccount<Derivation>>, accountId?: number, assetId?: string) => {
   if (typeof accountId === 'undefined' || typeof assetId === 'undefined') {
@@ -165,7 +169,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
   const balanceId = useId();
   const addressExplorerId = useId();
 
-  console.info({
+  logger.info('Parameters for CreateTransaction ', {
     txId,
     accountId,
     values,

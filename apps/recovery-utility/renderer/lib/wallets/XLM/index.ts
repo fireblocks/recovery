@@ -36,6 +36,7 @@ export class Stellar extends BaseStellar implements SigningWallet {
     }
 
     const tx = txBuilder.build();
+    this.utilityLogger.info(`Stellar: Signing tx: ${JSON.stringify(tx.toXDR(), null, 2)}`);
     const sig = await this.sign(tx.hash());
     tx.addSignature(this.address, Buffer.from(sig).toString('base64'));
     return {

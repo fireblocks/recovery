@@ -1,6 +1,8 @@
 import { LocalFile, parse, unparse } from 'papaparse';
 import { z } from 'zod';
 import { addressesCsv, AddressesCsv, balancesCsv, BalancesCsv } from '../schemas';
+import { getLogger } from './getLogger';
+import { LOGGER_NAME_SHARED } from '../constants';
 
 /**
  * Addresses CSV row
@@ -66,6 +68,8 @@ const balancesCsvHeaders: Array<keyof AddressesCsvRow | keyof BalancesCsvRow> = 
   'HD Path',
 ];
 
+const logger = getLogger(LOGGER_NAME_SHARED);
+
 const parseRow = <T extends 'addresses' | 'balances'>(row: T extends 'addresses' ? AddressesCsvRow : BalancesCsvRow, type: T) => {
   try {
     if (type === 'addresses') {
@@ -85,7 +89,7 @@ const parseRow = <T extends 'addresses' | 'balances'>(row: T extends 'addresses'
       } = row as AddressesCsvRow;
 
       const pathParts = path.match(/(\d+)/g)?.map(Number);
-
+      logger.debug('parseRow', { pathParts });
       return addressesCsv.parse({
         accountName,
         accountId,
@@ -124,7 +128,7 @@ const parseRow = <T extends 'addresses' | 'balances'>(row: T extends 'addresses'
       partialPathParts,
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
 
     throw new Error('Failed to parse CSV row');
   }
@@ -143,6 +147,7 @@ export const csvImport = async <T extends 'addresses' | 'balances'>(
       skipEmptyLines: 'greedy',
       fastMode: true,
       step: ({ data, errors }) => {
+        logger.debug('csvImport', { data, errors });
         if (errors.length > 0) {
           reject(errors.length > 1 ? errors : errors[0]);
           return;

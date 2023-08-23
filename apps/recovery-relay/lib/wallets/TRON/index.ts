@@ -36,19 +36,24 @@ export class Tron extends BaseTron implements ConnectedWallet {
     const extraParams = new Map<string, any>();
     // extraParams.set(this.KEY_TX, superjson.stringify(tx));
     extraParams.set(this.KEY_METADATA, metadata);
-    return {
+    const preparedData = {
       balance,
       extraParams,
       insufficientBalance: balance < 0.001,
     };
+
+    this.relayLogger.debug(`Tron: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData;
   }
 
   public async broadcastTx(txHex: string): Promise<string> {
     const tx = superjson.parse<object>(txHex);
     const hash = await this.tronWeb.trx.sendRawTransaction(tx);
     if ('code' in hash) {
+      this.relayLogger.error(`Tron: Error broadcasting tx: ${JSON.stringify(hash, null, 2)}`);
       throw new Error(hash.code);
     }
+    this.relayLogger.debug(`Tron: Tx broadcasted: ${hash.txid}`);
     //@ts-ignore
     return hash.txid;
   }

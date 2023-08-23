@@ -9,7 +9,7 @@ export class EVM extends EVMBase implements ConnectedWallet {
   constructor(input: Input, rpcEndpoint: string, chainId?: number) {
     super(input);
 
-    console.info('EVM', { rpcEndpoint, chainId, input });
+    this.relayLogger.info('Creating EVM wallet:', { rpcEndpoint, chainId, input });
 
     this.provider = new JsonRpcProvider(rpcEndpoint, chainId);
   }
@@ -46,16 +46,24 @@ export class EVM extends EVMBase implements ConnectedWallet {
       console.error('Insufficient balance');
     }
 
-    return {
+    const preparedData = {
       balance: Number(formatEther(adjustedBalance)),
       nonce,
       gasPrice,
     };
+
+    this.relayLogger.debug(`EVM: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData;
   }
 
   public async broadcastTx(tx: string): Promise<string> {
-    const { hash } = await this.provider.broadcastTransaction(tx);
-
-    return hash;
+    try {
+      const txRes = await this.provider.broadcastTransaction(tx);
+      this.relayLogger.debug(`EVM: Tx broadcasted: ${JSON.stringify(txRes, null, 2)}`);
+      return txRes.hash;
+    } catch (e) {
+      this.relayLogger.error(`EVM: Error broadcasting tx: ${(e as Error).message}`);
+      throw e;
+    }
   }
 }

@@ -1,9 +1,8 @@
 import { Near as BaseNEAR } from '@fireblocks/wallet-derivation';
 import { connect, Near as NearApi } from 'near-api-js';
-import { Signature, SignedTransaction, Transaction } from 'near-api-js/lib/transaction';
-import { AccountData, RawSignature } from '../types';
+import { SignedTransaction } from 'near-api-js/lib/transaction';
+import { AccountData } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
-import BigNumber from 'bignumber.js';
 
 export class Near extends BaseNEAR implements ConnectedWallet {
   private near: NearApi | undefined;
@@ -26,19 +25,28 @@ export class Near extends BaseNEAR implements ConnectedWallet {
     const extraParams = new Map<string, any>();
     extraParams.set(this.KEY_NONCE, nonce);
     extraParams.set(this.KEY_HASH, hash);
-    return {
+    const preparedData = {
       balance,
       extraParams,
       insufficientBalance: balance < 1e-10,
     };
+
+    this.relayLogger.debug(`NEAR: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData;
   }
 
   public async broadcastTx(txHex: string): Promise<string> {
-    await this._getApi();
-    const near = this.near!;
-    const signedTx = SignedTransaction.decode(Buffer.from(txHex, 'hex'));
-    const txRes = await near.connection.provider.sendTransaction(signedTx);
-    return txRes.transaction_outcome.id;
+    try {
+      await this._getApi();
+      const near = this.near!;
+      const signedTx = SignedTransaction.decode(Buffer.from(txHex, 'hex'));
+      const txRes = await near.connection.provider.sendTransaction(signedTx);
+      this.relayLogger.debug(`NEAR: Tx broadcasted: ${txRes.transaction_outcome.id}`);
+      return txRes.transaction_outcome.id;
+    } catch (e) {
+      this.relayLogger.error(`NEAR: Error broadcasting tx: ${e}`);
+      throw e;
+    }
   }
 
   private async _getApi(): Promise<void> {

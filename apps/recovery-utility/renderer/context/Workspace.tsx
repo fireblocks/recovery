@@ -4,6 +4,9 @@ import {
   defaultBaseWorkspaceContext,
   BaseWorkspaceContext,
   RelayRequestParams,
+  getLogger,
+  sanatize,
+  clearLoggers,
 } from '@fireblocks/recovery-shared';
 import { getAssetConfig } from '@fireblocks/asset-config';
 
@@ -14,6 +17,7 @@ import { initIdleDetector } from '../lib/idleDetector';
 import { handleRelayUrl } from '../lib/ipc/handleRelayUrl';
 import { SigningWallet } from '../lib/wallets/SigningWallet';
 import { useSettings } from './Settings';
+import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 
 type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K> : never;
 
@@ -36,6 +40,8 @@ type Props = {
 
 export const WorkspaceProvider = ({ children }: Props) => {
   const { push } = useRouter();
+
+  const logger = getLogger(LOGGER_NAME_UTILITY);
 
   const settings = useSettings();
 
@@ -61,18 +67,18 @@ export const WorkspaceProvider = ({ children }: Props) => {
     deriveWallet: (input) => {
       const nativeAssetId = (getAssetConfig(input.assetId)?.nativeAsset ?? input.assetId) as keyof typeof WalletClasses;
 
-      console.info('Deriving native asset', nativeAssetId);
+      logger.info('Deriving native asset', nativeAssetId);
 
       let derivation;
       try {
         derivation = new WalletClasses[nativeAssetId](input, 0);
       } catch (e) {
-        console.error(`Failed to create new wallet (${nativeAssetId.toString()}): ${(e as Error).message}`);
+        logger.error(`Failed to create new wallet (${nativeAssetId.toString()}): ${(e as Error).message}`);
         throw new Error(`Failed to create new wallet ${e}`);
       }
 
-      console.info('Deriving wallet with input', { input, derivation });
-      console.info('Has generateTx method?', !!derivation.generateTx);
+      logger.info('Deriving wallet with input', { input: sanatize(input), derivation: clearLoggers(derivation) });
+      logger.info('Has generateTx method?', !!derivation.generateTx);
 
       if (nativeAssetId in WalletClasses) {
         return derivation;

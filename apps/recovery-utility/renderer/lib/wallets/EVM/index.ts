@@ -18,6 +18,22 @@ export class EVM extends EVMBase implements SigningWallet {
       throw new Error('No private key found');
     }
 
+    this.utilityLogger.debug(
+      `EVM: Signing tx: ${JSON.stringify(
+        {
+          from: this.address,
+          to,
+          nonce,
+          gasLimit: 21000,
+          gasPrice,
+          value: parseEther(`${amount}`),
+          chainId: this.path.coinType === 1 ? 5 : 1,
+        },
+        null,
+        2,
+      )}`,
+    );
+
     const serialized = await new Wallet(this.privateKey).signTransaction({
       from: this.address,
       to,

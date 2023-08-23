@@ -1,10 +1,9 @@
 import { Hedera as BaseHBAR } from '@fireblocks/wallet-derivation';
-import { Wallet, Client, PrivateKey, TransferTransaction, AccountBalanceQuery, AccountId } from '@hashgraph/sdk';
+import { Client, PrivateKey, TransferTransaction, AccountBalanceQuery, AccountId } from '@hashgraph/sdk';
 import { LateInitConnectedWallet } from '../LateInitConnectedWallet';
 import { AccountData } from '../types';
 
 export class Hedera extends BaseHBAR implements LateInitConnectedWallet {
-  private wallet: Wallet | undefined;
   private client: Client | undefined;
 
   public updateDataEndpoint(endpoint: string): void {
@@ -45,10 +44,13 @@ export class Hedera extends BaseHBAR implements LateInitConnectedWallet {
     extraParams.set(this.KEY_ACCOUNT_ID, this.address);
     extraParams.set(this.KEY_NODE_ACCOUNT_IDS, nodeIds);
 
-    return {
+    const preparedData = {
       balance,
       extraParams,
     };
+
+    this.relayLogger.debug(`Hedera: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData;
   }
   public async broadcastTx(tx: string): Promise<string> {
     const transfer = TransferTransaction.fromBytes(Buffer.from(tx, 'hex'));
@@ -57,8 +59,10 @@ export class Hedera extends BaseHBAR implements LateInitConnectedWallet {
     try {
       const txResp = await transfer.execute(this.client!);
       // const receipt = await txResp.getReceipt(this.client!);
+      this.relayLogger.debug(`Hedera: Tx broadcasted: ${JSON.stringify(txResp, null, 2)}`);
       return txResp.transactionId.toString();
     } catch (e: any) {
+      this.relayLogger.error(`Hedera: Error broadcasting tx: ${e}`);
       throw new Error(e.message);
     }
   }

@@ -31,12 +31,15 @@ export class Stellar extends BaseXLM implements ConnectedWallet {
     extraParams.set(this.KEY_SEQUENCE, sequence);
     extraParams.set(this.KEY_ACCOUNT_ID, this.account!.accountId());
 
-    return {
+    const preparedData = {
       balance,
       feeRate: await this.xlmServer.fetchBaseFee(),
       extraParams,
       insufficientBalance: balance < 0.00001,
     };
+
+    this.relayLogger.debug(`Stellar: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData;
   }
 
   public async broadcastTx(txXDR: string): Promise<string> {
@@ -46,9 +49,11 @@ export class Stellar extends BaseXLM implements ConnectedWallet {
     );
     try {
       const txResponse = await this.xlmServer.submitTransaction(tx);
+      this.relayLogger.debug(`Stellar: Tx broadcasted: ${txResponse}`);
       return txResponse.hash;
     } catch (e: any) {
       const resCodes: { transaction: string; operations?: string[] } = e.response.data.extras.result_codes;
+      this.relayLogger.error(`Stellar: Error broadcasting tx: ${JSON.stringify(resCodes, null, 2)}`);
       if (!resCodes.operations) {
         throw Error(`Node returned error: ${resCodes.transaction}`);
       } else {

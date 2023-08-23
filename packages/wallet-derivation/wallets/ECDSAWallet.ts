@@ -32,6 +32,8 @@ export abstract class ECDSAWallet extends BaseWallet {
 
     const wif = privateKey ? ECDSAWallet.getWif(privateKey) : undefined;
 
+    this.sharedLogger.info('Derived ECDSA wallet', { publicKey, evmAddress });
+
     return {
       evmAddress,
       publicKey,

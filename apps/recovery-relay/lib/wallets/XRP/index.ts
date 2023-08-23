@@ -48,18 +48,27 @@ export class Ripple extends BaseRipple implements ConnectedWallet {
       ).result.account_data.Sequence,
     );
 
-    return {
+    const preparedData = {
       balance: balance - this.MIN_XRP_BALANCE,
       extraParams,
       insufficientBalance: balance - this.MIN_XRP_BALANCE < 0.0001,
     };
+
+    this.relayLogger.debug(`Ripple: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData;
   }
 
   public async broadcastTx(tx: string): Promise<string> {
     if (!this.xrpClient.isConnected()) {
       await this.xrpClient.connect();
     }
-    const txRes = (await this.xrpClient.submitAndWait(tx)) as TxResponse;
-    return txRes.result.hash;
+    try {
+      const txRes = (await this.xrpClient.submitAndWait(tx)) as TxResponse;
+      this.relayLogger.debug(`Ripple: Tx broadcasted: ${JSON.stringify(txRes, null, 2)}`);
+      return txRes.result.hash;
+    } catch (e) {
+      this.relayLogger.error(`Ripple: Error broadcasting tx: ${(e as Error).message}`);
+      throw new Error(`${(e as Error).message}`);
+    }
   }
 }

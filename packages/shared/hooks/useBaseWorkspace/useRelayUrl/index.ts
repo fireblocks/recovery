@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { RelayRequestParams, RelayResponseParams } from '../../../schemas';
 import { getRelayParams, getRelayUrl } from '../../../lib/relayUrl';
+import { LOGGER_NAME_SHARED } from '../../../constants';
+import { getLogger } from '../../../lib/getLogger';
 
 // eslint-disable-next-line import/no-mutable-exports
 export let initialHref: string | undefined;
@@ -9,6 +11,8 @@ if (typeof window !== 'undefined') {
   initialHref = window.location.href;
   window.location.hash = '';
 }
+
+const logger = getLogger(LOGGER_NAME_SHARED);
 
 export const useRelayUrl = <App extends 'utility' | 'relay'>(app: App, baseUrl: string) => {
   type InboundParams = App extends 'utility' ? RelayResponseParams : RelayRequestParams;
@@ -59,6 +63,7 @@ export const useRelayUrl = <App extends 'utility' | 'relay'>(app: App, baseUrl: 
    */
   const setInboundRelayUrl = (relayUrl: string | null) => {
     try {
+      logger.debug('setInboundRelayUrl', { relayUrl });
       if (!relayUrl) {
         setInboundRelayParams(undefined);
       } else {
@@ -67,7 +72,7 @@ export const useRelayUrl = <App extends 'utility' | 'relay'>(app: App, baseUrl: 
         setInboundRelayParams(params);
       }
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   };
 

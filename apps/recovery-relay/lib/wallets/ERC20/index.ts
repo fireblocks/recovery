@@ -47,12 +47,17 @@ export class ERC20 extends Ethereum implements ConnectedWallet {
       ]),
     };
 
+    this.relayLogger.debug(`ERC20: Generated tx: ${JSON.stringify(tx, null, 2)}`);
+
     const unsignedTx = Transaction.from(tx).serialized;
 
-    return {
+    const preparedData = {
       derivationPath: this.pathParts,
       tx: unsignedTx,
     };
+
+    this.relayLogger.debug(`ERC20: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData;
   }
 
   public async broadcastTx(txHex: string): Promise<string> {

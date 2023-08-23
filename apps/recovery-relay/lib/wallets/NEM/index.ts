@@ -1,8 +1,7 @@
 import { NEM as BaseNEM, Input } from '@fireblocks/wallet-derivation';
 import { ConnectedWallet } from '../ConnectedWallet';
-import { AccountData, TxPayload, RawSignature } from '../types';
+import { AccountData } from '../types';
 import axios from 'axios';
-
 export class NEM extends BaseNEM implements ConnectedWallet {
   private endpoint: string;
 
@@ -30,9 +29,12 @@ export class NEM extends BaseNEM implements ConnectedWallet {
   }
 
   public async prepare(): Promise<AccountData> {
-    return {
+    const preparedData = {
       balance: await this.getBalance(),
     };
+
+    this.relayLogger.debug(`NEM: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData;
   }
 
   public async broadcastTx(tx: string): Promise<string> {
@@ -49,8 +51,10 @@ export class NEM extends BaseNEM implements ConnectedWallet {
       })
     ).data;
     if (txRes.message && txRes.message !== 'SUCCESS') {
+      this.relayLogger.error(`NEM: Error broadcasting tx: ${txRes.message}`);
       throw new Error(txRes.message);
     }
+    this.relayLogger.debug(`NEM: Tx broadcasted: ${txRes}`);
     return txRes.transactionHash.data;
   }
 }

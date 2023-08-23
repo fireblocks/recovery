@@ -64,6 +64,8 @@ export class Bitcoin extends BaseBitcoin implements SigningWallet {
       value: actualAmount,
     });
 
+    this.utilityLogger.debug(`Bitcoin: Signing tx: ${JSON.stringify({ inputs: tx.txInputs, outputs: tx.txOutputs }, null, 2)}`);
+
     const signer = ECPairFactory(tinysecp).fromPrivateKey(Buffer.from(this.privateKey, 'hex'));
 
     tx.signAllInputs(signer);

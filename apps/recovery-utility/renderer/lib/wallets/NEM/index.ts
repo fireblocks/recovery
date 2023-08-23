@@ -92,6 +92,8 @@ export class NEM extends BaseNEM implements SigningWallet {
     //@ts-ignore
     const entity = extendObj(txCommonPart, customPart);
 
+    this.utilityLogger.debug(`NEM: Signing tx: ${JSON.stringify(entity, null, 2)}`);
+
     // https://github.com/QuantumMechanics/NEM-sdk/blob/master/src/model/transactions/send.js#L16
     // https://github.com/QuantumMechanics/NEM-sdk/blob/master/src/utils/serialization.js#L255
     const r = new ArrayBuffer(512 + 2764);

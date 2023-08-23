@@ -50,6 +50,8 @@ export class Cosmos extends BaseCosmos implements SigningWallet {
       },
     };
 
+    this.utilityLogger.debug(`Cosmos: Signing tx: ${JSON.stringify(txEncoded, null, 2)}`);
+
     const txBodyBytes = registry.encode(txEncoded);
     const gasLimit = Int53.fromString(fee.gas).toNumber();
     const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKey, sequence }], fee.amount, gasLimit, undefined, undefined);

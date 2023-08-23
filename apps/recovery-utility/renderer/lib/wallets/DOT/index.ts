@@ -48,6 +48,8 @@ export class Polkadot extends BaseDOT implements SigningWallet {
       },
     );
 
+    this.utilityLogger.debug(`Polkadot: Signing tx: ${JSON.stringify(unsigned, null, 2)}`);
+
     const signPayload = construct.signingPayload(unsigned, { registry });
     registry.setMetadata(createMetadata(registry, metadataRpc));
     const extrinsicPayload = registry.createType('ExtrinsicPayload', signPayload, {

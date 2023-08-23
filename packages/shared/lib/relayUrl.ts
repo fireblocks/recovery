@@ -11,6 +11,10 @@ import {
   RelayRequestParams,
   RelayResponseParams,
 } from '../schemas/relayUrl';
+import { getLogger } from './getLogger';
+import { LOGGER_NAME_SHARED } from '../constants';
+
+const logger = getLogger(LOGGER_NAME_SHARED);
 
 /**
  * Get a Relay URL parameters validation schema for a given action
@@ -21,7 +25,7 @@ import {
  */
 const getSchema = (action: RelayParams['action'], app: 'utility' | 'relay') => {
   const error = new Error(`Invalid ${app} action: ${action}`);
-
+  logger.debug('getSchema', { action, app });
   if (app === 'relay') {
     switch (action) {
       case 'import':
@@ -58,6 +62,8 @@ export const getRelayParams = <
 ) => {
   const url = new URL(relayUrl);
 
+  logger.debug('Relay URL:', relayUrl);
+
   // Extract account ID from URL path
   const pathMatch = url.pathname.match(/\/accounts\/vault\/([0-9]+)/);
 
@@ -89,6 +95,8 @@ export const getRelayParams = <
 
   // Validate parameters
   const validatedParams = schema.parse(parsedParams) as Params;
+
+  logger.info('Relay URL parameters:', validatedParams);
 
   return validatedParams;
 };
@@ -160,6 +168,8 @@ export const getTxFromRelay = (txInput: Partial<Transaction>) => {
     hash,
     error,
   } = txInput;
+
+  logger.debug('getTxFromRelay', { txInput });
 
   const hasTransaction = REQUIRED_TX_TRANSACTION_KEYS.every((key) => typeof txInput[key] !== 'undefined');
 

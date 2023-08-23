@@ -35,7 +35,9 @@ export class Cosmos extends BaseCosmos implements ConnectedWallet {
     extraParams.set(this.KEY_SEQUENCE, sequence);
     // TODO: Add option for cusom fee
     const balance = parseInt(balanceCoin.amount, 10) / 1_000_000;
-    return { balance, extraParams, insufficientBalance: balance < 0.001 };
+    const preparedData = { balance, extraParams, insufficientBalance: balance < 0.001 };
+    this.relayLogger.debug(`Cosmos: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData;
   }
 
   public async broadcastTx(txHex: string): Promise<string> {
@@ -52,8 +54,14 @@ export class Cosmos extends BaseCosmos implements ConnectedWallet {
       // signatures: [Buffer.from(signature, 'hex')],
     });
 
-    const { transactionHash } = await this.stargateClient!.broadcastTx(TxRaw.encode(txRaw).finish());
-    return transactionHash;
+    try {
+      const txRes = await this.stargateClient!.broadcastTx(TxRaw.encode(txRaw).finish());
+      this.relayLogger.debug(`Cosmos: Broadcasted tx: ${txRes.transactionHash}`);
+      return txRes.transactionHash;
+    } catch (e) {
+      this.relayLogger.error(`Cosmos: Error broadcasting tx: ${e}`);
+      throw e;
+    }
   }
 
   private async prepareClients(): Promise<void> {

@@ -93,7 +93,7 @@ export class DASH extends BaseDASH implements ConnectedWallet {
     const utxos = await this._getAddressUTXOs();
     const balance = DASH._satsToBtc(utxos.map((utxo) => utxo.value).reduce((p, c) => p + c));
 
-    return {
+    const preparedData = {
       balance,
       utxos: utxos.map(
         (utxo: BlockchairUTXO) =>
@@ -106,6 +106,9 @@ export class DASH extends BaseDASH implements ConnectedWallet {
       ),
       utxoType: BaseUTXOType,
     };
+
+    this.relayLogger.debug(`Dash: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData as AccountData;
   }
 
   public async generateTx(
@@ -166,14 +169,19 @@ export class DASH extends BaseDASH implements ConnectedWallet {
   ): Promise<string> {
     // BTC Tx are automatically signed and resulting hex is signed, so no need to do anything special.
     // const tx = Psbt.fromHex(txHex, { network: this.network });
-    const txBroadcastRes = await this._request('/push/transaction', {
-      method: 'POST',
-      body: txHex,
-    });
+    try {
+      const txBroadcastRes = await this._request('/push/transaction', {
+        method: 'POST',
+        body: txHex,
+      });
 
-    const txHash = await txBroadcastRes.text();
+      const txHash = await txBroadcastRes.text();
 
-    return txHash;
+      return txHash;
+    } catch (e) {
+      this.relayLogger.error(`Dash: Error broadcasting tx: ${JSON.stringify(e, null, 2)}`);
+      throw e;
+    }
   }
 
   public async getBalance() {

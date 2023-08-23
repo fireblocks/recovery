@@ -23,6 +23,7 @@ export class Near extends BaseNEAR implements SigningWallet {
       baseDecode(hash),
     );
 
+    this.utilityLogger.debug(`NEAR: Signing tx: ${JSON.stringify(tx, null, 2)}`);
     const sig = await this.sign(sha256(tx.encode()));
     const signature = new Signature({
       data: sig,

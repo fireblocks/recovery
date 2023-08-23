@@ -4,6 +4,8 @@ import QrScanner from 'qr-scanner';
 import { Box, Grid, CircularProgress, SelectChangeEvent, IconButton } from '@mui/material';
 import { QrCodeScanner as QrCodeScannerIcon, FlashlightOn, FlashlightOff } from '@mui/icons-material';
 import { Select } from '../Select';
+import { LOGGER_NAME_SHARED } from '../../constants';
+import { getLogger } from '../../lib/getLogger';
 
 export type ScanResult = QrScanner.ScanResult;
 
@@ -12,6 +14,7 @@ type Props = {
 };
 
 export const QrCodeScanner = ({ onDecode }: Props) => {
+  const logger = getLogger(LOGGER_NAME_SHARED);
   const [isLoading, setIsLoading] = useState(true);
   const [cameras, setCameras] = useState<QrScanner.Camera[]>([]);
   const [preferredCamera, setPreferredCamera] = useState<QrScanner.FacingMode | QrScanner.DeviceId | undefined>();
@@ -35,11 +38,15 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
     if (qrScannerRef.current) {
       setIsLoading(true);
 
+      logger.debug(`Changing camera to ${event.target.value}`);
+
       const facingModeOrDeviceId = event.target.value as string;
 
       await qrScannerRef.current.setCamera(facingModeOrDeviceId);
 
       setPreferredCamera(facingModeOrDeviceId);
+
+      logger.debug(`Changed camera to ${event.target.value}`);
 
       setIsLoading(false);
     }
@@ -56,6 +63,7 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
   const startScanner = useCallback(async () => {
     try {
       if (!videoRef.current || !(await QrScanner.hasCamera())) {
+        logger.error('No cameras detected');
         return;
       }
 
@@ -79,7 +87,7 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
       setFlash(newFlash);
       setIsLoading(false);
     } catch (error) {
-      console.error(error);
+      console.error(`Failed to start scanner. ${(error as Error).message}`);
     }
   }, [onDecode, preferredCamera]);
 
@@ -91,8 +99,12 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
       }
     };
 
+    logger.log('Starting scanner');
+
     stopScanner();
     startScanner();
+
+    logger.log('Done init scanner');
 
     return () => {
       stopScanner();

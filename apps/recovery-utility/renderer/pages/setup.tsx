@@ -1,17 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { pki } from 'node-forge';
-import {
-  NextLinkComposed,
-  TextField,
-  Button,
-  generateRsaKeypairInput,
-  theme,
-  BaseModal,
-  monospaceFontFamily,
-} from '@fireblocks/recovery-shared';
+import { NextLinkComposed, TextField, Button, generateRsaKeypairInput, theme, getLogger } from '@fireblocks/recovery-shared';
 import {
   Box,
   Grid,
@@ -29,6 +21,7 @@ import AdmZip from 'adm-zip';
 import { useConnectionTest } from '../context/ConnectionTest';
 import { ChecksumModal } from '../components/Modals/ChecksumModal';
 import { PublicKeyModal } from '../components/Modals/PublicKeyModal';
+import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 
 type FormData = z.infer<typeof generateRsaKeypairInput>;
 
@@ -42,12 +35,16 @@ type Keypair = {
   publicKey: BlobData;
 };
 
+const logger = getLogger(LOGGER_NAME_UTILITY);
+
 const createBlobUri = (content: string) => URL.createObjectURL(new Blob([content], { type: 'text/plain' }));
 
-const generateRsaKeypair = (passphrase: string) =>
-  new Promise<Keypair>((resolve, reject) => {
+const generateRsaKeypair = (passphrase: string) => {
+  logger.info('Generating RSA keypair');
+  return new Promise<Keypair>((resolve, reject) => {
     pki.rsa.generateKeyPair({ bits: 4096, workers: 2 }, (err, keypair) => {
       if (err) {
+        logger.error('Failed to generate RSA keypair', err);
         reject(err);
       }
 
@@ -73,6 +70,7 @@ const generateRsaKeypair = (passphrase: string) =>
       });
     });
   });
+};
 
 const Setup = () => {
   const { isOnline } = useConnectionTest();
@@ -227,19 +225,6 @@ const Setup = () => {
                 Generate Recovery Keys
               </Button>
             </Grid>
-            {/* <Grid item xs={6}>
-              <Button
-                color='primary'
-                fullWidth
-                disabled={!rsaKeypair}
-                onClick={() => onDownload('privateKey')}
-                component='a'
-                href={rsaKeypair?.privateKey.uri ?? ''}
-                download='fb-recovery-prv.pem'
-              >
-                Download Private Key
-              </Button>
-            </Grid> */}
           </Grid>
         </ListItem>
         <ListItem sx={{ alignItems: 'flex-start' }}>

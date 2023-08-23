@@ -1,3 +1,5 @@
+import { getLogger } from '@fireblocks/recovery-shared';
+import { LOGGER_NAME_RELAY, LOGGER_NAME_SHARED, LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 import { Algorithm, HDPath, HDPathParts, Input, KeyDerivation, Derivation } from '../types';
 
 export abstract class BaseWallet implements Derivation {
@@ -39,6 +41,10 @@ export abstract class BaseWallet implements Derivation {
 
   /** Is legacy derivation (vs. Segwit) */
   public isLegacy: boolean;
+
+  public relayLogger = getLogger(LOGGER_NAME_RELAY);
+  public utilityLogger = getLogger(LOGGER_NAME_UTILITY);
+  public sharedLogger = getLogger(LOGGER_NAME_SHARED);
 
   constructor(input: Input, defaultCoinType: number, algorithm: Algorithm) {
     this.assetId = input.assetId;

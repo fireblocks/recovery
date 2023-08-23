@@ -1,9 +1,7 @@
 import { Ripple as BaseRipple } from '@fireblocks/wallet-derivation';
 import { SigningWallet } from '../SigningWallet';
 import { GenerateTxInput, TxPayload } from '../types';
-import SuperJSON from 'superjson';
-import { Payment, Wallet, Client } from 'xrpl';
-
+import { Wallet, Client } from 'xrpl';
 export class Ripple extends BaseRipple implements SigningWallet {
   public async generateTx({ extraParams, amount, memo, to }: GenerateTxInput): Promise<TxPayload> {
     const fee = extraParams?.get(this.KEY_FEE);
@@ -33,7 +31,9 @@ export class Ripple extends BaseRipple implements SigningWallet {
     if (!memo) {
       delete tx.Memos;
     }
+    this.utilityLogger.info(`Ripple: Signing tx: ${JSON.stringify(tx, null, 2)}`);
     const wallet = new Wallet(this.publicKey.replace('0x', ''), this.privateKey!.replace('0x', ''));
+
     const signedTx = wallet.sign(tx);
     return {
       tx: signedTx.tx_blob,

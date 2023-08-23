@@ -22,17 +22,25 @@ export class Solana extends BaseSolana implements ConnectedWallet {
   }
 
   public async broadcastTx(tx: string): Promise<string> {
-    const txHash = await this.connection.sendRawTransaction(Buffer.from(tx, 'hex'));
-
-    return txHash;
+    try {
+      const txHash = await this.connection.sendRawTransaction(Buffer.from(tx, 'hex'));
+      this.relayLogger.debug(`Solana: Tx broadcasted: ${txHash}`);
+      return txHash;
+    } catch (e) {
+      this.relayLogger.error(`Solana: Error broadcasting tx: ${e}`);
+      throw e;
+    }
   }
 
   public async prepare(): Promise<AccountData> {
     const accountBalance = await this.getBalance();
-    return {
+    const preparedData = {
       balance: accountBalance,
       insufficientBalance: accountBalance < 0.00000001,
     } as AccountData;
+
+    this.relayLogger.debug(`Solana: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData;
   }
 
   // public async generateTx(

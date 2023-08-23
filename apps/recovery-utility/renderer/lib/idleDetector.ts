@@ -1,3 +1,6 @@
+import { getLogger } from '@fireblocks/recovery-shared';
+import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
+
 interface IIdleDetector {
   readonly userState: 'active' | 'idle' | null;
   readonly screenState: 'locked' | 'unlocked' | null;
@@ -17,6 +20,8 @@ const IdleDetector =
 export const initIdleDetector = async (onIdle: VoidFunction, idleMinutes: number) => {
   const abortController = new AbortController();
 
+  const logger = getLogger(LOGGER_NAME_UTILITY);
+
   try {
     if (!IdleDetector) {
       throw new Error('Idle detection not supported');
@@ -32,7 +37,7 @@ export const initIdleDetector = async (onIdle: VoidFunction, idleMinutes: number
       const { userState } = idleDetector;
       const { screenState } = idleDetector;
 
-      // console.info(`Idle change: ${userState}, ${screenState}`);
+      logger.info(`Idle change: ${userState}, ${screenState}`);
 
       if (userState === 'idle' || screenState === 'locked') {
         onIdle();
@@ -44,9 +49,9 @@ export const initIdleDetector = async (onIdle: VoidFunction, idleMinutes: number
       signal: abortController.signal,
     });
 
-    // console.info("Started idle detector for", idleMinutes, "minutes");
+    logger.info('Started idle detector for', idleMinutes, 'minutes');
   } catch (error) {
-    console.error(error);
+    logger.error(error);
   }
 
   return abortController;

@@ -1,6 +1,4 @@
-import { Address, Networks, Transaction, Script, PrivateKey } from 'bitcore-lib-cash';
-import * as tinysecp from 'tiny-secp256k1';
-import { ECPairFactory } from 'ecpair';
+import { Transaction } from 'bitcore-lib-cash';
 import { Buffer } from 'buffer';
 import { BitcoinCash as BaseBitcoinCash, Input } from '@fireblocks/wallet-derivation';
 import { TxPayload, GenerateTxInput } from '../types';
@@ -39,11 +37,14 @@ export class BitcoinCash extends BaseBitcoinCash implements SigningWallet {
           }),
         ),
       )
-      .to(to, satAmount)
-      .sign(this.privateKey);
+      .to(to, satAmount);
+
+    this.utilityLogger.debug(`BitcoinCash: Signing tx: ${JSON.stringify(tx.toJSON(), null, 2)}`);
+
+    const signedTx = tx.sign(this.privateKey);
 
     return {
-      tx: tx.serialize(),
+      tx: signedTx.serialize(),
     };
   }
 }

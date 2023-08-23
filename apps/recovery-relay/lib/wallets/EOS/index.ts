@@ -79,15 +79,24 @@ export class EOS extends BaseEOS implements ConnectedWallet {
     extraParams.set(this.KEY_TX, serTx);
     extraParams.set(this.KEY_CHAIN_ID, chainId);
     // TODO: add memo
-    return {
+    const preparedData = {
       balance,
       extraParams,
     };
+
+    this.relayLogger.debug(`EOS: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData;
   }
 
   public async broadcastTx(txHex: string): Promise<string> {
-    const tx = superjson.parse<PushTransactionArgs>(txHex);
-    const txRes = (await this.api.pushSignedTransaction(tx)) as TransactResult;
-    return txRes.transaction_id;
+    try {
+      const tx = superjson.parse<PushTransactionArgs>(txHex);
+      const txRes = (await this.api.pushSignedTransaction(tx)) as TransactResult;
+      this.relayLogger.debug(`EOS: Tx broadcasted: ${JSON.stringify(txRes, null, 2)}`);
+      return txRes.transaction_id;
+    } catch (e) {
+      this.relayLogger.error(`EOS: Error broadcasting tx: ${(e as Error).message}`);
+      throw e;
+    }
   }
 }

@@ -1,18 +1,6 @@
 import { Tezos as BaseTezos } from '@fireblocks/wallet-derivation';
-import {
-  TezosToolkit,
-  EstimateProperties,
-  Estimate,
-  RPCTransferOperation,
-  OpKind,
-  DEFAULT_FEE,
-  DEFAULT_GAS_LIMIT,
-  DEFAULT_STORAGE_LIMIT,
-  PreparedOperation,
-  ForgedBytes,
-  TransactionOperation,
-} from '@taquito/taquito';
-import { format, mergebuf, b58cencode, prefix, buf2hex, verifySignature } from '@taquito/utils';
+import { OpKind, DEFAULT_FEE, DEFAULT_GAS_LIMIT, DEFAULT_STORAGE_LIMIT } from '@taquito/taquito';
+import { format, mergebuf, b58cencode, prefix } from '@taquito/utils';
 import { OperationContents, OperationContentsTransaction } from '@taquito/rpc';
 import { LocalForger, localForger } from '@taquito/local-forging';
 import { SigningWallet } from '../SigningWallet';
@@ -20,7 +8,7 @@ import { GenerateTxInput, TxPayload } from '../types';
 import blake2b from 'blake2b';
 
 export class Tezos extends BaseTezos implements SigningWallet {
-  public async generateTx({ to, amount, extraParams, feeRate }: GenerateTxInput): Promise<TxPayload> {
+  public async generateTx({ to, amount, extraParams }: GenerateTxInput): Promise<TxPayload> {
     // https://github.com/ecadlabs/taquito/blob/master/packages/taquito/src/prepare/prepare-provider.ts#L422
     const headCounter = parseInt(extraParams?.get(this.KEY_HEAD_COUNTER), 10);
     const branch = extraParams?.get(this.KEY_BLOCK_HASH);
@@ -73,6 +61,8 @@ export class Tezos extends BaseTezos implements SigningWallet {
     const signPayload = blake2b(32)
       .update(mergebuf(new Uint8Array([3]), Buffer.from(txBytes, 'hex')))
       .digest();
+
+    this.utilityLogger.debug(`Tezos: Signing tx: ${JSON.stringify(contents, null, 2)}`);
     const sig = await this.sign(signPayload);
 
     return {

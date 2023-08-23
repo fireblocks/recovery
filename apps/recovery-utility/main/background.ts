@@ -10,6 +10,12 @@ import { DeploymentStore, PROTOCOLS } from './store/deployment';
 import './ipc';
 
 Object.assign(console, log.functions);
+log.catchErrors({
+  showDialog: false,
+  onError: (error, versions, submitIssue) => {
+    console.error(`Unhandled error: ${error.message}`, error.stack);
+  },
+});
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -109,7 +115,9 @@ export async function createWindow() {
   // Handle Relay URLs
   win.webContents.once('dom-ready', () => handleRelayUrl());
 
-  win.once('ready-to-show', () => {
+  win.once('ready-to-show', async () => {
+    const approval = await systemPreferences.askForMediaAccess('camera');
+    console.info(`${protocol} - Camera access approval: ${approval}`);
     win?.show();
   });
 
@@ -218,9 +226,10 @@ app.on('second-instance', (event, commandLine) => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', () => {
+app.on('ready', async () => {
   createWindow();
-  void systemPreferences.askForMediaAccess('camera');
+  const approval = await systemPreferences.askForMediaAccess('camera');
+  console.info(`${protocol} - Camera access approval: ${approval}`);
 });
 
 app.on('window-all-closed', () => {

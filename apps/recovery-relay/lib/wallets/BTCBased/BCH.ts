@@ -49,11 +49,14 @@ export class BitcoinCash extends BCHBase implements LateInitConnectedWallet {
 
     const balance = utxos.map((utxo) => utxo.value as number).reduce((p, c) => p + c);
 
-    return {
+    const preparedData = {
       utxoType: BaseUTXOType,
       utxos,
       balance,
     };
+
+    this.relayLogger.debug(`Bitcoin Cash: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData as AccountData;
   }
 
   public async broadcastTx(txHex: string): Promise<string> {
@@ -62,8 +65,10 @@ export class BitcoinCash extends BCHBase implements LateInitConnectedWallet {
     const path = `/rawtransactions/sendRawTransaction/${tx.serialize()}`;
     const res = await this._post(path);
     if (res === true) {
+      this.relayLogger.info(`Bitcoin Cash: Tx broadcasted: ${tx.id}`);
       return tx.id;
     }
+    this.relayLogger.error(`Bitcoin Cash: Error broadcasting tx`);
     throw Error('Failed to send transaction.');
   }
 

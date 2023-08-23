@@ -54,6 +54,10 @@ export { stringToBytes, bytesToString } from './lib/stringBytes';
 
 export { download } from './lib/download';
 
+export { getLogger } from './lib/getLogger';
+
+export { sanatizeInput as sanatize, sanatizeDerivation as clearLoggers } from './lib/sanatize';
+
 // Theme
 export { monospaceFontFamily, theme } from './theme';
 export { heebo } from './theme/fonts/heebo';

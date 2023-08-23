@@ -1,24 +1,6 @@
 import { Cardano as BaseCardano, Input } from '@fireblocks/wallet-derivation';
 import { ApolloClient, InMemoryCache, NormalizedCacheObject, gql } from '@apollo/client';
-import {
-  Address,
-  BigNum,
-  Ed25519Signature,
-  LinearFee,
-  PublicKey,
-  Transaction,
-  TransactionBody,
-  TransactionBuilder,
-  TransactionBuilderConfigBuilder,
-  TransactionHash,
-  TransactionInput,
-  TransactionOutput,
-  TransactionWitnessSet,
-  Value,
-  Vkey,
-  Vkeywitness,
-  Vkeywitnesses,
-} from '@emurgo/cardano-serialization-lib-asmjs';
+import { Transaction } from '@emurgo/cardano-serialization-lib-asmjs';
 import { AccountData, StdUTXO } from '../types';
 import { LateInitConnectedWallet } from '../LateInitConnectedWallet';
 import { BlockFrostAPI } from './BlockfrostAPI';
@@ -135,12 +117,15 @@ export class Cardano extends BaseCardano implements LateInitConnectedWallet {
     } else {
       throw Error('Endpoint not initialized yet');
     }
-    return {
+    const preparedData = {
       utxos,
       balance: balance / 1_000_000,
       endpoint: this.endpoint,
       insufficientBalance: balance / 1_000_000 < 0.001,
     };
+
+    this.relayLogger.debug(`Cardano: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData;
   }
 
   public async broadcastTx(txHex: string): Promise<string> {
@@ -166,6 +151,7 @@ export class Cardano extends BaseCardano implements LateInitConnectedWallet {
     } else {
       throw Error('Endpoint not initialized yet.');
     }
+    this.relayLogger.debug(`Cardano: Broadcasted tx: ${signedTxHash}`);
     return signedTxHash.replace('"', '');
   }
 }

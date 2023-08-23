@@ -7,11 +7,15 @@ import {
   RelayRequestParams,
   RelayRxTx,
   RelaySignTxResponseParams,
+  getLogger,
 } from '@fireblocks/recovery-shared';
 import { getDerivableAssetConfig } from '@fireblocks/asset-config';
 import { useWorkspace } from '../../context/Workspace';
 import { CreateTransaction } from './CreateTransaction';
 import { LateInitConnectedWallet } from '../../lib/wallets/LateInitConnectedWallet';
+import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
+
+const logger = getLogger(LOGGER_NAME_RELAY);
 
 const getAssetId = (inboundRelayParams?: RelayRequestParams) => {
   let assetId: string;
@@ -42,8 +46,6 @@ export const WithdrawModal = () => {
   const [txHash, setTxHash] = useState<string | undefined>();
 
   const setSignTxResponseUrl = (unsignedTx: RelaySignTxResponseParams['unsignedTx']) => {
-    console.info('setSignTxResponseUrl', { unsignedTx });
-
     setOutboundRelayUrl(
       getOutboundRelayUrl({
         action: 'tx/sign',
@@ -57,7 +59,7 @@ export const WithdrawModal = () => {
     setInboundRelayUrl(url);
   };
 
-  console.info({ outboundRelayUrl });
+  logger.info('Outbound URL', { outboundRelayUrl });
 
   return (
     <BaseModal
@@ -102,7 +104,7 @@ export const WithdrawModal = () => {
               {!txHash && (
                 <Button
                   onClick={async () => {
-                    console.info({ inboundRelayParams });
+                    logger.info('Inbound parameters:', { inboundRelayParams });
 
                     const wallet = accounts.get(inboundRelayParams?.accountId)?.wallets.get(inboundRelayParams?.signedTx.assetId);
 
@@ -114,13 +116,13 @@ export const WithdrawModal = () => {
 
                     const signedTxHex = inboundRelayParams?.signedTx.hex;
 
-                    console.info({ derivation, signedTxHex });
+                    logger.info('Derivation and signed transaction hash:', { derivation, signedTxHex });
 
                     const newTxHash = await derivation?.broadcastTx(signedTxHex);
 
                     setTxHash(newTxHash);
 
-                    console.info({ newTxHash });
+                    logger.info({ newTxHash });
                   }}
                 >
                   Confirm and broadcast

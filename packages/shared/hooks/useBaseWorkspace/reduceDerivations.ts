@@ -1,6 +1,11 @@
 import { ExtendedKeys, Input, BaseWallet, HDPathInput } from '@fireblocks/wallet-derivation';
 import { getDerivableAssetConfig } from '@fireblocks/asset-config';
 import { VaultAccount, Wallet } from '../../types';
+import { LOGGER_NAME_SHARED } from '../../constants';
+import { getLogger } from '../../lib/getLogger';
+import { sanatizeInput } from '../../lib/sanatize';
+
+const logger = getLogger(LOGGER_NAME_SHARED);
 
 export type DerivationReducerInput<T extends BaseWallet> = {
   extendedKeys?: ExtendedKeys;
@@ -46,6 +51,8 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(input: Deri
     balance,
     deriveWallet,
   } = input;
+
+  logger.debug('reduceDerivations', { input });
 
   const path = {
     ...input.path,
@@ -109,11 +116,12 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(input: Deri
 
   // Derive wallet
   if (shouldDerive) {
+    logger.info('Will derive wallet for input: ', sanatizeInput(derivationInput));
     const derivation = deriveWallet(derivationInput);
 
     if (address && derivation.address !== address) {
       // TODO: Show notice in UI when this happens. For now just remove the erroneous imported address
-      console.warn(`Address mismatch, dropping import. Imported ${address}, derived ${derivation.address}`);
+      logger.warn(`Address mismatch, dropping import. Imported ${address}, derived ${derivation.address}`);
       wallet.derivations.delete(address);
     }
 

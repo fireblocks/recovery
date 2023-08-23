@@ -74,6 +74,12 @@ SuperJSON.registerCustom<PushTransactionArgs, string>(
 
 // Override console.log with electron-log
 Object.assign(console, log.functions);
+log.catchErrors({
+  showDialog: false,
+  onError: (error, versions, submitIssue) => {
+    console.error(`Unhandled error: ${error.message}`, error.stack);
+  },
+});
 
 export default function App({ Component, emotionCache, pageProps }: AppProps) {
   return (

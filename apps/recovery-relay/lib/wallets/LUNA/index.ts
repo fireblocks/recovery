@@ -62,10 +62,12 @@ export class Luna extends BaseLuna implements ConnectedWallet {
     extraParams.set(this.KEY_CHAIN_ID, this.lcdClient.config.chainID);
     extraParams.set(this.KEY_ACCOUNT_NUMBER, account.getAccountNumber());
 
-    return {
+    const preparedData = {
       balance,
       extraParams,
     };
+    this.relayLogger.debug(`Luna: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData;
   }
 
   public async broadcastTx(tx: string): Promise<string> {
@@ -81,8 +83,10 @@ export class Luna extends BaseLuna implements ConnectedWallet {
     const signedTx = Tx.fromData(halfBaked);
     const res = await this.lcdClient.tx.broadcast(signedTx);
     if (res.txhash && res.logs.length > 0) {
+      this.relayLogger.debug(`Luna: Tx broadcasted: ${JSON.stringify(res, null, 2)}`);
       return res.txhash;
     }
+    this.relayLogger.error(`Luna: Error broadcasting tx: ${JSON.stringify(res, null, 2)}`);
     throw new Error(`${(res as TxBroadcastResult<any, TxError>).raw_log}`);
   }
 }

@@ -88,12 +88,15 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
 
     const feeRate = await this._getFeeRate();
 
-    return {
+    const preparedData = {
       balance,
       utxos: inputs,
       utxoType: this.isLegacy ? LegacyUTXOType : SegwitUTXOType,
       feeRate,
     };
+
+    this.relayLogger.debug(`BTC: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    return preparedData as AccountData;
   }
 
   public async broadcastTx(
@@ -103,14 +106,19 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
   ): Promise<string> {
     // BTC Tx are automatically signed and resulting hex is signed, so no need to do anything special.
     // const tx = Psbt.fromHex(txHex, { network: this.network });
-    const txBroadcastRes = await this._request('/tx', {
-      method: 'POST',
-      body: txHex,
-    });
+    try {
+      const txBroadcastRes = await this._request('/tx', {
+        method: 'POST',
+        body: txHex,
+      });
 
-    const txHash = await txBroadcastRes.text();
+      const txHash = await txBroadcastRes.text();
 
-    return txHash;
+      return txHash;
+    } catch (e) {
+      this.relayLogger.error(`BTC: Error broadcasting tx: ${JSON.stringify(e, null, 2)}`);
+      throw e;
+    }
   }
 
   public async getBalance() {

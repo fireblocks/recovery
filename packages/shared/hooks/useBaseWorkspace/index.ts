@@ -11,8 +11,12 @@ import { csvImport } from '../../lib/csv';
 import { useRelayUrl } from './useRelayUrl';
 import { reduceDerivations, testIsLegacy, DerivationReducerInput } from './reduceDerivations';
 import { reduceTransactions } from './reduceTransactions';
+import { LOGGER_NAME_SHARED } from '../../constants';
+import { getLogger } from '../../lib/getLogger';
 
 export type { BaseWorkspace, BaseWorkspaceContext };
+
+const logger = getLogger(LOGGER_NAME_SHARED);
 
 const defaultBaseWorkspaceInput: BaseWorkspaceInput<BaseWallet> = {
   extendedKeys: undefined,
@@ -91,6 +95,7 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
 
         return { ...prev, accounts };
       } catch (e) {
+        logger.error(`Failed to derive wallet: ${(e as Error).message}`);
         if (setDerivationError !== undefined) {
           setDerivationError((e as Error).message);
         }
@@ -101,6 +106,7 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
 
   const handleAddressCsvRow = useCallback(
     (parsedRow: AddressesCsv, extendedKeys = workspace.extendedKeys) => {
+      logger.debug('CSV row to be parsed: ', parsedRow);
       const {
         assetId,
         accountName,
@@ -115,7 +121,6 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
       } = parsedRow;
 
       const [, coinType, accountId, changeIndex, addressIndex] = pathParts;
-
       setDerivation({
         extendedKeys,
         assetId,
@@ -153,6 +158,7 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
   const addAccount = useCallback(
     (name: string, newAccountId?: number) => {
       let resolvedAccountId = newAccountId;
+      logger.info(`Adding new vault account: ${name} ${newAccountId ? ' - ' + newAccountId : ''}`);
 
       setWorkspace((prev) => {
         const accounts = new Map(prev.accounts);
@@ -192,6 +198,8 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
     if (typeof assetId !== 'string') {
       throw new Error('Wallet needs an asset ID');
     }
+
+    logger.info(`Adding new wallet in vault account ${accountId}: ${assetId} - ${addressIndex}`);
 
     setDerivation(
       {
