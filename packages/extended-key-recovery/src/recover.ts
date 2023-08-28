@@ -10,6 +10,7 @@ import {
   InvalidRecoveryKitError,
   KeyIdMissingError,
   KeyRecoveryConfig,
+  MasterWallet,
   NoMetadataError,
   NoRSAPassphraseError,
   PlayerData,
@@ -21,6 +22,7 @@ import { parseMetadataFile } from './metadata';
 import { recoverMobileKeyShare } from './mobileKey';
 import { getPlayerId } from './players';
 import { reconstructKeys } from './reconstructKeys';
+import { recoverNCWMaster } from './ncw';
 
 const recoverKeysShares = (
   zipFiles: IZipEntry[],
@@ -88,7 +90,7 @@ const recoverKeysShares = (
   return players;
 };
 
-export const recoverKeys = (params: KeyRecoveryConfig): any => {
+export const recoverKeys = (params: KeyRecoveryConfig): RecoveredKeys => {
   const zipData: Buffer =
     'zipBase64' in params ? Buffer.from(params.zipBase64, 'base64') : fs.readFileSync(path.resolve(params.zipPath));
   const rsaFileData: string =
@@ -163,5 +165,11 @@ export const recoverKeys = (params: KeyRecoveryConfig): any => {
     delete keys.xprv;
     delete keys.fprv;
   }
-  return keys;
+
+  let masterWallet: MasterWallet | undefined;
+  if (Object.keys(masterKeys).length > 0) {
+    masterWallet = recoverNCWMaster(zipFiles, forge.pki.decryptRsaPrivateKey(rsaFileData, params.rsaPass), masterKeys);
+  }
+
+  return { ...keys, masterKey: masterWallet };
 };

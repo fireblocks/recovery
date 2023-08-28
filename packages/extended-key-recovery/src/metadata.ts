@@ -56,7 +56,7 @@ export const parseMetadataFile = (metadataFile: string): RecoveryPackageMetadata
   const masterKeysInKit: { [key: string]: MasterkeyMetadata } = metadataObj.masterKeys;
   for (const key in masterKeysInKit) {
     const keyMetadata = masterKeysInKit[key];
-    const keyType = keyMetadata.keyType;
+    const keyType = keyMetadata.type;
     let walletSeed: Buffer, assetSeed: Buffer;
     if (typeof keyMetadata.walletSeed === 'string') {
       walletSeed = Buffer.from(keyMetadata.walletSeed, 'hex');
@@ -71,7 +71,7 @@ export const parseMetadataFile = (metadataFile: string): RecoveryPackageMetadata
     const cosigners = keyMetadata.cosigners;
 
     masterKeys[key] = {
-      keyType,
+      type: keyType,
       walletSeed,
       assetSeed,
       cosigners,

@@ -86,7 +86,7 @@ export const reconstructKeys = (
   signingKeys: { [key: string]: SigningKeyMetadata },
 ): CalculatedPrivateKey => {
   const privateKeys: CalculatedPrivateKey = {};
-  for (const keyId of Object.keys(players)) {
+  for (const keyId of Object.keys(players).filter((key) => key in signingKeys)) {
     const playerDataForKey = players[keyId];
     const { algo, chainCode } = signingKeys[keyId];
     let [prvKey, pubKey] = calculateKeys(keyId, playerDataForKey, algo);

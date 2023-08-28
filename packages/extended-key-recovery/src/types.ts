@@ -3,8 +3,8 @@ export type CosignerType = 'cloud' | 'mobile';
 export type Algorithm = 'MPC_ECDSA_SECP256K1' | 'MPC_EDDSA_ED25519' | 'MPC_CMP_ECDSA_SECP256K1' | 'MPC_CMP_EDDSA_ED25519';
 
 export type CosignerMetadata = {
-  cosignerId: string;
-  cosignerType: CosignerType;
+  id: string;
+  type: CosignerType;
 };
 
 export type BaseMetadataKey = {
@@ -17,7 +17,7 @@ export type SigningKeyMetadata = BaseMetadataKey & {
 };
 
 export type MasterkeyMetadata = {
-  keyType: string;
+  type: string;
   walletSeed: Uint8Array | string;
   assetSeed: Uint8Array | string;
   cosigners: CosignerMetadata[];
@@ -26,6 +26,12 @@ export type MasterkeyMetadata = {
 export type RecoveryPackageMetadata = {
   signingKeys: { [key: string]: SigningKeyMetadata };
   masterKeys: { [key: string]: MasterkeyMetadata };
+};
+
+export type MasterWallet = {
+  walletSeed: string;
+  assetSeed: string;
+  masterKeyForCosigner: { [key: string]: string };
 };
 
 export class NoMetadataError extends Error {
@@ -90,6 +96,36 @@ export class KeyIdMissingError extends Error {
   }
 }
 
+export class MissingWalletMasterKeyId extends Error {
+  constructor() {
+    super('metadata.json does not contain any non custodial wallet master keys');
+  }
+}
+
+export class AmbiguousWalletMasterKeyId extends Error {
+  constructor() {
+    super('metadata.json contains more than one non custodial wallet master keys');
+  }
+}
+
+export class DuplicateMasterKeyFile extends Error {
+  constructor() {
+    super('Duplicate master key file found in kit');
+  }
+}
+
+export class MissingMasterKeyFile extends Error {
+  constructor() {
+    super('Missing master key file in kit');
+  }
+}
+
+export class InvalidMasterKey extends Error {
+  constructor() {
+    super('Invalid master key');
+  }
+}
+
 export type PlayerData = { [key: string]: { [key: string]: bigint } };
 
 export type MobileKeyShare = {
@@ -107,6 +143,7 @@ export type RecoveredKeys = {
   fprv?: string;
   chainCodeEcdsa?: string;
   chainCodeEddsa?: string;
+  masterKey?: MasterWallet;
 };
 
 export type CalculatedPrivateKey = {
