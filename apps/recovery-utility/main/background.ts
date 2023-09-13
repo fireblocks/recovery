@@ -26,7 +26,18 @@ let relayUrl: string | undefined;
 
 const DEFAULT_PROTOCOL = 'UTILITY';
 const deployment = DeploymentStore.get();
-const protocol = deployment?.protocol || DEFAULT_PROTOCOL;
+let protocol = deployment?.protocol || DEFAULT_PROTOCOL;
+const relay = app.commandLine.hasSwitch('relay');
+const util = app.commandLine.hasSwitch('util');
+console.log(`Command line specified: relay: ${relay}, util: ${util}.`);
+if (relay && util) {
+  console.error('Both relay and util flags were used, ignoring.');
+} else if (relay && !util) {
+  protocol = 'RELAY';
+} else if (util && !relay) {
+  protocol = 'UTILITY';
+}
+
 const { directory, scheme, port } = PROTOCOLS[protocol];
 const schemes = Object.keys(PROTOCOLS).map((key) => PROTOCOLS[key as keyof typeof PROTOCOLS].scheme);
 
@@ -37,10 +48,13 @@ const loadUrl = isDev
   ? async (window_ = win, params?: string) => window_?.loadURL(`http://localhost:${port}${params ? `?${params}` : ''}`)
   : registerFileProtocol({ directory, scheme });
 
-const gotTheLock = app.requestSingleInstanceLock();
+// Obtain lock only in case of non specific application mode
+if (!(util || relay)) {
+  const gotTheLock = app.requestSingleInstanceLock();
 
-if (!gotTheLock) {
-  app.quit();
+  if (!gotTheLock) {
+    app.quit();
+  }
 }
 
 const isValidUrl = (url: string) => {
