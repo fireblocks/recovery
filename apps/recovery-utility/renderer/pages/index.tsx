@@ -62,7 +62,8 @@ const Index = () => {
 
   useEffect(
     () =>
-      void getDeployment().then((protocol) => {
+      void getDeployment().then((deployment) => {
+        const protocol = deployment.exp < Date.now() ? null : deployment.protocol;
         setLoading(false);
         setProtocol(protocol);
       }),

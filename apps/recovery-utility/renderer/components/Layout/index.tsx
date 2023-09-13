@@ -24,8 +24,8 @@ export const Layout = ({ children }: Props) => {
 
   useEffect(
     () =>
-      void getDeployment().then((protocol) => {
-        setProtocol(protocol);
+      void getDeployment().then((deployment) => {
+        setProtocol(deployment.exp < Date.now() ? null : deployment.protocol);
       }),
     [],
   );

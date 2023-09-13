@@ -15,6 +15,7 @@ export const PROTOCOLS = {
 
 export type Deployment = {
   protocol: keyof typeof PROTOCOLS | null;
+  exp: number;
 };
 
 export class DeploymentStore {
@@ -35,6 +36,7 @@ export class DeploymentStore {
 
   public static set(protocol: 'UTILITY' | 'RELAY' | null) {
     DeploymentStore._store.set('protocol', protocol);
+    DeploymentStore._store.set('exp', Date.now() + 5000); // 5 seconds
   }
 
   public static reset() {
