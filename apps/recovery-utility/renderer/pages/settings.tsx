@@ -77,6 +77,15 @@ const Settings = () => {
                 error={errors.relayBaseUrl?.message}
                 {...register('relayBaseUrl')}
               />
+              <Grid item xs={9} marginTop='1rem'>
+                <Grid alignItems='center'>
+                  <Grid item>
+                    <Button type='submit' color='primary'>
+                      Save
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Grid>
             </Grid>
             <Grid item xs={3}>
               <Typography fontWeight='500' color={(t) => t.palette.grey[900]} marginBottom='0.25rem'>
@@ -88,15 +97,6 @@ const Settings = () => {
                 width='100%'
                 bgColor={theme.palette.background.paper}
               />
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid item xs={12} marginTop='1rem'>
-          <Grid container spacing={2} alignItems='center' justifyContent='flex-end'>
-            <Grid item>
-              <Button type='submit' color='primary'>
-                Save
-              </Button>
             </Grid>
           </Grid>
         </Grid>
