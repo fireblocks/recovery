@@ -40,6 +40,7 @@ export { getInitialDocumentProps } from './lib/getInitialDocumentProps';
 
 // Hooks
 export { defaultBaseWorkspaceContext, useBaseWorkspace, useSecureContextCheck } from './hooks';
+export { wrapState } from './lib/debugUtils';
 
 export type { BaseWorkspaceContext, BaseWorkspace } from './hooks';
 
