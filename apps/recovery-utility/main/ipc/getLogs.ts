@@ -7,7 +7,7 @@ import stream from 'stream';
 
 const appName = process.env.NODE_ENV === 'development' ? '@fireblocks/recovery-utility' : 'Fireblocks Recovery Utility';
 
-const getLogPath = (processName: 'utility' | 'relay' | 'shared') => {
+const getLogPath = (processName: 'utility' | 'relay' | 'shared' | 'main' | 'renderer') => {
   switch (os.platform()) {
     case 'darwin':
       // macOS
@@ -53,4 +53,12 @@ const createZipFromFiles = async (...filePaths: string[]) =>
     archive.finalize();
   });
 
-ipcMain.handle('logs/get', async () => createZipFromFiles(getLogPath('utility'), getLogPath('relay'), getLogPath('shared')));
+ipcMain.handle('logs/get', async () =>
+  createZipFromFiles(
+    getLogPath('utility'),
+    getLogPath('relay'),
+    getLogPath('shared'),
+    getLogPath('main'),
+    getLogPath('renderer'),
+  ),
+);
