@@ -22,7 +22,7 @@ export type BaseWorkspaceContext<
   Derivation extends BaseWallet = BaseWallet,
   App extends 'utility' | 'relay' = 'utility',
 > = BaseWorkspace<Derivation, App> & {
-  setInboundRelayUrl: (relayUrl: string | null) => void;
+  setInboundRelayUrl: (relayUrl: string | null) => boolean;
   getOutboundRelayUrl: <Params extends App extends 'utility' ? RelayRequestParams : RelayResponseParams>(
     params: Params,
   ) => string;

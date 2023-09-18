@@ -31,7 +31,7 @@ const defaultBaseWorkspace: BaseWorkspace<BaseWallet> = {
 
 export const defaultBaseWorkspaceContext: BaseWorkspaceContext<BaseWallet> = {
   ...defaultBaseWorkspace,
-  setInboundRelayUrl: () => undefined,
+  setInboundRelayUrl: () => false,
   getOutboundRelayUrl: () => '',
   setExtendedKeys: () => undefined,
   importCsv: () => Promise.resolve(),

@@ -1,11 +1,20 @@
 import { useMemo, useState, ReactNode } from 'react';
 import { nanoid } from 'nanoid';
 import { Typography, Box } from '@mui/material';
-import { VaultAccount, BaseModal, AssetIcon, TransactionInitInput, RelayRxTx } from '@fireblocks/recovery-shared';
+import {
+  VaultAccount,
+  BaseModal,
+  AssetIcon,
+  TransactionInitInput,
+  RelayRxTx,
+  getLogger,
+  wrapState,
+} from '@fireblocks/recovery-shared';
 import { getAssetConfig, derivableAssets, AssetConfig, getDerivableAssetConfig } from '@fireblocks/asset-config';
 import { useWorkspace } from '../../../context/Workspace';
 import { InitiateTransaction } from './InitiateTransaction';
 import { SignTransaction } from './SignTransaction';
+import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 
 type Props = {
   assetId?: string;
@@ -50,9 +59,11 @@ export const WithdrawModal = ({ assetId, accountId, open, onClose: onCloseModal 
     [accountsArray],
   );
 
-  const [txInitData, setTxInitData] = useState<TransactionInitInput | null>(null);
+  const [txInitData, setTxInitDataInt] = useState<TransactionInitInput | null>(null);
 
-  const [createTxOutboundRelayUrl, setCreateTxOutboundRelayUrl] = useState<string | null>(null);
+  const [createTxOutboundRelayUrl, setCreateTxOutboundRelayUrlInt] = useState<string | null>(null);
+  const setTxInitData = wrapState<TransactionInitInput | null>('txInitData', setTxInitDataInt);
+  const setCreateTxOutboundRelayUrl = wrapState<string | null>('createTxOutboundRelayUrl', setCreateTxOutboundRelayUrlInt);
 
   const selectedAccount = typeof accountId === 'number' ? accounts.get(accountId) : undefined;
 
@@ -118,7 +129,9 @@ export const WithdrawModal = ({ assetId, accountId, open, onClose: onCloseModal 
             txTitle={`xpub/fpub, account ${txInitData.accountId}, asset ${txInitData.assetId}`}
             txUrl={createTxOutboundRelayUrl}
             onDecodeQrCode={(data) => {
-              setInboundRelayUrl(data);
+              if (!setInboundRelayUrl(data)) {
+                return;
+              }
               setCreateTxOutboundRelayUrl(null);
             }}
           />
