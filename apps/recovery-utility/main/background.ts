@@ -130,8 +130,12 @@ export async function createWindow() {
   win.webContents.once('dom-ready', () => handleRelayUrl());
 
   win.once('ready-to-show', async () => {
-    const approval = await systemPreferences.askForMediaAccess('camera');
-    console.info(`${protocol} - Camera access approval: ${approval}`);
+    if (systemPreferences.askForMediaAccess && typeof systemPreferences.askForMediaAccess === 'function') {
+      const approval = await systemPreferences.askForMediaAccess('camera');
+      console.info(`${protocol} - Camera access approval: ${approval}`);
+    } else {
+      console.info('No askForMediaAccess function');
+    }
     win?.show();
   });
 
@@ -242,8 +246,12 @@ app.on('second-instance', (event, commandLine) => {
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
   createWindow();
-  const approval = await systemPreferences.askForMediaAccess('camera');
-  console.info(`${protocol} - Camera access approval: ${approval}`);
+  if (systemPreferences.askForMediaAccess && typeof systemPreferences.askForMediaAccess === 'function') {
+    const approval = await systemPreferences.askForMediaAccess('camera');
+    console.info(`${protocol} - Camera access approval: ${approval}`);
+  } else {
+    console.info('No askForMediaAccess function');
+  }
 });
 
 app.on('window-all-closed', () => {

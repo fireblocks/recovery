@@ -158,7 +158,7 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
   const addAccount = useCallback(
     (name: string, newAccountId?: number) => {
       let resolvedAccountId = newAccountId;
-      logger.info(`Adding new vault account: ${name} ${newAccountId ? ' - ' + newAccountId : ''}`);
+      logger.info(`Adding new vault account: ${name} ${newAccountId ? ` - ${newAccountId}` : ''}`);
 
       setWorkspace((prev) => {
         const accounts = new Map(prev.accounts);
