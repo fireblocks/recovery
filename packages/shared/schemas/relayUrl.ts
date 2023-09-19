@@ -81,7 +81,6 @@ export type RelayBroadcastTxRequestParams = z.infer<typeof relayBroadcastTxReque
 const relayBaseResponseParams = z.object({
   accountId: accountIdSchema,
   version: versionSchema('Relay'),
-  host: z.string().url('Invalid host'),
   ip: z.string().ip('Invalid IP address').optional(),
 });
 

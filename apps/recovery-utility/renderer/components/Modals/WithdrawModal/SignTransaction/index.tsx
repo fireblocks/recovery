@@ -111,10 +111,6 @@ export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Pr
     );
   };
 
-  if (inboundRelayParams.host !== new URL(relayBaseUrl).host) {
-    return <BlockedMessage>Recovery Relay host does not match the base URL in Settings.</BlockedMessage>;
-  }
-
   if (inboundRelayParams.accountId !== account.id || unsignedTx.path[2] !== account.id) {
     return <BlockedMessage>Unexpected account ID from Recovery Relay.</BlockedMessage>;
   }
@@ -205,15 +201,6 @@ export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Pr
                     <LeakAdd />
                   </ListItemIcon>
                   <ListItemText primary='Recovery Relay Instance' primaryTypographyProps={{ fontWeight: '600', color: '#000' }} />
-                </ListItem>
-                <ListItem disablePadding>
-                  <ListItemText
-                    primary='Host'
-                    secondary={inboundRelayParams.host}
-                    primaryTypographyProps={{ fontWeight: '500' }}
-                    secondaryTypographyProps={{ fontFamily: monospaceFontFamily, sx: textOverflowStyles }}
-                    sx={{ paddingLeft: '42px' }}
-                  />
                 </ListItem>
                 <ListItem disablePadding>
                   <ListItemText

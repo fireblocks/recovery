@@ -192,7 +192,6 @@ export const WorkspaceProvider = ({ children }: Props) => {
     baseGetOutboundRelayUrl({
       ...params,
       version: packageJson.version,
-      host: window.location.host,
       ip: ipQuery.data,
     });
 
