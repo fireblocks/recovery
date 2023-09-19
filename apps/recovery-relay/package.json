@@ -5,7 +5,7 @@
   "repository": "https://github.com/fireblocks/recovery/tree/main/apps/recovery-relay",
   "homepage": "https://relay.fireblocks.solutions",
   "license": "GPL-3.0-or-later",
-  "version": "0.1.1",
+  "version": "0.3.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
