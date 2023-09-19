@@ -14,6 +14,8 @@ import { useWorkspace } from '../../context/Workspace';
 import { CreateTransaction } from './CreateTransaction';
 import { LateInitConnectedWallet } from '../../lib/wallets/LateInitConnectedWallet';
 import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
+import { Derivation } from '@fireblocks/wallet-derivation';
+import { sanatizeDerivation } from '@fireblocks/recovery-shared/lib/sanatize';
 
 const logger = getLogger(LOGGER_NAME_RELAY);
 
@@ -116,7 +118,8 @@ export const WithdrawModal = () => {
 
                     const signedTxHex = inboundRelayParams?.signedTx.hex;
 
-                    logger.info('Derivation and signed transaction hash:', { derivation, signedTxHex });
+                    const cleanDerivation = derivation ? sanatizeDerivation(derivation) : undefined;
+                    logger.info('Derivation and signed transaction hash:', { cleanDerivation, signedTxHex });
 
                     const newTxHash = await derivation?.broadcastTx(signedTxHex);
 
