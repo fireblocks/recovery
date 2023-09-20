@@ -137,7 +137,11 @@ export const recoverKeys = (params: KeyRecoveryConfig): RecoveredKeys => {
     }
   }
 
-  const privateKeys: CalculatedPrivateKey = reconstructKeys(players, signingKeys);
+  const privateKeysTemp: CalculatedPrivateKey | undefined = reconstructKeys(players, signingKeys);
+  if (!privateKeysTemp) {
+    throw new Error('Mismatch between recovered keys and metadata - unable to continue');
+  }
+  const privateKeys = privateKeysTemp!;
 
   const keyAlgorithms: Algorithm[] = Object.keys(privateKeys) as Algorithm[];
   let ecdsa: Algorithm;

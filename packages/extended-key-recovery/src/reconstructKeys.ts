@@ -84,7 +84,7 @@ const calculateKeys = (keyId: string, playerData: { [key: string]: bigint }, alg
 export const reconstructKeys = (
   players: PlayerData,
   signingKeys: { [key: string]: SigningKeyMetadata },
-): CalculatedPrivateKey => {
+): CalculatedPrivateKey | undefined => {
   const privateKeys: CalculatedPrivateKey = {};
   for (const keyId of Object.keys(players).filter((key) => key in signingKeys)) {
     const playerDataForKey = players[keyId];
@@ -96,7 +96,7 @@ export const reconstructKeys = (
       console.error(
         `Failed to recover ${algo} key. Expected public key is ${pubFromMetadata} got: ${BigInt(`0x${pubKey}`).toString(16)}.`,
       );
-      prvKey = '';
+      return undefined;
     } else {
       if (Object.keys(prvKey).includes(algo)) {
         continue;
