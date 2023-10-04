@@ -39,7 +39,7 @@
     "semver-regex": "^4.0.5",
     "superjson": "^1.12.4",
     "webrtc-adapter": "^8.2.3",
-    "zod": "^3.21.4"
+    "zod": "^3.22.3"
   },
   "devDependencies": {
     "@tanstack/react-query-devtools": "^4.29.19",

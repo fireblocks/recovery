@@ -62,7 +62,7 @@
     "superjson": "^1.12.4",
     "tronweb": "^5.2.0",
     "xrpl": "^2.8.1",
-    "zod": "^3.21.4"
+    "zod": "^3.22.3"
   },
   "devDependencies": {
     "@babel/core": "^7.22.8",
