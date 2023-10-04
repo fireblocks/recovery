@@ -18,6 +18,12 @@
   </a>
 </p>
 
+## Beta Warning
+⚠️⚠️⚠️ WARNING ⚠️⚠️⚠️<br/>
+This tool is currently in beta stage, it is subject to change and might contain bugs.
+For the current recommended production tool please visit the [python key recovery tool](https://github.com/fireblocks/fireblocks-key-recovery-tool).
+For beta access please contact your Customer Success Manager.
+
 ---
 
 ## [📚 User Guide](apps/recovery-utility/README.md)
