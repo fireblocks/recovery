@@ -39,7 +39,7 @@ export const recoverMobileKeyShare = (
     if (algorithmMapping[signingKeys[keyId].algo.toString() as string] !== algoId) {
       throw new UnknownAlgorithmError();
     }
-    decryptedKey = decryptedKey.subarray(0, 4);
+    decryptedKey = decryptedKey.subarray(4);
   }
 
   return {

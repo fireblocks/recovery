@@ -6,10 +6,6 @@ Recover extended private/public keys from a Recovery Kit
 
 Recovers `xpub`, `fpub`, `xprv`, and `fprv` from a complete set of recovery materials. Use with [`@fireblocks/wallet-derivation`](../wallet-derivation/) to derive wallets from these recovered extended keys. This module is spawned by [Recovery Utility](../recovery-utility) when recovering or verifying a Recovery Kit.
 
-## Build Process
-
-The module is compiled to an executable by [PyInstaller](https://pyinstaller.org/en/stable/), and this executable can run portably without the Python runtime or dependent modules. Recovery Utility includes this executable in its [contents](https://www.electron.build/configuration/contents.html#extrafiles), spawns it as a child process, and reads from `stdout` to retrieve the extended keys.
-
 ## Usage
 
 Recovery materials include:
