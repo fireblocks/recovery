@@ -40,10 +40,10 @@ export class EVM extends EVMBase implements ConnectedWallet {
 
     const adjustedBalance = parseEther(String(balance)) - gas;
 
-    console.info({ gas: Number(gas), balance, adjustedBalance });
+    this.relayLogger.info({ gas: gas.toString(), balance, adjustedBalance });
 
     if (adjustedBalance < 0) {
-      console.error('Insufficient balance');
+      this.relayLogger.error('Insufficient balance');
     }
 
     const preparedData = {
@@ -52,7 +52,7 @@ export class EVM extends EVMBase implements ConnectedWallet {
       gasPrice,
     };
 
-    this.relayLogger.debug(`EVM: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.debug(`EVM: Prepared data: ${preparedData}`);
     return preparedData;
   }
 
