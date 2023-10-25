@@ -20,7 +20,7 @@
 
 ## Beta Warning
 ⚠️⚠️⚠️ WARNING ⚠️⚠️⚠️<br/>
-This tool is currently in beta stage, it is subject to change and might contain bugs.
+This tool is currently in beta stage, it is subject to change and might contain bugs. Please use it for testing purposes only, and not for mainnet workspaces.
 For the current recommended production tool please visit the [python key recovery tool](https://github.com/fireblocks/fireblocks-key-recovery-tool).
 For beta access please contact your Customer Success Manager.
 
