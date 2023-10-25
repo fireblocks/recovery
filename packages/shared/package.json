@@ -29,7 +29,7 @@
     "copy-to-clipboard": "^3.3.3",
     "jsoncrush": "^1.1.8",
     "nanoid": "^4.0.2",
-    "next": "^13.4.19",
+    "next": "^13.5.0",
     "papaparse": "^5.4.1",
     "qr-scanner": "^1.4.2",
     "qrcode.react": "^3.1.0",
