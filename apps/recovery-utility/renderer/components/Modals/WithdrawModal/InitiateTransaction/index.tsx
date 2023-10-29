@@ -11,10 +11,12 @@ import {
   Button,
   getLogger,
 } from '@fireblocks/recovery-shared';
+import { AddressValidator } from '@fireblocks/recovery-shared/schemas/validateAddress';
 import { AssetConfig, getAssetConfig } from '@fireblocks/asset-config';
 import { useWorkspace } from '../../../../context/Workspace';
 import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 import { useEffect } from 'react';
+import { getNetworkProtocol } from '@fireblocks/asset-config/util';
 
 type Props = {
   accountsArray: VaultAccount[];
@@ -34,6 +36,7 @@ export const InitiateTransaction = ({ accountsArray, assetsInAccount, initialAcc
     watch,
     setValue,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<TransactionInitInput>({
     resolver: zodResolver(transactionInitInput),
@@ -47,6 +50,19 @@ export const InitiateTransaction = ({ accountsArray, assetsInAccount, initialAcc
     // reValidateMode: 'onChange',
   });
 
+  const onSubmitForm = async (data: TransactionInitInput) => {
+    const destAddressValidator = new AddressValidator();
+    const networkProtocol: string | undefined = getNetworkProtocol(data.assetId);
+    if (destAddressValidator.isValidAddress(data.to, networkProtocol)) {
+      onSubmit(data);
+    } else {
+      setError('to', {
+        type: 'manual',
+        message: 'Invalid address format',
+      });
+    }
+  };
+
   const [assetId, accountId] = watch(['assetId', 'accountId']);
 
   useEffect(() => {
@@ -54,7 +70,7 @@ export const InitiateTransaction = ({ accountsArray, assetsInAccount, initialAcc
   }, [assetId, accountId]);
 
   return (
-    <Grid component='form' container spacing={2} onSubmit={handleSubmit(onSubmit)}>
+    <Grid component='form' container spacing={2} onSubmit={handleSubmit(onSubmitForm)}>
       <Grid item xs={12}>
         <Autocomplete
           id='assetId'
@@ -138,13 +154,19 @@ export const InitiateTransaction = ({ accountsArray, assetsInAccount, initialAcc
         <TextField
           id='toAddress'
           label='Recipient Address'
-          error={errors.to?.message}
           autoComplete='off'
           autoCapitalize='off'
           spellCheck={false}
           isMonospace
+          error={!!errors.to}
+          inputProps={{
+            sx: {
+              borderColor: errors.to ? 'red' : undefined,
+            },
+          }}
           {...register('to')}
         />
+        {errors.to && <div style={{ color: 'red' }}>{errors.to.message}</div>}
       </Grid>
       <Grid item xs={12}>
         <Button type='submit' variant='contained' color='primary' fullWidth>
