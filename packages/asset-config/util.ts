@@ -32,6 +32,8 @@ export const isExplorerUrl = (url: string) =>
 
 export const getAssetConfig = (assetId?: string) => (isAssetId(assetId) ? assets[assetId] : undefined);
 
+export const getNetworkProtocol = (assetId: string) => getAssetConfig(assetId)?.protocol;
+
 export const getNativeAssetConfig = <ID extends string>(assetId?: ID) =>
   isNativeAssetId(assetId) ? getAssetConfig(assetId) : (undefined as never);
 
