@@ -11,7 +11,7 @@ import {
   Button,
   getLogger,
 } from '@fireblocks/recovery-shared';
-import { AddressValidator } from '@fireblocks/recovery-shared/schemas/validateAddress';
+import { AddressValidator } from '@fireblocks/recovery-shared/lib/validateAddress';
 import { AssetConfig, getAssetConfig } from '@fireblocks/asset-config';
 import { useWorkspace } from '../../../../context/Workspace';
 import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
