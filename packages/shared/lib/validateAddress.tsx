@@ -87,7 +87,12 @@ export class AddressValidator {
   }
 
   static isCosmosAddress(address: string): boolean {
-    return /^cosmos1[0-9a-zA-Z]{38}$/.test(address);
+    try {
+      // add logic
+      return false;
+    } catch (error) {
+      return false;
+    }
   }
 
   static isEosAddress(address: string): boolean {
@@ -96,7 +101,11 @@ export class AddressValidator {
 
   static isPolkadotAddress(address: string): boolean {
     // TODO: regex not good, need to review base58 usage
-    return false;
+    try {
+      return false;
+    } catch (error) {
+      return false;
+    }
   }
 
   static isEthereumClassicAddress(address: string): boolean {
