@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { Typography, Box, Grid, List, ListItem, ListItemIcon, ListItemText, SxProps, Theme } from '@mui/material';
 import {
   VaultAccount,
@@ -9,20 +9,17 @@ import {
   VaultAccountIcon,
   AssetIcon,
   AssetsIcon,
+  getLogger,
+  sanatize,
+  useWrappedState,
 } from '@fireblocks/recovery-shared';
 import { AssetConfig } from '@fireblocks/asset-config';
 import { CallMade, CallReceived, LeakAdd, Toll } from '@mui/icons-material';
 import { useWorkspace } from '../../../../context/Workspace';
 import { useSettings } from '../../../../context/Settings';
 import { SigningWallet } from '../../../../lib/wallets/SigningWallet';
-import {
-  StdUTXO,
-  BaseUTXOType,
-  LegacyUTXOType,
-  SegwitUTXOType,
-  BTCSegwitUTXO,
-  BTCLegacyUTXO,
-} from '../../../../lib/wallets/types';
+import { StdUTXO, BaseUTXOType, SegwitUTXOType, BTCSegwitUTXO, BTCLegacyUTXO } from '../../../../lib/wallets/types';
+import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 
 const BlockedMessage = ({ children }: { children: ReactNode }) => (
   <Box>
@@ -45,16 +42,22 @@ type Props = {
   inboundRelayParams: RelaySignTxResponseParams;
 };
 
+const logger = getLogger(LOGGER_NAME_UTILITY);
+
 export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Props) => {
+  logger.info('Inbound relay params', inboundRelayParams);
+
   const { unsignedTx } = inboundRelayParams;
 
   const { extendedKeys, getOutboundRelayUrl } = useWorkspace();
 
   const { relayBaseUrl } = useSettings();
 
-  const [outboundRelayUrl, setOutboundRelayUrl] = useState<string | undefined>();
+  const [outboundRelayUrl, setOutboundRelayUrl] = useWrappedState<string | undefined>('outboundRelayUrl', undefined);
 
   const onApproveTransaction = async () => {
+    logger.info(`Trying to approve transaction.`);
+
     const { xprv, fprv } = extendedKeys || {};
 
     if (!xprv || !fprv) {
@@ -69,7 +72,8 @@ export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Pr
       throw new Error('Derivation not found');
     }
 
-    console.info(`About to sign tx to ${to}`, { derivation });
+    const sanatizedDerivation = sanatize(derivation);
+    logger.debug(`About to sign tx to ${to}`, { sanatizedDerivation });
 
     const utxos = misc
       ? misc?.utxoType === BaseUTXOType
@@ -91,7 +95,7 @@ export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Pr
       extraParams: misc?.extraParams,
     });
 
-    console.info({ tx });
+    logger.info({ tx });
 
     setOutboundRelayUrl(
       getOutboundRelayUrl({

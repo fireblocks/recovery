@@ -3,7 +3,7 @@ import { getDerivableAssetConfig } from '@fireblocks/asset-config';
 import { VaultAccount, Wallet } from '../../types';
 import { LOGGER_NAME_SHARED } from '../../constants';
 import { getLogger } from '../../lib/getLogger';
-import { sanatizeInput } from '../../lib/sanatize';
+import { sanatize } from '../../lib/sanatize';
 
 const logger = getLogger(LOGGER_NAME_SHARED);
 
@@ -52,7 +52,8 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(input: Deri
     deriveWallet,
   } = input;
 
-  logger.debug('reduceDerivations', { input });
+  const sanatizedReduction = sanatize(input);
+  logger.debug('reduceDerivations', { sanatizedReduction });
 
   const path = {
     ...input.path,
@@ -116,7 +117,7 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(input: Deri
 
   // Derive wallet
   if (shouldDerive) {
-    logger.info('Will derive wallet for input: ', sanatizeInput(derivationInput));
+    logger.info('Will derive wallet for input: ', sanatize(derivationInput));
     const derivation = deriveWallet(derivationInput);
 
     if (address && derivation.address !== address) {

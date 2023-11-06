@@ -1,4 +1,4 @@
-import React, { useState, useMemo, ComponentType, useEffect } from 'react';
+import React, { useMemo, ComponentType, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { getAssetConfig, derivableAssets } from '@fireblocks/asset-config';
 import { Box, Typography, Breadcrumbs } from '@mui/material';
@@ -14,6 +14,7 @@ import { DataGrid } from '../../../../components/DataGrid';
 import { Link } from '../../../../components/Link';
 import { VaultAccountIcon, AssetIcon, WithdrawIcon, DepositAddressesIcon, KeyIcon } from '../../../../components/Icons';
 import { ErrorModal } from '../../../../components';
+import { useWrappedState } from '../../../../lib/debugUtils';
 
 export type Row = {
   assetId: string;
@@ -69,7 +70,7 @@ type Props = {
 export const VaultAccountBasePage = ({ account, withdrawModal: WithdrawModal, addWallet }: Props) => {
   const router = useRouter();
 
-  const [derivationError, setDerivationError] = useState<string | undefined>(undefined);
+  const [derivationError, setDerivationError] = useWrappedState<string | undefined>('vaultBase-derivationError', undefined);
 
   useEffect(() => {
     if (!account) {
@@ -98,22 +99,22 @@ export const VaultAccountBasePage = ({ account, withdrawModal: WithdrawModal, ad
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [isRestoreWalletModalOpen, setIsRestoreWalletModalOpen] = useState(false);
+  const [isRestoreWalletModalOpen, setIsRestoreWalletModalOpen] = useWrappedState('isRestoreWalletModalOpen', false);
 
   const handleOpenRestoreWalletModal = () => setIsRestoreWalletModalOpen(true);
   const handleCloseRestoreWalletModal = () => setIsRestoreWalletModalOpen(false);
 
-  const [addressesModalRow, setAddressesModalRow] = useState<Row | null>(null);
+  const [addressesModalRow, setAddressesModalRow] = useWrappedState<Row | null>('addressesModalRow', null);
 
   const handleOpenAddressesModal = (row: Row) => setAddressesModalRow(row);
   const handleCloseAddressesModal = () => setAddressesModalRow(null);
 
-  const [keysModalRow, setKeysModalRow] = useState<Row | null>(null);
+  const [keysModalRow, setKeysModalRow] = useWrappedState<Row | null>('keysModalRow', null, true);
 
   const handleOpenKeysModal = (row: Row) => setKeysModalRow(row);
   const handleCloseKeysModal = () => setKeysModalRow(null);
 
-  const [withdrawalAssetId, setWithdrawalAssetId] = useState<string | undefined>(undefined);
+  const [withdrawalAssetId, setWithdrawalAssetId] = useWrappedState<string | undefined>('withdrawalAssetId', undefined);
 
   const handleOpenWithdrawModal = (assetId: string) => setWithdrawalAssetId(assetId);
   const handleCloseWithdrawModal = () => setWithdrawalAssetId(undefined);

@@ -1,7 +1,8 @@
-import { useState, MouseEvent } from 'react';
+import { MouseEvent, useEffect } from 'react';
 import { Typography, Box, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { theme, monospaceFontFamily, Button, BaseModal, QrCode } from '@fireblocks/recovery-shared';
+import { theme, monospaceFontFamily, Button, BaseModal, QrCode, getLogger, useWrappedState } from '@fireblocks/recovery-shared';
+import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 
 type Props = {
   publicKey: string;
@@ -14,7 +15,11 @@ enum ApprovalMethod {
   QR_CODE = 'QR_CODE',
 }
 
+const logger = getLogger(LOGGER_NAME_UTILITY);
+
 const getShortKey = async (publicKey: string) => {
+  logger.info(`Computing short key for public key ${publicKey}`);
+
   const publicKeyBuffer = new TextEncoder().encode(publicKey);
 
   const digestBuffer = await crypto.subtle.digest('SHA-256', publicKeyBuffer);
@@ -29,7 +34,7 @@ const getShortKey = async (publicKey: string) => {
 };
 
 export function ChecksumModal({ publicKey, open, onClose }: Props) {
-  const [approvalMethod, setApprovalMethod] = useState<ApprovalMethod>(ApprovalMethod.QR_CODE);
+  const [approvalMethod, setApprovalMethod] = useWrappedState<ApprovalMethod>('approvalMethod', ApprovalMethod.QR_CODE);
 
   const isShortKey = approvalMethod === ApprovalMethod.SHORT_KEY;
 

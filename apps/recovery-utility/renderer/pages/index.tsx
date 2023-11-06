@@ -1,9 +1,10 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { Grid, Typography, SxProps, CircularProgress, Box } from '@mui/material';
 import { ImportExport, ManageHistory, Restore, Verified, Warning, LeakAdd } from '@mui/icons-material';
-import { Button, NextLinkComposed, KeyIcon, VaultAccountIcon } from '@fireblocks/recovery-shared';
+import { Button, NextLinkComposed, KeyIcon, VaultAccountIcon, getLogger, useWrappedState } from '@fireblocks/recovery-shared';
 import { useWorkspace } from '../context/Workspace';
 import { getDeployment, useDeployment } from '../lib/ipc';
+import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 
 const buttonStyles: SxProps = {
   padding: '0.2rem',
@@ -53,17 +54,23 @@ const BoxButton = ({ icon: Icon, title, description, color = 'primary', href, di
 const Index = () => {
   const { extendedKeys: { xpub, fpub, xprv, fprv } = {} } = useWorkspace();
 
+  const logger = getLogger(LOGGER_NAME_UTILITY);
+
   const hasExtendedKeys = !!xpub || !!fpub || !!xprv || !!fprv;
 
-  const [loading, setLoading] = useState(true);
-  const [protocol, setProtocol] = useState<'UTILITY' | 'RELAY' | null>(null);
+  const [loading, setLoading] = useWrappedState<boolean>('util-loading', true);
+  const [protocol, setProtocol] = useWrappedState<'UTILITY' | 'RELAY' | null>('util-protocol', null);
 
-  const onClickDeployment = async (_protocol: 'UTILITY' | 'RELAY') => useDeployment(_protocol);
+  const onClickDeployment = async (_protocol: 'UTILITY' | 'RELAY') => {
+    logger.debug(`Setting deployment ${_protocol}`);
+    useDeployment(_protocol);
+  };
 
   useEffect(
     () =>
       void getDeployment().then((deployment) => {
-        const protocol = deployment.exp < Date.now() ? null : deployment.protocol;
+        logger.debug(`Using deployment ${JSON.stringify(deployment)}`);
+        const protocol = deployment.exp && deployment.exp > Date.now() ? deployment.protocol : null;
         setLoading(false);
         setProtocol(protocol);
       }),

@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import { RelayRequestParams, RelayResponseParams } from '../../../schemas';
 import { getRelayParams, getRelayUrl } from '../../../lib/relayUrl';
 import { LOGGER_NAME_SHARED } from '../../../constants';
 import { getLogger } from '../../../lib/getLogger';
+import { useWrappedState } from '../../../lib/debugUtils';
 
 // eslint-disable-next-line import/no-mutable-exports
 export let initialHref: string | undefined;
@@ -53,7 +53,7 @@ export const useRelayUrl = <App extends 'utility' | 'relay'>(app: App, baseUrl: 
    */
   const getOutboundRelayUrl = <Params extends OutboundParams>(params: Params) => getRelayUrl(recipient, baseUrl, params);
 
-  const [inboundRelayParams, setInboundRelayParams] = useState(getInboundRelayParamsFromWindow);
+  const [inboundRelayParams, setInboundRelayParams] = useWrappedState<any>('inboundRelayParams', getInboundRelayParamsFromWindow);
 
   /**
    * Set `inboundRelayParams` based on a Relay URL

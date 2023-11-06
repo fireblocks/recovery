@@ -40,7 +40,7 @@ export { getInitialDocumentProps } from './lib/getInitialDocumentProps';
 
 // Hooks
 export { defaultBaseWorkspaceContext, useBaseWorkspace, useSecureContextCheck } from './hooks';
-export { wrapState } from './lib/debugUtils';
+export { useWrappedState } from './lib/debugUtils';
 
 export type { BaseWorkspaceContext, BaseWorkspace } from './hooks';
 
@@ -57,7 +57,8 @@ export { download } from './lib/download';
 
 export { getLogger } from './lib/getLogger';
 
-export { sanatizeInput as sanatize, sanatizeDerivation as clearLoggers } from './lib/sanatize';
+// export { sanatizeInput, sanatizeDerivation, sanatizeCSVRow, sanatizeReduction } from './lib/sanatize';
+export { sanatize } from './lib/sanatize';
 
 // Theme
 export { monospaceFontFamily, theme } from './theme';

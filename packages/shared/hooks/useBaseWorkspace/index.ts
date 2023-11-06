@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { Input, BaseWallet } from '@fireblocks/wallet-derivation';
 import { LocalFile } from 'papaparse';
@@ -13,6 +13,8 @@ import { reduceDerivations, testIsLegacy, DerivationReducerInput } from './reduc
 import { reduceTransactions } from './reduceTransactions';
 import { LOGGER_NAME_SHARED } from '../../constants';
 import { getLogger } from '../../lib/getLogger';
+import { sanatize } from '../../lib/sanatize';
+import { useWrappedState } from '../../lib/debugUtils';
 
 export type { BaseWorkspace, BaseWorkspaceContext };
 
@@ -57,8 +59,10 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
 
   const { inboundRelayParams, setInboundRelayUrl, getOutboundRelayUrl } = useRelayUrl(app, relayBaseUrl);
 
-  const [workspace, setWorkspace] = useState<BaseWorkspaceInput<Derivation>>(
+  const [workspace, setWorkspace] = useWrappedState<BaseWorkspaceInput<Derivation>>(
+    'workspace',
     defaultBaseWorkspaceInput as BaseWorkspaceInput<Derivation>,
+    true,
   );
 
   const account = typeof query.accountId === 'string' ? workspace.accounts.get(parseInt(query.accountId, 10)) : undefined;
@@ -106,7 +110,8 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
 
   const handleAddressCsvRow = useCallback(
     (parsedRow: AddressesCsv, extendedKeys = workspace.extendedKeys) => {
-      logger.debug('CSV row to be parsed: ', parsedRow);
+      const sanatizedRow = sanatize(parsedRow);
+      logger.debug('CSV row to be parsed: ', sanatizedRow);
       const {
         assetId,
         accountName,

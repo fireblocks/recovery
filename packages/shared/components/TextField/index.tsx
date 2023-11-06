@@ -1,4 +1,4 @@
-import React, { forwardRef, useState, ReactNode, FocusEvent, RefObject, useRef } from 'react';
+import React, { forwardRef, ReactNode, FocusEvent, RefObject, useRef } from 'react';
 import copy from 'copy-to-clipboard';
 import {
   FormControl,
@@ -13,6 +13,7 @@ import { Visibility, VisibilityOff, QrCode2, ContentCopy, Check } from '@mui/ico
 import { monospaceFontFamily } from '../../theme';
 import { NextLinkComposed } from '../Link';
 import { InputBase } from '../InputBase';
+import { useWrappedState } from '../../lib/debugUtils';
 
 export type TextFieldProps = Omit<InputBaseProps, 'error'> & {
   id: string;
@@ -54,8 +55,8 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
 
     const helpText = error || _helpText;
 
-    const [revealed, setRevealed] = useState(type !== 'password');
-    const [copied, setCopied] = useState(false);
+    const [revealed, setRevealed] = useWrappedState<boolean>('textField-revealed', type !== 'password');
+    const [copied, setCopied] = useWrappedState<boolean>('textField-copied', false);
     const copiedTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const getData = () => {

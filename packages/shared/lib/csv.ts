@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { addressesCsv, AddressesCsv, balancesCsv, BalancesCsv } from '../schemas';
 import { getLogger } from './getLogger';
 import { LOGGER_NAME_SHARED } from '../constants';
+import { sanatize } from './sanatize';
 
 /**
  * Addresses CSV row
@@ -89,7 +90,7 @@ const parseRow = <T extends 'addresses' | 'balances'>(row: T extends 'addresses'
       } = row as AddressesCsvRow;
 
       const pathParts = path.match(/(\d+)/g)?.map(Number);
-      logger.debug('parseRow', { pathParts });
+      logger.debug('parseRow path parts -', { pathParts });
       return addressesCsv.parse({
         accountName,
         accountId,
@@ -147,7 +148,8 @@ export const csvImport = async <T extends 'addresses' | 'balances'>(
       skipEmptyLines: 'greedy',
       fastMode: true,
       step: ({ data, errors }) => {
-        logger.debug('csvImport', { data, errors });
+        const sanatizedData = sanatize(data as unknown);
+        logger.debug('csvImport', { sanatizedData, errors });
         if (errors.length > 0) {
           reject(errors.length > 1 ? errors : errors[0]);
           return;

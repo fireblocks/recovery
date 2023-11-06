@@ -3,7 +3,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { pki } from 'node-forge';
-import { NextLinkComposed, TextField, Button, generateRsaKeypairInput, theme, getLogger } from '@fireblocks/recovery-shared';
+import {
+  NextLinkComposed,
+  TextField,
+  Button,
+  generateRsaKeypairInput,
+  theme,
+  getLogger,
+  useWrappedState,
+} from '@fireblocks/recovery-shared';
 import {
   Box,
   Grid,
@@ -75,15 +83,15 @@ const generateRsaKeypair = (passphrase: string) => {
 const Setup = () => {
   const { isOnline } = useConnectionTest();
 
-  const [activeStep, setActiveStep] = useState<2 | 3 | 4 | 5 | 6 | 7>(2);
+  const [activeStep, setActiveStep] = useWrappedState<2 | 3 | 4 | 5 | 6 | 7>('activeStep', 2);
 
-  const [rsaKeypair, setRsaKeypair] = useState<Keypair | null>(null);
+  const [rsaKeypair, setRsaKeypair] = useState<Keypair | null>(null); // Do not track
 
-  const [isChecksumModalOpen, setIsChecksumModalOpen] = useState(false);
+  const [isChecksumModalOpen, setIsChecksumModalOpen] = useWrappedState('isChecksumModalOpen', false);
 
-  const [step6Checked, setStep6Checked] = useState<boolean>(false);
+  const [step6Checked, setStep6Checked] = useWrappedState<boolean>('step6Checked', false);
 
-  const [isPublicKeyModalOpen, setIsPublicKeyModalOpen] = useState<boolean>(false);
+  const [isPublicKeyModalOpen, setIsPublicKeyModalOpen] = useWrappedState<boolean>('isPublicKeyModalOpen', false);
 
   const onOpenChecksumModal = () => {
     setActiveStep(5);

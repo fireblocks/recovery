@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useWrappedState } from '../lib/debugUtils';
 
 export const useSecureContextCheck = () => {
-  const [isSecureContext, setIsSecureContext] = useState(false);
+  const [isSecureContext, setIsSecureContext] = useWrappedState('isSecureContext', false);
 
   useEffect(() => setIsSecureContext(window.isSecureContext), []);
 

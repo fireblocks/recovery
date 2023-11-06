@@ -1,4 +1,4 @@
-import React, { useId, useState } from 'react';
+import React, { useId } from 'react';
 import { Box, Typography, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import { assetsArray } from '@fireblocks/asset-config';
 import { useForm } from 'react-hook-form';
@@ -9,6 +9,7 @@ import { BaseModal } from '../../BaseModal';
 import { Button } from '../../Button';
 import { AssetIcon } from '../../Icons';
 import { TextField } from '../../TextField';
+import { useWrappedState } from '../../../lib/debugUtils';
 
 const searchSchema = z.object({
   assetIdSearch: z.string().nonempty('Asset ID is required'),
@@ -35,7 +36,7 @@ export const RecoverWalletModal = ({
 }: Props) => {
   const searchId = useId();
 
-  const [assetId, setAssetId] = useState<string | null>(null);
+  const [assetId, setAssetId] = useWrappedState<string | null>('recoverWalletModal-assetId', null);
 
   const { watch, register, reset, handleSubmit } = useForm<Input>({
     defaultValues: { assetIdSearch: '' },

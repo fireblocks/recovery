@@ -1,4 +1,4 @@
-import { useMemo, useState, ReactNode } from 'react';
+import { useMemo, ReactNode, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { Typography, Box } from '@mui/material';
 import {
@@ -8,7 +8,7 @@ import {
   TransactionInitInput,
   RelayRxTx,
   getLogger,
-  wrapState,
+  useWrappedState,
 } from '@fireblocks/recovery-shared';
 import { getAssetConfig, derivableAssets, AssetConfig, getDerivableAssetConfig } from '@fireblocks/asset-config';
 import { useWorkspace } from '../../../context/Workspace';
@@ -23,7 +23,12 @@ type Props = {
   onClose: VoidFunction;
 };
 
-const getDerivableAssetId = (assetId?: string) => getDerivableAssetConfig(assetId)?.id;
+const logger = getLogger(LOGGER_NAME_UTILITY);
+
+const getDerivableAssetId = (assetId?: string) => {
+  logger.info(`Trying to get asset config for ${assetId}`);
+  return getDerivableAssetConfig(assetId)?.id;
+};
 
 const getHighestBalanceAssetId = (account?: VaultAccount) => {
   if (!account?.wallets.size) {
@@ -59,19 +64,21 @@ export const WithdrawModal = ({ assetId, accountId, open, onClose: onCloseModal 
     [accountsArray],
   );
 
-  const [txInitData, setTxInitDataInt] = useState<TransactionInitInput | null>(null);
+  const [txInitData, setTxInitData] = useWrappedState<TransactionInitInput | null>('txInitData', null);
 
-  const [createTxOutboundRelayUrl, setCreateTxOutboundRelayUrlInt] = useState<string | null>(null);
-  const setTxInitData = wrapState<TransactionInitInput | null>('txInitData', setTxInitDataInt);
-  const setCreateTxOutboundRelayUrl = wrapState<string | null>('createTxOutboundRelayUrl', setCreateTxOutboundRelayUrlInt);
+  const [createTxOutboundRelayUrl, setCreateTxOutboundRelayUrl] = useWrappedState<string | null>(
+    'createTxOutboundRelayUrl',
+    null,
+  );
 
   const selectedAccount = typeof accountId === 'number' ? accounts.get(accountId) : undefined;
 
   const selectedAsset = getAssetConfig(txInitData?.assetId);
 
-  const [newTxId, setNewTxId] = useState(nanoid);
+  const [newTxId, setNewTxId] = useWrappedState('newTxId', nanoid);
 
   const onClose = () => {
+    logger.info(`Closing withdrawal modal`);
     onCloseModal();
     setInboundRelayUrl(null);
     setNewTxId(nanoid());
@@ -81,9 +88,19 @@ export const WithdrawModal = ({ assetId, accountId, open, onClose: onCloseModal 
     const { xpub, fpub } = extendedKeys || {};
 
     if (!xpub || !fpub || typeof data.accountId !== 'number' || typeof data.assetId !== 'string' || typeof data.to !== 'string') {
+      logger.warn(
+        'Missing x-pub-keys, account id, asset id or destination value',
+        'accountId',
+        data.accountId,
+        'assetId',
+        data.assetId,
+        'to',
+        data.to,
+      );
       return;
     }
 
+    logger.info('Creating outbound relay url');
     const createTxUrl = getOutboundRelayUrl({
       action: 'tx/create',
       accountId: data.accountId,

@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { Report, Restore, Verified, /* LeakAdd, */ ImportExport, ManageHistory, Settings } from '@mui/icons-material';
 import {
   Layout as BaseLayout,
@@ -6,21 +6,26 @@ import {
   StatusBoxProps,
   AccountsIcon,
   KeyIcon,
+  getLogger,
+  useWrappedState,
 } from '@fireblocks/recovery-shared';
 import { useConnectionTest } from '../../context/ConnectionTest';
 import { useWorkspace } from '../../context/Workspace';
 import { getDeployment } from '../../lib/ipc';
+import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 
 type Props = {
   children: ReactNode;
 };
+
+const logger = getLogger(LOGGER_NAME_UTILITY);
 
 export const Layout = ({ children }: Props) => {
   const { isOnline } = useConnectionTest();
 
   const { extendedKeys: { xpub, fpub, xprv, fprv } = {} } = useWorkspace();
 
-  const [protocol, setProtocol] = useState<'UTILITY' | 'RELAY' | null>(null);
+  const [protocol, setProtocol] = useWrappedState<'UTILITY' | 'RELAY' | null>('protocol', null);
 
   useEffect(
     () =>
@@ -34,6 +39,10 @@ export const Layout = ({ children }: Props) => {
   const hasExtendedPublicKeys = !!xpub || !!fpub;
   const hasOnlyExtendedPublicKeys = hasExtendedPublicKeys && !hasExtendedPrivateKeys;
   const hasExtendedKeys = hasExtendedPublicKeys || hasExtendedPrivateKeys;
+
+  logger.info(
+    `Has x-keys ${hasExtendedPrivateKeys}, has x-pub-keys ${hasExtendedPublicKeys}, has only x-pub-keys ${hasOnlyExtendedPublicKeys}`,
+  );
 
   let status: StatusBoxProps | undefined;
 

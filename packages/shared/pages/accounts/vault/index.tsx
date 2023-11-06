@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import React, { ComponentType, useMemo, useState } from 'react';
+import React, { ComponentType, useMemo } from 'react';
 import { Box, Grid, Typography, Breadcrumbs } from '@mui/material';
 import { GridToolbarQuickFilter, GridActionsCellItem, GridColDef, GridRowsProp } from '@mui/x-data-grid';
 import { Add } from '@mui/icons-material';
@@ -10,6 +10,7 @@ import { Button } from '../../../components/Button';
 import { DataGrid } from '../../../components/DataGrid';
 import { NextLinkComposed } from '../../../components/Link';
 import { VaultAccountIcon, WithdrawIcon } from '../../../components/Icons';
+import { useWrappedState } from '../../../lib/debugUtils';
 
 type Row = {
   accountId: number;
@@ -67,12 +68,18 @@ type Props = {
 export const VaultBasePage = ({ extendedKeys, accounts, addAccount, withdrawModal: WithdrawModal }: Props) => {
   const router = useRouter();
 
-  const [isRecoverAccountModalOpen, setIsRecoverAccountModalOpen] = useState(false);
+  const [isRecoverAccountModalOpen, setIsRecoverAccountModalOpen] = useWrappedState<boolean>(
+    'vaultBase-isRecoverAccountModalOpen',
+    false,
+  );
 
   const handleOpenRecoverAccountModal = () => setIsRecoverAccountModalOpen(true);
   const handleCloseRecoverAccountModal = () => setIsRecoverAccountModalOpen(false);
 
-  const [withdrawalAccountId, setWithdrawalAccountId] = useState<number | undefined>(undefined);
+  const [withdrawalAccountId, setWithdrawalAccountId] = useWrappedState<number | undefined>(
+    'vaultBase-withdrawalAccountId',
+    undefined,
+  );
 
   const handleOpenWithdrawModal = (_accountId: number) => setWithdrawalAccountId(_accountId);
   const handleCloseWithdrawModal = () => setWithdrawalAccountId(undefined);

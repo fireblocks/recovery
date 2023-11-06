@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
 import { Typography, Box, Link } from '@mui/material';
 import {
   AssetIcon,
@@ -8,20 +8,21 @@ import {
   RelayRxTx,
   RelaySignTxResponseParams,
   getLogger,
+  useWrappedState,
 } from '@fireblocks/recovery-shared';
 import { getDerivableAssetConfig } from '@fireblocks/asset-config';
+import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
+import { sanatize } from '@fireblocks/recovery-shared/lib/sanatize';
 import { useWorkspace } from '../../context/Workspace';
 import { CreateTransaction } from './CreateTransaction';
 import { LateInitConnectedWallet } from '../../lib/wallets/LateInitConnectedWallet';
-import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
-import { Derivation } from '@fireblocks/wallet-derivation';
-import { sanatizeDerivation } from '@fireblocks/recovery-shared/lib/sanatize';
 
 const logger = getLogger(LOGGER_NAME_RELAY);
 
 const getAssetId = (inboundRelayParams?: RelayRequestParams) => {
   let assetId: string;
 
+  logger.debug(`Trying to get asset Id for ${JSON.stringify(inboundRelayParams, null, 2)}`);
   switch (inboundRelayParams?.action) {
     case 'tx/create':
       assetId = inboundRelayParams.newTx.assetId;
@@ -30,6 +31,7 @@ const getAssetId = (inboundRelayParams?: RelayRequestParams) => {
       assetId = inboundRelayParams.signedTx.assetId;
       break;
     default:
+      logger.warn(`Unknown action: ${inboundRelayParams?.action}`);
       return undefined;
   }
 
@@ -37,17 +39,25 @@ const getAssetId = (inboundRelayParams?: RelayRequestParams) => {
 };
 
 export const WithdrawModal = () => {
-  const { accounts, inboundRelayParams, getOutboundRelayUrl, setInboundRelayUrl, setTransaction } = useWorkspace();
+  const { accounts, inboundRelayParams, getOutboundRelayUrl, setInboundRelayUrl } = useWorkspace();
 
   const action = inboundRelayParams?.action;
 
   const relayAssetId = getAssetId(inboundRelayParams);
   const asset = getDerivableAssetConfig(relayAssetId);
 
-  const [outboundRelayUrl, setOutboundRelayUrl] = useState<string | undefined>();
-  const [txHash, setTxHash] = useState<string | undefined>();
+  const [outboundRelayUrl, setOutboundRelayUrl] = useWrappedState<string | undefined>('outboundRelayUrl', undefined);
+  const [txHash, setTxHash] = useWrappedState<string | undefined>('txHash', undefined);
 
   const setSignTxResponseUrl = (unsignedTx: RelaySignTxResponseParams['unsignedTx']) => {
+    logger.debug(
+      `Setting sign tx request: ${JSON.stringify(
+        unsignedTx,
+        // eslint-disable-next-line no-nested-ternary
+        (_, v) => (typeof v === 'bigint' ? v.toString() : typeof v === 'function' ? 'function' : v),
+        2,
+      )}`,
+    );
     setOutboundRelayUrl(
       getOutboundRelayUrl({
         action: 'tx/sign',
@@ -118,7 +128,7 @@ export const WithdrawModal = () => {
 
                     const signedTxHex = inboundRelayParams?.signedTx.hex;
 
-                    const cleanDerivation = derivation ? sanatizeDerivation(derivation) : undefined;
+                    const cleanDerivation = derivation ? sanatize(derivation) : undefined;
                     logger.info('Derivation and signed transaction hash:', { cleanDerivation, signedTxHex });
 
                     const newTxHash = await derivation?.broadcastTx(signedTxHex);

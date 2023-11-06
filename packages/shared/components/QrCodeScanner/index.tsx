@@ -1,11 +1,12 @@
 import 'webrtc-adapter';
-import React, { useState, useRef, useId, useCallback, useEffect } from 'react';
+import React, { useRef, useId, useCallback, useEffect } from 'react';
 import QrScanner from 'qr-scanner';
 import { Box, Grid, CircularProgress, SelectChangeEvent, IconButton } from '@mui/material';
 import { QrCodeScanner as QrCodeScannerIcon, FlashlightOn, FlashlightOff } from '@mui/icons-material';
 import { Select } from '../Select';
 import { LOGGER_NAME_SHARED } from '../../constants';
 import { getLogger } from '../../lib/getLogger';
+import { useWrappedState } from '../../lib/debugUtils';
 
 export type ScanResult = QrScanner.ScanResult;
 
@@ -15,10 +16,14 @@ type Props = {
 
 export const QrCodeScanner = ({ onDecode }: Props) => {
   const logger = getLogger(LOGGER_NAME_SHARED);
-  const [isLoading, setIsLoading] = useState(true);
-  const [cameras, setCameras] = useState<QrScanner.Camera[]>([]);
-  const [preferredCamera, setPreferredCamera] = useState<QrScanner.FacingMode | QrScanner.DeviceId | undefined>();
-  const [flash, setFlash] = useState<boolean | undefined>();
+
+  const [isLoading, setIsLoading] = useWrappedState('qrCodeScanner-isLoading', true);
+  const [cameras, setCameras] = useWrappedState<QrScanner.Camera[]>('cameras', []);
+  const [preferredCamera, setPreferredCamera] = useWrappedState<QrScanner.FacingMode | QrScanner.DeviceId | undefined>(
+    'preferredCamera',
+    undefined,
+  );
+  const [flash, setFlash] = useWrappedState<boolean | undefined>('flash', undefined);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const qrScannerRef = useRef<QrScanner | null>(null);
@@ -99,12 +104,12 @@ export const QrCodeScanner = ({ onDecode }: Props) => {
       }
     };
 
-    logger.log('Starting scanner');
+    logger.info('Starting scanner');
 
     stopScanner();
     startScanner();
 
-    logger.log('Done init scanner');
+    logger.info('Done init scanner');
 
     return () => {
       stopScanner();

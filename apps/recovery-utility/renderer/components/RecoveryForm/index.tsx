@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { recoverKeysInput, TextField, Button, UploadWell, BaseModal } from '@fireblocks/recovery-shared';
+import { recoverKeysInput, TextField, Button, UploadWell, BaseModal, useWrappedState } from '@fireblocks/recovery-shared';
 import { Checkbox, FormControlLabel, Typography, Box, Grid } from '@mui/material';
 import { readFileToBase64 } from '@fireblocks/recovery-shared/lib/readFile';
 import { useWorkspace } from '../../context/Workspace';
@@ -21,9 +21,9 @@ export const RecoveryForm = ({ verifyOnly }: Props) => {
 
   const { setExtendedKeys, addAccount } = useWorkspace();
 
-  const [recoveryError, setRecoveryError] = useState<string | undefined>(undefined);
-  const [recoveryData, setRecoveryData] = useState<FormData | undefined>(undefined);
-  const [recoveryConfirmed, setRecoveryConfirmed] = useState<boolean>(false);
+  const [recoveryError, setRecoveryError] = useWrappedState<string | undefined>('recoveryError', undefined);
+  const [recoveryData, setRecoveryData] = useState<FormData | undefined>(undefined); // Do not track, confidential data
+  const [recoveryConfirmed, setRecoveryConfirmed] = useWrappedState<boolean>('recoveryConfirmed', false);
 
   const recoverMutation = useMutation({
     mutationFn: async (formData: FormData) =>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import { Box, Grid, Typography, FormGroup, FormControlLabel, Checkbox } from '@mui/material';
 import { useForm } from 'react-hook-form';
@@ -10,6 +10,7 @@ import { csvExport } from '../lib/csv';
 import { importCsvInput, ImportCsvInput, addressesCsv as addressesCsvSchema, AddressesCsv, ExtendedKeys } from '../schemas';
 import { VaultAccount } from '../types';
 import { Button, UploadWell } from '../components';
+import { useWrappedState } from '../lib/debugUtils';
 
 type Props = {
   extendedKeys?: ExtendedKeys;
@@ -22,9 +23,9 @@ export const ImportExportBasePage = ({ extendedKeys, accounts, importCsv }: Prop
 
   const hasPrivateKey = !!extendedKeys?.xprv || !!extendedKeys?.fprv;
 
-  const [shouldExportKeys, setShouldExportKeys] = useState(false);
-  const [importError, setImportError] = useState<string | undefined>(undefined);
-  const [exportError, setExportError] = useState<string | undefined>(undefined);
+  const [shouldExportKeys, setShouldExportKeys] = useWrappedState<boolean>('csv-shouldExportKeys', false);
+  const [importError, setImportError] = useWrappedState<string | undefined>('csv-importError', undefined);
+  const [exportError, setExportError] = useWrappedState<string | undefined>('csv-exportError', undefined);
 
   const {
     setValue,

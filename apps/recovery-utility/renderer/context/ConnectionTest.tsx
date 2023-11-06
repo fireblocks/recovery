@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useWrappedState } from '@fireblocks/recovery-shared';
+import { createContext, useContext, useEffect, ReactNode } from 'react';
 
 interface IConnectionTestContext {
   isOnline: boolean;
@@ -15,7 +16,7 @@ type Props = {
 };
 
 export const ConnectionTestProvider = ({ children }: Props) => {
-  const [isOnline, setIsOnline] = useState(defaultValue.isOnline);
+  const [isOnline, setIsOnline] = useWrappedState('isOnline', defaultValue.isOnline);
 
   useEffect(() => {
     setIsOnline(navigator.onLine);

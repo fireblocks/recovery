@@ -1,7 +1,8 @@
-import React, { useId, ReactNode, useState } from 'react';
+import React, { useId, ReactNode } from 'react';
 import { useDropzone, Accept } from 'react-dropzone';
 import { Box, FormHelperText, Typography } from '@mui/material';
 import { FileUpload, CheckCircle, Cancel } from '@mui/icons-material';
+import { useWrappedState } from '../../lib/debugUtils';
 
 type Props = {
   label?: ReactNode;
@@ -16,7 +17,7 @@ type Props = {
 export const UploadWell = ({ label, error, hasFile, accept, disabled, hidden = false, onDrop: _onDrop }: Props) => {
   const labelId = useId();
 
-  const [fileName, setFileName] = useState<string | undefined>();
+  const [fileName, setFileName] = useWrappedState<string | undefined>('uploadWell-fileName', undefined);
 
   const extensions = Object.values(accept || {})
     .flat()

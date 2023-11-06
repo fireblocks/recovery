@@ -1,7 +1,8 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useEffect, ReactNode } from 'react';
 import { z } from 'zod';
-import { settingsInput } from '@fireblocks/recovery-shared';
+import { getLogger, settingsInput, useWrappedState } from '@fireblocks/recovery-shared';
 import { restoreSettings as ipcRestoreSettings, saveSettings as ipcSaveSettings } from '../lib/ipc';
+import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 
 type Settings = z.infer<typeof settingsInput>;
 
@@ -19,18 +20,22 @@ export const defaultSettings = defaultValue;
 
 const Context = createContext(defaultValue);
 
+const logger = getLogger(LOGGER_NAME_UTILITY);
+
 type Props = {
   children: ReactNode;
 };
 
 export const SettingsProvider = ({ children }: Props) => {
-  const [settings, setSettings] = useState<Settings>(defaultValue);
+  const [settings, setSettings] = useWrappedState<Settings>('util-settings', defaultValue);
 
   useEffect(() => {
     ipcRestoreSettings().then((data) => setSettings((prev) => ({ ...prev, ...data })));
   }, []);
 
   const saveSettings = async (data: Settings) => {
+    logger.debug('Saving settings via IPC', data);
+
     await ipcSaveSettings(data);
 
     setSettings((prev) => ({ ...prev, ...data }));

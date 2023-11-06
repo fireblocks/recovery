@@ -9,9 +9,12 @@ import {
   TransactionInitInput,
   transactionInitInput,
   Button,
+  getLogger,
 } from '@fireblocks/recovery-shared';
 import { AssetConfig, getAssetConfig } from '@fireblocks/asset-config';
 import { useWorkspace } from '../../../../context/Workspace';
+import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
+import { useEffect } from 'react';
 
 type Props = {
   accountsArray: VaultAccount[];
@@ -20,6 +23,8 @@ type Props = {
   initialAssetId?: string;
   onSubmit: (data: TransactionInitInput) => void;
 };
+
+const logger = getLogger(LOGGER_NAME_UTILITY);
 
 export const InitiateTransaction = ({ accountsArray, assetsInAccount, initialAccountId, initialAssetId, onSubmit }: Props) => {
   const { accounts } = useWorkspace();
@@ -37,11 +42,16 @@ export const InitiateTransaction = ({ accountsArray, assetsInAccount, initialAcc
       assetId: initialAssetId,
       to: '',
     },
+
     // mode: 'onChange',
     // reValidateMode: 'onChange',
   });
 
   const [assetId, accountId] = watch(['assetId', 'accountId']);
+
+  useEffect(() => {
+    logger.debug(`Asset id: ${assetId}, account id: ${accountId}`);
+  }, [assetId, accountId]);
 
   return (
     <Grid component='form' container spacing={2} onSubmit={handleSubmit(onSubmit)}>

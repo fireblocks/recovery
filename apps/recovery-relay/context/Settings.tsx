@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { getLogger, useWrappedState } from '@fireblocks/recovery-shared';
+import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
+import { createContext, useContext, useEffect, ReactNode } from 'react';
 import { z } from 'zod';
 
 export const settingsInput = z.object({
@@ -23,6 +25,8 @@ const defaultValue: ISettingsContext = {
   saveSettings: async () => undefined,
 };
 
+const logger = getLogger(LOGGER_NAME_RELAY);
+
 export const defaultSettings = defaultValue;
 
 const Context = createContext(defaultValue);
@@ -32,7 +36,7 @@ type Props = {
 };
 
 export const SettingsProvider = ({ children }: Props) => {
-  const [settings, setSettings] = useState<Settings>(defaultValue);
+  const [settings, setSettings] = useWrappedState<Settings>('relay-settings', defaultValue);
 
   useEffect(() => {
     const storedSettings = window.localStorage.getItem('settings');
@@ -42,7 +46,10 @@ export const SettingsProvider = ({ children }: Props) => {
     }
   }, []);
 
-  const saveSettings = async (data: Settings) => window.localStorage.setItem('settings', JSON.stringify(data));
+  const saveSettings = async (data: Settings) => {
+    logger.info('Storing new settings', data);
+    window.localStorage.setItem('settings', JSON.stringify(data));
+  };
 
   // eslint-disable-next-line react/jsx-no-constructed-context-values
   const value: ISettingsContext = {

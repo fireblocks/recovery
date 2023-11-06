@@ -1,4 +1,5 @@
-import { BaseModal, monospaceFontFamily } from '@fireblocks/recovery-shared';
+import { BaseModal, getLogger, monospaceFontFamily } from '@fireblocks/recovery-shared';
+import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 import { Button, Typography } from '@mui/material';
 
 type Props = {
@@ -7,7 +8,10 @@ type Props = {
   onClose: VoidFunction;
 };
 
+const logger = getLogger(LOGGER_NAME_UTILITY);
+
 export const PublicKeyModal = ({ publicKey, open, onClose }: Props) => {
+  logger.debug(`Public key modal for ${publicKey}`);
   return publicKey.length > 0 ? (
     <BaseModal
       open={open}
