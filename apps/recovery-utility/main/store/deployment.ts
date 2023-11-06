@@ -19,7 +19,7 @@ export type Deployment = {
 };
 
 export class DeploymentStore {
-  private static _keys = ['protocol'] as const;
+  private static _keys = ['protocol', 'exp'] as const;
 
   private static _store = new Store<Deployment>({
     name: 'deployment',
