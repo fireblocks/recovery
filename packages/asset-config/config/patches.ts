@@ -60,21 +60,23 @@ export const nativeAssetPatches: NativeAssetPatches = {
   ALGO: {
     getExplorerUrl: getStandardExplorer('algoexplorer.io'),
     derive: true,
+    transfer: false,
   },
   ALGO_TEST: {
     getExplorerUrl: getStandardExplorer('testnet.algoexplorer.io'),
     derive: true,
+    transfer: false,
   },
   AOA: evm('browser.aurorachain.io', 'https://mainnet.aurora.dev'),
   ATOM_COS: {
     derive: true,
-    transfer: true,
+    transfer: false,
     rpcUrl: 'cosmos-rpc.quickapi.com',
     getExplorerUrl: getAtomExplorer('bigdipper.live/cosmos'),
   },
   ATOM_COS_TEST: {
     derive: true,
-    transfer: true,
+    transfer: false,
     rpcUrl: 'cosmos-lcd.quickapi.com',
     getExplorerUrl: getAtomExplorer('explorer.theta-testnet.polypore.xyz'),
   },
@@ -151,10 +153,12 @@ export const nativeAssetPatches: NativeAssetPatches = {
   },
   LUNA2: {
     derive: true,
+    transfer: true,
     getExplorerUrl: getStandardExplorer('finder.terra.money'),
   },
   LUNA2_TEST: {
     derive: true,
+    transfer: true,
     getExplorerUrl: getStandardExplorer('finder.terra.money/testnet'),
   },
   MATIC_POLYGON: evm('polygonscan.com', 'https://polygon-rpc.com/'),
