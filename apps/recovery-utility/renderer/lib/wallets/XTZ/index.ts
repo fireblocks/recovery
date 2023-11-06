@@ -62,7 +62,7 @@ export class Tezos extends BaseTezos implements SigningWallet {
       .update(mergebuf(new Uint8Array([3]), Buffer.from(txBytes, 'hex')))
       .digest();
 
-    this.utilityLogger.debug(`Tezos: Signing tx: ${JSON.stringify(contents, null, 2)}`);
+    this.utilityLogger.logSigningTx('Tezos', contents);
     const sig = await this.sign(signPayload);
 
     return {

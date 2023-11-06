@@ -19,7 +19,7 @@ export class Hedera extends BaseHBAR implements SigningWallet {
     preparedTx._requestTimeout = 600;
     const tx = preparedTx.freeze();
 
-    this.utilityLogger.debug(`HBAR: Signing tx: ${JSON.stringify(tx, null, 2)}`);
+    this.utilityLogger.logSigningTx('HBAR', tx);
 
     const pubKey = PublicKey.fromBytesED25519(Buffer.from(this.publicKey.replace('0x', ''), 'hex'));
 

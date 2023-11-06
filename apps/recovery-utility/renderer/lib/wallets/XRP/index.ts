@@ -31,7 +31,7 @@ export class Ripple extends BaseRipple implements SigningWallet {
     if (!memo) {
       delete tx.Memos;
     }
-    this.utilityLogger.info(`Ripple: Signing tx: ${JSON.stringify(tx, null, 2)}`);
+    this.utilityLogger.logSigningTx('Ripple', tx);
     const wallet = new Wallet(this.publicKey.replace('0x', ''), this.privateKey!.replace('0x', ''));
 
     const signedTx = wallet.sign(tx);

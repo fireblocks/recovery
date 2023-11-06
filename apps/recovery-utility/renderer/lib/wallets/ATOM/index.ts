@@ -46,11 +46,11 @@ export class Cosmos extends BaseCosmos implements SigningWallet {
       typeUrl: '/cosmos.tx.v1beta1.TxBody',
       value: {
         messages: [sendMsg],
-        memo: '9618A5CDE33CBF4E6C13',
+        memo,
       },
     };
 
-    this.utilityLogger.debug(`Cosmos: Signing tx: ${JSON.stringify(txEncoded, null, 2)}`);
+    this.utilityLogger.logSigningTx('Cosmos', txEncoded);
 
     const txBodyBytes = registry.encode(txEncoded);
     const gasLimit = Int53.fromString(fee.gas).toNumber();

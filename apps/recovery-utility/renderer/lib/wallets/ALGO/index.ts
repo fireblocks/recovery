@@ -13,7 +13,8 @@ export class Algorand extends BaseALGO implements SigningWallet {
       to,
     });
 
-    this.utilityLogger.debug(`ALGO: Signing tx: ${JSON.stringify(tx.toString(), null, 2)}`);
+    this.utilityLogger.logSigningTx('Algorand', tx.toString());
+
     const bytesToSign = tx.bytesToSign();
     const sig = await this.sign(bytesToSign);
     const signedTx = {

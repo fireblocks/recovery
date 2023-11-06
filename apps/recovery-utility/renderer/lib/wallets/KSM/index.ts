@@ -48,7 +48,7 @@ export class Kusama extends BaseKSM implements SigningWallet {
       },
     );
 
-    this.utilityLogger.debug(`Kusama: Signing tx: ${JSON.stringify(unsigned, null, 2)}`);
+    this.utilityLogger.logSigningTx('Kusama', unsigned);
 
     const signPayload = construct.signingPayload(unsigned, { registry });
     registry.setMetadata(createMetadata(registry, metadataRpc));

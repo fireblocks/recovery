@@ -17,7 +17,7 @@ export class EOS extends BaseEOS implements SigningWallet {
     const txPush: PushTransactionArgs = superjson.parse<PushTransactionArgs>(extraParams!.get(this.KEY_TX));
     const chainId = extraParams!.get(this.KEY_CHAIN_ID);
 
-    this.utilityLogger.debug(`EOS: Signing tx: ${JSON.stringify(txPush, null, 2)}`);
+    this.utilityLogger.logSigningTx('EOS', txPush);
 
     const signedTx: PushTransactionArgs = await signer.sign({
       chainId,

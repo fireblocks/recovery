@@ -39,7 +39,7 @@ export class BitcoinCash extends BaseBitcoinCash implements SigningWallet {
       )
       .to(to, satAmount);
 
-    this.utilityLogger.debug(`BitcoinCash: Signing tx: ${JSON.stringify(tx.toJSON(), null, 2)}`);
+    this.utilityLogger.logSigningTx('BTC-Cash', tx.toJSON());
 
     const signedTx = tx.sign(this.privateKey);
 

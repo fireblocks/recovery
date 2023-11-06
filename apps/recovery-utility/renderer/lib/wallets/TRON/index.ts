@@ -31,9 +31,11 @@ export class Tron extends BaseTron implements SigningWallet {
     };
 
     const pb = tronWeb.utils.transaction.txJsonToPb(tx);
+
+    this.utilityLogger.logSigningTx('Tron', tx);
+
     tx.txID = tronWeb.utils.transaction.txPbToTxID(pb).replace(/^0x/, '');
     tx.raw_data_hex = tronWeb.utils.transaction.txPbToRawDataHex(pb).toLowerCase();
-    this.utilityLogger.debug(`Tron: Signing tx: ${JSON.stringify(tx, null, 2)}`);
     const signedTx = tronWeb.utils.crypto.signTransaction(Buffer.from(this.privateKey!.replace('0x', ''), 'hex'), tx);
     return {
       tx: SuperJSON.stringify(signedTx),

@@ -30,7 +30,7 @@ export class Solana extends BaseSolana implements SigningWallet {
     }
 
     const serializedTx = tx.serializeMessage();
-    this.utilityLogger.debug(`Solana: Signing tx: ${JSON.stringify(tx, null, 2)}`);
+    this.utilityLogger.logSigningTx('Solana', tx);
 
     const signature = await this.sign(serializedTx);
 
