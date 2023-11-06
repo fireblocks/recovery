@@ -106,7 +106,7 @@ export class DOGE extends BaseDOGE implements ConnectedWallet {
       utxoType: BaseUTXOType,
     };
 
-    this.relayLogger.debug(`Dogecoin: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('DOGE', preparedData);
     return preparedData as AccountData;
   }
 

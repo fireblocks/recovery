@@ -66,7 +66,7 @@ export class Luna extends BaseLuna implements ConnectedWallet {
       balance,
       extraParams,
     };
-    this.relayLogger.debug(`Luna: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('LUNA', preparedData);
     return preparedData;
   }
 

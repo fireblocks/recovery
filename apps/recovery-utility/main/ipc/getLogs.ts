@@ -7,7 +7,19 @@ import stream from 'stream';
 
 const appName = process.env.NODE_ENV === 'development' ? '@fireblocks/recovery-utility' : 'Fireblocks Recovery Utility';
 
-const getLogPath = (processName: 'utility' | 'relay' | 'shared' | 'main' | 'renderer') => {
+const getLogPath = (
+  processName:
+    | 'utility'
+    | 'relay'
+    | 'shared'
+    | 'main'
+    | 'renderer'
+    | 'utility.old'
+    | 'relay.old'
+    | 'shared.old'
+    | 'main.old'
+    | 'renderer.old',
+) => {
   switch (os.platform()) {
     case 'darwin':
       // macOS
@@ -25,6 +37,7 @@ const getLogPath = (processName: 'utility' | 'relay' | 'shared' | 'main' | 'rend
 
 const createZipFromFiles = async (...filePaths: string[]) =>
   new Promise<Buffer>((resolve, reject) => {
+    console.info(`Collecting logs`, filePaths);
     // Create an in-memory stream to collect the ZIP archive
     const bufferStream = new stream.PassThrough();
     const zipData: any[] = [];
@@ -60,5 +73,32 @@ ipcMain.handle('logs/get', async () =>
     getLogPath('shared'),
     getLogPath('main'),
     getLogPath('renderer'),
+    getLogPath('utility.old'),
+    getLogPath('relay.old'),
+    getLogPath('shared.old'),
+    getLogPath('main.old'),
+    getLogPath('renderer.old'),
   ),
 );
+
+export const resetLogs = () => {
+  const logFiles = [
+    getLogPath('utility'),
+    getLogPath('relay'),
+    getLogPath('shared'),
+    getLogPath('main'),
+    getLogPath('renderer'),
+    getLogPath('utility.old'),
+    getLogPath('relay.old'),
+    getLogPath('shared.old'),
+    getLogPath('main.old'),
+    getLogPath('renderer.old'),
+  ];
+  logFiles.forEach((file) => {
+    if (!fs.existsSync(file)) {
+      return;
+    }
+
+    fs.truncateSync(file, 0);
+  });
+};

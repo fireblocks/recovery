@@ -51,7 +51,7 @@ export class Kusama extends BaseKSM implements ConnectedWallet {
       extraParams,
     };
 
-    this.relayLogger.debug(`Kusama: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('Kusama', preparedData);
     return preparedData;
   }
 

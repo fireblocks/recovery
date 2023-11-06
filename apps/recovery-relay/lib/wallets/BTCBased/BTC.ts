@@ -95,7 +95,7 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
       feeRate,
     };
 
-    this.relayLogger.debug(`BTC: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('BTC', preparedData);
     return preparedData as AccountData;
   }
 

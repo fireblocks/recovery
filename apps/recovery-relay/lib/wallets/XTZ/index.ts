@@ -59,7 +59,7 @@ export class Tezos extends BaseXTZ implements ConnectedWallet {
       extraParams,
       feeRate: estimate.totalCost,
     };
-    this.relayLogger.debug(`Tezos: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('Tezos', preparedData);
     return preparedData;
   }
 

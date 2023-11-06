@@ -28,6 +28,8 @@ const getWallet = (accounts: Map<number, VaultAccount<Derivation>>, accountId?: 
     return undefined;
   }
 
+  logger.debug(`Getting a wallet ${accountId} for asset ${assetId}`);
+
   return accounts.get(accountId)?.wallets.get(assetId);
 };
 
@@ -100,20 +102,25 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
   const prepareQuery = useQuery({
     queryKey: prepareQueryKey,
     enabled: !!derivation,
-    queryFn: async () => derivation!.prepare?.(toAddress, values.memo),
+    queryFn: async () => {
+      logger.debug(`Querying prepare transaction ${toAddress}`);
+      return derivation!.prepare?.(toAddress, values.memo);
+    },
     onSuccess: (prepare: AccountData) => {
-      console.info('UTXOs', prepare.utxos);
+      logger.info('UTXOs', prepare.utxos);
 
       // if (prepare.utxos) {
       //   setTransactionInput((prev) => ({ ...prev, utxos: [] }));
       // }
     },
-    onError: (err: Error) => console.error('Failed to prepare transaction parameters', err),
+    onError: (err: Error) => logger.error('Failed to prepare transaction parameters', err),
   });
 
   const isLoading = !!prepareQuery.isLoading; // || balanceQuery.isLoading
 
   const onSubmit = (data: TransactionInput) => {
+    logger.debug(`Submitting the withdraw dialog ${data}.`);
+
     if (!asset?.id || !derivation) {
       console.error('No derivation found:', derivation);
       return;
@@ -158,8 +165,8 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
 
   const truncateBalance = (data: any) => {
     const { balance } = data;
-    if (`${balance}`.length > 6) {
-      const balanceStr = Math.floor(data.balance * 10 ** 6) / 10 ** 6;
+    if (`${balance}`.length > 3) {
+      const balanceStr = Math.floor(data.balance * 10 ** 3) / 10 ** 3;
       return `${balanceStr}... ${asset?.id}`;
     }
     return `${data.balance} ${asset?.id}`;

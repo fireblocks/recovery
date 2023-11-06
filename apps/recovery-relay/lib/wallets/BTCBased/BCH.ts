@@ -55,7 +55,7 @@ export class BitcoinCash extends BCHBase implements LateInitConnectedWallet {
       balance,
     };
 
-    this.relayLogger.debug(`Bitcoin Cash: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('BTC-Cash', preparedData);
     return preparedData as AccountData;
   }
 

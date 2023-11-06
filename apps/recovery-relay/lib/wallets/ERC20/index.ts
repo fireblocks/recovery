@@ -22,9 +22,11 @@ export class ERC20 extends Ethereum implements ConnectedWallet {
   }
 
   public async prepare(): Promise<AccountData> {
-    return {
+    const preparedData = {
       balance: await this.getBalance(),
     };
+    this.relayLogger.logPreparedData('ERC20', preparedData);
+    return preparedData;
   }
 
   public async generateTx(to: string, amount: number): Promise<TxPayload> {
@@ -47,7 +49,7 @@ export class ERC20 extends Ethereum implements ConnectedWallet {
       ]),
     };
 
-    this.relayLogger.debug(`ERC20: Generated tx: ${JSON.stringify(tx, null, 2)}`);
+    this.relayLogger.debug(`ERC20: Generated tx: ${JSON.stringify(tx, (_, v) => (typeof v === 'bigint' ? v.toString() : v), 2)}`);
 
     const unsignedTx = Transaction.from(tx).serialized;
 

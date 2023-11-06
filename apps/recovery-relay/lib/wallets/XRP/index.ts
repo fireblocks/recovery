@@ -54,7 +54,7 @@ export class Ripple extends BaseRipple implements ConnectedWallet {
       insufficientBalance: balance - this.MIN_XRP_BALANCE < 0.0001,
     };
 
-    this.relayLogger.debug(`Ripple: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('Ripple', preparedData);
     return preparedData;
   }
 

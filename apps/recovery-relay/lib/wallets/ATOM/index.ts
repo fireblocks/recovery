@@ -36,7 +36,7 @@ export class Cosmos extends BaseCosmos implements ConnectedWallet {
     // TODO: Add option for cusom fee
     const balance = parseInt(balanceCoin.amount, 10) / 1_000_000;
     const preparedData = { balance, extraParams, insufficientBalance: balance < 0.001 };
-    this.relayLogger.debug(`Cosmos: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('Cosmos', preparedData);
     return preparedData;
   }
 

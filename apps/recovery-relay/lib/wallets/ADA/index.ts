@@ -124,7 +124,12 @@ export class Cardano extends BaseCardano implements LateInitConnectedWallet {
       insufficientBalance: balance / 1_000_000 < 0.001,
     };
 
-    this.relayLogger.debug(`Cardano: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('Cardano', {
+      utxos,
+      balance: balance / 1_000_000,
+      //endpoint: this.endpoint, // might contain confidential information
+      insufficientBalance: balance / 1_000_000 < 0.001,
+    });
     return preparedData;
   }
 

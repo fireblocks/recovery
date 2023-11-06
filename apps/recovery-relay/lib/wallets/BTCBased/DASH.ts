@@ -107,7 +107,7 @@ export class DASH extends BaseDASH implements ConnectedWallet {
       utxoType: BaseUTXOType,
     };
 
-    this.relayLogger.debug(`Dash: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('DASH', preparedData);
     return preparedData as AccountData;
   }
 

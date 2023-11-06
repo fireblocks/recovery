@@ -48,7 +48,7 @@ export class Polkadot extends BaseDOT implements ConnectedWallet {
       extraParams,
     };
 
-    this.relayLogger.debug(`Polkadot: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('Polkadot', preparedData);
     return preparedData;
   }
 

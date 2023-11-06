@@ -7,6 +7,7 @@ import {
   RelayRequestParams,
   RelayResponseParams,
   getLogger,
+  sanatize,
 } from '@fireblocks/recovery-shared';
 import { getAssetConfig } from '@fireblocks/asset-config';
 import { useQuery } from '@tanstack/react-query';
@@ -56,29 +57,38 @@ const fetchUtilityReleasesUrl = async (currentUtilityVersion: string) => {
 
 const getInboundRelayWalletIds = (inboundRelayParams?: RelayRequestParams) => {
   if (!inboundRelayParams) {
+    logger.warn('No inbound relay params.');
     return null;
   }
 
   logger.info('Inbound Relay params', inboundRelayParams);
+  let ret;
   switch (inboundRelayParams.action) {
     case 'import':
-      return {
+      ret = {
         accountId: inboundRelayParams.accountId,
         assetId: inboundRelayParams.assetId,
       };
+      break;
     case 'tx/create':
-      return {
+      ret = {
         accountId: inboundRelayParams.accountId,
         assetId: inboundRelayParams.newTx.assetId,
       };
+      break;
     case 'tx/broadcast':
-      return {
+      ret = {
         accountId: inboundRelayParams.signedTx.path[2],
         assetId: inboundRelayParams.signedTx.assetId,
       };
+      break;
     default:
+      //@ts-ignore
+      logger.info('Unknown action', inboundRelayParams.action);
       return null;
   }
+  logger.info('getting inbound relay wallet ids', ret);
+  return ret;
 };
 
 type Props = {
@@ -150,7 +160,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
     enabled: !!extendedKeys?.xpub && !!extendedKeys?.fpub && !!inboundRelayWalletIds,
     queryFn: async () => {
       const { accountId, assetId } = inboundRelayWalletIds!;
-
+      logger.debug(`Relay wallet query for asset ${assetId} on account ${accountId}`);
       return addWallet(assetId, accountId) ?? null;
     },
   });
@@ -179,12 +189,12 @@ export const WorkspaceProvider = ({ children }: Props) => {
   //   ),
   // });
 
-  console.info('Relay query results', {
+  logger.info('Relay query results', {
     inboundRelayWalletIds,
     ipQuery: ipQuery.data,
     utilityReleasesQuery: utilityReleasesQuery.data,
-    extendedKeysUpdateQuery: extendedPublicKeysQuery.data,
-    relayWalletQuery: relayWalletQuery.data,
+    extendedKeysUpdateQuery: sanatize(extendedPublicKeysQuery.data),
+    relayWalletQuery: sanatize(relayWalletQuery.data),
     // walletBalancesQueries: walletBalancesQueries.map((query) => query.data),
   });
 

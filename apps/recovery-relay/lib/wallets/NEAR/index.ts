@@ -31,7 +31,7 @@ export class Near extends BaseNEAR implements ConnectedWallet {
       insufficientBalance: balance < 1e-10,
     };
 
-    this.relayLogger.debug(`NEAR: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('NEAR', preparedData);
     return preparedData;
   }
 

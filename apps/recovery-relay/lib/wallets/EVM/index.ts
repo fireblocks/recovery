@@ -52,7 +52,7 @@ export class EVM extends EVMBase implements ConnectedWallet {
       gasPrice,
     };
 
-    this.relayLogger.debug(`EVM: Prepared data: ${preparedData}`);
+    this.relayLogger.logPreparedData('EVM', preparedData);
     return preparedData;
   }
 

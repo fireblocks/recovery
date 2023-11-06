@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button, TextField, QrCode, settingsInput, theme, monospaceFontFamily } from '@fireblocks/recovery-shared';
+import { Button, TextField, QrCode, settingsInput, theme, monospaceFontFamily, getLogger } from '@fireblocks/recovery-shared';
 import { Box, Grid, Typography } from '@mui/material';
 import walletDerivationPackage from '@fireblocks/wallet-derivation/package.json';
 import extendedKeyRecoveryPackage from '@fireblocks/extended-key-recovery/package.json';
@@ -10,10 +10,13 @@ import { useSettings, defaultSettings } from '../context/Settings';
 import { useWorkspace } from '../context/Workspace';
 import { download } from '@fireblocks/recovery-shared';
 import { getLogs as ipcGetLogs } from '../lib/ipc';
+import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 
 type FormData = z.infer<typeof settingsInput>;
 
 const RELAY_SOURCE_URL = 'github.com/fireblocks/recovery';
+
+const logger = getLogger(LOGGER_NAME_UTILITY);
 
 const Settings = () => {
   const { idleMinutes, relayBaseUrl, saveSettings } = useSettings();
@@ -33,11 +36,15 @@ const Settings = () => {
   });
 
   const downloadLogs = async () => {
+    logger.debug('Downloading logs');
     const logsZip = await ipcGetLogs();
     download(logsZip, 'recovery-utility-logs.zip', 'application/zip');
   };
 
-  const onSubmit = async (formData: FormData) => saveSettings(formData);
+  const onSubmit = async (formData: FormData) => {
+    logger.debug('Saving form data', formData);
+    saveSettings(formData);
+  };
 
   return (
     <Box component='form' display='flex' height='100%' flexDirection='column' onSubmit={handleSubmit(onSubmit)}>

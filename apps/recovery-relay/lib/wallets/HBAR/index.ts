@@ -49,7 +49,7 @@ export class Hedera extends BaseHBAR implements LateInitConnectedWallet {
       extraParams,
     };
 
-    this.relayLogger.debug(`Hedera: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('HBAR', preparedData);
     return preparedData;
   }
   public async broadcastTx(tx: string): Promise<string> {

@@ -33,7 +33,7 @@ export class NEM extends BaseNEM implements ConnectedWallet {
       balance: await this.getBalance(),
     };
 
-    this.relayLogger.debug(`NEM: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('NEM', preparedData);
     return preparedData;
   }
 

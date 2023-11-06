@@ -33,6 +33,12 @@ export class Algorand extends BaseALGO implements LateInitConnectedWallet {
 
     extraParams.set(this.KEY_SUGGESTED_PARAMS, suggestedParams);
 
+    this.relayLogger.logPreparedData('Algorand', {
+      balance,
+      extraParams,
+      // endpoint: this.endpoint, - do not log endpoint as it might contain confidential information
+    });
+
     return {
       balance,
       extraParams,

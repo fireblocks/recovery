@@ -38,7 +38,7 @@ export class Stellar extends BaseXLM implements ConnectedWallet {
       insufficientBalance: balance < 0.00001,
     };
 
-    this.relayLogger.debug(`Stellar: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('Stellar', preparedData);
     return preparedData;
   }
 

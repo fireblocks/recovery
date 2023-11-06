@@ -42,7 +42,7 @@ export class Tron extends BaseTron implements ConnectedWallet {
       insufficientBalance: balance < 0.001,
     };
 
-    this.relayLogger.debug(`Tron: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('Tron', preparedData);
     return preparedData;
   }
 

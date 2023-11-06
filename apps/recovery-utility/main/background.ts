@@ -8,6 +8,7 @@ import path from 'path';
 import { registerFileProtocol } from './helpers';
 import { DeploymentStore, PROTOCOLS } from './store/deployment';
 import './ipc';
+import { resetLogs } from './ipc/getLogs';
 
 Object.assign(console, log.functions);
 log.catchErrors({
@@ -71,6 +72,7 @@ const handleRelayUrl = (url = relayUrl) => {
 };
 
 export async function createWindow() {
+  resetLogs();
   // Create the browser window.
   win = new BrowserWindow({
     width: 845,
@@ -255,5 +257,18 @@ app.on('ready', async () => {
 });
 
 app.on('window-all-closed', () => {
-  DeploymentStore.set(null);
+  preQuit();
 });
+app.on('before-quit', () => {
+  preQuit();
+});
+app.on('quit', () => {
+  preQuit();
+});
+app.on('will-quit', () => {
+  preQuit();
+});
+
+const preQuit = () => {
+  resetLogs();
+};

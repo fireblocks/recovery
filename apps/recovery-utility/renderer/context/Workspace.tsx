@@ -6,7 +6,6 @@ import {
   RelayRequestParams,
   getLogger,
   sanatize,
-  clearLoggers,
 } from '@fireblocks/recovery-shared';
 import { getAssetConfig } from '@fireblocks/asset-config';
 
@@ -77,7 +76,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
         throw new Error(`Failed to create new wallet ${e}`);
       }
 
-      logger.info('Deriving wallet with input', { input: sanatize(input), derivation: clearLoggers(derivation) });
+      logger.info('Deriving wallet with input', { input: sanatize(input), derivation: sanatize(derivation) });
       logger.info('Has generateTx method?', !!derivation.generateTx);
 
       if (nativeAssetId in WalletClasses) {
@@ -94,6 +93,8 @@ export const WorkspaceProvider = ({ children }: Props) => {
     if (!xpub || !fpub) {
       throw new Error('Missing extended keys');
     }
+
+    logger.debug('Getting outbound relay URL for params', params);
 
     const platform = navigator.userAgentData?.platform ?? 'Unknown';
 

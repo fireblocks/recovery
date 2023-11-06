@@ -106,7 +106,7 @@ export class LTC extends BaseLTC implements ConnectedWallet {
       utxoType: BaseUTXOType,
     };
 
-    this.relayLogger.debug(`LiteCoin: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('LTC', preparedData);
     return preparedData as AccountData;
   }
 

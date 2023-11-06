@@ -39,7 +39,7 @@ export class Solana extends BaseSolana implements ConnectedWallet {
       insufficientBalance: accountBalance < 0.00000001,
     } as AccountData;
 
-    this.relayLogger.debug(`Solana: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('Solana', preparedData);
     return preparedData;
   }
 

@@ -106,7 +106,7 @@ export class ZEC extends BaseZEC implements ConnectedWallet {
       utxoType: BaseUTXOType,
     };
 
-    this.relayLogger.debug(`ZEC: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('ZCASH', preparedData);
     return preparedData as AccountData;
   }
 

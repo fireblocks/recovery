@@ -84,7 +84,7 @@ export class EOS extends BaseEOS implements ConnectedWallet {
       extraParams,
     };
 
-    this.relayLogger.debug(`EOS: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
+    this.relayLogger.logPreparedData('EOS', preparedData);
     return preparedData;
   }
 

@@ -1,4 +1,4 @@
-import { ReactNode, useId, useState } from 'react';
+import { ReactNode, useId } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -14,8 +14,16 @@ import {
   CircularProgress,
   Divider,
 } from '@mui/material';
-import { TextField, Button, NextLinkComposed, monospaceFontFamily } from '@fireblocks/recovery-shared';
+import {
+  TextField,
+  Button,
+  NextLinkComposed,
+  monospaceFontFamily,
+  getLogger,
+  useWrappedState,
+} from '@fireblocks/recovery-shared';
 import { decryptInput } from '@fireblocks/recovery-shared/schemas';
+import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 
 type FormData = z.infer<typeof decryptInput>;
 
@@ -31,6 +39,8 @@ type Props = Omit<DialogProps, 'open' | 'onClose' | 'onSubmit'> & {
   onClose: () => void;
   onSubmit: () => void;
 };
+
+const logger = getLogger(LOGGER_NAME_UTILITY);
 
 export const ConfirmationModal = ({
   isOpen,
@@ -48,7 +58,7 @@ export const ConfirmationModal = ({
   const headingId = useId();
   const descriptionId = useId();
 
-  const [decryptionError, setDecryptionError] = useState<string | undefined>(undefined);
+  const [decryptionError, setDecryptionError] = useWrappedState<string | undefined>('decryptionError', undefined);
 
   const {
     register,
@@ -64,7 +74,8 @@ export const ConfirmationModal = ({
   const onSubmit = async () => {
     try {
       _onSubmit();
-    } catch {
+    } catch (err: unknown) {
+      logger.error(`Failed to submit confirmation - ${(err as Error).message}`, err);
       setDecryptionError('Invalid PIN');
 
       onClose();
