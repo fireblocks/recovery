@@ -12,6 +12,11 @@ export const isDerivableAssetId = (assetId?: string) => {
   return !!(assetConfig && 'derive' in assetConfig && assetConfig.derive);
 };
 
+export const isTransferableAsset = (assetId?: string) => {
+  const assetConfig = isAssetId(assetId) ? assets[assetId] : undefined;
+  return !!(assetConfig && 'transfer' in assetConfig && assetConfig.transfer);
+};
+
 export const getAssetConfig = (assetId?: string) => (isAssetId(assetId) ? assets[assetId] : undefined);
 
 export const getNativeAssetConfig = <ID extends string>(assetId?: ID) =>

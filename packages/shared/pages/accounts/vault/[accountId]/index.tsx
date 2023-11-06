@@ -1,7 +1,7 @@
 import React, { useMemo, ComponentType, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { getAssetConfig, derivableAssets } from '@fireblocks/asset-config';
-import { Box, Typography, Breadcrumbs } from '@mui/material';
+import { Box, Typography, Breadcrumbs, Tooltip } from '@mui/material';
 import { GridToolbarQuickFilter, GridActionsCellItem, GridColDef, GridRowsProp } from '@mui/x-data-grid';
 import { Add, NavigateNext } from '@mui/icons-material';
 import { Derivation } from '@fireblocks/wallet-derivation';
@@ -15,6 +15,7 @@ import { Link } from '../../../../components/Link';
 import { VaultAccountIcon, AssetIcon, WithdrawIcon, DepositAddressesIcon, KeyIcon } from '../../../../components/Icons';
 import { ErrorModal } from '../../../../components';
 import { useWrappedState } from '../../../../lib/debugUtils';
+import { isTransferableAsset } from '@fireblocks/asset-config/util';
 
 export type Row = {
   assetId: string;
@@ -177,32 +178,52 @@ export const VaultAccountBasePage = ({ account, withdrawModal: WithdrawModal, ad
         type: 'actions',
         width: 126,
         getActions: (params) => {
-          const actions = [
+          const addressDisabled = !params.row.derivations?.length;
+          const addressButton = (
             <GridActionsCellItem
               key={`addresses-${params.id}`}
               icon={<DepositAddressesIcon />}
               label='Addresses'
               onClick={() => handleOpenAddressesModal(params.row)}
-              disabled={!params.row.derivations?.length}
-            />,
+              disabled={addressDisabled}
+            />
+          );
+
+          const keysDisabled = !params.row.derivations?.some((derivation) => derivation.publicKey);
+          const keysButton = (
             <GridActionsCellItem
               key={`keys-${params.id}`}
               icon={<KeyIcon />}
               label='Keys'
               onClick={() => handleOpenKeysModal(params.row)}
-              disabled={!params.row.derivations?.some((derivation) => derivation.publicKey)}
-            />,
+              disabled={keysDisabled}
+            />
+          );
+          const actions = [
+            <Tooltip title={addressDisabled ? 'Address not available' : 'Show addresses'} arrow>
+              {addressDisabled ? <div>{addressButton}</div> : addressButton}
+            </Tooltip>,
+            <Tooltip title={keysDisabled ? 'No key for asset' : 'Show keys'} arrow>
+              {keysDisabled ? <span>{keysButton}</span> : keysButton}
+            </Tooltip>,
           ];
 
           if (WithdrawModal) {
-            actions.push(
+            const withdrawDisabled =
+              !params.row.derivations?.some((derivation) => derivation.publicKey) || !isTransferableAsset(params.row.assetId);
+            const withdrawButton = (
               <GridActionsCellItem
                 key={`withdraw-${params.id}`}
                 icon={<WithdrawIcon />}
                 label='Withdraw'
                 onClick={() => handleOpenWithdrawModal(params.row.assetId)}
-                disabled={!params.row.derivations?.some((derivation) => derivation.publicKey)}
-              />,
+                disabled={withdrawDisabled}
+              />
+            );
+            actions.push(
+              <Tooltip title={withdrawDisabled ? "Asset isn't withdrawable" : `Withdraw ${params.row.assetId}`} arrow>
+                {withdrawDisabled ? <span>{withdrawButton}</span> : withdrawButton}
+              </Tooltip>,
             );
           }
 
