@@ -5,6 +5,7 @@ import { Button, NextLinkComposed, KeyIcon, VaultAccountIcon, getLogger, useWrap
 import { useWorkspace } from '../context/Workspace';
 import { getDeployment, useDeployment } from '../lib/ipc';
 import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
+import { resetDeployment } from '../lib/ipc/useDeployment';
 
 const buttonStyles: SxProps = {
   padding: '0.2rem',
@@ -71,6 +72,9 @@ const Index = () => {
       void getDeployment().then((deployment) => {
         logger.debug(`Using deployment ${JSON.stringify(deployment)}`);
         const protocol = deployment.exp && deployment.exp > Date.now() ? deployment.protocol : null;
+        if (protocol === null) {
+          resetDeployment();
+        }
         setLoading(false);
         setProtocol(protocol);
       }),

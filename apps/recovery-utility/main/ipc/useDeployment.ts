@@ -10,3 +10,7 @@ ipcMain.handle('deployment/use', async (event, protocol: 'UTILITY' | 'RELAY') =>
   app.exit();
   await createWindow();
 });
+
+ipcMain.handle('deployment/reset', async () => {
+  DeploymentStore.reset();
+});

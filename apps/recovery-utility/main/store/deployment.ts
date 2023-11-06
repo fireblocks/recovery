@@ -36,7 +36,7 @@ export class DeploymentStore {
 
   public static set(protocol: 'UTILITY' | 'RELAY' | null) {
     DeploymentStore._store.set('protocol', protocol);
-    DeploymentStore._store.set('exp', Date.now() + 5000); // 5 seconds
+    DeploymentStore._store.set('exp', Date.now() + 15000); // 15 seconds
   }
 
   public static reset() {
