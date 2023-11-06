@@ -24,7 +24,7 @@
     "@types/bech32": "^1.1.4",
     "@types/bitcore-lib-cash": "^8.23.5",
     "@types/blake2b": "^2.1.0",
-    "algosdk": "^2.4.0",
+    "algosdk": "2.5.0",
     "bech32": "^2.0.0",
     "big-integer": "^1.6.51",
     "bigint-buffer": "^1.1.5",
