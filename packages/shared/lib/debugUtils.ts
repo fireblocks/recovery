@@ -1,14 +1,27 @@
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { LOGGER_NAME_SHARED } from '../constants';
 import { getLogger } from './getLogger';
+import { sanatize } from './sanatize';
 
 const logger = getLogger(LOGGER_NAME_SHARED);
 
-export function wrapState<S>(paramName: string, func: Dispatch<SetStateAction<S>>): Dispatch<SetStateAction<S>> {
-  return ((v: S) => {
-    logger.info(`Altering varaiable ${paramName} to ${v}`);
-    logger.info(Error().stack);
-    console.trace();
-    func(v);
-  }) as Dispatch<SetStateAction<S>>;
+export function useWrappedState<S>(
+  paramName: string,
+  defaultValue: S | (() => S),
+  shouldSanatize = false,
+): [S, Dispatch<SetStateAction<S>>] {
+  const [param, paramFn] = useState<S>(defaultValue);
+
+  const setParam = (v: S) => {
+    if (shouldSanatize) {
+      const copy = { ...v };
+      logger.logStateChange(paramName, JSON.stringify(sanatize(copy)));
+    } else {
+      logger.logStateChange(paramName, v);
+    }
+
+    paramFn(v);
+  };
+
+  return [param, setParam as Dispatch<SetStateAction<S>>];
 }
