@@ -9,7 +9,7 @@ export class Algorand extends EdDSAWallet {
   }
 
   protected getAddress() {
-    const publicKeyBytes = toUtf8Bytes(this.publicKey);
+    const publicKeyBytes = Buffer.from(this.publicKey.replace('0x', ''), 'hex');
 
     return encodeAddress(publicKeyBytes);
   }
