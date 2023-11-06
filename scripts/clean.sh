@@ -1,2 +1,2 @@
 rm -rf node_modules/cache/.turbo
-rm -rf packages/extended-key-recovery/build packages/extended-key-recovery/dist
+find . -type d -name dist -not -path './node_modules/*' -exec rm -rf {} \;
