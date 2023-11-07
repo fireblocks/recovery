@@ -6,6 +6,7 @@ import { useWorkspace } from '../context/Workspace';
 import { getDeployment, useDeployment } from '../lib/ipc';
 import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 import { resetDeployment } from '../lib/ipc/useDeployment';
+import { resetLogs } from '../lib/ipc/getLogs';
 
 const buttonStyles: SxProps = {
   padding: '0.2rem',
@@ -63,6 +64,7 @@ const Index = () => {
   const [protocol, setProtocol] = useWrappedState<'UTILITY' | 'RELAY' | null>('util-protocol', null);
 
   const onClickDeployment = async (_protocol: 'UTILITY' | 'RELAY') => {
+    resetLogs();
     logger.debug(`Setting deployment ${_protocol}`);
     useDeployment(_protocol);
   };

@@ -81,6 +81,8 @@ ipcMain.handle('logs/get', async () =>
   ),
 );
 
+ipcMain.handle('logs/reset', async () => resetLogs());
+
 export const resetLogs = () => {
   const logFiles = [
     getLogPath('utility'),

@@ -34,6 +34,7 @@ let protocol = deployment.exp
   : DEFAULT_PROTOCOL;
 const relay = app.commandLine.hasSwitch('relay');
 const util = app.commandLine.hasSwitch('util');
+resetLogs();
 console.log(`Command line specified: relay: ${relay}, util: ${util}.`);
 if (relay && util) {
   console.error('Both relay and util flags were used, ignoring.');

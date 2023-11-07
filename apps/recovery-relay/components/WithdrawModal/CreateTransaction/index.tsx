@@ -14,6 +14,7 @@ import {
   RelayCreateTxRequestParams,
   RelaySignTxResponseParams,
   getLogger,
+  sanatize,
 } from '@fireblocks/recovery-shared';
 import { AssetConfig } from '@fireblocks/asset-config';
 import { useWorkspace } from '../../../context/Workspace';
@@ -181,7 +182,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
     accountId,
     values,
     asset,
-    derivation,
+    derivation: sanatize(derivation),
     prepare: prepareQuery.data,
   });
 
