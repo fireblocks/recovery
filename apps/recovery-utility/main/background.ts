@@ -27,7 +27,11 @@ let relayUrl: string | undefined;
 
 const DEFAULT_PROTOCOL = 'UTILITY';
 const deployment = DeploymentStore.get();
-let protocol = deployment?.protocol || DEFAULT_PROTOCOL;
+let protocol = deployment.exp
+  ? deployment.exp > Date.now()
+    ? deployment?.protocol || DEFAULT_PROTOCOL
+    : DEFAULT_PROTOCOL
+  : DEFAULT_PROTOCOL;
 const relay = app.commandLine.hasSwitch('relay');
 const util = app.commandLine.hasSwitch('util');
 console.log(`Command line specified: relay: ${relay}, util: ${util}.`);
