@@ -1,10 +1,17 @@
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { recoverKeysInput, TextField, Button, UploadWell, BaseModal, useWrappedState } from '@fireblocks/recovery-shared';
+import {
+  recoverKeysInput,
+  TextField,
+  Button,
+  UploadWell,
+  BaseModal,
+  useWrappedState,
+  useOfflineMutation,
+} from '@fireblocks/recovery-shared';
 import { Checkbox, FormControlLabel, Typography, Box, Grid } from '@mui/material';
 import { readFileToBase64 } from '@fireblocks/recovery-shared/lib/readFile';
 import { useWorkspace } from '../../context/Workspace';
@@ -25,7 +32,7 @@ export const RecoveryForm = ({ verifyOnly }: Props) => {
   const [recoveryData, setRecoveryData] = useState<FormData | undefined>(undefined); // Do not track, confidential data
   const [recoveryConfirmed, setRecoveryConfirmed] = useWrappedState<boolean>('recoveryConfirmed', false);
 
-  const recoverMutation = useMutation({
+  const recoverMutation = useOfflineMutation({
     mutationFn: async (formData: FormData) =>
       recoverExtendedKeys({
         zip: formData.backupZip,

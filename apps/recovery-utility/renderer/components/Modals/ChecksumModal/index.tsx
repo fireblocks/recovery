@@ -1,7 +1,15 @@
 import { MouseEvent, useEffect } from 'react';
 import { Typography, Box, ToggleButtonGroup, ToggleButton } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
-import { theme, monospaceFontFamily, Button, BaseModal, QrCode, getLogger, useWrappedState } from '@fireblocks/recovery-shared';
+import {
+  theme,
+  monospaceFontFamily,
+  Button,
+  BaseModal,
+  QrCode,
+  getLogger,
+  useWrappedState,
+  useOfflineQuery,
+} from '@fireblocks/recovery-shared';
 import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 
 type Props = {
@@ -40,7 +48,7 @@ export function ChecksumModal({ publicKey, open, onClose }: Props) {
 
   const isQrCode = approvalMethod === ApprovalMethod.QR_CODE;
 
-  const { data: shortKey } = useQuery({
+  const { data: shortKey } = useOfflineQuery({
     queryKey: [approvalMethod, publicKey],
     enabled: !!publicKey && isShortKey,
     refetchOnMount: false,

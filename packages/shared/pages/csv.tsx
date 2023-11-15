@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 import { Box, Grid, Typography, FormGroup, FormControlLabel, Checkbox } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
 import { getAssetConfig } from '@fireblocks/asset-config';
 import { download } from '../lib/download';
 import { csvExport } from '../lib/csv';
@@ -11,6 +10,7 @@ import { importCsvInput, ImportCsvInput, addressesCsv as addressesCsvSchema, Add
 import { VaultAccount } from '../types';
 import { Button, UploadWell } from '../components';
 import { useWrappedState } from '../lib/debugUtils';
+import { useOfflineMutation } from '../hooks/useOfflineMutation';
 
 type Props = {
   extendedKeys?: ExtendedKeys;
@@ -51,7 +51,7 @@ export const ImportExportBasePage = ({ extendedKeys, accounts, importCsv }: Prop
   const onDropAddressesCsv = async (file: File) => onDropCsv(file, 'addressesCsv');
   // const onDropBalancesCsv = async (file: File) => onDropCsv(file, 'balancesCsv');
 
-  const importMutation = useMutation({
+  const importMutation = useOfflineMutation({
     mutationFn: (formData: ImportCsvInput) => importCsv(formData.addressesCsv, formData.balancesCsv),
     onSuccess: () => router.push('/accounts/vault'),
     onError: (error: Error) => setImportError(error instanceof Error ? error.message : (error as string)),
@@ -97,7 +97,7 @@ export const ImportExportBasePage = ({ extendedKeys, accounts, importCsv }: Prop
     return { csv, filename };
   };
 
-  const exportMutation = useMutation({
+  const exportMutation = useOfflineMutation({
     mutationFn: async () => exportCsv(shouldExportKeys),
     onSuccess: ({ csv, filename }) => download(csv, filename, 'text/plain'),
     onError: (error: Error) => setExportError(error instanceof Error ? error.message : (error as string)),

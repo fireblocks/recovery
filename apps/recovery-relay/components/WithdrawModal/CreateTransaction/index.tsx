@@ -1,7 +1,6 @@
 import { useId } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@tanstack/react-query';
 import { Typography, Grid, InputLabel, CircularProgress, Autocomplete, TextField as MuiTextField, colors } from '@mui/material';
 import {
   Button,
@@ -15,6 +14,7 @@ import {
   RelaySignTxResponseParams,
   getLogger,
   sanatize,
+  useOfflineQuery,
 } from '@fireblocks/recovery-shared';
 import { AssetConfig } from '@fireblocks/asset-config';
 import { useWorkspace } from '../../../context/Workspace';
@@ -89,7 +89,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
 
   // const balanceQueryKey = ['balance', accountId, asset?.id, fromAddress];
 
-  // const balanceQuery = useQuery({
+  // const balanceQuery = useOfflineQuery({
   //   queryKey: balanceQueryKey,
   //   enabled: !!derivation,
   //   queryFn: async () => derivation!.getBalance?.(),
@@ -100,7 +100,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
 
   const prepareQueryKey = ['prepare', fromAddress, values.memo];
 
-  const prepareQuery = useQuery({
+  const prepareQuery = useOfflineQuery({
     queryKey: prepareQueryKey,
     enabled: !!derivation,
     queryFn: async () => {

@@ -8,9 +8,9 @@ import {
   RelayResponseParams,
   getLogger,
   sanatize,
+  useOfflineQuery,
 } from '@fireblocks/recovery-shared';
 import { getAssetConfig } from '@fireblocks/asset-config';
-import { useQuery } from '@tanstack/react-query';
 import packageJson from '../package.json';
 import { WalletClasses, Derivation } from '../lib/wallets';
 import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
@@ -125,14 +125,14 @@ export const WorkspaceProvider = ({ children }: Props) => {
     },
   });
 
-  const ipQuery = useQuery({
+  const ipQuery = useOfflineQuery({
     queryKey: ['ip'],
     refetchOnWindowFocus: false,
     queryFn: fetchIpAddress,
     onError: (err: Error) => console.error(err),
   });
 
-  const utilityReleasesQuery = useQuery({
+  const utilityReleasesQuery = useOfflineQuery({
     queryKey: ['utilityReleasesUrl', inboundRelayParams?.version],
     enabled: !!inboundRelayParams?.version,
     refetchOnWindowFocus: false,
@@ -140,7 +140,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
     onError: (err: Error) => console.error('Failed to check for Recovery Utility releases', err),
   });
 
-  const extendedPublicKeysQuery = useQuery({
+  const extendedPublicKeysQuery = useOfflineQuery({
     queryKey: ['extendedPublicKeys', inboundRelayParams?.xpub, inboundRelayParams?.fpub],
     enabled: !!inboundRelayParams?.xpub || !!inboundRelayParams?.fpub,
     refetchOnWindowFocus: false,
@@ -155,7 +155,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
 
   const inboundRelayWalletIds = getInboundRelayWalletIds(inboundRelayParams);
 
-  const relayWalletQuery = useQuery({
+  const relayWalletQuery = useOfflineQuery({
     queryKey: ['relayWallet', extendedKeys, inboundRelayWalletIds],
     enabled: !!extendedKeys?.xpub && !!extendedKeys?.fpub && !!inboundRelayWalletIds,
     queryFn: async () => {

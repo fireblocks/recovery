@@ -39,7 +39,13 @@ export { VaultAccountBasePage } from './pages/accounts/vault/[accountId]';
 export { getInitialDocumentProps } from './lib/getInitialDocumentProps';
 
 // Hooks
-export { defaultBaseWorkspaceContext, useBaseWorkspace, useSecureContextCheck } from './hooks';
+export {
+  defaultBaseWorkspaceContext,
+  useBaseWorkspace,
+  useSecureContextCheck,
+  useOfflineMutation,
+  useOfflineQuery,
+} from './hooks';
 export { useWrappedState } from './lib/debugUtils';
 
 export type { BaseWorkspaceContext, BaseWorkspace } from './hooks';
