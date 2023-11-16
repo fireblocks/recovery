@@ -2,7 +2,7 @@ import { orderId, orderAssetById } from './config/sort';
 import { isNativeAssetId, isDerivableAssetId } from './util';
 import { assets } from './assets';
 
-export { getAssetConfig, getNativeAssetConfig, getDerivableAssetConfig } from './util';
+export { getAssetConfig, getNativeAssetConfig, getDerivableAssetConfig, isExplorerUrl } from './util';
 
 export { assets };
 

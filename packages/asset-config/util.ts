@@ -17,6 +17,14 @@ export const isTransferableAsset = (assetId?: string) => {
   return !!(assetConfig && 'transfer' in assetConfig && assetConfig.transfer);
 };
 
+export const isExplorerUrl = (url: string) =>
+  Object.keys(assets).some((assetId) => {
+    const asset = assets[assetId];
+    if (isNativeAssetId(assetId) && asset.getExplorerUrl) {
+      return url.startsWith(asset.getExplorerUrl('tx')('')) || url.startsWith(asset.getExplorerUrl('address')(''));
+    }
+  });
+
 export const getAssetConfig = (assetId?: string) => (isAssetId(assetId) ? assets[assetId] : undefined);
 
 export const getNativeAssetConfig = <ID extends string>(assetId?: ID) =>

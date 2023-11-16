@@ -1,7 +1,7 @@
 // Override console.log with electron-log
 import log from 'electron-log';
 
-import { app, session, systemPreferences, BrowserWindow } from 'electron';
+import { app, session, systemPreferences, BrowserWindow, shell } from 'electron';
 import isDev from 'electron-is-dev';
 // import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import path from 'path';
@@ -9,6 +9,7 @@ import { registerFileProtocol } from './helpers';
 import { DeploymentStore, PROTOCOLS } from './store/deployment';
 import './ipc';
 import { resetLogs } from './ipc/getLogs';
+import { isExplorerUrl } from '@fireblocks/asset-config';
 
 Object.assign(console, log.functions);
 log.catchErrors({
@@ -213,6 +214,10 @@ app.on('web-contents-created', (event, contents) => {
     //     action: 'allow',
     //   };
     // }
+
+    if (isExplorerUrl(url)) {
+      shell.openExternal(url);
+    }
 
     console.error(`The application tried to open a new window at the following address: '${url}'. This attempt was blocked.`);
 
