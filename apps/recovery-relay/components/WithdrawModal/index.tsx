@@ -10,7 +10,7 @@ import {
   getLogger,
   useWrappedState,
 } from '@fireblocks/recovery-shared';
-import { getDerivableAssetConfig } from '@fireblocks/asset-config';
+import { getAssetConfig, getDerivableAssetConfig } from '@fireblocks/asset-config';
 import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
 import { sanatize } from '@fireblocks/recovery-shared/lib/sanatize';
 import { useWorkspace } from '../../context/Workspace';
@@ -154,9 +154,13 @@ export const WithdrawModal = () => {
                   }}
                 >
                   <Typography variant='body1'>Transaction hash:</Typography>
-                  <Link href={`https://etherscan.io/tx/${txHash}`} target='_blank' rel='noopener noreferrer'>
-                    {txHash}
-                  </Link>
+                  {asset.getExplorerUrl ? (
+                    <Link href={asset.getExplorerUrl!('tx')(txHash)} target='_blank' rel='noopener noreferrer'>
+                      {txHash}
+                    </Link>
+                  ) : (
+                    txHash
+                  )}
                 </Typography>
               )}
             </Box>
