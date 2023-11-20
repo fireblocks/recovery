@@ -18,7 +18,7 @@ export const transactionInitInput = z
 function validateAddress(address: string, assetId: string): boolean {
   const destAddressValidator = new AddressValidator();
   const networkProtocol: string | undefined = getNetworkProtocol(assetId);
-  return destAddressValidator.isValidAddress(address, networkProtocol);
+  return destAddressValidator.isValidAddress(address, networkProtocol, assetId);
 }
 
 function createZodError(message: string, path: string[]): ZodError {
