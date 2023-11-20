@@ -24,6 +24,8 @@ export type TextFieldProps = Omit<InputBaseProps, 'error'> & {
   enableQr?: boolean;
   enableCopy?: boolean;
   isMonospace?: boolean;
+  confirmRequired?: boolean;
+  confirmMessage?: string;
   formControlProps?: FormControlProps;
 };
 
@@ -43,6 +45,8 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
       defaultValue,
       readOnly,
       endAdornment,
+      confirmRequired,
+      confirmMessage,
       inputProps,
       helpText: _helpText,
       inputRef: _inputRef,
@@ -67,7 +71,17 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
       return (value as string) || inputRef?.current?.value || (defaultValue as string) || '';
     };
 
-    const onToggleReveal = () => setRevealed((prev) => !prev);
+    const onToggleReveal = () => {
+      if (confirmRequired) {
+        if (!revealed && window.confirm(confirmMessage)) {
+          setRevealed(true);
+        } else {
+          setRevealed(false);
+        }
+      } else {
+        setRevealed((prev) => !prev);
+      }
+    };
 
     const onCopy = () => {
       if (typeof copiedTimeoutRef.current === 'number') {
