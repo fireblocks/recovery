@@ -7,7 +7,7 @@ import { AccountData } from '../types';
 export class Kusama extends BaseKSM implements ConnectedWallet {
   protected provider: WsProvider;
 
-  private api: ApiPromise | undefined;
+  private kusamaApi: ApiPromise | undefined;
 
   constructor(input: Input) {
     super(input);
@@ -19,7 +19,7 @@ export class Kusama extends BaseKSM implements ConnectedWallet {
 
   public async getBalance(): Promise<number> {
     await this._getApi();
-    const api = this.api!;
+    const api = this.kusamaApi!;
     // @ts-ignore
     const { data: balance } = await api.query.system.account(this.address);
     return balance.free.toNumber() / 10 ** 12;
@@ -28,14 +28,14 @@ export class Kusama extends BaseKSM implements ConnectedWallet {
   public async prepare(): Promise<AccountData> {
     const balance = await this.getBalance();
     //@ts-ignore
-    const { nonce } = await this.api!.query.system.account(this.address);
-    const genesisHash = this.api!.genesisHash.toHex();
-    const blockHash = (await this.api!.rpc.chain.getBlockHash()).toHex();
-    const blockNum = (await this.api!.rpc.chain.getBlock()).block.header.number.toNumber();
-    const specVersion = this.api!.runtimeVersion.specVersion.toNumber();
-    const specName = this.api!.runtimeVersion.specName.toHuman();
-    const transactionVersion = this.api!.runtimeVersion.transactionVersion.toNumber();
-    const rpc = (await this.api!.rpc.state.getMetadata()).toHex();
+    const { nonce } = await this.kusamaApi!.query.system.account(this.address);
+    const genesisHash = this.kusamaApi!.genesisHash.toHex();
+    const blockHash = (await this.kusamaApi!.rpc.chain.getBlockHash()).toHex();
+    const blockNum = (await this.kusamaApi!.rpc.chain.getBlock()).block.header.number.toNumber();
+    const specVersion = this.kusamaApi!.runtimeVersion.specVersion.toNumber();
+    const specName = this.kusamaApi!.runtimeVersion.specName.toHuman();
+    const transactionVersion = this.kusamaApi!.runtimeVersion.transactionVersion.toNumber();
+    const rpc = (await this.kusamaApi!.rpc.state.getMetadata()).toHex();
 
     const extraParams = new Map<string, any>();
     extraParams.set(this.KEY_BLOCK_HASH, blockHash);
@@ -59,7 +59,7 @@ export class Kusama extends BaseKSM implements ConnectedWallet {
     await this._getApi();
     try {
       const txHash = construct.txHash(tx);
-      await this.api!.rpc.author.submitAndWatchExtrinsic(tx);
+      await this.kusamaApi!.rpc.author.submitAndWatchExtrinsic(tx);
       this.relayLogger.debug(`Kusama: Tx broadcasted: ${txHash}`);
       return txHash;
     } catch (e) {
@@ -69,9 +69,9 @@ export class Kusama extends BaseKSM implements ConnectedWallet {
   }
 
   private async _getApi(): Promise<void> {
-    if (this.api) {
+    if (this.kusamaApi) {
       return;
     }
-    this.api = await ApiPromise.create({ provider: this.provider });
+    this.kusamaApi = await ApiPromise.create({ provider: this.provider });
   }
 }
