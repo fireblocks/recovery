@@ -7,7 +7,7 @@ import { AccountData } from '../types';
 export class Polkadot extends BaseDOT implements ConnectedWallet {
   private provider: WsProvider;
 
-  private api: ApiPromise | undefined;
+  private polkadotApi: ApiPromise | undefined;
 
   constructor(input: Input) {
     super(input);
@@ -16,7 +16,7 @@ export class Polkadot extends BaseDOT implements ConnectedWallet {
 
   public async getBalance(): Promise<number> {
     await this._getApi();
-    const api = this.api!;
+    const api = this.polkadotApi!;
     // @ts-ignore
     const { data: balance } = await api.query.system.account(this.address);
     return balance.free.toNumber() / 10 ** 10;
@@ -25,14 +25,13 @@ export class Polkadot extends BaseDOT implements ConnectedWallet {
   public async prepare(): Promise<AccountData> {
     const balance = await this.getBalance();
     //@ts-ignore
-    const { nonce } = await this.api!.query.system.account(this.address);
-    const genesisHash = this.api!.genesisHash.toHex();
-    const blockHash = (await this.api!.rpc.chain.getBlockHash()).toHex();
-    const blockNum = (await this.api!.rpc.chain.getBlock()).block.header.number.toNumber();
-    const specVersion = this.api!.runtimeVersion.specVersion.toNumber();
-    const specName = this.api!.runtimeVersion.specName.toHuman();
-    const transactionVersion = this.api!.runtimeVersion.transactionVersion.toNumber();
-    const rpc = (await this.api!.rpc.state.getMetadata()).toHex();
+    const { nonce } = await this.polkadotApi!.query.system.account(this.address);
+    const genesisHash = this.polkadotApi!.genesisHash.toHex();
+    const blockHash = (await this.polkadotApi!.rpc.chain.getBlockHash()).toHex();
+    const blockNum = (await this.polkadotApi!.rpc.chain.getBlock()).block.header.number.toNumber();
+    const specVersion = this.polkadotApi!.runtimeVersion.specVersion.toNumber();
+    const specName = this.polkadotApi!.runtimeVersion.specName.toHuman();
+    const transactionVersion = this.polkadotApi!.runtimeVersion.transactionVersion.toNumber();
 
     const extraParams = new Map<string, any>();
     extraParams.set(this.KEY_BLOCK_HASH, blockHash);
@@ -56,7 +55,7 @@ export class Polkadot extends BaseDOT implements ConnectedWallet {
     await this._getApi();
     try {
       const txHash = construct.txHash(tx);
-      await this.api!.rpc.author.submitAndWatchExtrinsic(tx);
+      await this.polkadotApi!.rpc.author.submitAndWatchExtrinsic(tx);
       this.relayLogger.debug(`Polkadot: Broadcasted tx: ${txHash}`);
       return txHash;
     } catch (e) {
@@ -66,9 +65,9 @@ export class Polkadot extends BaseDOT implements ConnectedWallet {
   }
 
   private async _getApi(): Promise<void> {
-    if (this.api) {
+    if (this.polkadotApi) {
       return;
     }
-    this.api = await ApiPromise.create({ provider: this.provider });
+    this.polkadotApi = await ApiPromise.create({ provider: this.provider });
   }
 }

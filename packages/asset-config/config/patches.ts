@@ -103,7 +103,13 @@ export const nativeAssetPatches: NativeAssetPatches = {
   DASH_TEST: btc('blockexplorer.one/dash/testnet', false),
   DOGE: btc('dexplorer.dogechain.dog', false),
   DOGE_TEST: btc('explorer-testnet.dogechain.dog', false),
-  DOT: evm('polkascan.io/polkadot', 'https://rpc.polkadot.io'),
+  DOT: {
+    derive: true,
+    transfer: true,
+    rpcUrl: 'https://rpc.polkadot.io',
+    getExplorerUrl: (type: string) => (value: string) =>
+      `https://explorer.polkascan.io/polkadot/${type === 'tx' ? 'extrinsic' : 'account'}/${value}`,
+  },
   EOS: {
     derive: true,
     transfer: true,
