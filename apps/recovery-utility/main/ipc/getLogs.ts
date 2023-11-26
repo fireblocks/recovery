@@ -18,18 +18,20 @@ const getLogPath = (
     | 'relay.old'
     | 'shared.old'
     | 'main.old'
-    | 'renderer.old',
+    | 'renderer.old'
+    | '',
 ) => {
+  const fileName = processName === '' ? '' : `${processName}.log`;
   switch (os.platform()) {
     case 'darwin':
       // macOS
-      return path.join(os.homedir(), 'Library', 'Logs', appName, `${processName}.log`);
+      return path.join(os.homedir(), 'Library', 'Logs', appName, fileName);
     case 'win32':
       // Windows
-      return path.join(process.env.USERPROFILE || os.homedir(), 'AppData', 'Roaming', appName, 'logs', `${processName}.log`);
+      return path.join(process.env.USERPROFILE || os.homedir(), 'AppData', 'Roaming', appName, 'logs', fileName);
     case 'linux':
       // Linux
-      return path.join(os.homedir(), '.config', appName, 'logs', `${processName}.log`);
+      return path.join(os.homedir(), '.config', appName, 'logs', fileName);
     default:
       throw new Error('Unsupported platform');
   }
@@ -66,7 +68,10 @@ const createZipFromFiles = async (...filePaths: string[]) =>
     archive.finalize();
   });
 
-ipcMain.handle('logs/get', async () =>
+ipcMain.handle('logs/get_path', async () => getLogPath(''));
+
+ipcMain.handle('logs/get', async () => {
+  return;
   createZipFromFiles(
     getLogPath('utility'),
     getLogPath('relay'),
@@ -78,8 +83,8 @@ ipcMain.handle('logs/get', async () =>
     getLogPath('shared.old'),
     getLogPath('main.old'),
     getLogPath('renderer.old'),
-  ),
-);
+  );
+});
 
 ipcMain.handle('logs/reset', async () => resetLogs());
 
