@@ -42,6 +42,10 @@ export const recoverMobileKeyShare = (
     decryptedKey = decryptedKey.subarray(4);
   }
 
+  if (decryptedKey.length === 0) {
+    throw new Error(`Decrypted mobile key value is missing`);
+  }
+
   return {
     keyId,
     playerId: getPlayerId(keyId, keyShare.deviceId, false).toString(),
