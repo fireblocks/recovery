@@ -22,8 +22,10 @@ export const sanatize = (value: any, depth = 0): any => {
         'privateKey',
         'Private Key (WIF)',
         'Private Key',
-        'polkadotApi', // Polkadot's index.ts contains the API field which is too large and part of printing it causes issues
-        'kusamaApi', // Kusama's index.ts contains the API field which is too large and part of printing it causes issues
+        // Non confidential information that causes issues or floods logs
+        'polkadotApi',
+        'kusamaApi',
+        'solConnection',
       ].includes(key)
     ) {
       return;
