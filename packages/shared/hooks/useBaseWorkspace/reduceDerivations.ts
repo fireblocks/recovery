@@ -1,5 +1,5 @@
 import { ExtendedKeys, Input, BaseWallet, HDPathInput } from '@fireblocks/wallet-derivation';
-import { getDerivableAssetConfig } from '@fireblocks/asset-config';
+import { getDerivableAssetConfig, isTestnetAsset } from '@fireblocks/asset-config';
 import { VaultAccount, Wallet } from '../../types';
 import { LOGGER_NAME_SHARED } from '../../constants';
 import { getLogger } from '../../lib/getLogger';
@@ -46,7 +46,7 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(input: Deri
     privateKey,
     wif,
     isLegacy = !!input.address && testIsLegacy(input.assetId, input.address),
-    isTestnet = input.assetId.includes('TEST') || input.assetId === 'WND',
+    isTestnet = input.assetId.includes('TEST') || input.assetId === 'WND' || isTestnetAsset(input.assetId),
     lastUpdated,
     balance,
     deriveWallet,
