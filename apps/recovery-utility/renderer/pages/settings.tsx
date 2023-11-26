@@ -9,8 +9,9 @@ import utilityPackage from '../../package.json';
 import { useSettings, defaultSettings } from '../context/Settings';
 import { useWorkspace } from '../context/Workspace';
 import { download } from '@fireblocks/recovery-shared';
-import { getLogs as ipcGetLogs } from '../lib/ipc';
+import { getLogs as ipcGetLogs, getLogsPath as ipcGetLogsPath } from '../lib/ipc';
 import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
+import { shell } from 'electron';
 
 type FormData = z.infer<typeof settingsInput>;
 
@@ -36,9 +37,10 @@ const Settings = () => {
   });
 
   const downloadLogs = async () => {
-    logger.debug('Downloading logs');
-    const logsZip = await ipcGetLogs();
-    download(logsZip, 'recovery-utility-logs.zip', 'application/zip');
+    // logger.debug('Downloading logs');
+    // const logsZip = await ipcGetLogs();
+    // download(logsZip, 'recovery-utility-logs.zip', 'application/zip');
+    shell.openPath(await ipcGetLogsPath());
   };
 
   const onSubmit = async (formData: FormData) => {
@@ -112,7 +114,7 @@ const Settings = () => {
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Button type='submit' size='large' variant='outlined' fullWidth color='primary' onClick={downloadLogs}>
-                Download Logs
+                Show Logs
               </Button>
             </Grid>
           </Grid>
