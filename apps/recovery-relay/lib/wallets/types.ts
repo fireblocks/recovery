@@ -24,6 +24,7 @@ export type AccountData = {
   feeRate?: number;
   nonce?: number;
   gasPrice?: bigint | null;
+  chainId?: number;
   extraParams?: Map<string, any>;
   endpoint?: string;
   insufficientBalance?: boolean;

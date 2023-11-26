@@ -93,6 +93,7 @@ export const relaySignTxResponseParams = relayBaseResponseParams.extend({
         feeRate: z.number().nonnegative('Fee rate cannot be negative').optional(),
         gasPrice: z.string().optional(),
         nonce: nonnegativeIntSchema('Nonce').optional(),
+        chainId: z.number().positive().optional(),
         blockhash: hexString.nonempty('Block hash is required').optional(),
         utxos: z
           .array(

@@ -155,6 +155,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
         feeRate: prepareQuery.data?.feeRate,
         extraParams: prepareQuery.data?.extraParams,
         memo: values.memo,
+        chainId: prepareQuery.data?.chainId,
         endpoint: derivation.isLateInit() ? prepareQuery.data?.endpoint : undefined,
         // TODO: FIX UTXO TYPE
         // @ts-ignore
