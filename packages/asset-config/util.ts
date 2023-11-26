@@ -16,6 +16,10 @@ export const isTransferableAsset = (assetId?: string) => {
   const assetConfig = isAssetId(assetId) ? assets[assetId] : undefined;
   return !!(assetConfig && 'transfer' in assetConfig && assetConfig.transfer);
 };
+export const isTestnetAsset = (assetId?: string) => {
+  const assetConfig = isAssetId(assetId) ? assets[assetId] : undefined;
+  return !!(assetConfig && 'testnet' in assetConfig && assetConfig.testnet);
+};
 
 export const isExplorerUrl = (url: string) =>
   Object.keys(assets).some((assetId) => {
@@ -23,6 +27,7 @@ export const isExplorerUrl = (url: string) =>
     if (isNativeAssetId(assetId) && asset.getExplorerUrl) {
       return url.startsWith(asset.getExplorerUrl('tx')('')) || url.startsWith(asset.getExplorerUrl('address')(''));
     }
+    return false;
   });
 
 export const getAssetConfig = (assetId?: string) => (isAssetId(assetId) ? assets[assetId] : undefined);
