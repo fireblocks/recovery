@@ -18,7 +18,14 @@ import { CallMade, CallReceived, LeakAdd, Toll } from '@mui/icons-material';
 import { useWorkspace } from '../../../../context/Workspace';
 import { useSettings } from '../../../../context/Settings';
 import { SigningWallet } from '../../../../lib/wallets/SigningWallet';
-import { StdUTXO, BaseUTXOType, SegwitUTXOType, BTCSegwitUTXO, BTCLegacyUTXO } from '../../../../lib/wallets/types';
+import {
+  StdUTXO,
+  BaseUTXOType,
+  SegwitUTXOType,
+  BTCSegwitUTXO,
+  BTCLegacyUTXO,
+  GenerateTxInput,
+} from '../../../../lib/wallets/types';
 import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 
 const BlockedMessage = ({ children }: { children: ReactNode }) => (
@@ -93,7 +100,8 @@ export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Pr
       memo: misc?.memo,
       // blockHash: misc?.blockHash,
       extraParams: misc?.extraParams,
-    });
+      chainId: misc?.chainId,
+    } as GenerateTxInput);
 
     logger.info({ tx });
 

@@ -46,10 +46,13 @@ export class EVM extends EVMBase implements ConnectedWallet {
       this.relayLogger.error('Insufficient balance');
     }
 
+    const chainId = (await this.provider.getNetwork()).chainId;
+
     const preparedData = {
       balance: Number(formatEther(adjustedBalance)),
       nonce,
       gasPrice,
+      chainId: parseInt(chainId.toString()),
     };
 
     this.relayLogger.logPreparedData('EVM', preparedData);
@@ -62,7 +65,7 @@ export class EVM extends EVMBase implements ConnectedWallet {
       this.relayLogger.debug(`EVM: Tx broadcasted: ${JSON.stringify(txRes, null, 2)}`);
       return txRes.hash;
     } catch (e) {
-      this.relayLogger.error(`EVM: Error broadcasting tx: ${(e as Error).message}`);
+      this.relayLogger.error('EVM: Error broadcasting tx:', e);
       throw e;
     }
   }

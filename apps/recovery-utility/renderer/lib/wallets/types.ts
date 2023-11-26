@@ -42,4 +42,5 @@ export type GenerateTxInput = {
   blockHash?: string;
   memo?: string;
   extraParams?: Map<string, any>;
+  chainId?: number;
 };
