@@ -42,7 +42,19 @@
     "@polkadot/types-known": "10.9.1",
     "@polkadot/util": "12.3.2",
     "@polkadot/util-crypto": "12.3.2",
-    "@polkadot/wasm-crypto": "7.2.1"
+    "@polkadot/wasm-crypto": "7.2.1",
+    "@polkadot/networks": "12.3.2",
+    "@polkadot/x-bigint": "12.3.2",
+    "@polkadot/x-fetch": "12.3.2",
+    "@polkadot/x-global": "12.3.2",
+    "@polkadot/x-ws": "12.3.2",
+    "@polkadot/x-textencoder": "12.3.2",
+    "@polkadot/x-textdecoder": "12.3.2",
+    "@polkadot/wasm-bridge": "7.2.1",
+    "@polkadot/wasm-crypto-init": "7.2.1",
+    "@polkadot/wasm-crypto-asmjs": "7.2.1",
+    "@polkadot/wasm-crypto-wasm": "7.2.1",
+    "@polkadot/wasm-util": "7.2.1"
   },
   "dependencies": {
     "@changesets/cli": "^2.26.2",
