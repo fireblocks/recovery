@@ -105,7 +105,7 @@ export const VaultAccountBasePage = ({ account, withdrawModal: WithdrawModal, ad
   const handleOpenRestoreWalletModal = () => setIsRestoreWalletModalOpen(true);
   const handleCloseRestoreWalletModal = () => setIsRestoreWalletModalOpen(false);
 
-  const [addressesModalRow, setAddressesModalRow] = useWrappedState<Row | null>('addressesModalRow', null);
+  const [addressesModalRow, setAddressesModalRow] = useWrappedState<Row | null>('addressesModalRow', null, true); // Contains derivations
 
   const handleOpenAddressesModal = (row: Row) => setAddressesModalRow(row);
   const handleCloseAddressesModal = () => setAddressesModalRow(null);

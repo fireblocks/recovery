@@ -35,13 +35,24 @@ export const getLogger: (name: LoggerName) => CustomElectronLogger = (name: Logg
   };
 
   logger.logStateChange = (variableName: string, newValue: unknown): void => {
-    logger.debug(
-      `${variableName} changed to: ${JSON.stringify(
-        newValue,
-        (_, v) => (typeof v === 'bigint' ? v.toString() : typeof v === 'function' ? 'function' : v),
-        2,
-      )}`,
-    );
+    try {
+      let cache: any[] = [];
+      logger.debug(
+        `${variableName} changed to: ${JSON.stringify(
+          newValue,
+          (_, v) => {
+            if (typeof v === 'object' && v !== null) {
+              if (cache.includes(v)) return '[Circular]';
+              cache.push(v);
+            }
+            return typeof v === 'bigint' ? v.toString() : typeof v === 'function' ? 'function' : v;
+          },
+          2,
+        )}`,
+      );
+    } catch (e) {
+      logger.warn('Unable to print state change', e);
+    }
   };
 
   loggers[name] = logger;
