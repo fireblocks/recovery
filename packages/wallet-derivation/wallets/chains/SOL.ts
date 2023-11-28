@@ -9,7 +9,7 @@ export class Solana extends EdDSAWallet {
   constructor(input: Input) {
     super(input, 501);
 
-    this.web3PubKey = new PublicKey(Buffer.from(this.publicKey, 'hex'));
+    this.web3PubKey = new PublicKey(Buffer.from(this.publicKey.replace('0x', ''), 'hex'));
   }
 
   protected getAddress() {

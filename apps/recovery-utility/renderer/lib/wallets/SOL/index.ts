@@ -9,7 +9,7 @@ export class Solana extends BaseSolana implements SigningWallet {
   constructor(input: Input) {
     super(input);
 
-    const endpoint = input.isTestnet ? web3.clusterApiUrl('devnet') : 'https://try-rpc.mainnet.solana.blockdaemon.tech';
+    const endpoint = input.isTestnet ? web3.clusterApiUrl('devnet') : web3.clusterApiUrl('mainnet-beta');
 
     this.connection = new web3.Connection(endpoint, 'confirmed');
   }

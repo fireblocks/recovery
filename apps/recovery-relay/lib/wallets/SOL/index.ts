@@ -1,29 +1,37 @@
 import { Buffer } from 'buffer';
 import * as web3 from '@solana/web3.js';
+import { ipcRenderer } from 'electron';
 import { Solana as BaseSolana, Input } from '@fireblocks/wallet-derivation';
-import { AccountData, TxPayload } from '../types';
+import { AccountData } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
 
 export class Solana extends BaseSolana implements ConnectedWallet {
-  private readonly connection: web3.Connection;
+  private readonly solConnection: web3.Connection;
 
   constructor(input: Input) {
     super(input);
 
-    const endpoint = input.isTestnet ? web3.clusterApiUrl('devnet') : 'https://try-rpc.mainnet.solana.blockdaemon.tech';
+    const endpoint = input.isTestnet ? web3.clusterApiUrl('devnet') : web3.clusterApiUrl('mainnet-beta');
 
-    this.connection = new web3.Connection(endpoint, 'confirmed');
+    this.solConnection = new web3.Connection(endpoint, {
+      commitment: 'confirmed',
+      //@ts-ignore
+      fetch: async (input: string | URL | Request, init) => {
+        const res = await ipcRenderer.invoke('sol_web_request', input, init);
+        return new Response(res);
+      },
+    });
   }
 
   public async getBalance() {
-    const lamports = await this.connection.getBalance(this.web3PubKey);
+    const lamports = await this.solConnection.getBalance(this.web3PubKey);
     const balance = lamports / web3.LAMPORTS_PER_SOL;
     return balance;
   }
 
   public async broadcastTx(tx: string): Promise<string> {
     try {
-      const txHash = await this.connection.sendRawTransaction(Buffer.from(tx, 'hex'));
+      const txHash = await this.solConnection.sendRawTransaction(Buffer.from(tx, 'hex'));
       this.relayLogger.debug(`Solana: Tx broadcasted: ${txHash}`);
       return txHash;
     } catch (e) {
