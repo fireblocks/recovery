@@ -21,14 +21,24 @@ export const isTestnetAsset = (assetId?: string) => {
   return !!(assetConfig && 'testnet' in assetConfig && assetConfig.testnet);
 };
 
-export const isExplorerUrl = (url: string) =>
-  Object.keys(assets).some((assetId) => {
+export const isExplorerUrl = (url: string) => {
+  const endingsToRemove: { [key: string]: string } = { SOL: '?cluster=mainnet', SOL_TEST: '?cluster=devnet' };
+  return Object.keys(assets).some((assetId: string) => {
     const asset = assets[assetId];
     if (isNativeAssetId(assetId) && asset.getExplorerUrl) {
-      return url.startsWith(asset.getExplorerUrl('tx')('')) || url.startsWith(asset.getExplorerUrl('address')(''));
+      const txUrl =
+        assetId in endingsToRemove
+          ? asset.getExplorerUrl('tx')('').replace(endingsToRemove[assetId], '')
+          : asset.getExplorerUrl('tx')('');
+      const addressUrl =
+        assetId in endingsToRemove
+          ? asset.getExplorerUrl('address')('').replace(endingsToRemove[assetId], '')
+          : asset.getExplorerUrl('address')('');
+      return url.startsWith(addressUrl) || url.startsWith(txUrl);
     }
     return false;
   });
+};
 
 export const getAssetConfig = (assetId?: string) => (isAssetId(assetId) ? assets[assetId] : undefined);
 

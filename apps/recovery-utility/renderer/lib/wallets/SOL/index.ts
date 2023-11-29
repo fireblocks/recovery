@@ -14,8 +14,8 @@ export class Solana extends BaseSolana implements SigningWallet {
     this.connection = new web3.Connection(endpoint, 'confirmed');
   }
 
-  public async generateTx({ to, amount, blockHash }: GenerateTxInput): Promise<TxPayload> {
-    const tx = new web3.Transaction({ feePayer: this.web3PubKey, recentBlockhash: blockHash });
+  public async generateTx({ to, amount, extraParams }: GenerateTxInput): Promise<TxPayload> {
+    const tx = new web3.Transaction({ feePayer: this.web3PubKey, recentBlockhash: extraParams?.get(this.KEY_RECENT_BLOCKHASH) });
 
     tx.add(
       web3.SystemProgram.transfer({

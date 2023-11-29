@@ -216,7 +216,11 @@ app.on('web-contents-created', (event, contents) => {
     // }
 
     if (isExplorerUrl(url)) {
+      console.log(`Opening ${url} for explorer.`);
       shell.openExternal(url);
+      return {
+        action: 'deny',
+      };
     }
 
     console.error(`The application tried to open a new window at the following address: '${url}'. This attempt was blocked.`);

@@ -15,4 +15,7 @@ export class Solana extends EdDSAWallet {
   protected getAddress() {
     return encodeBase58(this.publicKey);
   }
+
+  protected readonly KEY_RECENT_BLOCKHASH = 'b';
+  protected readonly KEY_FEE_FOR_TX = 'f';
 }

@@ -196,7 +196,7 @@ export const nativeAssetPatches: NativeAssetPatches = {
   SMARTBCH: evm('sonar.cash', 'https://smartbch-wss.greyh.at'),
   SOL: {
     derive: true,
-    transfer: false,
+    transfer: true,
     utxo: false,
     segwit: false,
     minBalance: false,
@@ -205,7 +205,7 @@ export const nativeAssetPatches: NativeAssetPatches = {
   },
   SOL_TEST: {
     derive: true,
-    transfer: false,
+    transfer: true,
     utxo: false,
     segwit: false,
     minBalance: false,

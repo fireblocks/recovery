@@ -42,9 +42,30 @@ export class Solana extends BaseSolana implements ConnectedWallet {
 
   public async prepare(): Promise<AccountData> {
     const accountBalance = await this.getBalance();
+    let blockInfo = (await this.solConnection.getLatestBlockhash()).blockhash;
+
+    //Simulate tx for fee
+    const tx = new web3.Transaction({ feePayer: this.web3PubKey, recentBlockhash: blockInfo });
+    tx.add(
+      web3.SystemProgram.transfer({
+        fromPubkey: this.web3PubKey,
+        toPubkey: this.web3PubKey,
+        lamports: accountBalance * web3.LAMPORTS_PER_SOL,
+      }),
+    );
+
+    const feeForTx = ((await this.solConnection.getFeeForMessage(tx.compileMessage())).value ?? 0) / web3.LAMPORTS_PER_SOL;
+
+    blockInfo = (await this.solConnection.getLatestBlockhash()).blockhash;
+    const extraParams = new Map<string, string>();
+    extraParams.set(this.KEY_RECENT_BLOCKHASH, blockInfo);
+
+    const balance = Math.floor((accountBalance - feeForTx) * web3.LAMPORTS_PER_SOL) / web3.LAMPORTS_PER_SOL;
+
     const preparedData = {
-      balance: accountBalance,
+      balance,
       insufficientBalance: accountBalance < 0.00000001,
+      extraParams,
     } as AccountData;
 
     this.relayLogger.logPreparedData('Solana', preparedData);
