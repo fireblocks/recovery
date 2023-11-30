@@ -33,8 +33,8 @@ let protocol = deployment.exp
     ? deployment?.protocol || DEFAULT_PROTOCOL
     : DEFAULT_PROTOCOL
   : DEFAULT_PROTOCOL;
-const relay = app.commandLine.hasSwitch('relay');
-const util = app.commandLine.hasSwitch('util');
+const relay = app.commandLine.hasSwitch('relay') || process.env.MODE_RELAY === '1';
+const util = app.commandLine.hasSwitch('util') || process.env.MODE_UTIL === '1';
 resetLogs();
 console.log(`Command line specified: relay: ${relay}, util: ${util}.`);
 if (relay && util) {
@@ -43,6 +43,7 @@ if (relay && util) {
   protocol = 'RELAY';
 } else if (util && !relay) {
   protocol = 'UTILITY';
+  DeploymentStore.set('UTILITY');
 }
 
 const { directory, scheme, port } = PROTOCOLS[protocol];
@@ -85,7 +86,7 @@ export async function createWindow() {
     height: 720,
     minWidth: 845,
     minHeight: 720,
-    title: 'Fireblocks Recovery Utility',
+    title: protocol === 'UTILITY' ? 'Fireblocks Recovery Utility' : 'Fireblocks Recovery Relay',
     show: false,
     webPreferences: {
       devTools: true,
@@ -103,7 +104,7 @@ export async function createWindow() {
   loadUrl(win);
 
   win.webContents.on('did-finish-load', () => {
-    win?.setTitle('Fireblocks Recovery Utility');
+    win?.setTitle(protocol === 'UTILITY' ? 'Fireblocks Recovery Utility' : 'Fireblocks Recovery Relay');
   });
 
   // Disable reload
