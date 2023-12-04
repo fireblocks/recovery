@@ -165,15 +165,6 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
     });
   };
 
-  const truncateBalance = (data: any) => {
-    const { balance } = data;
-    if (`${balance}`.length > 3) {
-      const balanceStr = Math.floor(data.balance * 10 ** 3) / 10 ** 3;
-      return `${balanceStr}... ${asset?.id}`;
-    }
-    return `${data.balance} ${asset?.id}`;
-  };
-
   const fromAddressId = useId();
   const balanceId = useId();
   const addressExplorerId = useId();
@@ -191,12 +182,12 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
     <Grid
       component='form'
       container
-      spacing={2}
+      spacing={1}
       alignItems='center'
       justifyContent='center'
       onSubmit={handleSubmit(onSubmit, console.error)}
     >
-      <Grid item xs={8}>
+      <Grid item xs={12}>
         <InputLabel
           shrink
           htmlFor={fromAddressId}
@@ -225,53 +216,52 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
           onChange={(_, newAddress) => setValue('fromAddress', newAddress ?? fromAddress)}
         />
       </Grid>
-      <Grid item xs={4}>
-        <Grid container spacing={2} alignItems='flex-end' justifyContent='space-between' height='72px'>
-          <Grid item flex='1'>
-            <InputLabel
-              shrink
-              htmlFor={balanceId}
-              sx={{
-                fontSize: '18px',
-                fontWeight: 600,
-                color: '#000000',
-              }}
-            >
-              Balance
-            </InputLabel>
-            {isLoading ? (
-              <CircularProgress size='24px' />
-            ) : (
-              <Typography
-                id={balanceId}
-                noWrap
-                fontFamily={prepareQuery.error ? undefined : monospaceFontFamily}
-                sx={{ userSelect: 'text', cursor: 'default' }}
-              >
-                {prepareQuery.error || typeof prepareQuery.data?.balance === 'undefined'
-                  ? 'Could not get balance'
-                  : truncateBalance(prepareQuery.data)}
-              </Typography>
-            )}
-          </Grid>
-          {!!asset && 'getExplorerUrl' in asset && (
-            <Grid item flex='1'>
-              <Button
-                id={addressExplorerId}
-                variant='outlined'
-                component={NextLinkComposed}
-                to={asset.getExplorerUrl?.('address')(fromAddress ?? '')}
-                target='_blank'
-                rel='noopener noreferrer'
-              >
-                Open Explorer
-              </Button>
-            </Grid>
-          )}
-        </Grid>
-      </Grid>
       <Grid item xs={12}>
-        <Typography variant='body1' paragraph>
+        <InputLabel
+          shrink
+          htmlFor={balanceId}
+          sx={{
+            lineHeight: 'normal',
+            fontSize: '18px',
+            fontWeight: 600,
+            color: '#000000',
+          }}
+        >
+          Balance
+        </InputLabel>
+      </Grid>
+      <Grid item flex='1'>
+        {isLoading ? (
+          <CircularProgress size='24px' />
+        ) : (
+          <Typography
+            id={balanceId}
+            noWrap
+            fontFamily={prepareQuery.error ? undefined : monospaceFontFamily}
+            sx={{ userSelect: 'text', cursor: 'default' }}
+          >
+            {prepareQuery.error || typeof prepareQuery.data?.balance === 'undefined'
+              ? 'Could not get balance'
+              : prepareQuery.data.balance}
+          </Typography>
+        )}
+      </Grid>
+      {!!asset && 'getExplorerUrl' in asset && (
+        <Grid item flex='1'>
+          <Button
+            id={addressExplorerId}
+            variant='outlined'
+            component={NextLinkComposed}
+            to={asset.getExplorerUrl?.('address')(fromAddress ?? '')}
+            target='_blank'
+            rel='noopener noreferrer'
+          >
+            Open Explorer
+          </Button>
+        </Grid>
+      )}
+      <Grid item xs={12}>
+        <Typography sx={{ marginTop: '16px' }} variant='body1' paragraph>
           The entire balance will be sent so that you can migrate to a new wallet.
         </Typography>
       </Grid>
