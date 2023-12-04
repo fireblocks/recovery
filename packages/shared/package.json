@@ -10,7 +10,8 @@
   "main": "index.ts",
   "scripts": {
     "lint": "eslint --fix .",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "test": "jest"
   },
   "dependencies": {
     "@emotion/cache": "^11.11.0",
@@ -25,9 +26,13 @@
     "@mui/styles": "^5.13.7",
     "@mui/x-data-grid": "^6.9.2",
     "@tanstack/react-query": "^4.29.19",
+    "@types/bech32": "^1.1.4",
+    "@types/multicoin-address-validator": "^0.5.2",
+    "bech32": "^2.0.0",
     "clsx": "^1.2.1",
     "copy-to-clipboard": "^3.3.3",
     "jsoncrush": "^1.1.8",
+    "multicoin-address-validator": "^0.5.13",
     "nanoid": "^4.0.2",
     "next": "^13.4.19",
     "papaparse": "^5.4.1",
