@@ -89,7 +89,7 @@ export const reconstructKeys = (
   for (const keyId of Object.keys(players).filter((key) => key in signingKeys)) {
     const playerDataForKey = players[keyId];
     const { algo, chainCode } = signingKeys[keyId];
-    let [prvKey, pubKey] = calculateKeys(keyId, playerDataForKey, algo);
+    const [prvKey, pubKey] = calculateKeys(keyId, playerDataForKey, algo);
     const pubFromMetadata = signingKeys[keyId].publicKey;
     if (pubFromMetadata !== pubKey) {
       // eslint-disable-next-line no-console
@@ -97,16 +97,15 @@ export const reconstructKeys = (
         `Failed to recover ${algo} key. Expected public key is ${pubFromMetadata} got: ${BigInt(`0x${pubKey}`).toString(16)}.`,
       );
       return undefined;
+    }
+    if (Object.keys(prvKey).includes(algo)) {
+      continue;
     } else {
-      if (Object.keys(prvKey).includes(algo)) {
-        continue;
-      } else {
-        privateKeys[algo] = {
-          prvKey: _encodeKey(prvKey, algo, chainCode as Buffer, false),
-          pubKey: _encodeKey(pubKey, algo, chainCode as Buffer, true),
-          chainCode: (chainCode as Buffer).toString('hex'),
-        };
-      }
+      privateKeys[algo] = {
+        prvKey: _encodeKey(prvKey, algo, chainCode as Buffer, false),
+        pubKey: _encodeKey(pubKey, algo, chainCode as Buffer, true),
+        chainCode: (chainCode as Buffer).toString('hex'),
+      };
     }
   }
 

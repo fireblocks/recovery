@@ -33,8 +33,8 @@ export const recoverNCWMaster = (
   }
 
   const keyId = walletMasterKeyId[0]!;
-  const walletSeed = masterKeys[keyId].walletSeed;
-  const assetSeed = masterKeys[keyId].assetSeed;
+  const { walletSeed } = masterKeys[keyId];
+  const { assetSeed } = masterKeys[keyId];
 
   const cosignerKeys: { [key: string]: string } = {};
   for (const cosigner of masterKeys[keyId].cosigners) {
