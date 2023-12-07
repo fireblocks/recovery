@@ -18,4 +18,4 @@
 #   APPLE_API_KEY="private_keys/AuthKey_0000000000.p8" \
 #   APPLE_API_KEY_ISSUER="00000000-0000-0000-0000-000000000000" \
 export CSC_IDENTITY_AUTO_DISCOVERY=false
-yarn turbo run build
+yarn turbo run build --filter=!@fireblocks/e2e-tests
