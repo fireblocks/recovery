@@ -11,10 +11,11 @@ type Props = {
   accept?: Accept;
   disabled?: boolean;
   hidden?: boolean;
+  id?: string;
   onDrop: (file: File) => void;
 };
 
-export const UploadWell = ({ label, error, hasFile, accept, disabled, hidden = false, onDrop: _onDrop }: Props) => {
+export const UploadWell = ({ id, label, error, hasFile, accept, disabled, hidden = false, onDrop: _onDrop }: Props) => {
   const labelId = useId();
 
   const [fileName, setFileName] = useWrappedState<string | undefined>('uploadWell-fileName', undefined);
@@ -116,7 +117,7 @@ export const UploadWell = ({ label, error, hasFile, accept, disabled, hidden = f
           cursor: disabled ? 'default' : 'pointer',
         }}
       >
-        <input {...getInputProps()} />
+        <input id={id} {...getInputProps()} />
         <InputIcon sx={{ marginRight: '0.5rem' }} />
         <Typography fontSize='16px'>{inputText}</Typography>
       </Box>

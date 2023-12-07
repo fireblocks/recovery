@@ -52,7 +52,7 @@ const consoleMessageCallback = (windowType: 'utility' | 'relay') => async (msg: 
     return;
   }
   console.error(`${windowType.toUpperCase()} Faced an error: ${msg.text()}`);
-  if (process.env.PAUSE_ON_CONSOLE_ERROR) {
+  if (process.env.PAUSE_ON_ERROR) {
     if (windowType === 'relay') await relayWindow.pause();
     else await utilWindow.pause();
   }
@@ -68,8 +68,8 @@ const wrapStep = <T extends AsyncFn>(
     try {
       return await call(...args);
     } catch (e) {
-      console.log(args);
-      if (!(e as Error).message.includes('Target page, context or browser has been closed')) await (args[0] as Page).pause();
+      if (!(e as Error).message.includes('Target page, context or browser has been closed') && process.env.PAUSE_ON_ERROR)
+        await (args[0] as Page).pause();
       console.error(`${windowType.toUpperCase()} failed to do step due to `, e);
       await testFailed(windowType, assetId);
     }

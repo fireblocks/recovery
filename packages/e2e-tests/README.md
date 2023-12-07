@@ -19,7 +19,7 @@ In the tests directory you must create a `.env` file with the following fields:
 | RECOVERY_RSA_PASS | ✅ | The passphrase for the RSA file |
 | VAULTS_TO_CREATE | ✅ | How many vaults to create as part of the E2E testing |
 | VAULT_TO_USE | ✅ | Which vault to use for testing (0-based index) |
-| DEBUG_ON_CONSOLE_ERROR | ❌ | Should playwright pause the window when a console generated error is detected? (allows for debugging live) |
+| PAUSE_ON_ERROR | ❌ | Should playwright pause the window when an error is detected? (allows for debugging live) |
 
 You can also specify the assets you want to do the E2E test for:
 

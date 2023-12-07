@@ -135,6 +135,7 @@ export const RecoveryForm = ({ verifyOnly }: Props) => {
               accept={{ 'application/zip': ['.zip'] }}
               disabled={recoverMutation.isLoading}
               onDrop={onDropBackupZip}
+              id={process.env.CI === 'e2e' ? 'recovery-kit-upload-well' : undefined}
             />
           </Grid>
           <Grid item xs={6}>
@@ -145,6 +146,7 @@ export const RecoveryForm = ({ verifyOnly }: Props) => {
               accept={{ 'application/x-pem-file': ['.key', '.pem'] }}
               disabled={recoverMutation.isLoading}
               onDrop={onDropRsaPrivateKey}
+              id={process.env.CI === 'e2e' ? 'recovery-kit-key-upload-well' : undefined}
             />
           </Grid>
           <Grid item xs={6}>

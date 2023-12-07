@@ -1,9 +1,11 @@
+/* eslint-disable turbo/no-undeclared-env-vars */
 import React from 'react';
 import { Box, Grid, lighten, Typography } from '@mui/material';
 import { CallMade, CallReceived } from '@mui/icons-material';
 import { theme } from '../../theme';
 import { QrCode } from '../QrCode';
 import { QrCodeScanner, ScanResult } from '../QrCodeScanner';
+import { TextField } from '../TextField';
 
 type Props = {
   rxTitle?: string;
@@ -66,6 +68,24 @@ export const RelayRxTx = ({ rxTitle, txTitle, txUrl, onDecodeQrCode }: Props) =>
         {!!onDecode && (
           <Grid item xs={6}>
             <QrCodeScanner onDecode={onDecode} />
+            {process.env.CI === 'e2e' ? (
+              <TextField
+                label='QR Code URL'
+                fullWidth
+                isMonospace
+                formControlProps={{ sx: { margin: '1em 0 0 0' } }}
+                id='rxtx-input-field'
+                onChange={(e) => {
+                  try {
+                    onDecode({ data: e.target.value } as ScanResult);
+                  } catch (exception) {
+                    console.error(exception);
+                  }
+                }}
+              />
+            ) : (
+              ''
+            )}
           </Grid>
         )}
       </Grid>

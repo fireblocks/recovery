@@ -1,7 +1,5 @@
 /**
  * Fireblocks global assets
- *
- * Exported from Support Hub as CSV
  */
 export const globalAssets = [
   {
