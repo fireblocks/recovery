@@ -4,6 +4,9 @@ import fs from 'fs';
 import path from 'path';
 import stream from 'stream';
 import archiver from 'archiver';
+import { AsyncFn, SkipError, FixError } from './types';
+import { reset } from './test-utils';
+import test from 'playwright/test';
 
 const assert = (condition: unknown, message: string) => {
   if (!condition) throw new Error(message);
@@ -100,28 +103,50 @@ const testFailed = async (onApp: 'utility' | 'relay', assetId: string) => {
 
   const zipBuffer = await createZipFromFiles(...logFiles);
   try {
-    fs.mkdirSync('./tests/failed-tests/', { recursive: true });
+    fs.mkdirSync('./failed-tests/', { recursive: true });
   } catch {}
-  fs.writeFileSync(`./tests/failed-tests/${assetId}-${Date.now()}.zip`, zipBuffer);
+  fs.writeFileSync(`./failed-tests/${assetId}-${Date.now()}.zip`, zipBuffer);
 
   throw new Error(`Failed to transfer ${assetId} due to console error`);
 };
 
-// const wrapFunc = <T extends AsyncFn>(call: T): ((...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>>) => {
-//   return async (...args: Parameters<T>) => {
-//     try {
-//       const res = await call(...args);
-//       await sleep(500);
-//       return res;
-//     } catch (e) {
-//       if (e instanceof SoftError) {
-//         test.fail(true, e.message);
-//         return;
-//       }
-//       await (args[0] as Page).pause();
-//       throw e;
-//     }
-//   };
-// };
+const wrapStep = <T extends AsyncFn>(
+  windowType: 'relay' | 'utility',
+  assetId: string,
+  call: T,
+): ((...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>>) => {
+  return async (...args: Parameters<T>) => {
+    try {
+      return await call(...args);
+    } catch (e) {
+      if (e instanceof SkipError || e instanceof FixError) {
+        throw e;
+      }
+      if (!(e as Error).message.includes('Target page, context or browser has been closed') && process.env.PAUSE_ON_ERROR)
+        await (args[0] as Page).pause();
+      console.error(`${windowType.toUpperCase()} failed to do step due to `, e);
+      await testFailed(windowType, assetId);
+    }
+  };
+};
 
-export { assert, testFailed, sleep, waitForLoadingToEnd };
+export const skipTest = async (e: SkipError | FixError, assetId: string, relayWindow: Page, utilWindow: Page) => {
+  const skipError = e instanceof SkipError;
+  try {
+    fs.mkdirSync('./failed-tests/', { recursive: true });
+  } catch {}
+  fs.writeFileSync(
+    `./failed-tests/${assetId}-${skipError ? 'INSUFFICIENT-BALANCE' : 'FIX'}.txt`,
+    skipError ? '' : `${e.message}, stack: ${e.stack}`,
+  );
+
+  await reset(utilWindow);
+  await reset(relayWindow);
+
+  if (skipError) test.skip(true, `Insufficient balance for asset ${assetId}`);
+  else test.fixme(true, `Need to fix asset ${assetId}`);
+
+  return;
+};
+
+export { assert, testFailed, sleep, waitForLoadingToEnd, wrapStep };

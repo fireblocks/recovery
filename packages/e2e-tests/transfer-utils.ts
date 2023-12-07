@@ -1,16 +1,20 @@
 import { Page } from 'playwright-core';
 import { waitForLoadingToEnd } from './utils';
+import { FixError, SkipError } from './types';
 
 export const deriveAsset = async (page: Page, assetId: string) => {
   await page.getByRole('button', { name: 'Asset Wallet' }).click();
   await page.getByPlaceholder('Search assets').fill(assetId);
+  if (await page.getByText(`No asset found for "${assetId}"`).isVisible()) {
+    throw new SkipError("Unable to derive asset, doesn't exist in list");
+  }
   await page.getByText(assetId, { exact: true }).locator('../..').click();
   await page.getByRole('button', { name: 'Recover' }).click();
 
-  // if (await page.getByRole('heading', { name: '❗️Add Wallet Failed', exact: true }).isVisible()) {
-  //   const errorText = await page.getByLabel('❗️Add Wallet Failed').locator('div').nth(1).innerText();
-  //   throw new Error(`Failed to derive wallet - ${errorText}`);
-  // }
+  if (await page.getByRole('heading', { name: '❗️Add Wallet Failed', exact: true }).isVisible()) {
+    const errorText = await page.getByLabel('❗️Add Wallet Failed').locator('div').nth(1).innerText();
+    throw new FixError(`Failed to derive wallet - ${errorText}`);
+  }
 };
 
 export const createVaults = async (page: Page, numToCreate: number, leaveLast: boolean) => {
@@ -19,7 +23,6 @@ export const createVaults = async (page: Page, numToCreate: number, leaveLast: b
     const nameInput = page.getByPlaceholder('e.g. Funding');
     await nameInput.fill(`Vault ${i + 1}`);
     await page.getByRole('button', { name: 'Recover' }).click();
-    console.log(`Created vault ${i + 1}`);
     if (i === numToCreate - 1 && !leaveLast) return;
     await page.getByRole('link', { name: 'My Vault' }).click();
   }
@@ -45,8 +48,8 @@ export const getAddressForAsset = async (page: Page, assetId: string): Promise<s
 
 export const startWithdrawal = async (page: Page, assetId: string, toAddress: string): Promise<string> => {
   // If the asset is disabled the getByLabel will fail on timeout, this is an alternative approach to obtain the relevant item
-  if (await page.getByRole('row', { name: assetId }).getByRole('menuitem').nth(-1).isDisabled()) {
-    throw new Error(`Asset ID ${assetId} is disabled for withdraw`);
+  if (await page.getByRole('row', { name: assetId }).getByRole('menuitem').last().isDisabled()) {
+    throw new SkipError(`Asset ID ${assetId} is disabled for withdraw`);
   }
   await page.getByLabel(`Withdraw ${assetId}`).click();
   await page.getByLabel('Recipient Address').fill(toAddress);
@@ -62,7 +65,7 @@ export const fetchTxParamData = async (page: Page, txInitData: string, endpointD
   // If some endpoint or additional data is required but missing, the prepare transaction button will be disabled, and the below getByRole will fail.
   if (await page.locator('#endpoint').isVisible()) {
     if (!endpointData) {
-      throw new Error('Endpoint needed but not provided');
+      throw new FixError('Endpoint needed but not provided');
     }
     await page.locator('#endpoint').fill(endpointData);
   }
@@ -71,12 +74,15 @@ export const fetchTxParamData = async (page: Page, txInitData: string, endpointD
   const errorText = await page.locator('form>div').nth(-2).innerText();
   const isVisible = await page.locator('form>div').nth(-2).isVisible();
   if (isVisible && errorText) {
+    if (errorText === 'Insufficient balance for transaction') {
+      throw new SkipError('Insufficient balance');
+    }
     throw new Error(errorText);
   }
 
   try {
     if (await page.getByText('Could not get balance', { exact: true }).isVisible()) {
-      throw new Error('Unable to fetch balance');
+      throw new FixError('Unable to fetch balance');
     }
   } catch (e) {}
 

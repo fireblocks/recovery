@@ -252,5 +252,5 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 # Test outputs
-test-results/
-tests/failed-tests
+**/test-results/
+**/failed-tests/

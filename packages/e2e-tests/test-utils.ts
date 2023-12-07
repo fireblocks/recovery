@@ -1,5 +1,4 @@
 import { Page } from 'playwright-core';
-// import { wrapFunc } from './utils';
 
 export const navigateToVault = async (page: Page, vaultToNavigateTo: number) => {
   try {
@@ -8,14 +7,16 @@ export const navigateToVault = async (page: Page, vaultToNavigateTo: number) => 
       .innerText({ timeout: 5000 });
     return;
   } catch (e) {
-    console.error(e);
-    console.log(`Utility is not in Vault ${vaultToNavigateTo}`);
+    console.log(`Utility is not in Vault ${vaultToNavigateTo}`, e);
   }
   await page.getByLabel('Close modal').click();
   await page.getByRole('link', { name: 'My Vault' }).click();
   await page.getByRole('cell', { name: `Vault ${vaultToNavigateTo}` }).click();
-  await page.pause();
 };
 
-// export const navigateToVault = wrapFunc(_navigateToVault);
-export const reset = async (page: Page) => await page.getByLabel('Close modal').click();
+export const reset = async (page: Page) => {
+  try {
+    // await page.pause();
+    await page.getByLabel('Close modal').click({ timeout: 2500 });
+  } catch (e) {} // It might be that we didn't reach the modal for withdrawal so if we get timeout we're okay to continue
+};

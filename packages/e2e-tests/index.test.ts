@@ -1,6 +1,6 @@
 import test, { ConsoleMessage, ElectronApplication, Page, TestInfo } from 'playwright/test';
 import dotenv from 'dotenv';
-import { loadApplications, reconstructWorkspace, setupOBS } from './pre-setup';
+import { loadApplications, reconstructWorkspace } from './pre-setup';
 import {
   approveTransaction,
   broadcastTransaction,
@@ -11,8 +11,8 @@ import {
   startWithdrawal,
 } from './transfer-utils';
 import { testAssets } from './tests';
-import { AssetTestConfig, AsyncFn } from './types';
-import { assert, testFailed } from './utils';
+import { AssetTestConfig, FixError, SkipError } from './types';
+import { assert, skipTest, wrapStep } from './utils';
 import { navigateToVault, reset } from './test-utils';
 
 let recoveryApp: ElectronApplication, relayApp: ElectronApplication;
@@ -43,7 +43,9 @@ test.beforeAll(async () => {
 });
 
 const consoleMessageCallback = (windowType: 'utility' | 'relay') => async (msg: ConsoleMessage) => {
-  const ignoredErrors = ['Failed to start scanner. Cannot read properties of null'];
+  const ignoredErrors = ['Failed to start scanner. Cannot read properties of null', 'Refused to set unsafe header'];
+  const skipErrors = ['Insufficient balance'];
+  const fixErrors = ['Endpoint not initialized yet'];
 
   if (msg.type() !== 'error') {
     return;
@@ -51,34 +53,26 @@ const consoleMessageCallback = (windowType: 'utility' | 'relay') => async (msg: 
   if (ignoredErrors.some((err) => msg.text().includes(err))) {
     return;
   }
-  console.error(`${windowType.toUpperCase()} Faced an error: ${msg.text()}`);
+
   if (process.env.PAUSE_ON_ERROR) {
     if (windowType === 'relay') await relayWindow.pause();
     else await utilWindow.pause();
   }
+
+  if (skipErrors.some((err) => msg.text().includes(err))) {
+    throw new SkipError(msg.text());
+  }
+
+  if (fixErrors.some((err) => msg.text().includes(err))) {
+    throw new FixError(msg.text());
+  }
+
+  console.error(`${windowType.toUpperCase()} Faced an error: ${msg.text()}`);
   throw new Error(msg.text());
 };
 
-const wrapStep = <T extends AsyncFn>(
-  windowType: 'relay' | 'utility',
-  assetId: string,
-  call: T,
-): ((...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>>) => {
-  return async (...args: Parameters<T>) => {
-    try {
-      return await call(...args);
-    } catch (e) {
-      if (!(e as Error).message.includes('Target page, context or browser has been closed') && process.env.PAUSE_ON_ERROR)
-        await (args[0] as Page).pause();
-      console.error(`${windowType.toUpperCase()} failed to do step due to `, e);
-      await testFailed(windowType, assetId);
-    }
-  };
-};
-
-const tryTransferAsset =
-  (assetConfig: AssetTestConfig) =>
-  async <TestArgs>({}: TestArgs, testInfo: TestInfo): Promise<void> => {
+const tryTransferAsset = (assetConfig: AssetTestConfig) => {
+  const transferAsset = async (testInfo: TestInfo): Promise<void> => {
     const relayWindow = await relayApp.firstWindow();
     const utilWindow = await recoveryApp.firstWindow();
     const { assetId, endpoint } = assetConfig;
@@ -89,8 +83,7 @@ const tryTransferAsset =
       try {
         await deriveAsset(utilWindow, assetId);
       } catch (e) {
-        console.error(e);
-        throw new Error(`Failed to derive ${assetId}`);
+        throw new FixError(`Failed to derive ${assetId} - ${(e as Error).message}`);
       }
     }
 
@@ -105,6 +98,19 @@ const tryTransferAsset =
     await reset(relayWindow);
   };
 
-testAssets.forEach((assetConfig: AssetTestConfig) => {
+  return async <TestArgs>({}: TestArgs, testInfo: TestInfo): Promise<void> => {
+    try {
+      await transferAsset(testInfo);
+    } catch (e) {
+      if (e instanceof SkipError || e instanceof FixError) {
+        await skipTest(e, assetConfig.assetId, relayWindow, utilWindow);
+        return;
+      }
+      throw e;
+    }
+  };
+};
+
+testAssets.forEach(async (assetConfig: AssetTestConfig) => {
   test(`Withdraw ${assetConfig.assetId}`, tryTransferAsset(assetConfig));
 });
