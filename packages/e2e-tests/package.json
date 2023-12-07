@@ -1,0 +1,14 @@
+{
+  "name": "e2e-tests",
+  "version": "0.0.1",
+  "description": "End to end testing for the recovery tool",
+  "main": "index.test.ts",
+  "repository": "https://github.com/fireblocks/recovery/tree/main/packages/e2e-tests",
+  "author": "Fireblocks <info@fireblocks.com> (https://www.fireblocks.com)",
+  "license": "GPL-3.0-or-later",
+  "private": true,
+  "scripts": {
+    "test": "yarn playwright test",
+    "ui-test": "yarn playwright test --ui"
+  }
+}
