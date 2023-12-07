@@ -19,13 +19,20 @@ export class EVM extends EVMBase implements ConnectedWallet {
     const balance = formatEther(wei);
     const ethBalance = Number(balance);
 
-    console.info({ ethBalance });
+    console.info('Eth balance info', { ethBalance });
 
     return ethBalance;
   }
 
   public async prepare(): Promise<AccountData> {
     const balance = await this.getBalance();
+
+    if (balance === 0) {
+      return {
+        balance,
+        insufficientBalance: true,
+      };
+    }
 
     const nonce = await this.provider.getTransactionCount(this.address, 'latest');
 
