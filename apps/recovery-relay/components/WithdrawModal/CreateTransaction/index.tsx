@@ -1,7 +1,7 @@
 import { useId } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Typography, Grid, InputLabel, CircularProgress, Autocomplete, TextField as MuiTextField, colors } from '@mui/material';
+import { Typography, Grid, InputLabel, CircularProgress, Autocomplete, TextField as MuiTextField } from '@mui/material';
 import {
   Button,
   TextField,
@@ -17,10 +17,10 @@ import {
   useOfflineQuery,
 } from '@fireblocks/recovery-shared';
 import { AssetConfig } from '@fireblocks/asset-config';
+import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
 import { useWorkspace } from '../../../context/Workspace';
 import { Derivation, AccountData } from '../../../lib/wallets';
 import { LateInitConnectedWallet } from '../../../lib/wallets/LateInitConnectedWallet';
-import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
 
 const logger = getLogger(LOGGER_NAME_RELAY);
 

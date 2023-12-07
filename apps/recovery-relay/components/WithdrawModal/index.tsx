@@ -10,7 +10,7 @@ import {
   getLogger,
   useWrappedState,
 } from '@fireblocks/recovery-shared';
-import { getAssetConfig, getDerivableAssetConfig } from '@fireblocks/asset-config';
+import { getDerivableAssetConfig } from '@fireblocks/asset-config';
 import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
 import { sanatize } from '@fireblocks/recovery-shared/lib/sanatize';
 import { useWorkspace } from '../../context/Workspace';
