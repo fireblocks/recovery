@@ -31,8 +31,8 @@ const evm = (baseExplorerUrl: string, rpcUrl?: string): NativeAssetPatch => ({
   getExplorerUrl: getStandardExplorer(baseExplorerUrl),
 });
 
-const btc = (baseExplorerUrl: string, segwit: boolean): NativeAssetPatch => ({
-  derive: true,
+const btc = (baseExplorerUrl: string, segwit: boolean, derive: boolean = true): NativeAssetPatch => ({
+  derive,
   transfer: true,
   utxo: true,
   segwit,
@@ -91,8 +91,8 @@ export const nativeAssetPatches: NativeAssetPatches = {
   BCH_TEST: btc('blockexplorer.one/bitcoin-cash/testnet', false),
   BNB_BSC: evm('bscscan.com'),
   BNB_TEST: evm('test.bscscan.com'),
-  BSV: btc('whatsonchain.com', false),
-  BSV_TEST: btc('test.whatsonchain.com', false),
+  BSV: btc('whatsonchain.com', false, false),
+  BSV_TEST: btc('test.whatsonchain.com', false, false),
   BTC: btc('blockstream.info', true),
   BTC_TEST: btc('blockstream.info/testnet', true),
   CELO: evm('explorer.celo.org'),
@@ -152,8 +152,8 @@ export const nativeAssetPatches: NativeAssetPatches = {
     getExplorerUrl: getStandardExplorer('explorer.arkhia.io/#/testnet'),
   },
   KSM: evm('polkascan.io/kusama', 'https://kusama-rpc.polkadot.io'),
-  LTC: btc('blockexplorer.one/litecoin/mainnet', false),
-  LTC_TEST: btc('blockexplorer.one/litecoin/testnet', false),
+  LTC: btc('blockexplorer.one/litecoin/mainnet', false, false),
+  LTC_TEST: btc('blockexplorer.one/litecoin/testnet', false, false),
   LUNA: {
     getExplorerUrl: getStandardExplorer('finder.terra.money/classic'),
   },
@@ -301,7 +301,7 @@ export const nativeAssetPatches: NativeAssetPatches = {
   XTZ: evm('tzkt.io', 'https://mainnet-tezos.giganode.io'),
   XTZ_TEST: evm('ghostnet.tzkt.io', 'https://testnet-tezos.giganode.io'),
   ZEC: {
-    derive: true,
+    derive: false,
     transfer: true,
     utxo: true,
     segwit: false,
@@ -310,7 +310,7 @@ export const nativeAssetPatches: NativeAssetPatches = {
     getExplorerUrl: getStandardExplorer('explorer.zcha.in'),
   },
   ZEC_TEST: {
-    derive: true,
+    derive: false,
     transfer: true,
     utxo: true,
     segwit: false,
