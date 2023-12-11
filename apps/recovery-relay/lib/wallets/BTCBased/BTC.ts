@@ -15,10 +15,10 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
     this.baseUrl = input.isTestnet ? 'https://blockstream.info/testnet/api' : 'https://blockstream.info/api';
   }
 
-  private async _request(path: string, init?: RequestInit) {
+  _request = async (path: string, init?: RequestInit) => {
     const res = await fetch(`${this.baseUrl}${path}`, init);
     return res;
-  }
+  };
 
   private async _requestJson<T>(path: string, init?: RequestInit) {
     const res = await this._request(path, init);
@@ -27,39 +27,37 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
   }
 
   private async _getAddressUTXOs() {
-    const utxoSummary = await this._requestJson<UTXOSummary[]>(`/address/${this.address}/utxo`);
+    const utxoSummary = await this._requestJson.bind(this)<UTXOSummary[]>(`/address/${this.address}/utxo`);
     return utxoSummary;
   }
 
   private async _getAddressBalance() {
-    const addressSummary = await this._requestJson<AddressSummary>(`/address/${this.address}`);
+    const addressSummary = await this._requestJson.bind(this)<AddressSummary>(`/address/${this.address}`);
     return addressSummary;
   }
 
   private async _getFeeRate() {
-    const feeEstimate = await this._requestJson<{ [key: string]: number }>('/fee-estimates');
+    const feeEstimate = await this._requestJson.bind(this)<{ [key: string]: number }>('/fee-estimates');
     const feeRate = feeEstimate['3'];
     return feeRate;
   }
 
   private async _getSegwitInput(utxo: UTXOSummary): Promise<BTCSegwitUTXO> {
-    const { txid: hash } = utxo;
-    const index = Bitcoin._satsToBtc(utxo.value);
-    const fullUtxo = await this._requestJson<FullUTXO>(`/tx/${hash}`);
+    const { txid: hash, vout: index } = utxo;
+    const fullUtxo = await this._requestJson.bind(this)<FullUTXO>(`/tx/${hash}`);
     const { scriptpubkey, value } = fullUtxo.vout[index];
 
     return {
       hash,
       index,
-      witnessUtxoScript: scriptpubkey,
+      witnessUtxo: { script: scriptpubkey, value },
       confirmed: true,
-      value,
+      value: Bitcoin._satsToBtc(value),
     };
   }
 
   private async _getNonSegwitInput(utxo: UTXOSummary): Promise<BTCLegacyUTXO> {
-    const { txid: hash } = utxo;
-    const index = Bitcoin._satsToBtc(utxo.value);
+    const { txid: hash, vout: index } = utxo;
     const rawTxRes = await this._request(`/tx/${hash}/raw`);
     const rawTx = await rawTxRes.arrayBuffer();
     const nonWitnessUtxo = Buffer.from(rawTx);
@@ -69,7 +67,7 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
       index,
       nonWitnessUtxo,
       confirmed: true,
-      value: utxo.value,
+      value: Bitcoin._satsToBtc(utxo.value),
     };
   }
 
@@ -80,9 +78,9 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
   public async prepare(): Promise<AccountData> {
     const balance = await this.getBalance();
 
-    const utxos = await this._getAddressUTXOs();
+    const utxos = await this._getAddressUTXOs.bind(this)();
 
-    const getInputMethod = this.isLegacy ? this._getNonSegwitInput : this._getSegwitInput;
+    const getInputMethod = this.isLegacy ? this._getNonSegwitInput.bind(this) : this._getSegwitInput.bind(this);
 
     const inputs = await Promise.all(utxos.map((utxo) => getInputMethod(utxo)));
 
@@ -113,7 +111,9 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
       });
 
       const txHash = await txBroadcastRes.text();
-
+      if (txHash.length !== 64) {
+        throw new Error(txHash);
+      }
       return txHash;
     } catch (e) {
       this.relayLogger.error(`BTC: Error broadcasting tx: ${JSON.stringify(e, null, 2)}`);

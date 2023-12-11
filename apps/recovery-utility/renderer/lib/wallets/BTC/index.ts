@@ -46,7 +46,7 @@ export class Bitcoin extends BaseBitcoin implements SigningWallet {
         ...('witnessUtxo' in input
           ? {
               witnessUtxo: {
-                script: Buffer.from((input as any).witnessUtxoScript, 'hex'),
+                script: Buffer.from((input as any).witnessUtxo.script, 'hex'),
                 value: (input as any).witnessUtxo.value,
               },
             }
@@ -66,13 +66,13 @@ export class Bitcoin extends BaseBitcoin implements SigningWallet {
 
     this.utilityLogger.logSigningTx('BTC', { inputs: tx.txInputs, outputs: tx.txOutputs });
 
-    const signer = ECPairFactory(tinysecp).fromPrivateKey(Buffer.from(this.privateKey, 'hex'));
+    const signer = ECPairFactory(tinysecp).fromPrivateKey(Buffer.from(this.privateKey.replace('0x', ''), 'hex'));
 
     tx.signAllInputs(signer);
-    tx.finalizeAllInputs();
+    const signedTx = tx.finalizeAllInputs();
 
     return {
-      tx: tx.toHex(),
+      tx: signedTx.extractTransaction().toHex(),
     };
   }
 }

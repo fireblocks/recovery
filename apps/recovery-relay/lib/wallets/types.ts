@@ -5,7 +5,7 @@ export type UTXO = BTCLegacyUTXO | BTCSegwitUTXO | StdUTXO;
 
 export type BTCLegacyUTXO = StdUTXO & { nonWitnessUtxo: Buffer };
 
-export type BTCSegwitUTXO = StdUTXO & { witnessUtxoScript: Buffer };
+export type BTCSegwitUTXO = StdUTXO & { witnessUtxo: { script: string; value: number } };
 
 export type StdUTXO = { confirmed?: boolean; hash: string; index: number; value: number };
 
