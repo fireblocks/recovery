@@ -6,13 +6,4 @@ const config: Config.InitialOptions = {
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
 };
 
-module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  transform: {
-    '^.+\\.ts?$': 'ts-jest',
-  },
-  transformIgnorePatterns: ['<rootDir>/node_modules/'],
-};
-
 export default config;
