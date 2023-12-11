@@ -12,11 +12,12 @@ import {
 } from './transfer-utils';
 import { testAssets } from './tests';
 import { AssetTestConfig, FixError, SkipError } from './types';
-import { assert, skipTest, wrapStep } from './utils';
+import { assert, skipTest, testFailed, wrapStep } from './utils';
 import { navigateToVault, reset } from './test-utils';
 
 let recoveryApp: ElectronApplication, relayApp: ElectronApplication;
 let relayWindow: Page, utilWindow: Page;
+let assetId: string;
 
 dotenv.config({ path: `${__dirname}/.env` });
 
@@ -68,10 +69,12 @@ const consoleMessageCallback = (windowType: 'utility' | 'relay') => async (msg: 
   }
 
   console.error(`${windowType.toUpperCase()} Faced an error: ${msg.text()}`);
-  throw new Error(msg.text());
+  await testFailed(windowType, assetId);
+  // throw new Error(msg.text());
 };
 
 const tryTransferAsset = (assetConfig: AssetTestConfig) => {
+  assetId = assetConfig.assetId;
   const transferAsset = async (testInfo: TestInfo): Promise<void> => {
     const relayWindow = await relayApp.firstWindow();
     const utilWindow = await recoveryApp.firstWindow();
