@@ -92,7 +92,6 @@ export const fetchTxParamData = async (page: Page, txInitData: string, endpointD
 
 export const approveTransaction = async (page: Page, txParamsData: string): Promise<string> => {
   await _fillQrCode(page, txParamsData);
-  await page.pause();
   await page.getByRole('button', { name: 'Approve & Sign Transaction', exact: true }).click();
   return (await page.getByLabel('Relay URL').inputValue()) ?? '';
 };
