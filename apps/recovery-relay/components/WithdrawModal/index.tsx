@@ -68,7 +68,7 @@ export const WithdrawModal = () => {
   };
 
   const onDecodeInboundRelayQrCode = (url: string) => {
-    setInboundRelayUrl(url);
+    if (url) setInboundRelayUrl(url);
   };
 
   logger.info('Outbound URL', { outboundRelayUrl });

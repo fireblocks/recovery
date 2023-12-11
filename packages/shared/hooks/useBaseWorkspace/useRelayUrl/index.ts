@@ -65,7 +65,7 @@ export const useRelayUrl = <App extends 'utility' | 'relay'>(app: App, baseUrl: 
     try {
       logger.debug('setInboundRelayUrl', { relayUrl });
       if (!relayUrl) {
-        setInboundRelayParams(undefined);
+        // setInboundRelayParams(undefined);
         return false;
       } else {
         const params = getInboundRelayParams(relayUrl);

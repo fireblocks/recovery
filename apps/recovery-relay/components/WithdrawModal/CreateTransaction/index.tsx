@@ -242,7 +242,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
           >
             {prepareQuery.error || typeof prepareQuery.data?.balance === 'undefined'
               ? 'Could not get balance'
-              : prepareQuery.data.balance}
+              : `${prepareQuery.data.balance} ${asset.id}`}
           </Typography>
         )}
       </Grid>
