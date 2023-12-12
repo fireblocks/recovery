@@ -216,22 +216,23 @@ export const RecoveryForm = ({ verifyOnly }: Props) => {
         open={!!recoveryData && !verifyOnly}
         actions={
           <>
-            <FormControlLabel
-              style={{ paddingRight: '39%' }}
-              control={<Checkbox onChange={(_, checked) => setRecoveryConfirmed(!recoveryConfirmed)} />}
-              label='I want to recover my private key'
-            />
-            <Button
-              color='primary'
-              disabled={!recoveryConfirmed}
-              onClick={() => {
-                onConfirmRecover();
-                setRecoveryData(undefined);
-                setRecoveryConfirmed(false);
-              }}
-            >
-              Confirm
-            </Button>
+            <Box display='flex' width='100%' justifyContent={'space-between'}>
+              <FormControlLabel
+                control={<Checkbox onChange={(_) => setRecoveryConfirmed(!recoveryConfirmed)} />}
+                label='I want to recover my private key'
+              />
+              <Button
+                color='primary'
+                disabled={!recoveryConfirmed}
+                onClick={() => {
+                  onConfirmRecover();
+                  setRecoveryData(undefined);
+                  setRecoveryConfirmed(false);
+                }}
+              >
+                Confirm
+              </Button>
+            </Box>
           </>
         }
         title='Confirm Recovery'
