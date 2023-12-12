@@ -3,6 +3,7 @@
     "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
     "editorconfig.editorconfig",
-    "ms-python.pylint"
+    "ms-python.pylint",
+    "vivaxy.vscode-conventional-commits"
   ]
 }

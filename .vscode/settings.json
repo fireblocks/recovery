@@ -21,5 +21,14 @@
   "[xml]": {
     "editor.defaultFormatter": "DotJoshJohnson.xml"
   },
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "conventionalCommits.scopes": [
+    "@fireblocks/recovery-utility",
+    "@fireblocks/recovery-relay",
+    "@fireblocks/wallet-derivation",
+    "@fireblocks/recovery-shared",
+    "@fireblocks/extended-key-recovery",
+    "@fireblocks/e2e-tests",
+    "@fireblocks/asset-config"
+  ]
 }
