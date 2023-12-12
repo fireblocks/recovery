@@ -153,7 +153,7 @@ export const ExtendedKeysBasePage = ({ supportsPrivateKeys, extendedKeys, setExt
                 error={errors.xprv?.message}
                 enableCopy={!!extendedKeys?.xprv}
                 isMonospace
-                confirmRequired={true}
+                confirmRevealRequired={true}
                 confirmMessage='WARNING - You are about to reveal your extended private key (ECDSA). Make sure this machine is OFFLINE and only accessible by authorized personnel.'
                 {...register('xprv')}
               />
@@ -166,7 +166,7 @@ export const ExtendedKeysBasePage = ({ supportsPrivateKeys, extendedKeys, setExt
                 error={errors.fprv?.message}
                 enableCopy={!!extendedKeys?.fprv}
                 isMonospace
-                confirmRequired={true}
+                confirmRevealRequired={true}
                 confirmMessage='WARNING - You are about to reveal your extended private key (EDDSA). Make sure this machine is OFFLINE and only accessible by authorized personnel.'
                 {...register('fprv')}
               />

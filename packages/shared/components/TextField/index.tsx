@@ -26,7 +26,7 @@ export type TextFieldProps = Omit<InputBaseProps, 'error'> & {
   enableQr?: boolean;
   enableCopy?: boolean;
   isMonospace?: boolean;
-  confirmRequired?: boolean;
+  confirmRevealRequired?: boolean;
   confirmMessage?: string;
   formControlProps?: FormControlProps;
 };
@@ -47,7 +47,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
       defaultValue,
       readOnly,
       endAdornment,
-      confirmRequired,
+      confirmRevealRequired,
       confirmMessage,
       inputProps,
       helpText: _helpText,
@@ -75,7 +75,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
     };
 
     const handleToggleReveal = () => {
-      if (confirmRequired && !revealed) {
+      if (confirmRevealRequired && !revealed) {
         setConfirmOpen(true);
       } else {
         setRevealed((prev) => !prev);
