@@ -89,6 +89,12 @@ const parseRow = <T extends 'addresses' | 'balances'>(row: T extends 'addresses'
         'Private Key (WIF)': privateKeyWif,
       } = row as AddressesCsvRow;
 
+      // If field contains with =,  -, +, " or @, - prevent loading
+      const invalidRow = Object.keys(row as AddressesCsvRow).filter((x) => ['=', '-', '+', '"', '@'].some((y) => x.includes(y)));
+      if (invalidRow) {
+        throw new Error('Row contains prohibited characters - please reset workspace and check your importing CSV');
+      }
+
       const pathParts = path.match(/(\d+)/g)?.map(Number);
       logger.debug('parseRow path parts -', { pathParts });
       return addressesCsv.parse({
@@ -130,8 +136,7 @@ const parseRow = <T extends 'addresses' | 'balances'>(row: T extends 'addresses'
     });
   } catch (error) {
     logger.error(error);
-
-    throw new Error('Failed to parse CSV row');
+    throw error;
   }
 };
 
@@ -154,11 +159,16 @@ export const csvImport = async <T extends 'addresses' | 'balances'>(
           reject(errors.length > 1 ? errors : errors[0]);
           return;
         }
+        try {
+          const row = parseRow(data, type) as T extends 'addresses' ? AddressesCsv : BalancesCsv;
 
-        const row = parseRow(data, type) as T extends 'addresses' ? AddressesCsv : BalancesCsv;
-
-        handleRow(row);
+          handleRow(row);
+        } catch (e) {
+          reject(e);
+          return;
+        }
       },
+      error: (error: Error, file: LocalFile) => reject(error),
       complete: () => resolve(),
     });
   });
