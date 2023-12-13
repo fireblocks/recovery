@@ -1,7 +1,7 @@
 ---
 '@fireblocks/recovery-utility': minor
 '@fireblocks/asset-config': minor
-'e2e-tests': minor
+'@fireblocks/e2e-tests': minor
 '@fireblocks/recovery-shared': minor
 ---
 

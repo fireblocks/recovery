@@ -1,5 +1,5 @@
 ---
-'e2e-tests': patch
+'@fireblocks/e2e-tests': patch
 ---
 
 feat: added e2e tests
