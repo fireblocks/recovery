@@ -1,5 +1,11 @@
 # server
 
+## 1.1.0
+
+### Minor Changes
+
+- dc720bb: fix: fixed agp recovery
+
 ## 0.2.1
 
 ### Patch Changes

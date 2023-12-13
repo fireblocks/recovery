@@ -1,5 +1,21 @@
 # recovery-utility
 
+## 0.4.0
+
+### Minor Changes
+
+- d8208bc: fix: added ids for e2e testing mode only
+- 50f113b: fix: fixed solana transfers
+- dc4e3ea: allow public key to be used instead of generating public key from scratch
+- e0891d5: fix: Solana connection 403 fix
+- e1e456c: chore: ui fix
+- 9f8f0d0: fix: fixed btc transfer
+- b84ccc7: fix: fixed build
+
+### Patch Changes
+
+- 6ea3f00: fix: recovery command-line argument not opens utility properly
+
 ## 0.2.1
 
 ### Patch Changes
