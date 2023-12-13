@@ -1,4 +1,4 @@
-import React, { forwardRef, ReactNode, FocusEvent, RefObject, useRef } from 'react';
+import React, { forwardRef, ReactNode, FocusEvent, RefObject, useRef, useState } from 'react';
 import copy from 'copy-to-clipboard';
 import {
   FormControl,
@@ -8,7 +8,9 @@ import {
   InputBaseProps,
   InputAdornment,
   IconButton,
+  Typography,
 } from '@mui/material';
+import { Button, BaseModal } from '@fireblocks/recovery-shared';
 import { Visibility, VisibilityOff, QrCode2, ContentCopy, Check } from '@mui/icons-material';
 import { monospaceFontFamily } from '../../theme';
 import { NextLinkComposed } from '../Link';
@@ -24,6 +26,8 @@ export type TextFieldProps = Omit<InputBaseProps, 'error'> & {
   enableQr?: boolean;
   enableCopy?: boolean;
   isMonospace?: boolean;
+  confirmRevealRequired?: boolean;
+  confirmMessage?: string;
   formControlProps?: FormControlProps;
 };
 
@@ -43,6 +47,8 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
       defaultValue,
       readOnly,
       endAdornment,
+      confirmRevealRequired,
+      confirmMessage,
       inputProps,
       helpText: _helpText,
       inputRef: _inputRef,
@@ -55,6 +61,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
 
     const helpText = error || _helpText;
 
+    const [confirmOpen, setConfirmOpen] = useState(false);
     const [revealed, setRevealed] = useWrappedState<boolean>('textField-revealed', type !== 'password');
     const [copied, setCopied] = useWrappedState<boolean>('textField-copied', false);
     const copiedTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -67,7 +74,22 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
       return (value as string) || inputRef?.current?.value || (defaultValue as string) || '';
     };
 
-    const onToggleReveal = () => setRevealed((prev) => !prev);
+    const handleToggleReveal = () => {
+      if (confirmRevealRequired && !revealed) {
+        setConfirmOpen(true);
+      } else {
+        setRevealed((prev) => !prev);
+      }
+    };
+
+    const handleConfirm = () => {
+      setRevealed(true);
+      setConfirmOpen(false);
+    };
+
+    const handleCancel = () => {
+      setConfirmOpen(false);
+    };
 
     const onCopy = () => {
       if (typeof copiedTimeoutRef.current === 'number') {
@@ -127,9 +149,24 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
               {endAdornment}
               {type === 'password' && (
                 <InputAdornment position='end'>
-                  <IconButton aria-label='Reveal' onClick={onToggleReveal} edge='end'>
+                  <IconButton aria-label='Reveal' onClick={handleToggleReveal} edge='end'>
                     {revealed ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
+
+                  <BaseModal
+                    open={confirmOpen}
+                    onClose={handleCancel}
+                    title='Confirm Reveal'
+                    actions={
+                      <>
+                        <Button onClick={handleConfirm}>Confirm</Button>
+                      </>
+                    }
+                  >
+                    <Typography variant='body1' color={(theme) => theme.palette.error.main}>
+                      {confirmMessage}
+                    </Typography>
+                  </BaseModal>
                 </InputAdornment>
               )}
               {enableQr && (
