@@ -159,7 +159,6 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
                     title='Confirm Reveal'
                     actions={
                       <>
-                        <Button onClick={handleCancel}>Cancel</Button>
                         <Button onClick={handleConfirm}>Confirm</Button>
                       </>
                     }
