@@ -1,4 +1,4 @@
-import React, { forwardRef, ReactNode, FocusEvent, RefObject, useRef, useState } from 'react';
+import React, { forwardRef, ReactNode, FocusEvent, RefObject, useRef } from 'react';
 import copy from 'copy-to-clipboard';
 import {
   FormControl,
@@ -61,7 +61,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
 
     const helpText = error || _helpText;
 
-    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [confirmOpen, setConfirmOpen] = useWrappedState<boolean>('textField-openConfirm', false);
     const [revealed, setRevealed] = useWrappedState<boolean>('textField-revealed', type !== 'password');
     const [copied, setCopied] = useWrappedState<boolean>('textField-copied', false);
     const copiedTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -87,9 +87,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
       setConfirmOpen(false);
     };
 
-    const handleCancel = () => {
-      setConfirmOpen(false);
-    };
+    const handleCancel = () => setConfirmOpen(false);
 
     const onCopy = () => {
       if (typeof copiedTimeoutRef.current === 'number') {
