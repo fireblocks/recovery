@@ -1,7 +1,7 @@
 {
   "name": "@fireblocks/asset-config",
   "description": "Recovery asset constants",
-  "author": "Fireblocks <info@fireblocks.com> (https://www.fireblocks.com)",
+  "author": "Fireblocks (https://www.fireblocks.com)",
   "repository": "https://github.com/fireblocks/recovery/tree/main/packages/asset-config",
   "homepage": "https://www.fireblocks.com",
   "version": "0.0.2",

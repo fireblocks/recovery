@@ -1,7 +1,7 @@
 {
   "name": "@fireblocks/extended-key-recovery",
   "description": "Recover extended private/public keys from a Recovery Kit",
-  "author": "Fireblocks <info@fireblocks.com> (https://www.fireblocks.com)",
+  "author": "Fireblocks (https://www.fireblocks.com)",
   "repository": "https://github.com/fireblocks/recovery/tree/main/packages/extended-key-recovery",
   "homepage": "https://www.fireblocks.com",
   "version": "1.0.0",
