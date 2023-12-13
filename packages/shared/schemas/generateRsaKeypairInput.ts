@@ -1,10 +1,7 @@
-import { z } from 'zod';
-import { nonEmptyString } from './scalars';
+import { string, z } from 'zod';
 
 export const generateRsaKeypairInput = z.object({
-  passphrase: nonEmptyString('Recovery private key passphrase is required')
-    .min(4, 'Passphrase must be at least 4 characters')
-    .describe('Recovery private key passphrase'),
+  passphrase: string().min(8, 'Passphrase must be at least 8 characters').describe('Recovery private key passphrase').optional(),
 });
 
 export type GenerateRsaKeypairInput = z.infer<typeof generateRsaKeypairInput>;

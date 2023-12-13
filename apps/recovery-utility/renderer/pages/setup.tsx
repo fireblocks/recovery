@@ -11,6 +11,7 @@ import {
   theme,
   getLogger,
   useWrappedState,
+  UploadWell,
 } from '@fireblocks/recovery-shared';
 import {
   Box,
@@ -23,13 +24,16 @@ import {
   Avatar,
   FormControlLabel,
   Checkbox,
+  Divider,
+  Chip,
 } from '@mui/material';
 import { download } from '@fireblocks/recovery-shared/lib/download';
 import AdmZip from 'adm-zip';
+import { readFile } from '@fireblocks/recovery-shared/lib/readFile';
+import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 import { useConnectionTest } from '../context/ConnectionTest';
 import { ChecksumModal } from '../components/Modals/ChecksumModal';
 import { PublicKeyModal } from '../components/Modals/PublicKeyModal';
-import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 
 type FormData = z.infer<typeof generateRsaKeypairInput>;
 
@@ -142,7 +146,6 @@ const Setup = () => {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(generateRsaKeypairInput),
@@ -235,6 +238,36 @@ const Setup = () => {
             </Grid>
           </Grid>
         </ListItem>
+        <Divider sx={{ paddingLeft: '4.5rem' }}>
+          <Chip label='OR' />
+        </Divider>
+        <ListItem sx={{ paddingLeft: '4.5rem' }}>
+          <ListItemText
+            primary='Supply a public key'
+            primaryTypographyProps={{ variant: 'h2' }}
+            secondary={
+              <Typography variant='body1' paragraph>
+                If you already have a privatae-public key pair, you can simply upload the public key here instead of generating a
+                public key
+              </Typography>
+            }
+          />
+        </ListItem>
+        <ListItem sx={{ paddingLeft: '4.5rem' }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <UploadWell
+                id='suppliedPublicKey'
+                disabled={activeStep < 2 || !!rsaKeypair}
+                onDrop={async (file) => {
+                  setRsaKeypair({ privateKey: { data: '', uri: '' }, publicKey: { data: await readFile(file), uri: '' } });
+                  setActiveStep(4);
+                }}
+              />
+            </Grid>
+          </Grid>
+        </ListItem>
+
         <ListItem sx={{ alignItems: 'flex-start' }}>
           <ListItemAvatar>
             <Avatar sx={{ background: stepColor(3) }}>3</Avatar>

@@ -14,3 +14,13 @@ export const readFileToBase64 = (file: File) =>
 
     reader.readAsDataURL(file);
   });
+
+export const readFile = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+
+    reader.readAsText(file);
+  });
