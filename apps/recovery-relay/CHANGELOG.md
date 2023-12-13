@@ -1,5 +1,31 @@
 # recovery-relay
 
+## 0.4.0
+
+### Minor Changes
+
+- e26a3c7: chore: ui fixes (asset id on balance query result and prevent relay modal from closing on empty data scanned
+- 50f113b: fix: fixed solana transfers
+- f547ea4: lint fix
+- e0891d5: fix: Solana connection 403 fix
+- 9f8f0d0: fix: fixed btc transfer
+- 1a720ce: fix: prevent negative balance on EVMs
+
+### Patch Changes
+
+- Updated dependencies [d8208bc]
+- Updated dependencies [e26a3c7]
+- Updated dependencies [50f113b]
+- Updated dependencies [dc4e3ea]
+- Updated dependencies [d4833f0]
+- Updated dependencies [84a4973]
+- Updated dependencies [e0891d5]
+- Updated dependencies [b84ccc7]
+- Updated dependencies [fd87693]
+  - @fireblocks/asset-config@0.1.0
+  - @fireblocks/recovery-shared@0.2.0
+  - @fireblocks/wallet-derivation@0.4.0
+
 ## 0.1.1
 
 ### Patch Changes
