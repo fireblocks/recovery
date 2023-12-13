@@ -51,8 +51,8 @@ export class AddressValidator {
       case 'TERRA':
         return this.validateTERRA(address);
       default:
-        logger.error('Unsupported networkProtocol for address validation ' + validatorReference);
-        throw new Error('Unsupported networkProtocol for address validation ' + validatorReference);
+        logger.error(`Unsupported networkProtocol for address validation ${validatorReference}`);
+        throw new Error(`Unsupported networkProtocol for address validation ${validatorReference}`);
     }
   }
 
@@ -62,7 +62,7 @@ export class AddressValidator {
 
   private validateXDC(address: string): boolean {
     const xdcPrefix = 'xdc';
-    const ethereumStyleAddress = '0x' + address.slice(xdcPrefix.length);
+    const ethereumStyleAddress = `0x${address.slice(xdcPrefix.length)}`;
     return WAValidator.validate(ethereumStyleAddress, 'ETH');
   }
 

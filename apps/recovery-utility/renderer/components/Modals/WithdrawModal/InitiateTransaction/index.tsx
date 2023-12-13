@@ -10,12 +10,13 @@ import {
   transactionInitInput,
   Button,
   getLogger,
+  AddressValidator,
 } from '@fireblocks/recovery-shared';
 import { AssetConfig, getAssetConfig } from '@fireblocks/asset-config';
-import { useWorkspace } from '../../../../context/Workspace';
 import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 import { useEffect } from 'react';
 import { getNetworkProtocol } from '@fireblocks/asset-config/util';
+import { useWorkspace } from '../../../../context/Workspace';
 
 type Props = {
   accountsArray: VaultAccount[];
@@ -34,6 +35,7 @@ export const InitiateTransaction = ({ accountsArray, assetsInAccount, initialAcc
     register,
     watch,
     setValue,
+    setError,
     handleSubmit,
     formState: { errors },
   } = useForm<TransactionInitInput>({
@@ -51,7 +53,7 @@ export const InitiateTransaction = ({ accountsArray, assetsInAccount, initialAcc
   const onSubmitForm = async (data: TransactionInitInput) => {
     const destAddressValidator = new AddressValidator();
     const networkProtocol: string | undefined = getNetworkProtocol(data.assetId);
-    if (destAddressValidator.isValidAddress(data.to, networkProtocol)) {
+    if (destAddressValidator.isValidAddress(data.to, networkProtocol, data.assetId)) {
       onSubmit(data);
     } else {
       setError('to', {
@@ -68,7 +70,7 @@ export const InitiateTransaction = ({ accountsArray, assetsInAccount, initialAcc
   }, [assetId, accountId]);
 
   return (
-    <Grid component='form' container spacing={2} onSubmit={handleSubmit(onSubmit)}>
+    <Grid component='form' container spacing={2} onSubmit={handleSubmit(onSubmitForm)}>
       <Grid item xs={12}>
         <Autocomplete
           id='assetId'

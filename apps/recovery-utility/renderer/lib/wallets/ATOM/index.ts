@@ -1,12 +1,19 @@
 import { Cosmos as BaseCosmos } from '@fireblocks/wallet-derivation';
 import { defaultRegistryTypes } from '@cosmjs/stargate';
 import { encodeSecp256k1Pubkey } from '@cosmjs/amino';
-import { encodePubkey, Registry, makeAuthInfoBytes, makeSignDoc, DirectSecp256k1Wallet } from '@cosmjs/proto-signing';
+import {
+  encodePubkey,
+  Registry,
+  makeAuthInfoBytes,
+  makeSignDoc,
+  DirectSecp256k1Wallet,
+  GeneratedType,
+} from '@cosmjs/proto-signing';
 import { Int53 } from '@cosmjs/math';
 import { fromBase64 } from '@cosmjs/encoding';
+import { SignDoc, TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { SigningWallet } from '../SigningWallet';
 import { GenerateTxInput, TxPayload } from '../types';
-import { SignDoc, TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 
 export class Cosmos extends BaseCosmos implements SigningWallet {
   public async generateTx({ to, amount, extraParams, memo }: GenerateTxInput): Promise<TxPayload> {
@@ -40,7 +47,7 @@ export class Cosmos extends BaseCosmos implements SigningWallet {
     const chainId = extraParams?.get(this.KEY_CHAIN_ID);
 
     // Same as SigningStargateClient.signDirect
-    const registry = new Registry(defaultRegistryTypes);
+    const registry = new Registry(defaultRegistryTypes as Iterable<[string, GeneratedType]>);
     const pubKey: any = encodePubkey(encodeSecp256k1Pubkey(Buffer.from(this.publicKey.replace('0x', ''), 'hex')));
     const txEncoded = {
       typeUrl: '/cosmos.tx.v1beta1.TxBody',
