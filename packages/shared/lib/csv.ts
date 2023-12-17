@@ -90,9 +90,29 @@ const parseRow = <T extends 'addresses' | 'balances'>(row: T extends 'addresses'
       } = row as AddressesCsvRow;
 
       // If field contains with =,  -, +, " or @, - prevent loading
-      const invalidRow = Object.keys(row as AddressesCsvRow).filter((x) => ['=', '-', '+', '"', '@'].some((y) => x.includes(y)));
-      if (invalidRow) {
-        throw new Error('Row contains prohibited characters - please reset workspace and check your importing CSV');
+      const invalidRow = Object.keys(row as AddressesCsvRow).filter((x: string) =>
+        ['=', '-', '+', '"', '@'].some((y) => {
+          const value: unknown = (row as AddressesCsvRow)[x as keyof AddressesCsvRow];
+          if (typeof value === 'number' || value === null || value === undefined) {
+            return false;
+          }
+          if (typeof value === 'string') {
+            return value.startsWith(y);
+          }
+
+          if (['function', 'object'].includes(typeof value)) {
+            return true;
+          }
+
+          logger.warn(`Value type is ${typeof value}, safe`);
+          return false;
+        }),
+      );
+      if (invalidRow.length > 0) {
+        logger.error(
+          `Row ${JSON.stringify(row, null, 2)} contains prohibited characters in, ${JSON.stringify(invalidRow, null, 2)}`,
+        );
+        throw new Error(`Row contains prohibited characters - please reset workspace and check your importing CSV`);
       }
 
       const pathParts = path.match(/(\d+)/g)?.map(Number);
