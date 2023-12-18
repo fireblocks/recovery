@@ -7,4 +7,4 @@ export const useOfflineQuery = <
   TQueryKey extends QueryKey = QueryKey,
 >(
   options: Omit<UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>, 'initialData'> & { initialData?: () => undefined },
-) => useQuery({ ...options, networkMode: 'always' });
+) => useQuery({ ...options, cacheTime: 0, networkMode: 'always' });
