@@ -39,7 +39,7 @@ const getAssetId = (inboundRelayParams?: RelayRequestParams) => {
 };
 
 export const WithdrawModal = () => {
-  const { accounts, inboundRelayParams, getOutboundRelayUrl, setInboundRelayUrl } = useWorkspace();
+  const { accounts, inboundRelayParams, getOutboundRelayUrl, setInboundRelayUrl, resetInboundRelayUrl } = useWorkspace();
 
   const action = inboundRelayParams?.action;
 
@@ -48,6 +48,7 @@ export const WithdrawModal = () => {
 
   const [outboundRelayUrl, setOutboundRelayUrl] = useWrappedState<string | undefined>('outboundRelayUrl', undefined);
   const [txHash, setTxHash] = useWrappedState<string | undefined>('txHash', undefined);
+  const [txBroadcastError, setTxBroadcastError] = useWrappedState<string | undefined>('txBroadcastError', undefined);
 
   const setSignTxResponseUrl = (unsignedTx: RelaySignTxResponseParams['unsignedTx']) => {
     logger.debug(
@@ -76,7 +77,7 @@ export const WithdrawModal = () => {
   return (
     <BaseModal
       open={!!action?.startsWith('tx') && !!asset}
-      onClose={() => setInboundRelayUrl(null)}
+      onClose={() => resetInboundRelayUrl()}
       title={
         (
           <Typography variant='h1' display='flex' alignItems='center'>
@@ -131,11 +132,15 @@ export const WithdrawModal = () => {
                     const cleanDerivation = derivation ? sanatize(derivation) : undefined;
                     logger.info('Derivation and signed transaction hash:', { cleanDerivation, signedTxHex });
 
-                    const newTxHash = await derivation?.broadcastTx(signedTxHex);
+                    try {
+                      const newTxHash = await derivation?.broadcastTx(signedTxHex);
 
-                    setTxHash(newTxHash);
+                      setTxHash(newTxHash);
 
-                    logger.info({ newTxHash });
+                      logger.info({ newTxHash });
+                    } catch (e) {
+                      setTxBroadcastError((e as Error).message);
+                    }
                   }}
                 >
                   Confirm and broadcast
@@ -161,6 +166,13 @@ export const WithdrawModal = () => {
                   ) : (
                     txHash
                   )}
+                </Typography>
+              )}
+              {!!txBroadcastError && (
+                <Typography variant='body1' fontWeight='600' color={(theme) => theme.palette.error.main}>
+                  Tx broadcast failed:
+                  <br />
+                  {txBroadcastError}
                 </Typography>
               )}
             </Box>
