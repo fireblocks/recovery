@@ -34,6 +34,7 @@ const defaultBaseWorkspace: BaseWorkspace<BaseWallet> = {
 export const defaultBaseWorkspaceContext: BaseWorkspaceContext<BaseWallet> = {
   ...defaultBaseWorkspace,
   setInboundRelayUrl: () => false,
+  resetInboundRelayUrl: () => {},
   getOutboundRelayUrl: () => '',
   setExtendedKeys: () => undefined,
   importCsv: () => Promise.resolve(),
@@ -57,7 +58,7 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
 }: Props<App, Derivation>) => {
   const { query, push } = useRouter();
 
-  const { inboundRelayParams, setInboundRelayUrl, getOutboundRelayUrl } = useRelayUrl(app, relayBaseUrl);
+  const { inboundRelayParams, setInboundRelayUrl, getOutboundRelayUrl, resetInboundRelayUrl } = useRelayUrl(app, relayBaseUrl);
 
   const [workspace, setWorkspace] = useWrappedState<BaseWorkspaceInput<Derivation>>(
     'workspace',
@@ -264,6 +265,7 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
     transactions: workspace.transactions,
     inboundRelayParams,
     setInboundRelayUrl,
+    resetInboundRelayUrl,
     getOutboundRelayUrl,
     setExtendedKeys,
     importCsv,
