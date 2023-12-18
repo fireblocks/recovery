@@ -90,14 +90,14 @@ const parseRow = <T extends 'addresses' | 'balances'>(row: T extends 'addresses'
       } = row as AddressesCsvRow;
 
       // If field contains with =,  -, +, " or @, - prevent loading
-      const invalidRow = Object.keys(row as AddressesCsvRow).filter((x: string) =>
-        ['=', '-', '+', '"', '@'].some((y) => {
-          const value: unknown = (row as AddressesCsvRow)[x as keyof AddressesCsvRow];
+      const invalidRow = Object.keys(row as AddressesCsvRow).filter((csvRowKey: string) =>
+        ['=', '-', '+', '"', '@'].some((prohibitedChar: string) => {
+          const value: unknown = (row as AddressesCsvRow)[csvRowKey as keyof AddressesCsvRow];
           if (typeof value === 'number' || value === null || value === undefined) {
             return false;
           }
           if (typeof value === 'string') {
-            return value.startsWith(y);
+            return value.startsWith(prohibitedChar);
           }
 
           if (['function', 'object'].includes(typeof value)) {
