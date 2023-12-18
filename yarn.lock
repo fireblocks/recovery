@@ -1814,7 +1814,7 @@
     ws "^7"
     xstream "^11.14.0"
 
-"@cosmjs/stargate@^0.32.0":
+"@cosmjs/stargate@^0.32.0", "@cosmjs/stargate@^0.32.1":
   version "0.32.1"
   resolved "https://registry.yarnpkg.com/@cosmjs/stargate/-/stargate-0.32.1.tgz#c4e3a4b6847ef45c26275e64f4668274cae01f9c"
   integrity sha512-S0E1qKQ2CMJU79G8bQTquTyrbU03gFsvCkbo3RvK8v2OltVCByjFNh+0nGN5do+uDOzwwmDvnNLhR+SaIyNQoQ==
