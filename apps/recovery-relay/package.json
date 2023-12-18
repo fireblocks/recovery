@@ -17,7 +17,7 @@
   "dependencies": {
     "@apollo/client": "^3.7.17",
     "@blockfrost/blockfrost-js": "^5.3.1",
-    "@cosmjs/stargate": "^0.32.0",
+    "@cosmjs/stargate": "^0.32.1",
     "@cosmjs/tendermint-rpc": "^0.32.0",
     "@emurgo/cardano-serialization-lib-asmjs": "^11.4.0",
     "@fireblocks/asset-config": "^0.1.0",
