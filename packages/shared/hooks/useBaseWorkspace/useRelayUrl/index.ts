@@ -79,5 +79,7 @@ export const useRelayUrl = <App extends 'utility' | 'relay'>(app: App, baseUrl: 
     }
   };
 
-  return { inboundRelayParams, setInboundRelayUrl, getOutboundRelayUrl };
+  const resetInboundRelayUrl = () => setInboundRelayParams(undefined);
+
+  return { inboundRelayParams, setInboundRelayUrl, resetInboundRelayUrl, getOutboundRelayUrl };
 };
