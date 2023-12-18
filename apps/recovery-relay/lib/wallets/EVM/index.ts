@@ -11,7 +11,7 @@ export class EVM extends EVMBase implements ConnectedWallet {
 
     this.relayLogger.info('Creating EVM wallet:', { rpcEndpoint, chainId, input });
 
-    this.provider = new JsonRpcProvider(rpcEndpoint, chainId);
+    this.provider = new JsonRpcProvider(rpcEndpoint, chainId, { cacheTimeout: -1 });
   }
 
   public async getBalance() {
@@ -47,8 +47,6 @@ export class EVM extends EVMBase implements ConnectedWallet {
 
     const adjustedBalance = parseEther(String(balance)) - gas;
 
-    this.relayLogger.info({ gas: gas.toString(), balance, adjustedBalance });
-
     if (adjustedBalance < 0) {
       this.relayLogger.error('Insufficient balance');
     }
@@ -73,6 +71,11 @@ export class EVM extends EVMBase implements ConnectedWallet {
       return txRes.hash;
     } catch (e) {
       this.relayLogger.error('EVM: Error broadcasting tx:', e);
+      if ((e as Error).message.includes('insufficient funds for intrinsic transaction cost')) {
+        throw new Error(
+          'Insufficient funds for transfer, this might be due to a spike in network fees, please wait and try again',
+        );
+      }
       throw e;
     }
   }
