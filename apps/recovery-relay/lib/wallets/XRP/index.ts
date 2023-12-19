@@ -1,5 +1,5 @@
 import { Ripple as BaseRipple, Input } from '@fireblocks/wallet-derivation';
-import { Client, TxResponse, xrpToDrops } from 'xrpl';
+import { Client, SubmitResponse, xrpToDrops } from 'xrpl';
 import getFeeXrp from 'xrpl/dist/npm/sugar/getFeeXrp';
 import BigNumber from 'bignumber.js';
 import { ConnectedWallet } from '../ConnectedWallet';
@@ -63,9 +63,16 @@ export class Ripple extends BaseRipple implements ConnectedWallet {
       await this.xrpClient.connect();
     }
     try {
-      const txRes = (await this.xrpClient.submitAndWait(tx)) as TxResponse;
-      this.relayLogger.debug(`Ripple: Tx broadcasted: ${JSON.stringify(txRes, null, 2)}`);
-      return txRes.result.hash;
+      const { result: txResult } = (await this.xrpClient.submit(tx)) as SubmitResponse;
+      this.relayLogger.debug(`Ripple: Tx broadcasted: ${JSON.stringify(txResult, null, 2)}`);
+      const { hash } = txResult.tx_json;
+      if (!hash) {
+        if (!txResult.accepted) {
+          throw new Error(`Transaction not accepted: ${txResult.engine_result_message}`);
+        }
+        throw new Error("Transaction didn't yield hash");
+      }
+      return hash;
     } catch (e) {
       this.relayLogger.error(`Ripple: Error broadcasting tx: ${(e as Error).message}`);
       throw new Error(`${(e as Error).message}`);
