@@ -78,7 +78,7 @@ const tryTransferAsset = (assetConfig: AssetTestConfig) => {
   const transferAsset = async (testInfo: TestInfo): Promise<void> => {
     const relayWindow = await relayApp.firstWindow();
     const utilWindow = await recoveryApp.firstWindow();
-    const { assetId, endpoint } = assetConfig;
+    const { assetId, endpoint, toAddress } = assetConfig;
 
     await navigateToVault(utilWindow, parseInt(process.env.VAULT_TO_USE!));
     if (!(await utilWindow.getByRole('cell', { name: assetId }).isVisible())) {
@@ -91,7 +91,7 @@ const tryTransferAsset = (assetConfig: AssetTestConfig) => {
     }
 
     const address = await wrapStep('utility', assetId, getAddressForAsset)(utilWindow, assetId);
-    const txInitData = await wrapStep('utility', assetId, startWithdrawal)(utilWindow, assetId, address);
+    const txInitData = await wrapStep('utility', assetId, startWithdrawal)(utilWindow, assetId, toAddress ?? address);
     const txParamData = await wrapStep('relay', assetId, fetchTxParamData)(relayWindow, txInitData, endpoint);
     const signedTxData = await wrapStep('utility', assetId, approveTransaction)(utilWindow, txParamData);
     const txHash = await wrapStep('relay', assetId, broadcastTransaction)(relayWindow, signedTxData);
