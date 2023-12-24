@@ -1,130 +1,118 @@
-import { Buffer } from 'buffer';
+/* eslint-disable max-classes-per-file */
 import { Bitcoin as BaseBTC, Input } from '@fireblocks/wallet-derivation';
-import { AddressSummary, FullUTXO, UTXOSummary } from './types';
-import { AccountData, BTCLegacyUTXO, BTCSegwitUTXO, LegacyUTXOType, SegwitUTXOType } from '../types';
+import { CustomElectronLogger } from '@fireblocks/recovery-shared/lib/getLogger';
+import { AccountData, BTCLegacyUTXO, BTCSegwitUTXO } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
+import { BTCRelayWallet } from './BTCRelayWallet';
+import { BTCRelayWalletUtils, StandardBTCRelayWalletUtils } from './BTCRelayWalletUtils';
+import { AddressSummary, FullUTXO, StandardUTXO, UTXOSummary } from './types';
 
 export class Bitcoin extends BaseBTC implements ConnectedWallet {
   private static readonly satsPerBtc = 100000000;
 
   private readonly baseUrl: string;
 
+  private utils: BTCRelayWalletUtils | undefined;
+
   constructor(input: Input) {
     super(input);
+    this.baseUrl = input.isTestnet ? 'https://api.blockchair.com/bitcoin/testnet' : 'https://api.blockchair.com/bitcoin';
+    // Legacy requires a custom site
+    if (this.isLegacy) {
+      // When calling any custom function provided as part of the relay wallet utils
+      // we bind it to `this` from the BTCRelayWallet class, thus every internal reference to this
+      // within the custom functions must be considered as a call to the BTCRelayWalletUtils and not
+      // overarching wallet type (BSV in this case)
 
-    this.baseUrl = input.isTestnet ? 'https://blockstream.info/testnet/api' : 'https://blockstream.info/api';
-  }
+      this.utils = new (class {
+        btcWalletUtils;
 
-  _request = async (path: string, init?: RequestInit) => {
-    const res = await fetch(`${this.baseUrl}${path}`, init);
-    return res;
-  };
+        constructor(baseUrl: string) {
+          this.btcWalletUtils = new StandardBTCRelayWalletUtils(baseUrl);
+        }
 
-  private async _requestJson<T>(path: string, init?: RequestInit) {
-    const res = await this._request(path, init);
-    const data = await res.json();
-    return data as T;
-  }
+        async getAddressUTXOs(address: string): Promise<StandardUTXO[]> {
+          const utxoSummary = await this.btcWalletUtils.requestJson.bind(this)<UTXOSummary[]>(`/address/${address}/utxo`);
+          return utxoSummary.map((utxo) => ({
+            transaction_hash: utxo.txid,
+            value: utxo.value,
+            index: utxo.vout,
+            block_id: utxo.status.block_height ?? -1,
+          }));
+        }
 
-  private async _getAddressUTXOs() {
-    const utxoSummary = await this._requestJson.bind(this)<UTXOSummary[]>(`/address/${this.address}/utxo`);
-    return utxoSummary;
-  }
+        async getAddressBalance(address: string): Promise<number> {
+          const { chain_stats: chainStats } = await this.btcWalletUtils.requestJson.bind(this)<AddressSummary>(
+            `/address/${address}`,
+          );
+          return chainStats.funded_txo_sum - chainStats.spent_txo_sum;
+        }
 
-  private async _getAddressBalance() {
-    const addressSummary = await this._requestJson.bind(this)<AddressSummary>(`/address/${this.address}`);
-    return addressSummary;
-  }
+        async getFeeRate(): Promise<number> {
+          const feeEstimate = await this.btcWalletUtils.requestJson.bind(this)<{ [key: string]: number }>('/fee-estimates');
+          const feeRate = feeEstimate['3'];
+          return feeRate;
+        }
 
-  private async _getFeeRate() {
-    const feeEstimate = await this._requestJson.bind(this)<{ [key: string]: number }>('/fee-estimates');
-    const feeRate = feeEstimate['3'];
-    return feeRate;
-  }
+        async getLegacyFullUTXO(utxo: StandardUTXO): Promise<BTCLegacyUTXO> {
+          const { transaction_hash: hash, index } = utxo;
+          const rawTxRes = await this.btcWalletUtils.request(`/tx/${hash}/raw`);
+          const rawTx = await rawTxRes.arrayBuffer();
+          const nonWitnessUtxo = Buffer.from(rawTx);
 
-  private async _getSegwitInput(utxo: UTXOSummary): Promise<BTCSegwitUTXO> {
-    const { txid: hash, vout: index } = utxo;
-    const fullUtxo = await this._requestJson.bind(this)<FullUTXO>(`/tx/${hash}`);
-    const { scriptpubkey, value } = fullUtxo.vout[index];
+          return {
+            hash,
+            index,
+            nonWitnessUtxo,
+            confirmed: true,
+            value: BTCRelayWallet._satsToBtc(utxo.value),
+          };
+        }
 
-    return {
-      hash,
-      index,
-      witnessUtxo: { script: scriptpubkey, value },
-      confirmed: true,
-      value: Bitcoin._satsToBtc(value),
-    };
-  }
+        async getSegwitUTXO(utxo: StandardUTXO): Promise<BTCSegwitUTXO> {
+          const { transaction_hash: hash, index } = utxo;
+          const fullUtxo = await this.btcWalletUtils.requestJson.bind(this)<FullUTXO>(`/tx/${hash}`);
+          const { scriptpubkey, value } = fullUtxo.vout[index];
 
-  private async _getNonSegwitInput(utxo: UTXOSummary): Promise<BTCLegacyUTXO> {
-    const { txid: hash, vout: index } = utxo;
-    const rawTxRes = await this._request(`/tx/${hash}/raw`);
-    const rawTx = await rawTxRes.arrayBuffer();
-    const nonWitnessUtxo = Buffer.from(rawTx);
+          return {
+            hash,
+            index,
+            witnessUtxo: { script: scriptpubkey, value },
+            confirmed: true,
+            value: BTCRelayWallet._satsToBtc(value),
+          };
+        }
 
-    return {
-      hash,
-      index,
-      nonWitnessUtxo,
-      confirmed: true,
-      value: Bitcoin._satsToBtc(utxo.value),
-    };
-  }
+        async broadcastTx(txHex: string, logger: CustomElectronLogger): Promise<string> {
+          try {
+            const txBroadcastRes = await this.btcWalletUtils.request('/tx', {
+              method: 'POST',
+              body: txHex,
+            });
 
-  private static _satsToBtc(sats: number) {
-    return sats / Bitcoin.satsPerBtc;
-  }
-
-  public async prepare(): Promise<AccountData> {
-    const balance = await this.getBalance();
-
-    const utxos = await this._getAddressUTXOs.bind(this)();
-
-    const getInputMethod = this.isLegacy ? this._getNonSegwitInput.bind(this) : this._getSegwitInput.bind(this);
-
-    const inputs = await Promise.all(utxos.map((utxo) => getInputMethod(utxo)));
-
-    const feeRate = await this._getFeeRate();
-
-    const preparedData = {
-      balance,
-      utxos: inputs,
-      utxoType: this.isLegacy ? LegacyUTXOType : SegwitUTXOType,
-      feeRate,
-    };
-
-    this.relayLogger.logPreparedData('BTC', preparedData);
-    return preparedData as AccountData;
-  }
-
-  public async broadcastTx(
-    txHex: string,
-    // signature: RawSignature[],
-    // customUrl?: string | undefined
-  ): Promise<string> {
-    // BTC Tx are automatically signed and resulting hex is signed, so no need to do anything special.
-    // const tx = Psbt.fromHex(txHex, { network: this.network });
-    try {
-      const txBroadcastRes = await this._request('/tx', {
-        method: 'POST',
-        body: txHex,
-      });
-
-      const txHash = await txBroadcastRes.text();
-      if (txHash.length !== 64) {
-        throw new Error(txHash);
-      }
-      return txHash;
-    } catch (e) {
-      this.relayLogger.error(`BTC: Error broadcasting tx: ${JSON.stringify(e, null, 2)}`);
-      throw e;
+            const txHash = await txBroadcastRes.text();
+            if (txHash.length !== 64) {
+              throw new Error(txHash);
+            }
+            return txHash;
+          } catch (e) {
+            logger.error(`BTC: Error broadcasting tx: ${JSON.stringify(e, null, 2)}`);
+            throw e;
+          }
+        }
+      })(this.isTestnet ? 'https://blockstream.info/testnet/api' : 'https://blockstream.info/api') as BTCRelayWalletUtils;
     }
   }
 
-  public async getBalance() {
-    const { chain_stats: chainStats } = await this._getAddressBalance();
-    const balance = chainStats.funded_txo_sum - chainStats.spent_txo_sum;
-    const btcBalance = Bitcoin._satsToBtc(balance);
-    return btcBalance;
+  public async getBalance(): Promise<number> {
+    return BTCRelayWallet.prototype.getBalance.bind(this)();
+  }
+
+  public async prepare(): Promise<AccountData> {
+    return BTCRelayWallet.prototype.prepare.bind(this)();
+  }
+
+  public async broadcastTx(txHex: string): Promise<string> {
+    return BTCRelayWallet.prototype.broadcastTx.bind(this)(txHex);
   }
 }

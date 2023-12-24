@@ -12,11 +12,6 @@ export class DOGE extends BaseDOGE implements ConnectedWallet {
 
   constructor(input: Input) {
     super(input);
-
-    if (input.isTestnet) {
-      throw new Error('No DOGECoin testnet support.');
-    }
-
     this.baseUrl = 'https://api.blockchair.com/dogecoin';
   }
 
