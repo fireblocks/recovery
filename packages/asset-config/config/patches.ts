@@ -31,9 +31,9 @@ const evm = (baseExplorerUrl: string, rpcUrl?: string): NativeAssetPatch => ({
   getExplorerUrl: getStandardExplorer(baseExplorerUrl),
 });
 
-const btc = (baseExplorerUrl: string, segwit: boolean, derive: boolean = true): NativeAssetPatch => ({
+const btc = (baseExplorerUrl: string, segwit: boolean, derive = true, transfer = true): NativeAssetPatch => ({
   derive,
-  transfer: true,
+  transfer,
   utxo: true,
   segwit,
   getExplorerUrl: getStandardExplorer(baseExplorerUrl),
@@ -88,11 +88,11 @@ export const nativeAssetPatches: NativeAssetPatches = {
   AVAX: evm('cchain.explorer.avax.network', 'https://api.avax.network/ext/bc/C/rpc'),
   AVAXTEST: evm('subnets-test.avax.network', 'https://api.avax-test.network/ext/bc/C/rpc'),
   BCH: btc('blockexplorer.one/bitcoin-cash/mainnet', false),
-  BCH_TEST: btc('blockexplorer.one/bitcoin-cash/testnet', false),
+  BCH_TEST: btc('blockexplorer.one/bitcoin-cash/testnet', false, true, false),
   BNB_BSC: evm('bscscan.com'),
   BNB_TEST: evm('test.bscscan.com'),
-  BSV: btc('whatsonchain.com', false, false),
-  BSV_TEST: btc('test.whatsonchain.com', false, false),
+  BSV: btc('whatsonchain.com', false),
+  BSV_TEST: btc('test.whatsonchain.com', false),
   BTC: btc('blockstream.info', true),
   BTC_TEST: btc('blockstream.info/testnet', true),
   CELO: evm('explorer.celo.org'),
@@ -100,9 +100,9 @@ export const nativeAssetPatches: NativeAssetPatches = {
   CELO_BAK: evm('baklava-blockscout.celo-testnet.org'),
   CHZ_$CHZ: evm('explorer.chiliz.com'),
   DASH: btc('blockexplorer.one/dash/mainnet', false),
-  DASH_TEST: btc('blockexplorer.one/dash/testnet', false),
+  DASH_TEST: btc('blockexplorer.one/dash/testnet', false, true, false),
   DOGE: btc('dexplorer.dogechain.dog', false),
-  DOGE_TEST: btc('explorer-testnet.dogechain.dog', false),
+  DOGE_TEST: btc('explorer-testnet.dogechain.dog', false, true, false),
   DOT: {
     derive: true,
     transfer: true,
@@ -152,8 +152,8 @@ export const nativeAssetPatches: NativeAssetPatches = {
     getExplorerUrl: getStandardExplorer('explorer.arkhia.io/#/testnet'),
   },
   KSM: evm('polkascan.io/kusama', 'https://kusama-rpc.polkadot.io'),
-  LTC: btc('blockexplorer.one/litecoin/mainnet', false, false),
-  LTC_TEST: btc('blockexplorer.one/litecoin/testnet', false, false),
+  LTC: btc('blockexplorer.one/litecoin/mainnet', false),
+  LTC_TEST: btc('blockexplorer.one/litecoin/testnet', false, true, false),
   LUNA: {
     getExplorerUrl: getStandardExplorer('finder.terra.money/classic'),
   },
@@ -301,7 +301,7 @@ export const nativeAssetPatches: NativeAssetPatches = {
   XTZ: evm('tzkt.io', 'https://mainnet-tezos.giganode.io'),
   XTZ_TEST: evm('ghostnet.tzkt.io', 'https://testnet-tezos.giganode.io'),
   ZEC: {
-    derive: false,
+    derive: true,
     transfer: true,
     utxo: true,
     segwit: false,
@@ -310,8 +310,8 @@ export const nativeAssetPatches: NativeAssetPatches = {
     getExplorerUrl: getStandardExplorer('explorer.zcha.in'),
   },
   ZEC_TEST: {
-    derive: false,
-    transfer: true,
+    derive: true,
+    transfer: false,
     utxo: true,
     segwit: false,
     minBalance: false,
