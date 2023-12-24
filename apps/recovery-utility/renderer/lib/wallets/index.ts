@@ -1,9 +1,9 @@
 // import { Bitcoin } from './BTC';
 import { assets } from '@fireblocks/asset-config';
+import { ERC20 } from '@fireblocks/wallet-derivation';
 import { Ripple } from './XRP';
 import { Cosmos } from './ATOM';
 import { EOS } from './EOS';
-import { Bitcoin } from './BTC';
 import { BitcoinCash } from './BCH';
 import { EVM } from './EVM';
 import { Solana } from './SOL';
@@ -17,8 +17,8 @@ import { Polkadot } from './DOT';
 import { Kusama } from './KSM';
 import { NEM } from './NEM';
 import { Hedera } from './HBAR';
-import { ERC20 } from '@fireblocks/wallet-derivation';
 import { Algorand } from './ALGO';
+import { Bitcoin, BitcoinSV, LiteCoin, Dash, ZCash } from './BTC';
 
 const fillEVMs = () => {
   const evms = Object.keys(assets).reduce(
@@ -49,6 +49,14 @@ export const WalletClasses = {
   BTC_TEST: Bitcoin,
   BCH: BitcoinCash,
   BCH_TEST: BitcoinCash,
+  BSV: BitcoinSV,
+  BSV_TEST: BitcoinSV,
+  DASH: Dash,
+  DASH_TEST: Dash,
+  LTC: LiteCoin,
+  LTC_TEST: LiteCoin,
+  ZEC: ZCash,
+  ZEC_TEST: ZCash,
   ETH: EVM,
   ETH_TEST3: EVM,
   ETH_TEST5: EVM,
