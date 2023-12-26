@@ -12,7 +12,7 @@ export class BTCUtilitySigner {
     throw new Error('Unsupported');
   }
 
-  private static _btcToSats(btc: number) {
+  public static _btcToSats(btc: number) {
     return btc * BTCUtilitySigner.satsPerBtc;
   }
 
