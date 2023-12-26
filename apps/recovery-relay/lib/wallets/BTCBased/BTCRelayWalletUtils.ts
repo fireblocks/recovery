@@ -8,7 +8,7 @@ export interface BTCRelayWalletUtils {
   getAddressBalance: (address: string) => Promise<number>;
   getFeeRate: () => Promise<number>;
   getLegacyFullUTXO?: (utxo: StandardUTXO) => Promise<BTCLegacyUTXO>;
-  getSegwitUTXO: (utxo: StandardUTXO) => Promise<BTCSegwitUTXO>;
+  getSegwitUTXO: (utxo: StandardUTXO) => Promise<BTCSegwitUTXO | undefined>;
   broadcastTx?: (txHex: string, logger: CustomElectronLogger) => Promise<string>;
 }
 
@@ -75,13 +75,16 @@ export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
     };
   }
 
-  async getSegwitUTXO(utxo: StandardUTXO): Promise<BTCSegwitUTXO> {
+  async getSegwitUTXO(utxo: StandardUTXO): Promise<BTCSegwitUTXO | undefined> {
     if (this.overrides && this.overrides.getSegwitUTXO) {
       return this.overrides.getSegwitUTXO(utxo);
     }
 
     const { transaction_hash: hash, index } = utxo;
     const fullUtxo = await this.requestJson<StandardFullUTXO>(`/dashboards/transaction/${hash}`);
+    if (fullUtxo.data[hash].transaction.block_id === -1) {
+      return undefined;
+    }
     const { script_hex: scriptpubkey, value } = fullUtxo.data[hash].outputs[index];
 
     return {

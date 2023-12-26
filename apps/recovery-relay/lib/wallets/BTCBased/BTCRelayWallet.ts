@@ -36,12 +36,13 @@ export class BTCRelayWallet {
 
     const getInputMethod = isLegacy ? utils.getLegacyFullUTXO!.bind(utils) : utils.getSegwitUTXO.bind(utils);
 
-    const inputs = await Promise.all(utxos.map((utxo) => getInputMethod(utxo)));
+    const inputs = (await Promise.all(utxos.map((utxo) => getInputMethod(utxo)))).filter((utxo) => utxo !== undefined);
 
     const feeRate = await utils.getFeeRate();
 
     const preparedData = {
       balance,
+      insufficientBalance: inputs.length === 0,
       utxos: inputs,
       utxoType: isLegacy ? LegacyUTXOType : SegwitUTXOType,
       feeRate,
