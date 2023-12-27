@@ -67,10 +67,11 @@ export class Ripple extends BaseRipple implements ConnectedWallet {
       this.relayLogger.debug(`Ripple: Tx broadcasted: ${JSON.stringify(txResult, null, 2)}`);
       const { hash } = txResult.tx_json;
       if (!hash) {
-        if (!txResult.accepted) {
-          throw new Error(`Transaction not accepted: ${txResult.engine_result_message}`);
-        }
-        throw new Error("Transaction didn't yield hash");
+          const errorMessage = txResult.accepted 
+              ? "Unknown error - Transaction didn't return hash"
+              : `Transaction not accepted: ${txResult.engine_result_message}`;
+          this.relayLogger.error('XRP: Failed to broadcast transaction', errorMessage, txResult);
+          throw new Error(errorMessage);
       }
       return hash;
     } catch (e) {
