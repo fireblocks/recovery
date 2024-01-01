@@ -1,4 +1,5 @@
 import { CustomElectronLogger } from '@fireblocks/recovery-shared/lib/getLogger';
+import { ipcRenderer } from 'electron';
 import { BTCLegacyUTXO, BTCSegwitUTXO } from '../types';
 import { BTCRelayWallet } from './BTCRelayWallet';
 import { StandardAddressSummary, StandardBlockchainStats, StandardFullUTXO, StandardUTXO } from './types';
@@ -13,11 +14,16 @@ export interface BTCRelayWalletUtils {
 }
 
 export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
-  constructor(private baseUrl: string, private overrides?: BTCRelayWalletUtils) {}
+  constructor(private baseUrl: string, private overrides?: BTCRelayWalletUtils, private fetchOnMain = false) {}
 
   async request(path: string, init?: RequestInit) {
-    // @ts-ignore
-    const res = await fetch(`${this.baseUrl}${path}`, init);
+    let res: Response;
+    if (!this.fetchOnMain) {
+      // @ts-ignore
+      res = await fetch(`${this.baseUrl}${path}`, init);
+    } else {
+      res = new Response(await ipcRenderer.invoke('main_proc_fetch', `${this.baseUrl}${path}`, init));
+    }
     return res;
   }
 
