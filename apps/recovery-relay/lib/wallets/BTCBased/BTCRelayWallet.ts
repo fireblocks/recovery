@@ -60,7 +60,9 @@ export class BTCRelayWallet {
     const { relayLogger: logger } = this;
 
     // @ts-ignore
-    const utils = new StandardBTCRelayWalletUtils(this.baseUrl);
+    const utils = (this.utils as BTCRelayWalletUtils) || new StandardBTCRelayWalletUtils(baseUrl);
+
+    // @ts-ignore
     return utils.broadcastTx(txHex, logger);
   }
 }
