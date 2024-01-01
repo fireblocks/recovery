@@ -4,4 +4,4 @@ import './restoreSettings';
 import './saveSettings';
 import './getDeployment';
 import './useDeployment';
-import './solanaWebRequest';
+import './webRequest';
