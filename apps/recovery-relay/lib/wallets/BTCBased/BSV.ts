@@ -36,16 +36,14 @@ export class BitcoinSV extends BSVBase implements ConnectedWallet {
       btcUtils;
 
       constructor(baseUrl: string) {
-        this.btcUtils = new StandardBTCRelayWalletUtils(baseUrl);
+        this.btcUtils = new StandardBTCRelayWalletUtils(baseUrl, undefined, true);
       }
 
       async getAddressUTXOs(address: string) {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         // const _this = this as unknown as BTCRelayWalletUtils;
         // @ts-ignore
-        const bsvUTXOs = await this.btcUtils.requestJson.bind(this)<{ result: BSVUTXO[] }>(
-          `/address/${address}/confirmed/unspent`,
-        );
+        const bsvUTXOs = await this.btcUtils.requestJson<{ result: BSVUTXO[] }>(`/address/${address}/confirmed/unspent`);
         return bsvUTXOs.result.map(
           (bsvUtxo) =>
             ({
@@ -73,7 +71,7 @@ export class BitcoinSV extends BSVBase implements ConnectedWallet {
               branchlen: number;
               status: string;
             }[]
-          >('chain/tips')
+          >('/chain/tips')
         ).filter((tip) => tip.status === 'active')[0].hash;
         const medianFee = (
           await this.btcUtils.requestJson<{ [key: string]: any; median_fee: number }>(`/block/hash/${chainTipHash}`)
@@ -82,15 +80,6 @@ export class BitcoinSV extends BSVBase implements ConnectedWallet {
       }
 
       async getSegwitUTXO(utxo: StandardUTXO): Promise<BTCSegwitUTXO> {
-        /*
-            return {
-      hash,
-      index,
-      witnessUtxo: { script: scriptpubkey, value },
-      confirmed: true,
-      value: BTCRelayWallet._satsToBtc(value),
-    };
-    */
         const scriptpubkey = (
           await this.btcUtils.requestJson<{
             [key: string]: any;
@@ -105,6 +94,18 @@ export class BitcoinSV extends BSVBase implements ConnectedWallet {
           confirmed: true,
           value: BTCRelayWallet._satsToBtc(utxo.value),
         };
+      }
+
+      async broadcastTx(txHex: string): Promise<string> {
+        const txBroadcastRes = await (
+          await this.btcUtils.request('/tx/raw', {
+            method: 'POST',
+            body: JSON.stringify({ txHex }),
+            headers: [['Content-Type', 'application/json']],
+          })
+        ).json();
+
+        return txBroadcastRes;
       }
     })(this.baseUrl);
   }
