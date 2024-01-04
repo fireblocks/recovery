@@ -101,8 +101,8 @@ export const nativeAssetPatches: NativeAssetPatches = {
   CHZ_$CHZ: evm('explorer.chiliz.com'),
   DASH: btc('blockexplorer.one/dash/mainnet', false),
   DASH_TEST: btc('blockexplorer.one/dash/testnet', false, true, false),
-  DOGE: btc('dexplorer.dogechain.dog', false),
-  DOGE_TEST: btc('explorer-testnet.dogechain.dog', false, true, false),
+  DOGE: btc('blockexplorer.one/dogecoin/mainnet', false),
+  DOGE_TEST: btc('blockexplorer.one/dogecoin/testnet', false, true, false),
   DOT: {
     derive: true,
     transfer: true,
