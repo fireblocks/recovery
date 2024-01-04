@@ -57,7 +57,7 @@ export class BTCRelayWallet {
     // const tx = Psbt.fromHex(txHex, { network: this.network });
 
     // @ts-ignore
-    const { relayLogger: logger } = this;
+    const { relayLogger: logger, baseUrl } = this;
 
     // @ts-ignore
     const utils = (this.utils as BTCRelayWalletUtils) || new StandardBTCRelayWalletUtils(baseUrl);
