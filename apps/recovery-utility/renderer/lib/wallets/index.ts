@@ -18,7 +18,7 @@ import { Kusama } from './KSM';
 import { NEM } from './NEM';
 import { Hedera } from './HBAR';
 import { Algorand } from './ALGO';
-import { Bitcoin, BitcoinSV, LiteCoin, Dash, ZCash } from './BTC';
+import { Bitcoin, BitcoinSV, LiteCoin, Dash, ZCash, Doge } from './BTC';
 
 const fillEVMs = () => {
   const evms = Object.keys(assets).reduce(
@@ -53,6 +53,8 @@ export const WalletClasses = {
   BSV_TEST: BitcoinSV,
   DASH: Dash,
   DASH_TEST: Dash,
+  DOGE: Doge,
+  DOGE_TEST: Doge,
   LTC: LiteCoin,
   LTC_TEST: LiteCoin,
   ZEC: ZCash,
