@@ -36,6 +36,7 @@
     "archiver": "^5.3.1",
     "bitcoinjs-lib": "^6.1.3",
     "bitcore-lib-doge": "^10.0.21",
+    "bitcore-lib-ltc": "^10.0.21",
     "bs58": "^5.0.0",
     "cosmjs-types": "^0.8.0",
     "ecpair": "^2.1.0",
