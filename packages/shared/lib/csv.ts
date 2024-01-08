@@ -115,7 +115,15 @@ const parseRow = <T extends 'addresses' | 'balances'>(row: T extends 'addresses'
         throw new Error(`Row contains prohibited characters - please reset workspace and check your importing CSV`);
       }
 
-      const pathParts = path.match(/(\d+)/g)?.map(Number);
+      let pathPartsInterim;
+      if (assetName === 'Terra Classic Luna Test' || assetName === 'Terra Classic Luna') {
+        pathPartsInterim = [44, assetName.includes('Test') ? 1 : 330, accountId, 0, 0];
+      } else if (path) {
+        pathPartsInterim = path.match(/(\d+)/g)?.map(Number);
+      } else {
+        throw new Error(`Row for vault ${accountName} (${accountId}) with asset ${assetId} is missing a derivation path.`);
+      }
+      const pathParts = pathPartsInterim;
       logger.debug('parseRow path parts -', { pathParts });
       return addressesCsv.parse({
         accountName,
