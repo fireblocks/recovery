@@ -40,10 +40,6 @@ export const Layout = ({ children }: Props) => {
   const hasOnlyExtendedPublicKeys = hasExtendedPublicKeys && !hasExtendedPrivateKeys;
   const hasExtendedKeys = hasExtendedPublicKeys || hasExtendedPrivateKeys;
 
-  logger.info(
-    `Has x-keys ${hasExtendedPrivateKeys}, has x-pub-keys ${hasExtendedPublicKeys}, has only x-pub-keys ${hasOnlyExtendedPublicKeys}`,
-  );
-
   let status: StatusBoxProps | undefined;
 
   if (hasExtendedPrivateKeys) {
