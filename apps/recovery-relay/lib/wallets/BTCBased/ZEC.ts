@@ -4,16 +4,13 @@ import { ConnectedWallet } from '../ConnectedWallet';
 import { BTCRelayWallet } from './BTCRelayWallet';
 
 export class ZEC extends BaseZEC implements ConnectedWallet {
+  private static readonly satsPerBtc = 100000000;
+
   private readonly baseUrl: string;
 
   constructor(input: Input) {
     super(input);
-
     this.baseUrl = 'https://api.blockchair.com/zcash';
-  }
-
-  public async getBalance(): Promise<number> {
-    return BTCRelayWallet.prototype.getBalance.bind(this)();
   }
 
   public async prepare(): Promise<AccountData> {
@@ -22,5 +19,9 @@ export class ZEC extends BaseZEC implements ConnectedWallet {
 
   public async broadcastTx(txHex: string): Promise<string> {
     return BTCRelayWallet.prototype.broadcastTx.bind(this)(txHex);
+  }
+
+  public async getBalance() {
+    return BTCRelayWallet.prototype.getBalance.bind(this)();
   }
 }
