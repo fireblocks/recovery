@@ -53,6 +53,7 @@
     "tiny-secp256k1": "^2.2.3",
     "tronweb": "^5.2.0",
     "xrpl": "^2.8.1",
+    "zcash-bitcore-lib": "^0.13.20-rc3",
     "zod": "^3.21.4"
   },
   "devDependencies": {
