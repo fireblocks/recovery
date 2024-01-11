@@ -164,6 +164,11 @@ export type KeyRecoveryConfig = {
    * Recover private keys too
    */
   recoveryPrv: boolean;
+
+  /**
+   * Should only recover NCW wallet
+   */
+  recoverOnlyNCW: boolean;
 } & (
   | {
       /**
