@@ -34,6 +34,11 @@ export type KeyDerivation = Readonly<{
   evmAddress?: string;
 }>;
 
+export type NCWalletShare = {
+  chainCode: string;
+  shares: { cosigner: string; ECDSA: string }[];
+};
+
 export interface Derivation {
   /** Asset ID */
   assetId: string;
