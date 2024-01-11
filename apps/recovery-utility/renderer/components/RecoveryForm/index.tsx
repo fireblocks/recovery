@@ -43,13 +43,13 @@ export const RecoveryForm = ({ verifyOnly }: Props) => {
         mobileRsa: formData.agpRsaKey,
         dangerouslyRecoverPrivateKeys: !verifyOnly,
       }),
-    onSuccess: async ({ xpub, fpub, xprv, fprv }) => {
+    onSuccess: async ({ xpub, fpub, xprv, fprv, masterKey }) => {
       setRecoveryError(undefined);
 
       const maskedExtendedKeys = {
         xpub,
         fpub,
-        ...(verifyOnly ? {} : { xprv, fprv }),
+        ...(verifyOnly ? {} : { xprv, fprv, ncwMaster: masterKey }),
       };
 
       setExtendedKeys(maskedExtendedKeys);

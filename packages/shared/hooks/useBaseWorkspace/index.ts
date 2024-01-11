@@ -68,12 +68,12 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
 
   const account = typeof query.accountId === 'string' ? workspace.accounts.get(parseInt(query.accountId, 10)) : undefined;
 
-  const setExtendedKeys = ({ xpub, fpub, xprv, fprv }: Partial<ExtendedKeys>) =>
+  const setExtendedKeys = ({ xpub, fpub, xprv, fprv, ncwMaster }: Partial<ExtendedKeys>) =>
     setWorkspace((prev) => ({
       ...prev,
       extendedKeys: {
         ...prev.extendedKeys,
-        ...(app === 'utility' ? { xprv, fprv } : {}),
+        ...(app === 'utility' ? { xprv, fprv, ncwMaster } : {}),
         xpub,
         fpub,
       },
