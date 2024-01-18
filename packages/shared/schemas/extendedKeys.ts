@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { MasterWallet } from '@fireblocks/extended-key-recovery';
+import { WalletMaster } from '@fireblocks/extended-key-recovery';
 import { z } from 'zod';
 
 export const getExtendedKeySchema = (prefix: 'xpub' | 'xprv' | 'fpub' | 'fprv') =>
@@ -16,7 +16,7 @@ export const extendedKeys = z
     xprv: getExtendedKeySchema('xprv').optional(),
     fprv: getExtendedKeySchema('fprv').optional(),
     ncwMaster: z
-      .custom<MasterWallet>((val) =>
+      .custom<WalletMaster>((val) =>
         typeof val === 'object'
           ? // @ts-ignore
             val.walletSeed &&

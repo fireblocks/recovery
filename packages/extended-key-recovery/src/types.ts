@@ -16,7 +16,7 @@ export type SigningKeyMetadata = BaseMetadataKey & {
   chainCode?: Uint8Array | string;
 };
 
-export type MasterkeyMetadata = {
+export type NCWWalletMasterMetadata = {
   type: string;
   walletSeed: Uint8Array | string;
   assetSeed: Uint8Array | string;
@@ -25,10 +25,10 @@ export type MasterkeyMetadata = {
 
 export type RecoveryPackageMetadata = {
   signingKeys: { [key: string]: SigningKeyMetadata };
-  masterKeys: { [key: string]: MasterkeyMetadata };
+  ncwWalletMasters: { [key: string]: NCWWalletMasterMetadata };
 };
 
-export type MasterWallet = {
+export type WalletMaster = {
   walletSeed: string;
   assetSeed: string;
   masterKeyForCosigner: { [key: string]: string };
@@ -143,7 +143,7 @@ export type RecoveredKeys = {
   fprv?: string;
   chainCodeEcdsa?: string;
   chainCodeEddsa?: string;
-  masterKey?: MasterWallet;
+  ncwWalletMaster?: WalletMaster;
 };
 
 export type CalculatedPrivateKey = {
