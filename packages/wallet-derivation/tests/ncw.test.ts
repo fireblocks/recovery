@@ -1,7 +1,7 @@
-import { MasterWallet } from '@fireblocks/extended-key-recovery';
+import { WalletMaster } from '@fireblocks/extended-key-recovery';
 import { NCWallet } from '../wallets/NCWallet';
 
-const basicMasterWallet: MasterWallet = {
+const basicWalletMaster: WalletMaster = {
   walletSeed: '3c590f865cdf272d9e0490f5918b1a5e4904b07e7c0beccf40ad33d82ba26102',
   assetSeed: 'fb8b1b0c95c1247459616a23aa11c3a5aea26c4b0f2c53471e4e4b7f574929d1',
   masterKeyForCosigner: {
@@ -9,7 +9,7 @@ const basicMasterWallet: MasterWallet = {
   },
 };
 
-const euWallet = new NCWallet(basicMasterWallet);
+const euWallet = new NCWallet(basicWalletMaster);
 
 const algorithm = 'MPC_ECDSA_SECP256K1';
 

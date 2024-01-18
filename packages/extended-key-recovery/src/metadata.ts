@@ -1,11 +1,11 @@
-import { MasterkeyMetadata, RecoveryPackageMetadata, SigningKeyMetadata, UnknownChainCodeError } from './types';
+import { NCWWalletMasterMetadata, RecoveryPackageMetadata, SigningKeyMetadata, UnknownChainCodeError } from './types';
 
 export const parseMetadataFile = (metadataFile: string): RecoveryPackageMetadata => {
   const metadataObj = JSON.parse(metadataFile);
   const defaultChainCode = Buffer.from(metadataObj.chainCode, 'hex');
 
   const signingKeys: { [key: string]: SigningKeyMetadata } = {};
-  const masterKeys: { [key: string]: MasterkeyMetadata } = {};
+  const masterKeys: { [key: string]: NCWWalletMasterMetadata } = {};
 
   let keysInKit: { [key: string]: SigningKeyMetadata } = {};
   if (!metadataObj.keys) {
@@ -49,11 +49,11 @@ export const parseMetadataFile = (metadataFile: string): RecoveryPackageMetadata
   if (!metadataObj.masterKeys) {
     return {
       signingKeys,
-      masterKeys: {},
+      ncwWalletMasters: {},
     };
   }
 
-  const masterKeysInKit: { [key: string]: MasterkeyMetadata } = metadataObj.masterKeys;
+  const masterKeysInKit: { [key: string]: NCWWalletMasterMetadata } = metadataObj.masterKeys;
   for (const key in masterKeysInKit) {
     const keyMetadata = masterKeysInKit[key];
     const keyType = keyMetadata.type;
@@ -81,6 +81,6 @@ export const parseMetadataFile = (metadataFile: string): RecoveryPackageMetadata
 
   return {
     signingKeys,
-    masterKeys,
+    ncwWalletMasters: masterKeys,
   };
 };

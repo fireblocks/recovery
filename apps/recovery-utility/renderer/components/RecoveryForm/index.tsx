@@ -70,11 +70,11 @@ export const RecoveryForm = ({ verifyOnly }: Props) => {
         recoverOnlyNCW: formData.recoverOnlyNCW,
         dangerouslyRecoverPrivateKeys: !verifyOnly,
       }),
-    onSuccess: async ({ xpub, fpub, xprv, fprv, masterKey }) => {
+    onSuccess: async ({ xpub, fpub, xprv, fprv, ncwWalletMaster }) => {
       setRecoveryError(undefined);
 
       if (recoverOnlyNCW) {
-        const ncwKey = { ncwMaster: masterKey };
+        const ncwKey = { ncwMaster: ncwWalletMaster };
         setExtendedKeys(ncwKey);
         router.push('/ncw');
         return;
@@ -83,7 +83,7 @@ export const RecoveryForm = ({ verifyOnly }: Props) => {
       const maskedExtendedKeys = {
         xpub,
         fpub,
-        ...(verifyOnly ? {} : { xprv, fprv, ncwMaster: masterKey }),
+        ...(verifyOnly ? {} : { xprv, fprv, ncwMaster: ncwWalletMaster }),
       };
 
       setExtendedKeys(maskedExtendedKeys);
