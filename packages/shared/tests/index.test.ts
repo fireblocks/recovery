@@ -1,4 +1,7 @@
-import { Label } from '@mui/icons-material';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Readable } from 'stream';
+import Zod from 'zod';
+import { csvImport } from '../lib/csv';
 import { AddressValidator } from '../lib/validateAddress';
 
 type Input = {
@@ -160,6 +163,82 @@ describe('AddressValidator', () => {
   it('should handle unsupported networkProtocol', () => {
     expect(() => {
       addressValidator.isValidAddress('12345', 'ABC', 'FAKE');
-    }).toThrowError('Error validating address with network protocol ABC: Unsupported networkProtocol for address validation ABC');
+    }).toThrow('Error validating address with network protocol ABC: Unsupported networkProtocol for address validation ABC');
+  });
+});
+
+describe('CSV Import', () => {
+  const validCSV = `Account Name,Account ID,Asset,Asset Name,Address,Address Type,Address Description,Tag,HD Path
+  Default,0,BTC_TEST,Bitcoin Test,abcd,Deposit,1111111111,,m / 44 / 1 / 0 / 0 / 1`;
+
+  const invalidCsvTooManyFields = `Account Name,Account ID,Asset,Asset Name,Address,Address Type,Address Description,Tag,HD Path
+  Default,0,BTC_TEST,Bitcoin Test,abcd,Deposit,1111111111,,,m / 44 / 1 / 0 / 0 / 1`;
+
+  const invalidCsvBadValueInField = `Account Name,Account ID,Asset,Asset Name,Address,Address Type,Address Description,Tag,HD Path
+  Default,0,BTC_TEST,Bitcoin Test,111111,Deposit,1111111111,,m / 44 / 1 / 0 / 0 / 1`;
+
+  const invalidCsvWithMacros = `Account Name,Account ID,Asset,Asset Name,Address,Address Type,Address Description,Tag,HD Path
+  Default,0,BTC_TEST,Bitcoin Test,=6+2,Deposit,1111111111,,m / 44 / 1 / 0 / 0 / 1`;
+
+  const validCsvTerraLuna = `Account Name,Account ID,Asset,Asset Name,Address,Address Type,Address Description,Tag,HD Path
+  Default,0,LUNA_TEST,Terra Classic Luna Test,abcd,Deposit,1111111111,,`;
+
+  const invalidCsvMissingDerPath = `Account Name,Account ID,Asset,Asset Name,Address,Address Type,Address Description,Tag,HD Path
+Test,1523,BTC,Bitcoin,abcd,Deposit,1111111111,,`;
+
+  it('Should import CSV', async () => {
+    await csvImport(Readable.from(validCSV), 'addresses', (row) => {
+      expect(row.address === 'abcd').toBe(true);
+    }).catch((e) => {
+      throw e;
+    });
+  });
+
+  it('Should fail importing CSV with too many fields error', async () => {
+    expect(async () => {
+      await csvImport(Readable.from(invalidCsvTooManyFields), 'addresses', (_) => {});
+    }).rejects.toStrictEqual({
+      type: 'FieldMismatch',
+      code: 'TooManyFields',
+      message: 'Too many fields: expected 9 fields but parsed 10',
+      row: 0,
+    });
+  });
+
+  it('Should fail importing CSV with bad value in field', async () => {
+    expect(async () => {
+      await csvImport(Readable.from(invalidCsvBadValueInField), 'addresses', (_) => {});
+    }).rejects.toStrictEqual(
+      new Zod.ZodError([
+        {
+          code: 'invalid_type',
+          expected: 'string',
+          received: 'number',
+          path: ['address'],
+          message: 'Expected string, received number',
+        },
+      ]),
+    );
+  });
+
+  it('Should fail importing CSV with macros', async () => {
+    expect(async () => {
+      await csvImport(Readable.from(invalidCsvWithMacros), 'addresses', (_) => {});
+    }).rejects.toThrow('Row contains prohibited characters - please reset workspace and check your importing CSV');
+  });
+
+  it('Should import Terra Luna Classic Test CSV', async () => {
+    await csvImport(Readable.from(validCsvTerraLuna), 'addresses', (row) => {
+      const expectedPathParts = [44, 1, 0, 0, 0];
+      expect(row.pathParts.every((pathPart, index) => pathPart === expectedPathParts[index])).toBe(true);
+    }).catch((e) => {
+      throw e;
+    });
+  });
+
+  it("Should fail importing CSV with missing derivation path that isn't Terra", async () => {
+    expect(async () => {
+      await csvImport(Readable.from(invalidCsvMissingDerPath), 'addresses', (_) => {});
+    }).rejects.toThrow('Row for vault Test (1523) with asset BTC is missing a derivation path.');
   });
 });

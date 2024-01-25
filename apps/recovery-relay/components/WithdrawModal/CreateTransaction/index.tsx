@@ -175,7 +175,11 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
     values,
     asset,
     derivation: sanatize(derivation),
-    prepare: prepareQuery.data,
+    prepare: JSON.stringify(
+      prepareQuery.data,
+      (_, v) => (typeof v === 'bigint' ? v.toString() : typeof v === 'function' ? 'function' : v),
+      2,
+    ),
   });
 
   return (

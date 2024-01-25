@@ -86,7 +86,7 @@ export const nativeAssetPatches: NativeAssetPatches = {
     rpcUrl: 'https://mainnet.aurora.dev',
   },
   AVAX: evm('cchain.explorer.avax.network', 'https://api.avax.network/ext/bc/C/rpc'),
-  AVAXTEST: evm('subnets-test.avax.network', 'https://api.avax-test.network/ext/bc/C/rpc'),
+  AVAXTEST: evm('subnets-test.avax.network/c-chain', 'https://api.avax-test.network/ext/bc/C/rpc'),
   BCH: btc('blockexplorer.one/bitcoin-cash/mainnet', false),
   BCH_TEST: btc('blockexplorer.one/bitcoin-cash/testnet', false, true, false),
   BNB_BSC: evm('bscscan.com'),

@@ -1,6 +1,7 @@
 import { getAssetConfig } from '@fireblocks/asset-config';
 import { Input } from './types';
 import { BaseWallet } from './wallets/BaseWallet';
+import { NCWallet } from './wallets/NCWallet';
 import { getWallet } from './wallets/chains';
 
 export const deriveWallet = (input: Input): BaseWallet => {
@@ -18,4 +19,4 @@ export * from './types';
 
 export * from './wallets/chains';
 
-export { BaseWallet };
+export { BaseWallet, NCWallet };

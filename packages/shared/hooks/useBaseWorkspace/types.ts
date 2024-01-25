@@ -23,6 +23,7 @@ export type BaseWorkspaceContext<
   App extends 'utility' | 'relay' = 'utility',
 > = BaseWorkspace<Derivation, App> & {
   setInboundRelayUrl: (relayUrl: string | null) => boolean;
+  resetInboundRelayUrl: () => void;
   getOutboundRelayUrl: <Params extends App extends 'utility' ? RelayRequestParams : RelayResponseParams>(
     params: Params,
   ) => string;

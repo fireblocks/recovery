@@ -1,4 +1,5 @@
 import Store from 'electron-store';
+import os from 'os';
 
 export const PROTOCOLS = {
   UTILITY: {
@@ -35,8 +36,10 @@ export class DeploymentStore {
   }
 
   public static set(protocol: 'UTILITY' | 'RELAY' | null) {
+    // Due to comment under useDeployment.ts for linux, we give linux 1 minute for the mode timeout instead of 15 seconds.
+    const expTimeout = os.platform() === 'linux' ? 60_000 : 15_000;
     DeploymentStore._store.set('protocol', protocol);
-    DeploymentStore._store.set('exp', Date.now() + 15000); // 15 seconds
+    DeploymentStore._store.set('exp', Date.now() + expTimeout); // 15 seconds
   }
 
   public static reset() {

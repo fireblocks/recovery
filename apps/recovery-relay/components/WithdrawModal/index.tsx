@@ -39,7 +39,7 @@ const getAssetId = (inboundRelayParams?: RelayRequestParams) => {
 };
 
 export const WithdrawModal = () => {
-  const { accounts, inboundRelayParams, getOutboundRelayUrl, setInboundRelayUrl } = useWorkspace();
+  const { accounts, inboundRelayParams, getOutboundRelayUrl, setInboundRelayUrl, resetInboundRelayUrl } = useWorkspace();
 
   const action = inboundRelayParams?.action;
 
@@ -77,7 +77,7 @@ export const WithdrawModal = () => {
   return (
     <BaseModal
       open={!!action?.startsWith('tx') && !!asset}
-      onClose={() => setInboundRelayUrl(null)}
+      onClose={() => resetInboundRelayUrl()}
       title={
         (
           <Typography variant='h1' display='flex' alignItems='center'>
@@ -176,6 +176,13 @@ export const WithdrawModal = () => {
                   ) : (
                     txHash
                   )}
+                </Typography>
+              )}
+              {!!txBroadcastError && (
+                <Typography variant='body1' fontWeight='600' color={(theme) => theme.palette.error.main}>
+                  Tx broadcast failed:
+                  <br />
+                  {txBroadcastError}
                 </Typography>
               )}
             </Box>

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Box, Grid, Typography, InputAdornment } from '@mui/material';
+import { Box, Grid, Typography, InputAdornment, Checkbox, FormControlLabel } from '@mui/material';
 import { CheckCircle } from '@mui/icons-material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,6 +9,7 @@ import { monospaceFontFamily } from '../theme';
 import { Link } from '../components/Link';
 import { TextField, Button } from '../components';
 import { extendedKeys as extendedKeysInput } from '../schemas';
+import { getPubsFromPrvs } from '@fireblocks/extended-key-recovery';
 
 type FormData = z.infer<typeof extendedKeysInput>;
 
@@ -21,6 +22,8 @@ type Props = {
 export const ExtendedKeysBasePage = ({ supportsPrivateKeys, extendedKeys, setExtendedKeys }: Props) => {
   const router = useRouter();
 
+  const [manualxPrvfPrvInput, setManulxPrvfPrvInput] = useState<boolean>(false);
+
   const hasExtendedPublicKeys = !!extendedKeys?.xpub || !!extendedKeys?.fpub;
   const hasExtendedPrivateKeys = !!extendedKeys?.xprv || !!extendedKeys?.fprv;
   const showPrivate = supportsPrivateKeys && hasExtendedPrivateKeys;
@@ -28,6 +31,7 @@ export const ExtendedKeysBasePage = ({ supportsPrivateKeys, extendedKeys, setExt
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(extendedKeysInput),
@@ -41,11 +45,20 @@ export const ExtendedKeysBasePage = ({ supportsPrivateKeys, extendedKeys, setExt
     },
   });
 
+  const handleKeyInput = (type: 'x' | 'f') => (event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    const keys = getPubsFromPrvs(type === 'x' ? event.target.value : undefined, type === 'f' ? event.target.value : undefined);
+    if (type === 'x') {
+      setValue('xpub', keys[0]);
+      setValue('xprv', event.target.value);
+    } else {
+      setValue('fpub', keys[1]);
+      setValue('fprv', event.target.value);
+    }
+  };
+
   console.info({ errors });
 
   const onSubmit = (data: FormData) => {
-    console.info(data);
-
     setExtendedKeys(data);
 
     router.push('/accounts/vault');
@@ -138,7 +151,7 @@ export const ExtendedKeysBasePage = ({ supportsPrivateKeys, extendedKeys, setExt
             {...register('fpub')}
           />
         </Grid>
-        {hasExtendedPrivateKeys && (
+        {(hasExtendedPrivateKeys || manualxPrvfPrvInput) && (
           <>
             <Grid item xs={12}>
               <Typography variant='h2' marginBottom='0'>
@@ -153,10 +166,11 @@ export const ExtendedKeysBasePage = ({ supportsPrivateKeys, extendedKeys, setExt
                 error={errors.xprv?.message}
                 enableCopy={!!extendedKeys?.xprv}
                 isMonospace
-                confirmRevealRequired={true}
+                confirmRevealRequired
                 confirmMessage='WARNING - You are about to reveal your extended private key (ECDSA).
                 Make sure this machine is OFFLINE and only accessible by authorized personnel.'
                 {...register('xprv')}
+                onChange={handleKeyInput('x')}
               />
             </Grid>
             <Grid item xs={6}>
@@ -167,19 +181,35 @@ export const ExtendedKeysBasePage = ({ supportsPrivateKeys, extendedKeys, setExt
                 error={errors.fprv?.message}
                 enableCopy={!!extendedKeys?.fprv}
                 isMonospace
-                confirmRevealRequired={true}
+                confirmRevealRequired
                 confirmMessage='WARNING - You are about to reveal your extended private key (EDDSA).
                 Make sure this machine is OFFLINE and only accessible by authorized personnel.'
                 {...register('fprv')}
+                onChange={handleKeyInput('f')}
               />
             </Grid>
           </>
         )}
       </Grid>
-      <Grid container spacing={2} alignItems='center' justifyContent='flex-end' marginTop='auto'>
+      <Grid
+        container
+        spacing={2}
+        alignItems='center'
+        justifyContent={!(extendedKeys?.fprv && extendedKeys?.xprv) ? 'space-between' : 'end'}
+        marginTop='auto'
+      >
+        {!(extendedKeys?.fprv && extendedKeys?.xprv) && (
+          <Grid item>
+            <FormControlLabel
+              control={<Checkbox onChange={(_) => setManulxPrvfPrvInput(!manualxPrvfPrvInput)} />}
+              label='Manually provide xprv and fprv'
+            />
+          </Grid>
+        )}
         <Grid item>
           <Button type='submit'>
-            {showPrivate ? 'Recover' : 'Verify'} {extendedKeys ? 'Wallets' : 'Extended Keys'}
+            {showPrivate || manualxPrvfPrvInput ? 'Recover' : 'Verify'}{' '}
+            {extendedKeys || manualxPrvfPrvInput ? 'Wallets' : 'Extended Keys'}
           </Button>
         </Grid>
       </Grid>

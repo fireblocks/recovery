@@ -99,6 +99,21 @@ export const approveTransaction = async (page: Page, txParamsData: string): Prom
 export const broadcastTransaction = async (page: Page, signedTxData: string): Promise<string> => {
   await _fillQrCode(page, signedTxData);
   await page.getByRole('button', { name: 'Confirm and broadcast', exact: true }).click();
+
+  if (
+    await page
+      .getByText('Insufficient funds for transfer, this might be due to a spike in network fees, please wait and try again', {
+        exact: true,
+      })
+      .isVisible()
+  ) {
+    throw new SkipError('Insufficient balance for transfer');
+  }
+
+  if (await page.getByText(/Tx broadcast failed:.+g/).isVisible()) {
+    throw new Error('Failed to broadcast transaction');
+  }
+
   return (await page.getByRole('link').innerText()) ?? '';
 };
 
