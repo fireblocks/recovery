@@ -1,11 +1,14 @@
 import { p2pkh, p2wpkh } from 'bitcoinjs-lib/src/payments';
+import { testnet, bitcoin as mainnet, Network } from 'bitcoinjs-lib/src/networks';
 import { Input } from '../../types';
 import { BTCWalletBase } from './BTCBase';
-import { testnet, bitcoin as mainnet } from 'bitcoinjs-lib/src/networks';
 
 export class Bitcoin extends BTCWalletBase {
+  private network: Network;
+
   constructor(input: Input) {
     super(input, 0);
+    this.network = input.isTestnet ? testnet : mainnet;
   }
 
   protected getAddress(): string {

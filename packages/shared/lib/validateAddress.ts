@@ -2,22 +2,53 @@ import * as WAValidator from 'multicoin-address-validator';
 import { bech32 } from 'bech32';
 import { getLogger } from './getLogger';
 import { LOGGER_NAME_SHARED } from '../constants';
+import { isTestnetAsset } from '@fireblocks/asset-config';
 
 const logger = getLogger(LOGGER_NAME_SHARED);
 
 export class AddressValidator {
   // specialAssets - lists chains with an untrivial networkProtocol/address which breaks validation.
-  static readonly specialAssets: string[] = ['XDC', 'BCH', 'BSV', 'DOGE', 'LTC', 'DASH'];
+  static readonly specialAssets: string[] = [
+    'XDC',
+    'BCH',
+    'BCH_TEST',
+    'BSV',
+    'BSV_TEST',
+    'DOGE',
+    'DOGE_TEST',
+    'LTC',
+    'LTC_TEST',
+    'DASH',
+    'DASH_TEST',
+  ];
+
+  static readonly btcLikeAssetProtocols: { [key: string]: string } = {
+    ZEC: 'ZEC',
+    LTC: 'LTC',
+    DASH: 'DASH',
+  };
 
   public isValidAddress(address: string, networkProtocol: string | undefined, assetId: string): boolean {
     try {
-      let isValid: boolean = false;
+      let isValid = false;
+      let validationOptions: WAValidator.ValidateOpts = {};
+      let asset = assetId;
+      let networkProto = networkProtocol;
+      if (assetId in AddressValidator.btcLikeAssetProtocols) {
+        networkProto = AddressValidator.btcLikeAssetProtocols[assetId];
+      }
+      if (isTestnetAsset(assetId)) {
+        validationOptions = { networkType: 'testnet' };
+        if (assetId.includes('_TEST') || assetId.includes('TEST')) {
+          asset = assetId.replace('_TEST', '').replace('TEST', '');
+        }
+      }
       if (AddressValidator.specialAssets.includes(assetId)) {
-        isValid = this.customValidator(address, 'validateByAsset', assetId);
-      } else if (this.doesValidatorExist(networkProtocol)) {
-        isValid = WAValidator.validate(address, networkProtocol);
+        isValid = this.customValidator(address, 'validateByAsset', asset, validationOptions);
+      } else if (this.doesValidatorExist(networkProto)) {
+        isValid = WAValidator.validate(address, networkProto, validationOptions);
       } else {
-        isValid = this.customValidator(address, networkProtocol, assetId);
+        isValid = this.customValidator(address, networkProto, asset, validationOptions);
       }
       logger.info(`Received ${String(isValid)} validation result for ${networkProtocol} protocol address`);
       return isValid;
@@ -31,7 +62,12 @@ export class AddressValidator {
     return !!networkProtocol && !!WAValidator.findCurrency(networkProtocol);
   }
 
-  private customValidator(address: string, validatorReference: string | undefined, assetId: string): boolean {
+  private customValidator(
+    address: string,
+    validatorReference: string | undefined,
+    assetId: string,
+    validationOptions?: WAValidator.ValidateOpts,
+  ): boolean {
     // XDC special treatment
     if (validatorReference === 'validateByAsset' && assetId === 'XDC') {
       validatorReference = 'XDC';
@@ -39,7 +75,7 @@ export class AddressValidator {
 
     switch (validatorReference) {
       case 'validateByAsset':
-        return this.validateByAsset(address, assetId);
+        return this.validateByAsset(address, assetId, validationOptions);
       case 'XDC':
         return this.validateXDC(address);
       case 'HBAR':
@@ -56,8 +92,9 @@ export class AddressValidator {
     }
   }
 
-  private validateByAsset(address: string, assetId: string): boolean {
-    return WAValidator.validate(address, assetId);
+  private validateByAsset(address: string, assetId: string, validationOptions?: WAValidator.ValidateOpts): boolean {
+    console.log(arguments);
+    return WAValidator.validate(address, assetId, validationOptions);
   }
 
   private validateXDC(address: string): boolean {

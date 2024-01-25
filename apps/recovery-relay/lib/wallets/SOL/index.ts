@@ -17,7 +17,7 @@ export class Solana extends BaseSolana implements ConnectedWallet {
       commitment: 'confirmed',
       //@ts-ignore
       fetch: async (input: string | URL | Request, init) => {
-        const res = await ipcRenderer.invoke('sol_web_request', input, init);
+        const res = await ipcRenderer.invoke('main_proc_fetch', input, init);
         return new Response(res);
       },
     });
