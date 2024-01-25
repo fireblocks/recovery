@@ -11,8 +11,8 @@ export class BitcoinCash extends BCHBase implements LateInitConnectedWallet {
 
   constructor(input: Input) {
     super(input);
-    this.endpoint = input.isTestnet ? '' : 'https://rest.bch.actorforth.org/v2';
-    this.network = input.isTestnet ? Networks.testnet : Networks.mainnet;
+    this.endpoint = 'https://rest.bch.actorforth.org/v2';
+    this.network = Networks.mainnet;
   }
 
   // eslint-disable-next-line class-methods-use-this

@@ -6,8 +6,8 @@ import {
   DecryptRSAPrivateKeyError,
   DuplicateMasterKeyFile,
   InvalidMasterKey,
-  MasterWallet,
-  MasterkeyMetadata,
+  WalletMaster,
+  NCWWalletMasterMetadata,
   MissingMasterKeyFile,
   MissingWalletMasterKeyId,
 } from './types';
@@ -20,8 +20,8 @@ const _getCloudPlayerId = (cosignerId: string) => {
 export const recoverNCWMaster = (
   zipFiles: IZipEntry[],
   rsaPrivateKey: forge.pki.rsa.PrivateKey,
-  masterKeys: { [key: string]: MasterkeyMetadata },
-): MasterWallet => {
+  masterKeys: { [key: string]: NCWWalletMasterMetadata },
+): WalletMaster => {
   const walletMasterKeyId = Object.keys(masterKeys)
     .map((key) => (masterKeys[key].type === 'NON_CUSTODIAL_WALLET_MASTER' ? key : undefined))
     .filter((key) => key !== undefined);

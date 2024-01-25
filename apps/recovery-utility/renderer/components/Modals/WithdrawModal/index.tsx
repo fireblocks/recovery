@@ -55,7 +55,8 @@ const getHighestBalanceAssetId = (account?: VaultAccount) => {
 };
 
 export const WithdrawModal = ({ assetId, accountId, open, onClose: onCloseModal }: Props) => {
-  const { extendedKeys, accounts, inboundRelayParams, getOutboundRelayUrl, setInboundRelayUrl } = useWorkspace();
+  const { extendedKeys, accounts, inboundRelayParams, getOutboundRelayUrl, resetInboundRelayUrl, setInboundRelayUrl } =
+    useWorkspace();
 
   const accountsArray = useMemo(() => Array.from(accounts.values()), [accounts]);
 
@@ -80,7 +81,7 @@ export const WithdrawModal = ({ assetId, accountId, open, onClose: onCloseModal 
   const onClose = () => {
     logger.info(`Closing withdrawal modal`);
     onCloseModal();
-    setInboundRelayUrl(null);
+    resetInboundRelayUrl();
     setNewTxId(nanoid());
   };
 

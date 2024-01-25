@@ -1,7 +1,7 @@
 import axios, { AxiosHeaders } from 'axios';
 import { ipcMain } from 'electron';
 
-ipcMain.handle('sol_web_request', async (event, input: string | Request | URL, init?: RequestInit) => {
+ipcMain.handle('main_proc_fetch', async (event, input: string | Request | URL, init?: RequestInit) => {
   try {
     let res: any = undefined;
     if (!init) {
@@ -39,9 +39,8 @@ ipcMain.handle('sol_web_request', async (event, input: string | Request | URL, i
 
     if (res !== undefined) {
       return JSON.stringify(res);
-    } else {
-      throw new Error('No result');
     }
+    throw new Error('No result');
   } catch (e) {
     console.error('Failed to query solana information', e);
   }

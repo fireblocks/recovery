@@ -1,3 +1,5 @@
 export { recoverKeys } from './src/recover';
 
-export type { KeyRecoveryConfig, RecoveredKeys } from './src/types';
+export { getPubsFromPrvs } from './src/reconstructKeys';
+
+export type { KeyRecoveryConfig, RecoveredKeys, WalletMaster } from './src/types';

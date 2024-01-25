@@ -1,7 +1,7 @@
 import { secp256k1 } from '@noble/curves/secp256k1';
 import { ed25519 } from '@noble/curves/ed25519';
 import { modPow } from 'bigint-mod-arith';
-import { encode as encode_b58check } from 'bs58check';
+import { encode as encode_b58check, decode as decode_b58check } from 'bs58check';
 
 import { Algorithm, CalculatedPrivateKey, PlayerData, SigningKeyMetadata, UnknownAlgorithmError } from './types';
 
@@ -41,6 +41,25 @@ const _encodeKey = (key: string, algorithm: Algorithm, chainCode: Buffer, isPub:
   }
   buffers.push(keyBuffer);
   return encode_b58check(Buffer.concat(buffers));
+};
+
+const _decodeKey = (prv: string): [string, Buffer] => {
+  // Only used on xprv, so key length should be 64
+  const prvBuffer = Buffer.from(decode_b58check(prv));
+  // read first 13 bytes (0->13) are algorithm and padding, not relevant for the purposes fo this function
+  let offset = 13;
+  const chainCodeValues: number[] = [];
+  let readValue = prvBuffer.readUint8(offset);
+  while (readValue !== 0) {
+    chainCodeValues.push(readValue);
+    offset += 1;
+    readValue = prvBuffer.readUint8(offset);
+  }
+  offset += 1; // skip 0 byte padding in xprv/fprv
+  const chainCode = Buffer.from(chainCodeValues);
+  const key = prvBuffer.subarray(offset, offset + 32);
+
+  return [key.toString('hex'), chainCode];
 };
 
 const calculateKeys = (keyId: string, playerData: { [key: string]: bigint }, algo: Algorithm): [string, string] => {
@@ -110,4 +129,19 @@ export const reconstructKeys = (
   }
 
   return privateKeys;
+};
+
+export const getPubsFromPrvs = (xprv?: string, fprv?: string): [string, string] => {
+  const result: [string, string] = ['', ''];
+  if (xprv) {
+    const [xDecodedPrv, xChaincode] = _decodeKey(xprv);
+    const xPubKey = secp256k1.ProjectivePoint.BASE.multiply(BigInt(`0x${xDecodedPrv}`)).toHex();
+    result[0] = _encodeKey(xPubKey, 'MPC_ECDSA_SECP256K1', xChaincode, true);
+  }
+  if (fprv) {
+    const [fDecodedPrv, fChaincode] = _decodeKey(fprv);
+    const fPubKey = ed25519.ExtendedPoint.BASE.multiply(BigInt(`0x${fDecodedPrv}`)).toHex();
+    result[1] = _encodeKey(fPubKey, 'MPC_EDDSA_ED25519', fChaincode, true);
+  }
+  return result;
 };

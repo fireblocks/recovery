@@ -13,4 +13,7 @@ export class ZCash extends BTCWalletBase implements BaseWallet {
 
     return bs58check.encode(Buffer.from(midwayHash, 'hex'));
   }
+
+  protected readonly KEY_NETWORK_VER = 'n';
+  protected readonly KEY_EXPIRY_HEIGHT = 'e';
 }

@@ -90,14 +90,14 @@ const parseRow = <T extends 'addresses' | 'balances'>(row: T extends 'addresses'
       } = row as AddressesCsvRow;
 
       // If field contains with =,  -, +, " or @, - prevent loading
-      const invalidRow = Object.keys(row as AddressesCsvRow).filter((x: string) =>
-        ['=', '-', '+', '"', '@'].some((y) => {
-          const value: unknown = (row as AddressesCsvRow)[x as keyof AddressesCsvRow];
+      const invalidRow = Object.keys(row as AddressesCsvRow).filter((csvRowKey: string) =>
+        ['=', '-', '+', '"', '@'].some((prohibitedChar: string) => {
+          const value: unknown = (row as AddressesCsvRow)[csvRowKey as keyof AddressesCsvRow];
           if (typeof value === 'number' || value === null || value === undefined) {
             return false;
           }
           if (typeof value === 'string') {
-            return value.startsWith(y);
+            return value.startsWith(prohibitedChar);
           }
 
           if (['function', 'object'].includes(typeof value)) {
@@ -115,7 +115,15 @@ const parseRow = <T extends 'addresses' | 'balances'>(row: T extends 'addresses'
         throw new Error(`Row contains prohibited characters - please reset workspace and check your importing CSV`);
       }
 
-      const pathParts = path.match(/(\d+)/g)?.map(Number);
+      let pathPartsInterim;
+      if (assetName === 'Terra Classic Luna Test' || assetName === 'Terra Classic Luna') {
+        pathPartsInterim = [44, assetName.includes('Test') ? 1 : 330, accountId, 0, 0];
+      } else if (path) {
+        pathPartsInterim = path.match(/(\d+)/g)?.map(Number);
+      } else {
+        throw new Error(`Row for vault ${accountName} (${accountId}) with asset ${assetId} is missing a derivation path.`);
+      }
+      const pathParts = pathPartsInterim;
       logger.debug('parseRow path parts -', { pathParts });
       return addressesCsv.parse({
         accountName,

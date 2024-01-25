@@ -23,7 +23,7 @@ const logger = getLogger(LOGGER_NAME_UTILITY);
 export const Layout = ({ children }: Props) => {
   const { isOnline } = useConnectionTest();
 
-  const { extendedKeys: { xpub, fpub, xprv, fprv } = {} } = useWorkspace();
+  const { extendedKeys: { xpub, fpub, xprv, fprv, ncwMaster } = {} } = useWorkspace();
 
   const [protocol, setProtocol] = useWrappedState<'UTILITY' | 'RELAY' | null>('protocol', null);
 
@@ -39,10 +39,7 @@ export const Layout = ({ children }: Props) => {
   const hasExtendedPublicKeys = !!xpub || !!fpub;
   const hasOnlyExtendedPublicKeys = hasExtendedPublicKeys && !hasExtendedPrivateKeys;
   const hasExtendedKeys = hasExtendedPublicKeys || hasExtendedPrivateKeys;
-
-  logger.info(
-    `Has x-keys ${hasExtendedPrivateKeys}, has x-pub-keys ${hasExtendedPublicKeys}, has only x-pub-keys ${hasOnlyExtendedPublicKeys}`,
-  );
+  const hasNCWMasterKey = !!ncwMaster;
 
   let status: StatusBoxProps | undefined;
 
@@ -58,6 +55,12 @@ export const Layout = ({ children }: Props) => {
       path: '/accounts/vault',
       icon: AccountsIcon,
       disabled: !hasExtendedKeys,
+    },
+    {
+      label: 'NCW',
+      path: '/ncw',
+      disabled: !hasNCWMasterKey,
+      icon: AccountsIcon,
     },
     // {
     //   label: 'Relay',

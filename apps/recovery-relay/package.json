@@ -5,7 +5,7 @@
   "repository": "https://github.com/fireblocks/recovery/tree/main/apps/recovery-relay",
   "homepage": "https://relay.fireblocks.solutions",
   "license": "GPL-3.0-or-later",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -17,12 +17,12 @@
   "dependencies": {
     "@apollo/client": "^3.7.17",
     "@blockfrost/blockfrost-js": "^5.3.1",
-    "@cosmjs/stargate": "^0.32.0",
+    "@cosmjs/stargate": "^0.32.1",
     "@cosmjs/tendermint-rpc": "^0.32.0",
     "@emurgo/cardano-serialization-lib-asmjs": "^11.4.0",
-    "@fireblocks/asset-config": "^0.1.0",
-    "@fireblocks/recovery-shared": "^0.2.1",
-    "@fireblocks/wallet-derivation": "^0.4.0",
+    "@fireblocks/asset-config": "^0.2.0",
+    "@fireblocks/recovery-shared": "^0.3.0",
+    "@fireblocks/wallet-derivation": "^0.5.0",
     "@hashgraph/sdk": "^2.29.0",
     "@hookform/resolvers": "^3.1.1",
     "@mui/icons-material": "^5.13.7",
@@ -50,7 +50,7 @@
     "cosmjs-types": "^0.8.0",
     "eosjs": "^22.1.0",
     "ethers": "^6.6.2",
-    "graphql": "^16.7.1",
+    "graphql": "^16.8.1",
     "nanoid": "^4.0.2",
     "near-api-js": "^2.1.4",
     "next": "^13.4.19",
@@ -62,7 +62,7 @@
     "superjson": "^1.12.4",
     "tronweb": "^5.2.0",
     "xrpl": "^2.8.1",
-    "zod": "^3.21.4"
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@babel/core": "^7.22.8",

@@ -39,7 +39,7 @@ const getAssetId = (inboundRelayParams?: RelayRequestParams) => {
 };
 
 export const WithdrawModal = () => {
-  const { accounts, inboundRelayParams, getOutboundRelayUrl, setInboundRelayUrl } = useWorkspace();
+  const { accounts, inboundRelayParams, getOutboundRelayUrl, setInboundRelayUrl, resetInboundRelayUrl } = useWorkspace();
 
   const action = inboundRelayParams?.action;
 
@@ -48,6 +48,7 @@ export const WithdrawModal = () => {
 
   const [outboundRelayUrl, setOutboundRelayUrl] = useWrappedState<string | undefined>('outboundRelayUrl', undefined);
   const [txHash, setTxHash] = useWrappedState<string | undefined>('txHash', undefined);
+  const [txBroadcastError, setTxBroadcastError] = useWrappedState<string | undefined>('txBroadcastError', undefined);
 
   const setSignTxResponseUrl = (unsignedTx: RelaySignTxResponseParams['unsignedTx']) => {
     logger.debug(
@@ -76,7 +77,7 @@ export const WithdrawModal = () => {
   return (
     <BaseModal
       open={!!action?.startsWith('tx') && !!asset}
-      onClose={() => setInboundRelayUrl(null)}
+      onClose={() => resetInboundRelayUrl()}
       title={
         (
           <Typography variant='h1' display='flex' alignItems='center'>
@@ -114,32 +115,46 @@ export const WithdrawModal = () => {
           {action === 'tx/broadcast' && (
             <Box display='flex' alignItems='center' justifyContent='center' flexDirection='column'>
               {!txHash && (
-                <Button
-                  onClick={async () => {
-                    logger.info('Inbound parameters:', { inboundRelayParams });
+                <>
+                  <Button
+                    disabled={process.env.CI === 'e2e' ? false : txBroadcastError !== undefined}
+                    onClick={async () => {
+                      logger.info('Inbound parameters:', { inboundRelayParams });
 
-                    const wallet = accounts.get(inboundRelayParams?.accountId)?.wallets.get(inboundRelayParams?.signedTx.assetId);
+                      const wallet = accounts
+                        .get(inboundRelayParams?.accountId)
+                        ?.wallets.get(inboundRelayParams?.signedTx.assetId);
 
-                    const derivation = wallet?.derivations?.get(inboundRelayParams?.signedTx.from);
+                      const derivation = wallet?.derivations?.get(inboundRelayParams?.signedTx.from);
 
-                    if (derivation?.isLateInit()) {
-                      (derivation as LateInitConnectedWallet).updateDataEndpoint(inboundRelayParams.endpoint!);
-                    }
+                      if (derivation?.isLateInit()) {
+                        (derivation as LateInitConnectedWallet).updateDataEndpoint(inboundRelayParams.endpoint!);
+                      }
 
-                    const signedTxHex = inboundRelayParams?.signedTx.hex;
+                      const signedTxHex = inboundRelayParams?.signedTx.hex;
 
-                    const cleanDerivation = derivation ? sanatize(derivation) : undefined;
-                    logger.info('Derivation and signed transaction hash:', { cleanDerivation, signedTxHex });
+                      const cleanDerivation = derivation ? sanatize(derivation) : undefined;
+                      logger.info('Derivation and signed transaction hash:', { cleanDerivation, signedTxHex });
+                      try {
+                        const newTxHash = await derivation?.broadcastTx(signedTxHex);
 
-                    const newTxHash = await derivation?.broadcastTx(signedTxHex);
-
-                    setTxHash(newTxHash);
-
-                    logger.info({ newTxHash });
-                  }}
-                >
-                  Confirm and broadcast
-                </Button>
+                        setTxHash(newTxHash);
+                        logger.info({ newTxHash });
+                      } catch (e) {
+                        setTxBroadcastError((e as Error).message);
+                      }
+                    }}
+                  >
+                    Confirm and broadcast
+                  </Button>
+                  {!!txBroadcastError && (
+                    <Box height='100%' display='flex' flexDirection='column' borderRadius='6px' padding='8px 8px 0 8px'>
+                      <Typography variant='body1' textAlign='center' fontWeight='600' color={(theme) => theme.palette.error.main}>
+                        Transaction broadcast failed due to: {txBroadcastError}
+                      </Typography>
+                    </Box>
+                  )}
+                </>
               )}
               {!!txHash && (
                 <Typography
@@ -161,6 +176,13 @@ export const WithdrawModal = () => {
                   ) : (
                     txHash
                   )}
+                </Typography>
+              )}
+              {!!txBroadcastError && (
+                <Typography variant='body1' fontWeight='600' color={(theme) => theme.palette.error.main}>
+                  Tx broadcast failed:
+                  <br />
+                  {txBroadcastError}
                 </Typography>
               )}
             </Box>

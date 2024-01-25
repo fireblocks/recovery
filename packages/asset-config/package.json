@@ -4,7 +4,7 @@
   "author": "Fireblocks (https://www.fireblocks.com)",
   "repository": "https://github.com/fireblocks/recovery/tree/main/packages/asset-config",
   "homepage": "https://www.fireblocks.com",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "GPL-3.0-or-later",
   "private": true,
   "main": "index.ts",

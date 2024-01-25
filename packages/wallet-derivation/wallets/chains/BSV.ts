@@ -8,7 +8,7 @@ export class BitcoinSV extends BTCWalletBase {
   }
 
   protected getAddress(): string {
-    const midwayHash = this.getRipeShaHash();
-    return bs58check.encode(Buffer.from(midwayHash, 'hex'));
+    const midwayHash = this.getRipeShaHash(false);
+    return bs58check.encode(Buffer.concat([Buffer.from([this.isTestnet ? 0x6f : 0x00]), Buffer.from(midwayHash, 'hex')]));
   }
 }

@@ -16,6 +16,56 @@ export interface AddressSummary {
   };
 }
 
+export interface StandardUTXO {
+  block_id: number;
+  transaction_hash: string;
+  index: number;
+  value: number;
+}
+export interface StandardAddressSummary {
+  data: {
+    [key: string]: {
+      address: { balance: number; [key: string]: any };
+      utxos: StandardUTXO[];
+      [key: string]: any;
+    };
+  };
+  [key: string]: any;
+}
+export interface StandardFullUTXOInputOutput {
+  block_id: number;
+  index: number;
+  transaction_hash: string;
+  value: number;
+  script_hex: string;
+  recipient: string;
+  [key: string]: any;
+}
+
+export interface StandardFullUTXO {
+  data: {
+    // the Tx hash
+    [key: string]: {
+      transaction: {
+        block_id: number;
+        hash: string;
+        [key: string]: any;
+      };
+      inputs: StandardFullUTXOInputOutput[];
+      outputs: StandardFullUTXOInputOutput[];
+    };
+  };
+  [key: string]: any;
+}
+
+export interface StandardBlockchainStats {
+  data: {
+    suggested_transaction_fee_per_byte_sat: number;
+    [key: string]: any;
+  };
+  [key: string]: any;
+}
+
 export interface FullUTXO {
   txid: string;
   version: number;

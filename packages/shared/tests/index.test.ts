@@ -180,6 +180,12 @@ describe('CSV Import', () => {
   const invalidCsvWithMacros = `Account Name,Account ID,Asset,Asset Name,Address,Address Type,Address Description,Tag,HD Path
   Default,0,BTC_TEST,Bitcoin Test,=6+2,Deposit,1111111111,,m / 44 / 1 / 0 / 0 / 1`;
 
+  const validCsvTerraLuna = `Account Name,Account ID,Asset,Asset Name,Address,Address Type,Address Description,Tag,HD Path
+  Default,0,LUNA_TEST,Terra Classic Luna Test,abcd,Deposit,1111111111,,`;
+
+  const invalidCsvMissingDerPath = `Account Name,Account ID,Asset,Asset Name,Address,Address Type,Address Description,Tag,HD Path
+Test,1523,BTC,Bitcoin,abcd,Deposit,1111111111,,`;
+  
   it('Should import CSV', async () => {
     await csvImport(Readable.from(validCSV), 'addresses', (row) => {
       expect(row.address === 'abcd').toBe(true);
@@ -219,5 +225,20 @@ describe('CSV Import', () => {
     expect(async () => {
       await csvImport(Readable.from(invalidCsvWithMacros), 'addresses', (_) => {});
     }).rejects.toThrow('Row contains prohibited characters - please reset workspace and check your importing CSV');
+  });
+
+  it('Should import Terra Luna Classic Test CSV', async () => {
+    await csvImport(Readable.from(validCsvTerraLuna), 'addresses', (row) => {
+      const expectedPathParts = [44, 1, 0, 0, 0];
+      expect(row.pathParts.every((pathPart, index) => pathPart === expectedPathParts[index])).toBe(true);
+    }).catch((e) => {
+      throw e;
+    });
+  });
+
+  it("Should fail importing CSV with missing derivation path that isn't Terra", async () => {
+    expect(async () => {
+      await csvImport(Readable.from(invalidCsvMissingDerPath), 'addresses', (_) => {});
+    }).rejects.toThrow('Row for vault Test (1523) with asset BTC is missing a derivation path.');
   });
 });
