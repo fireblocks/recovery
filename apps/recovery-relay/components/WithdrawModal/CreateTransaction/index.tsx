@@ -105,7 +105,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
     enabled: !!derivation,
     queryFn: async () => {
       logger.debug(`Querying prepare transaction ${toAddress}`);
-      return derivation!.prepare?.(toAddress, values.memo);
+      return await derivation!.prepare?.(toAddress, values.memo);
     },
     onSuccess: (prepare: AccountData) => {
       logger.info('UTXOs', prepare.utxos);

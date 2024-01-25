@@ -3233,7 +3233,7 @@
     rxjs "^7.8.1"
     tslib "^2.5.3"
 
-"@polkadot/keyring@^12.2.1", "@polkadot/keyring@^12.3.1":
+"@polkadot/keyring@12.3.2", "@polkadot/keyring@^12.2.1", "@polkadot/keyring@^12.3.1":
   version "12.3.2"
   resolved "https://registry.yarnpkg.com/@polkadot/keyring/-/keyring-12.3.2.tgz#112a0c28816a1f47edad6260dc94222c29465a54"
   integrity sha512-NTdtDeI0DP9l/45hXynNABeP5VB8piw5YR+CbUxK2e36xpJWVXwbcOepzslg5ghE9rs8UKJb30Z/HqTU4sBY0Q==
@@ -3419,7 +3419,7 @@
     "@polkadot/wasm-util" "7.2.1"
     tslib "^2.5.0"
 
-"@polkadot/wasm-crypto@^7.2.1":
+"@polkadot/wasm-crypto@7.2.1", "@polkadot/wasm-crypto@^7.2.1":
   version "7.2.1"
   resolved "https://registry.yarnpkg.com/@polkadot/wasm-crypto/-/wasm-crypto-7.2.1.tgz#db671dcb73f1646dc13478b5ffc3be18c64babe1"
   integrity sha512-SA2+33S9TAwGhniKgztVN6pxUKpGfN4Tre/eUZGUfpgRkT92wIUT2GpGWQE+fCCqGQgADrNiBcwt6XwdPqMQ4Q==
@@ -3446,7 +3446,7 @@
     "@polkadot/x-global" "12.3.2"
     tslib "^2.5.3"
 
-"@polkadot/x-fetch@^12.3.1":
+"@polkadot/x-fetch@12.3.2", "@polkadot/x-fetch@^12.3.1":
   version "12.3.2"
   resolved "https://registry.yarnpkg.com/@polkadot/x-fetch/-/x-fetch-12.3.2.tgz#7e8d2113268e792dd5d1b259ef13839c6aa77996"
   integrity sha512-3IEuZ5S+RI/t33NsdPLIIa5COfDCfpUW2sbaByEczn75aD1jLqJZSEDwiBniJ2osyNd4uUxBf6e5jw7LAZeZJg==
@@ -3486,7 +3486,7 @@
     "@polkadot/x-global" "12.3.2"
     tslib "^2.5.3"
 
-"@polkadot/x-ws@^12.3.1":
+"@polkadot/x-ws@12.3.2", "@polkadot/x-ws@^12.3.1":
   version "12.3.2"
   resolved "https://registry.yarnpkg.com/@polkadot/x-ws/-/x-ws-12.3.2.tgz#422559dfbdaac4c965d5e1b406b6cc4529214f94"
   integrity sha512-yM9Z64pLNlHpJE43+Xtr+iUXmYpFFY5u5hrke2PJt13O48H8f9Vb9cRaIh94appLyICoS0aekGhDkGH+MCspBA==
@@ -5805,20 +5805,10 @@ bn.js@5.2.1, bn.js@^5.1.1, bn.js@^5.2.0, bn.js@^5.2.1:
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-5.2.1.tgz#0bc527a6a0d18d0aa8d5b0538ce4a77dccfa7b70"
   integrity sha512-eXRvHzWyYPBuB4NBy0cmYQjGitUrtqwbvlzP3G6VFnNRbsZQIxQ10PbKKHt8gZ/HW/D/747aDl+QkDqg3KQLMQ==
 
-bn.js@=2.0.4:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-2.0.4.tgz#220a7cd677f7f1bfa93627ff4193776fe7819480"
-  integrity sha512-agol6nELIIhWUdrrb0ko6X/ojICxfDeUg+NUCODLS4Dn3deKCE+d1HTEjvlD/WfH6rZ1DCh7bA21tHNtmqwjWA==
-
 bn.js@=4.11.8:
   version "4.11.8"
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.11.8.tgz#2cde09eb5ee341f484746bb0309b3253b1b1442f"
   integrity sha512-ItfYfPLkWHUjckQCk8xC+LwxgK8NYcXywGigJgSwOP8Y2iyWT4f2vsZnoOXTTbo+o5yXmIUJ4gn5538SO5S3gA==
-
-bn.js@^2.0.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-2.2.0.tgz#12162bc2ae71fc40a5626c33438f3a875cd37625"
-  integrity sha512-nlotTGN6qr+NpeCb8d5mdXR47r6GXiyoX4fEeqBF2u9wp/3XgzIwyftMX9TE+StQRJSOUJtyYr9MVk0rn2ftAg==
 
 bn.js@^4.11.8, bn.js@^4.11.9, bn.js@^4.12.0:
   version "4.12.0"
@@ -5912,11 +5902,6 @@ bs58@4.0.1, bs58@=4.0.1, bs58@^4.0.0, bs58@^4.0.1:
   dependencies:
     base-x "^3.0.2"
 
-bs58@=2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/bs58/-/bs58-2.0.0.tgz#72b713bed223a0ac518bbda0e3ce3f4817f39eb5"
-  integrity sha512-e6HRIsesDBCrBpXbYviZDrxtwHkk2D4K7f4u/asWRrKBQTt5axZRt2nqa3Hw51+lzQOni31Xvu1/2FiZodXtow==
-
 bs58@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/bs58/-/bs58-5.0.0.tgz#865575b4d13c09ea2a84622df6c8cbeb54ffc279"
@@ -5976,11 +5961,6 @@ buffer-alloc@^1.2.0:
   dependencies:
     buffer-alloc-unsafe "^1.1.0"
     buffer-fill "^1.0.0"
-
-buffer-compare@=1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/buffer-compare/-/buffer-compare-1.0.0.tgz#acaa7a966e98eee9fae14b31c39a5f158fb3c4a2"
-  integrity sha512-V44fH6pgIfMge/eVmwtRHOfbYYsjRLpMTxEWYijmmendeNi8gRh4Epg0TvgLi3w/NGwVrBWV2B5++RfGTtkCLw==
 
 buffer-compare@=1.1.1:
   version "1.1.1"
@@ -7312,16 +7292,6 @@ elliptic@6.5.4, elliptic@^6.4.0, elliptic@^6.5.3, elliptic@^6.5.4:
     inherits "^2.0.4"
     minimalistic-assert "^1.0.1"
     minimalistic-crypto-utils "^1.0.1"
-
-elliptic@=3.0.3:
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/elliptic/-/elliptic-3.0.3.tgz#865c9b420bfbe55006b9f969f97a0d2c44966595"
-  integrity sha512-CrBEiS76Obfxgy6v25p2f7XUZ63DF6mJ/KL0lvBnIrlBeebacGjukc4KjbFWw6bdMnOMM6QXcO84Q2/VJaJlTA==
-  dependencies:
-    bn.js "^2.0.0"
-    brorand "^1.0.1"
-    hash.js "^1.0.0"
-    inherits "^2.0.1"
 
 emittery@^0.13.1:
   version "0.13.1"
@@ -10273,11 +10243,6 @@ lodash.upperfirst@^4.3.1:
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/lodash.upperfirst/-/lodash.upperfirst-4.3.1.tgz#1365edf431480481ef0d1c68957a5ed99d49f7ce"
   integrity sha512-sReKOYJIJf74dhJONhU4e0/shzi1trVbSWDOhKYE5XV2O+H7Sb2Dihwuc7xWxVl+DgFPyTqIN3zMfT9cq5iWDg==
-
-lodash@=3.10.1:
-  version "3.10.1"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-3.10.1.tgz#5bf45e8e49ba4189e17d482789dfd15bd140b7b6"
-  integrity sha512-9mDDwqVIma6OZX79ZlDACZl8sBm0TEnkf99zV3iMA4GzkIT/9hiqP5mY0HoT1iNLCrKc/R1HByV+yJfRWVJryQ==
 
 lodash@^4.17.10, lodash@^4.17.12, lodash@^4.17.15, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.17.4, lodash@^4.17.5:
   version "4.17.21"
@@ -14122,18 +14087,6 @@ yocto-queue@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-1.0.0.tgz#7f816433fb2cbc511ec8bf7d263c3b58a1a3c251"
   integrity sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==
-
-zcash-bitcore-lib@^0.13.20-rc3:
-  version "0.13.20-rc3"
-  resolved "https://registry.yarnpkg.com/zcash-bitcore-lib/-/zcash-bitcore-lib-0.13.20-rc3.tgz#813a0f56dcf8b76bc1429951bea6d1236c507008"
-  integrity sha512-78GVi0ua9h6xg+b/FfhQf+F07oCkGnxtrFbvv5ippUIy8FG4iNqgALiSOpqUpCD3qVgLQavF533IHpbv0Gna/w==
-  dependencies:
-    bn.js "=2.0.4"
-    bs58 "=2.0.0"
-    buffer-compare "=1.0.0"
-    elliptic "=3.0.3"
-    inherits "=2.0.1"
-    lodash "=3.10.1"
 
 zen-observable-ts@^1.2.5:
   version "1.2.5"

@@ -130,6 +130,7 @@ export class BitcoinSV extends BaseBitcoinSV implements SigningWallet {
 
         const hashToSign = sha256x2(bufToHash);
         const sig = signer.sign(Buffer.from(hashToSign));
+        // DER
         const bufferize = (nums: number[]) => Buffer.from(nums);
         let r = sig.subarray(0, 32);
         if (r.at(0)! > 0x7f) {

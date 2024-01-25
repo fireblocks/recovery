@@ -2,6 +2,7 @@ import { ZCash as BaseZEC, Input } from '@fireblocks/wallet-derivation';
 import { AccountData } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
 import { BTCRelayWallet } from './BTCRelayWallet';
+import { StandardBTCRelayWalletUtils } from './BTCRelayWalletUtils';
 
 export class ZEC extends BaseZEC implements ConnectedWallet {
   private static readonly satsPerBtc = 100000000;
@@ -14,7 +15,11 @@ export class ZEC extends BaseZEC implements ConnectedWallet {
   }
 
   public async prepare(): Promise<AccountData> {
-    return BTCRelayWallet.prototype.prepare.bind(this)();
+    const currentBlock = await this._getCurrentBlockHeight();
+    const extraParams = new Map<string, string>();
+    extraParams.set(this.KEY_EXPIRY_HEIGHT, `${currentBlock + 20}`);
+
+    return { ...(await BTCRelayWallet.prototype.prepare.bind(this)()), extraParams };
   }
 
   public async broadcastTx(txHex: string): Promise<string> {
@@ -23,5 +28,18 @@ export class ZEC extends BaseZEC implements ConnectedWallet {
 
   public async getBalance() {
     return BTCRelayWallet.prototype.getBalance.bind(this)();
+  }
+
+  private async _getCurrentBlockHeight() {
+    const utils = new StandardBTCRelayWalletUtils(this.baseUrl);
+    const stats = await utils.requestJson<{
+      data: {
+        blocks: number;
+        [key: string]: any;
+      };
+      [key: string]: any;
+    }>('/stats');
+
+    return stats.data.blocks;
   }
 }

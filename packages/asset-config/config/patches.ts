@@ -302,7 +302,7 @@ export const nativeAssetPatches: NativeAssetPatches = {
   XTZ_TEST: evm('ghostnet.tzkt.io', 'https://testnet-tezos.giganode.io'),
   ZEC: {
     derive: true,
-    transfer: true,
+    transfer: false,
     utxo: true,
     segwit: false,
     minBalance: false,
