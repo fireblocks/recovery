@@ -185,7 +185,7 @@ describe('CSV Import', () => {
 
   const invalidCsvMissingDerPath = `Account Name,Account ID,Asset,Asset Name,Address,Address Type,Address Description,Tag,HD Path
 Test,1523,BTC,Bitcoin,abcd,Deposit,1111111111,,`;
-
+  
   it('Should import CSV', async () => {
     await csvImport(Readable.from(validCSV), 'addresses', (row) => {
       expect(row.address === 'abcd').toBe(true);
