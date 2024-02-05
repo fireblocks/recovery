@@ -1,5 +1,21 @@
 # @fireblocks/wallet-derivation
 
+## 0.6.0
+
+### Minor Changes
+
+- c2bb413: added NCW tests
+- c2bb413: added ncw recovery functionality
+- c2bb413: refactor derivation and signing code
+- c2bb413: update type naming
+
+### Patch Changes
+
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+  - @fireblocks/asset-config@0.3.0
+
 ## 0.4.0
 
 ### Minor Changes

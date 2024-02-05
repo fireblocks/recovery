@@ -1,5 +1,46 @@
 # recovery-relay
 
+## 0.6.0
+
+### Minor Changes
+
+- c2bb413: fixed btc relay wallet broadcast failure
+- c2bb413: added alert for new version availability
+- c2bb413: reflect broadcast error in case occurred
+- c2bb413: refactored btc-like information query code on relay
+- c2bb413: fix: consecutive withdrawals don't work
+- c2bb413: allowed btc relay utils to pipe web req through main proc
+- c2bb413: fixed fetching UTXO to only confirmed ones
+- c2bb413: refactored doge relay wallet
+- c2bb413: added bsv broadcast function and cleanup
+- c2bb413: ripple tx broadcast and result without waiting for confirmation
+- c2bb413: fixed EVM provider caching and funds broadcast error
+- c2bb413: updated withdrawal modal to reflect errors
+- c2bb413: execute web requests through main process instead of renderer for SOL and BSV
+- c2bb413: fix error due to bigint in info call
+- c2bb413: fixed btc relay wallet to use overwritten broadcast function in case available
+
+### Patch Changes
+
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+  - @fireblocks/recovery-shared@0.4.0
+  - @fireblocks/asset-config@0.3.0
+  - @fireblocks/wallet-derivation@0.6.0
+
 ## 0.4.0
 
 ### Minor Changes

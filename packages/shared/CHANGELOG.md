@@ -1,5 +1,35 @@
 # shared
 
+## 0.4.0
+
+### Minor Changes
+
+- c2bb413: allow manual input of xprv and fprv
+- c2bb413: prevent loading csv if asset is missing derivation path
+- c2bb413: fixed address validation for testnet assets
+- c2bb413: changed variable names
+- c2bb413: fix: consecutive withdrawals don't work
+- c2bb413: added ncw recovery functionality
+- c2bb413: fixed EVM provider caching and funds broadcast error
+- c2bb413: added functionality to only recover NCW keys
+- c2bb413: update type naming
+- c2bb413: export NCW master wallet from recovery to workspace
+
+### Patch Changes
+
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+- Updated dependencies [c2bb413]
+  - @fireblocks/extended-key-recovery@1.3.0
+  - @fireblocks/asset-config@0.3.0
+  - @fireblocks/wallet-derivation@0.6.0
+
 ## 0.2.0
 
 ### Minor Changes

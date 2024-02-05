@@ -1,5 +1,22 @@
 # recovery-utility
 
+## 0.6.0
+
+### Minor Changes
+
+- c2bb413: Implemented BSV transaction creation, serialization and signing
+- c2bb413: implemented doge tx signing
+- c2bb413: fix: consecutive withdrawals don't work
+- c2bb413: implemented DASH signing
+- c2bb413: fix linux appimage relaunch failure
+- c2bb413: added ncw recovery functionality
+- c2bb413: added functionality to only recover NCW keys
+- c2bb413: refactor derivation and signing code
+- c2bb413: update type naming
+- c2bb413: execute web requests through main process instead of renderer for SOL and BSV
+- c2bb413: export NCW master wallet from recovery to workspace
+- c2bb413: remove log flooding print
+
 ## 0.4.0
 
 ### Minor Changes
