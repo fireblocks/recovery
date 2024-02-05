@@ -40,11 +40,11 @@ jobs:
         include:
           - os: Ubuntu (x86-64)
             runs-on: ubuntu-latest
-          - os: macOS 13 (x86-64)
-            runs-on: macos-13
-          # GitHub currently only supports self-hosted runners for Apple Silicon Macs
-          - os: macOS 13 (ARM64)
-            runs-on: [self-hosted, macos-13, ARM64]
+          # - os: macOS 13 (x86-64)
+          #   runs-on: macos-13
+          # # GitHub currently only supports self-hosted runners for Apple Silicon Macs
+          # - os: macOS 13 (ARM64)
+          #   runs-on: [self-hosted, macos-13, ARM64]
           # - os: Windows (x86-64)
           #   runs-on: windows-latest
 
@@ -70,66 +70,59 @@ jobs:
       #   with:
       #     api-key: ${{ secrets.FOSSA_API_KEY }}
 
-      - name: Prepare for macOS app notarization
-        if: startsWith(matrix.os, 'macos')
-        env:
-          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
-          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
-          APPLE_API_KEY_ISSUER: ${{ secrets.APPLE_API_KEY_ISSUER }}
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-        run: |
-          # Set temporary environment variables
-          KEYCHAIN_PROFILE="notarization"
-          KEYCHAIN_PASSWORD="$(openssl rand -base64 12)"
-          KEYCHAIN_PATH="$RUNNER_TEMP/code-signing.keychain-db"
-          CSC_PATH="$RUNNER_TEMP/build_certificate.p12"
-          APPLE_KEY_DIR_PATH="$HOME/private_keys"
-          APPLE_API_KEY_PATH="$APPLE_KEY_DIR_PATH/AuthKey_$APPLE_API_KEY_ID.p8"
+      # - name: Prepare for macOS app notarization
+      #   if: startsWith(matrix.os, 'macos')
+      #   env:
+      #     APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+      #     APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+      #     APPLE_API_KEY_ISSUER: ${{ secrets.APPLE_API_KEY_ISSUER }}
+      #     CSC_LINK: ${{ secrets.CSC_LINK }}
+      #     CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+      #   run: |
+      #     # Set temporary environment variables
+      #     KEYCHAIN_PROFILE="notarization"
+      #     KEYCHAIN_PASSWORD="$(openssl rand -base64 12)"
+      #     KEYCHAIN_PATH="$RUNNER_TEMP/code-signing.keychain-db"
+      #     CSC_PATH="$RUNNER_TEMP/build_certificate.p12"
+      #     APPLE_KEY_DIR_PATH="$HOME/private_keys"
+      #     APPLE_API_KEY_PATH="$APPLE_KEY_DIR_PATH/AuthKey_$APPLE_API_KEY_ID.p8"
 
-          # Create code signing Keychain
-          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+      #     # Create code signing Keychain
+      #     security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+      #     security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+      #     security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
-          # Write App Store Connect API key for Notary service
-          mkdir -p "$APPLE_KEY_DIR_PATH"
-          echo -n "$APPLE_API_KEY" > "$APPLE_API_KEY_PATH"
+      #     # Write App Store Connect API key for Notary service
+      #     mkdir -p "$APPLE_KEY_DIR_PATH"
+      #     echo -n "$APPLE_API_KEY" > "$APPLE_API_KEY_PATH"
 
-          # Import Notary service credentials to Keychain
-          xcrun notarytool store-credentials \
-            -k="$APPLE_API_KEY_PATH" \
-            -d="$APPLE_API_KEY_ID" \
-            -i="$APPLE_API_KEY_ISSUER" \
-            --keychain="$KEYCHAIN_PATH" \
-            "$KEYCHAIN_PROFILE"
+      #     # Import Notary service credentials to Keychain
+      #     xcrun notarytool store-credentials \
+      #       -k="$APPLE_API_KEY_PATH" \
+      #       -d="$APPLE_API_KEY_ID" \
+      #       -i="$APPLE_API_KEY_ISSUER" \
+      #       --keychain="$KEYCHAIN_PATH" \
+      #       "$KEYCHAIN_PROFILE"
 
-          # Write code signing certificate
-          echo -n "$CSC_LINK" | base64 -d -o "$CSC_PATH"
+      #     # Write code signing certificate
+      #     echo -n "$CSC_LINK" | base64 -d -o "$CSC_PATH"
 
-          # Import code signing certificate to Keychain
-          security import "$CSC_PATH" -P "$CSC_KEY_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
-          security list-keychain -d user -s "$KEYCHAIN_PATH"
+      #     # Import code signing certificate to Keychain
+      #     security import "$CSC_PATH" -P "$CSC_KEY_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+      #     security list-keychain -d user -s "$KEYCHAIN_PATH"
 
-          # Delete code signing certificate
-          rm -rf "$CSC_PATH"
+      #     # Delete code signing certificate
+      #     rm -rf "$CSC_PATH"
 
-          # Set persistent environment variables
-          echo "KEYCHAIN_PROFILE=$KEYCHAIN_PROFILE" >> $GITHUB_ENV
-          echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> $GITHUB_ENV
-          echo "APPLE_KEY_DIR_PATH=$APPLE_KEY_DIR_PATH" >> $GITHUB_ENV
+      #     # Set persistent environment variables
+      #     echo "KEYCHAIN_PROFILE=$KEYCHAIN_PROFILE" >> $GITHUB_ENV
+      #     echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> $GITHUB_ENV
+      #     echo "APPLE_KEY_DIR_PATH=$APPLE_KEY_DIR_PATH" >> $GITHUB_ENV
 
       - name: Build packages
         run: |
           export NODE_OPTIONS="--max_old_space_size=4096"
           yarn forcebuild
-        env:
-          APPLE_KEYCHAIN: ${{ env.KEYCHAIN_PATH }}
-          APPLE_KEYCHAIN_PROFILE: ${{ env.KEYCHAIN_PROFILE }}
-          CSC_LINK: ${{ startsWith(matrix.os, 'macos') && secrets.CSC_LINK || '' }}
-          CSC_KEY_PASSWORD: ${{ startsWith(matrix.os, 'macos') && secrets.CSC_KEY_PASSWORD || '' }}
-          TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
-          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
 
       - name: Upload Recovery Utility ${{ matrix.os }} artifact
         uses: actions/upload-artifact@v3
@@ -146,14 +139,14 @@ jobs:
           name: Recovery Relay
           path: apps/recovery-relay/out/
 
-      - name: Clean up Apple Developer secrets
-        if: ${{ startsWith(matrix.os, 'macos') && always() }}
-        env:
-          KEYCHAIN_PATH: ${{ env.KEYCHAIN_PATH }}
-          APPLE_KEY_DIR_PATH: ${{ env.APPLE_KEY_DIR_PATH }}
-        run: |
-          security delete-keychain "$KEYCHAIN_PATH"
-          rm -rf "$APPLE_KEY_DIR_PATH"
+      # - name: Clean up Apple Developer secrets
+      #   if: ${{ startsWith(matrix.os, 'macos') && always() }}
+      #   env:
+      #     KEYCHAIN_PATH: ${{ env.KEYCHAIN_PATH }}
+      #     APPLE_KEY_DIR_PATH: ${{ env.APPLE_KEY_DIR_PATH }}
+      #   run: |
+      #     security delete-keychain "$KEYCHAIN_PATH"
+      #     rm -rf "$APPLE_KEY_DIR_PATH"
 
   pr:
     name: Version packages
@@ -174,7 +167,7 @@ jobs:
 
       - name: Install Dependencies
         run: yarn
-        
+
       - name: Create release pull request
         id: changesets
         uses: changesets/action@v1
