@@ -98,10 +98,6 @@
     json5 "^2.2.3"
     semver "^6.3.1"
 
-"@babel/generator@^7.23.0", "@babel/generator@^7.23.6", "@babel/generator@^7.7.2":
-  version "7.23.6"
-  resolved "https://registry.yarnpkg.com/@babel/generator/-/generator-7.23.6.tgz#9e1fca4811c77a10580d17d26b57b036133f3c2e"
-  integrity sha512-qrSfCYxYQB5owCmGLbl8XRpX1ytXlpueOb0N0UmQwA073KZxejgQTzAmJezxvpwQD9uGtK2shHdi55QT+MbjIw==
 "@babel/generator@^7.23.0", "@babel/generator@^7.23.6":
   version "7.23.6"
   resolved "https://registry.yarnpkg.com/@babel/generator/-/generator-7.23.6.tgz#9e1fca4811c77a10580d17d26b57b036133f3c2e"
@@ -112,12 +108,12 @@
     "@jridgewell/trace-mapping" "^0.3.17"
     jsesc "^2.5.1"
 
-"@babel/generator@^7.23.5", "@babel/generator@^7.7.2":
+"@babel/generator@^7.7.2":
   version "7.23.5"
   resolved "https://registry.yarnpkg.com/@babel/generator/-/generator-7.23.5.tgz#17d0a1ea6b62f351d281350a5f80b87a810c4755"
   integrity sha512-BPssCHrBD+0YrxviOa3QzpqwhNIXKEtOa2jQrm4FlmkC2apYgRnQcmPWiGZDlGxiNtltnUFolMe8497Esry+jA==
   dependencies:
-    "@babel/types" "^7.23.6"
+    "@babel/types" "^7.23.5"
     "@jridgewell/gen-mapping" "^0.3.2"
     "@jridgewell/trace-mapping" "^0.3.17"
     jsesc "^2.5.1"
@@ -1254,7 +1250,7 @@
     debug "^4.3.1"
     globals "^11.1.0"
 
-"@babel/types@^7.0.0", "@babel/types@^7.20.7", "@babel/types@^7.22.15", "@babel/types@^7.22.19", "@babel/types@^7.22.5", "@babel/types@^7.23.0", "@babel/types@^7.23.6", "@babel/types@^7.23.9", "@babel/types@^7.3.3", "@babel/types@^7.4.4":
+"@babel/types@^7.0.0", "@babel/types@^7.20.7", "@babel/types@^7.22.15", "@babel/types@^7.22.19", "@babel/types@^7.22.5", "@babel/types@^7.23.0", "@babel/types@^7.23.5", "@babel/types@^7.23.6", "@babel/types@^7.23.9", "@babel/types@^7.3.3", "@babel/types@^7.4.4":
   version "7.23.9"
   resolved "https://registry.yarnpkg.com/@babel/types/-/types-7.23.9.tgz#1dd7b59a9a2b5c87f8b41e52770b5ecbf492e002"
   integrity sha512-dQjSq/7HaSjRM43FFGnv5keM2HsxpmyV1PfaSVm0nzzjwwTmjOe6J4bC8e3+pTEIgHaHj+1ZlLThRJ2auc/w1Q==
@@ -11639,10 +11635,10 @@ react-dropzone@^14.2.3:
     file-selector "^0.6.0"
     prop-types "^15.8.1"
 
-react-hook-form@^7.45.1:
-  version "7.49.3"
-  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.49.3.tgz#576a4567f8a774830812f4855e89f5da5830435c"
-  integrity sha512-foD6r3juidAT1cOZzpmD/gOKt7fRsDhXXZ0y28+Al1CHgX+AY1qIN9VSIIItXRq1dN68QrRwl1ORFlwjBaAqeQ==
+react-hook-form@7.48.0:
+  version "7.48.0"
+  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.48.0.tgz#9a1e2f49c45b5a4cb356fe6d842c32c44b8ba815"
+  integrity sha512-XCjPkTtpvjMSSCuL1MymdoeALeasKV4WAx093K8txqTiBzVTPwpBLo8dZdgPAmH4AHog8c4gfRRYxrvk0nKUow==
 
 react-is@^16.13.1, react-is@^16.7.0:
   version "16.13.1"
