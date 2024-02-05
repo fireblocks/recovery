@@ -1,5 +1,13 @@
 # server
 
+## 1.3.0
+
+### Minor Changes
+
+- c2bb413: allow manual input of xprv and fprv
+- c2bb413: added functionality to only recover NCW keys
+- c2bb413: update type naming
+
 ## 1.1.0
 
 ### Minor Changes

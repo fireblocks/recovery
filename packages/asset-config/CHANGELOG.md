@@ -1,5 +1,13 @@
 # @fireblocks/asset-config
 
+## 0.3.0
+
+### Minor Changes
+
+- c2bb413: fixed AVAX testnet explorer URL
+- c2bb413: updated doge explorer link
+- c2bb413: Disabled transfer for testnet assets and re-enabled transfer for UTXO assets
+
 ## 0.1.0
 
 ### Minor Changes

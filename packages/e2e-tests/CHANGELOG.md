@@ -1,5 +1,12 @@
 # @fireblocks/e2e-tests
 
+## 0.2.0
+
+### Minor Changes
+
+- c2bb413: tests now take into account broadcast errors
+- c2bb413: allowed for alternative to address in tests
+
 ## 0.1.0
 
 ### Minor Changes
