@@ -1,8 +1,8 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
+  pull_request:
+    types: [closed]
 
 jobs:
   # test:
@@ -30,9 +30,36 @@ jobs:
   #     - name: Run tests
   #       run: yarn test
 
+  pr:
+    name: Version packages
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'new-version')
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: lts/gallium
+          cache: 'yarn'
+
+      - name: Install Dependencies
+        run: yarn
+
+      - name: Create release pull request
+        id: changesets
+        uses: changesets/action@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
   build:
     name: Build for ${{ matrix.os }}
     runs-on: ${{ matrix.runs-on }}
+    if: contains(github.event.pull_request.labels.*.name, 'new-version')
+    needs: [pr]
     timeout-minutes: 35
 
     strategy:
@@ -147,29 +174,3 @@ jobs:
       #   run: |
       #     security delete-keychain "$KEYCHAIN_PATH"
       #     rm -rf "$APPLE_KEY_DIR_PATH"
-
-  pr:
-    name: Version packages
-    runs-on: ubuntu-latest
-    # needs: [test, build]
-    needs: [build]
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 2
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
-        with:
-          node-version: lts/gallium
-          cache: 'yarn'
-
-      - name: Install Dependencies
-        run: yarn
-
-      - name: Create release pull request
-        id: changesets
-        uses: changesets/action@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
