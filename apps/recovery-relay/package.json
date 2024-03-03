@@ -22,7 +22,7 @@
     "@emurgo/cardano-serialization-lib-asmjs": "^11.4.0",
     "@fireblocks/asset-config": "^0.3.0",
     "@fireblocks/recovery-shared": "^0.4.0",
-    "@fireblocks/wallet-derivation": "^0.6.0",
+    "@fireblocks/wallet-derivation": "^0.5.0",
     "@hashgraph/sdk": "^2.29.0",
     "@hookform/resolvers": "^3.1.1",
     "@mui/icons-material": "^5.13.7",
