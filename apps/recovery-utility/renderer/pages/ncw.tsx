@@ -53,7 +53,7 @@ const NCW = () => {
         </Grid>
         <Grid item>
           <Typography paragraph variant='body1' textAlign='center'>
-            You need to perform partial recovery before before being able to get you end user wallet key shares.
+            You need to perform partial recovery before before being able to get your end user wallet key shares.
           </Typography>
         </Grid>
         <Grid item>
