@@ -12,7 +12,7 @@ import {
   useWrappedState,
   useOfflineMutation,
 } from '@fireblocks/recovery-shared';
-import { Checkbox, FormControlLabel, Typography, Box, Grid } from '@mui/material';
+import { Checkbox, FormControlLabel, Typography, Box, Grid, Tooltip } from '@mui/material';
 import { readFileToBase64 } from '@fireblocks/recovery-shared/lib/readFile';
 import { useWorkspace } from '../../context/Workspace';
 import { recoverExtendedKeys } from '../../lib/recoverExtendedKeys';
@@ -109,7 +109,8 @@ export const RecoveryForm = ({ verifyOnly }: Props) => {
 
   const onDropAGPRsaPrivateKey = async (file: File) => setValue('agpRsaKey', await readFileToBase64(file));
 
-  const onSubmit = (formData: FormData) => (verifyOnly ? recoverMutation.mutate(formData) : setRecoveryData(formData));
+  const onSubmit = (formData: FormData) =>
+    verifyOnly || recoverOnlyNCW ? recoverMutation.mutate(formData) : setRecoveryData(formData);
 
   const onConfirmRecover = () => recoverMutation.mutate(recoveryData as FormData);
 
@@ -174,15 +175,22 @@ export const RecoveryForm = ({ verifyOnly }: Props) => {
                 {...register('agpRsaPassphrase')}
               />
             ) : (
-              <TextField
-                id='passphrase'
-                type='password'
-                label='Mobile App Recovery Passphrase'
-                helpText='Set by the workspace owner during onboarding'
-                error={errors.passphrase?.message}
-                disabled={recoverMutation.isLoading}
-                {...register('passphrase')}
-              />
+              <Tooltip title={recoverOnlyNCW ? 'Mobile passphrase is not required for NCW wallets recovery' : ''}>
+                <TextField
+                  id='passphrase'
+                  type={recoverOnlyNCW ? 'text' : 'password'}
+                  label='Mobile App Recovery Passphrase'
+                  helpText='Set by the workspace owner during onboarding'
+                  error={errors.passphrase?.message}
+                  disabled={recoverMutation.isLoading || recoverOnlyNCW}
+                  {...register('passphrase')}
+                  sx={{
+                    '& input[disabled]': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.12)',
+                    },
+                  }}
+                />
+              </Tooltip>
             )}
           </Grid>
           <Grid item xs={6}>
@@ -201,12 +209,15 @@ export const RecoveryForm = ({ verifyOnly }: Props) => {
               label='Use auto-generated passphrase'
             />
           </Grid>
-          <Grid item xs={6}>
-            <FormControlLabel
-              control={<Checkbox id='recoverOnlyNCW' {...register('recoverOnlyNCW')} />}
-              label='Recover only NCW wallet'
-            />
-          </Grid>
+          {!verifyOnly && (
+            <Grid item xs={6}>
+              <FormControlLabel
+                control={<Checkbox id='recoverOnlyNCW' {...register('recoverOnlyNCW')} />}
+                label='Recover Non-Custodial Wallets (Embedded) only'
+              />
+            </Grid>
+          )}
+
           <Grid item xs={6}>
             <UploadWell
               label='Auto-generated passphrase private key'
