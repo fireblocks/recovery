@@ -6,6 +6,7 @@ import { ConnectedWallet } from '../ConnectedWallet';
 import { Ethereum } from '../EVM/ETH';
 import { erc20Abi } from './erc20.abi';
 import { transferAbi } from './transfer.abi';
+import BigNumber from 'bignumber.js';
 
 export class ERC20 extends Ethereum implements ConnectedWallet {
   private contract: Contract;
@@ -17,13 +18,17 @@ export class ERC20 extends Ethereum implements ConnectedWallet {
   }
 
   public async getBalance(): Promise<number> {
-    const amountInWei = await this.contract.balanceOf(this.address);
-    return parseFloat(parseFloat(ethers.formatEther(amountInWei)).toFixed(2));
+    this.weiBalance = await this.contract.balanceOf(this.address);
+    return parseFloat(parseFloat(ethers.formatEther(this.weiBalance)).toFixed(2));
   }
 
   public async prepare(): Promise<AccountData> {
+    const displayBalance = await this.getBalance();
+    const extraParams = new Map();
+    extraParams.set(this.KEY_EVM_WEI_BALANCE, new BigNumber(this.weiBalance.toString()).toString(16));
     const preparedData = {
-      balance: await this.getBalance(),
+      balance: displayBalance,
+      extraParams,
     };
     this.relayLogger.logPreparedData('ERC20', preparedData);
     return preparedData;

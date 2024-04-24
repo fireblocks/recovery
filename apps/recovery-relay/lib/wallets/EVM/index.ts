@@ -2,9 +2,12 @@ import { JsonRpcProvider, formatEther, parseEther } from 'ethers';
 import { EVMWallet as EVMBase, Input } from '@fireblocks/wallet-derivation';
 import { AccountData } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
+import BigNumber from 'bignumber.js';
 
 export class EVM extends EVMBase implements ConnectedWallet {
   protected readonly provider: JsonRpcProvider;
+
+  protected weiBalance: bigint = BigInt(0);
 
   constructor(input: Input, rpcEndpoint: string, chainId?: number) {
     super(input);
@@ -15,8 +18,8 @@ export class EVM extends EVMBase implements ConnectedWallet {
   }
 
   public async getBalance() {
-    const wei = await this.provider.getBalance(this.address);
-    const balance = formatEther(wei);
+    this.weiBalance = await this.provider.getBalance(this.address);
+    const balance = formatEther(this.weiBalance);
     const ethBalance = Number(balance);
 
     console.info('Eth balance info', { ethBalance });
@@ -25,11 +28,11 @@ export class EVM extends EVMBase implements ConnectedWallet {
   }
 
   public async prepare(): Promise<AccountData> {
-    const balance = await this.getBalance();
+    const displayBalance = await this.getBalance();
 
-    if (balance === 0) {
+    if (displayBalance === 0) {
       return {
-        balance,
+        balance: 0,
         insufficientBalance: true,
       };
     }
@@ -44,20 +47,25 @@ export class EVM extends EVMBase implements ConnectedWallet {
     }
 
     const gas = gasPrice * 21000n;
+    const balance = new BigNumber(this.weiBalance.toString());
 
-    const adjustedBalance = parseEther(String(balance)) - gas;
+    const adjustedBalance = balance.minus(new BigNumber(gas.toString()));
 
-    if (adjustedBalance < 0) {
+    if (adjustedBalance.lt(new BigNumber(0))) {
       this.relayLogger.error('Insufficient balance');
     }
 
     const chainId = (await this.provider.getNetwork()).chainId;
 
+    const extraParams = new Map();
+    extraParams.set(this.KEY_EVM_WEI_BALANCE, adjustedBalance.toString(16));
+
     const preparedData = {
-      balance: Number(formatEther(adjustedBalance)),
+      balance: displayBalance,
       nonce,
       gasPrice,
       chainId: parseInt(chainId.toString()),
+      extraParams,
     };
 
     this.relayLogger.logPreparedData('EVM', preparedData);
