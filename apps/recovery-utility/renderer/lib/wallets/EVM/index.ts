@@ -10,14 +10,17 @@ export class EVM extends EVMBase implements SigningWallet {
 
   public async generateTx({
     to,
-    amount,
+    // amount,
     nonce,
     gasPrice, // Should we use maxGasPrice? i.e. EIP1559.
     chainId,
+    extraParams,
   }: GenerateTxInput): Promise<TxPayload> {
     if (!this.privateKey) {
       throw new Error('No private key found');
     }
+
+    const balanceHex = extraParams?.get(this.KEY_EVM_WEI_BALANCE);
 
     this.utilityLogger.logSigningTx('EVM', {
       from: this.address,
@@ -25,7 +28,7 @@ export class EVM extends EVMBase implements SigningWallet {
       nonce,
       gasLimit: 21000,
       gasPrice,
-      value: parseEther(`${amount}`),
+      value: BigInt(`0x${balanceHex}`),
       chainId: chainId ? chainId : this.path.coinType === 1 ? 5 : 1,
     });
 
@@ -35,7 +38,7 @@ export class EVM extends EVMBase implements SigningWallet {
       nonce,
       gasLimit: 21000,
       gasPrice,
-      value: parseEther(`${amount}`),
+      value: BigInt(`0x${balanceHex}`),
       chainId: chainId ? chainId : this.path.coinType === 1 ? 5 : 1,
     });
 

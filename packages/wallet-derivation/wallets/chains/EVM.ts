@@ -9,4 +9,6 @@ export class EVMWallet extends ECDSAWallet {
   protected getAddress(evmAddress?: string) {
     return evmAddress as string;
   }
+
+  protected readonly KEY_EVM_WEI_BALANCE = 'b';
 }
