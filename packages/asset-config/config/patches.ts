@@ -133,6 +133,7 @@ export const nativeAssetPatches: NativeAssetPatches = {
   ETH: evm('etherscan.io', 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'),
   ETH_TEST3: evm('goerli.etherscan.io', 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'),
   ETH_TEST5: evm('sepolia.etherscan.io', 'https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'),
+  ETH_TEST6: evm('holesky.etherscan.io', 'https://ethereum-holesky-rpc.publicnode.com'),
   'ETH-AETH': evm('arbiscan.io'),
   'ETH-AETH_RIN': evm('testnet.arbiscan.io'),
   'ETH-OPT': evm('optimistic.etherscan.io'),
@@ -169,6 +170,7 @@ export const nativeAssetPatches: NativeAssetPatches = {
   },
   MATIC_POLYGON: evm('polygonscan.com', 'https://polygon-rpc.com/'),
   MATIC_POLYGON_MUMBAI: evm('mumbai.polygonscan.com', 'https://polygon-mumbai.infura.io/v3/4458cf4d1689497b9a38b1d6bbf05e78'),
+  AMOY_POLYGON_TEST: evm('amoy.polygonscan.com', 'https://polygon-amoy-bor-rpc.publicnode.com'),
   MOVR_MOVR: evm('moonriver.moonscan.io'),
   NEAR: {
     derive: true,

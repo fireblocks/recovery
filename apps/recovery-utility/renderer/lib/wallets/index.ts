@@ -62,6 +62,7 @@ export const WalletClasses = {
   ETH: EVM,
   ETH_TEST3: EVM,
   ETH_TEST5: EVM,
+  ETH_TEST6: EVM,
   EOS,
   EOS_TEST: EOS,
   ATOM_COS: Cosmos,
