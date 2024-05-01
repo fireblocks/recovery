@@ -70,6 +70,7 @@ const NCW = () => {
 
   const onSubmit = async (formData: NCWCsvFileInput) => {
     parse<{ 'Wallet Id': string }>(formData.walletIdsFile!, {
+      delimiter: ',' || '/n', //To-Do: Change the logic to check what is the delimiter of the csv file
       worker: true,
       header: true,
       dynamicTyping: true,
