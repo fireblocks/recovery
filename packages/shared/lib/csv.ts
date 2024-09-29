@@ -44,8 +44,6 @@ const addressesCsvHeaders: Array<keyof AddressesCsvRow | keyof BalancesCsvRow> =
   'Account ID',
   'Asset',
   'Asset Name',
-  'Total Balance',
-  'Total Balance - Last Update',
   'Address',
   'Address Type',
   'Address Description',
