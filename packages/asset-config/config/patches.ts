@@ -99,6 +99,8 @@ export const nativeAssetPatches: NativeAssetPatches = {
   CELO_ALF: evm('alfajores-blockscout.celo-testnet.org'),
   CELO_BAK: evm('baklava-blockscout.celo-testnet.org'),
   CHZ_$CHZ: evm('explorer.chiliz.com'),
+  CORE_COREDAO: evm('https://scan.coredao.org'),
+  CORE_COREDAO_TEST: evm('https://scan.test.btcs.network'),
   DASH: btc('blockexplorer.one/dash/mainnet', false),
   DASH_TEST: btc('blockexplorer.one/dash/testnet', false, true, false),
   DOGE: btc('blockexplorer.one/dogecoin/mainnet', false),
@@ -213,6 +215,20 @@ export const nativeAssetPatches: NativeAssetPatches = {
     minBalance: false,
     memo: false,
     getExplorerUrl: getSolanaExplorer('devnet'),
+  },
+  CELESTIA: {
+    derive: true,
+    transfer: true,
+    rpcUrl: 'https://api.celestia.pops.one',
+    getExplorerUrl: (type: string) => (value: string) =>
+      `https://celestia.explorers.guru/${type === 'tx' ? 'transaction' : 'account'}/${value}`,
+  },
+  CELESTIA_TEST: {
+    derive: true,
+    transfer: true,
+    rpcUrl: 'https://rpc.celestia-mocha.com',
+    getExplorerUrl: (type: string) => (value: string) =>
+      `https://testnet.celestia.explorers.guru/${type === 'tx' ? 'transaction' : 'account'}/${value}`,
   },
   // TERRA_KRW: evm('finder.terra.money/columbus-4', 'https://lcd.terra.dev'),
   // TERRA_KRW_TEST: evm('finder.terra.money/tequila-0004', 'https://tequila-lcd.terra.dev'),
