@@ -16,6 +16,9 @@ const sleep = async (ms: number) => await new Promise((r) => setTimeout(r, ms));
 
 const waitForLoadingToEnd = async (page: Page) => {
   for (;;) {
+    if (await page.getByText('Could not get balance').isVisible()) {
+      throw new FixError('Unable to obtain balance');
+    }
     const visible = await page.locator('.MuiCircularProgress-indeterminate').first().isVisible();
     if (visible) {
       sleep(100);
