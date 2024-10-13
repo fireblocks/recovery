@@ -24,6 +24,7 @@ import { Ripple } from './XRP';
 import { Tezos } from './XTZ';
 import { ZCash } from './ZEC';
 import { Hedera } from './HBAR';
+import { Celestia } from './TIA';
 
 export const getWallet = (assetId: string) => {
   const asset = assets[assetId];
@@ -109,6 +110,9 @@ export const getWallet = (assetId: string) => {
     case 'XRP':
     case 'XRP_TEST':
       return Ripple;
+    case 'TIA':
+    case 'TIA_TEST':
+      return Celestia;
     default:
       throw new Error(`Unsupported asset "${assetId}"`);
   }
@@ -140,4 +144,5 @@ export {
   Kusama,
   NEM,
   Hedera,
+  Celestia,
 };

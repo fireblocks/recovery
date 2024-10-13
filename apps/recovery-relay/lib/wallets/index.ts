@@ -34,6 +34,8 @@ import { Stellar } from './XLM';
 import { Ripple } from './XRP';
 import { Tezos } from './XTZ';
 import { Algorand } from './ALGO';
+import { Celestia } from './CELESTIA';
+import { CoreDAO } from './EVM/CORE_COREDAO';
 export { ConnectedWallet } from './ConnectedWallet';
 
 export const WalletClasses = {
@@ -94,6 +96,8 @@ export const WalletClasses = {
   'ETH-AETH_RIN': Arbitrum,
   BNB_BSC: BinanceSmartChain,
   BNB_TEST: BinanceSmartChain,
+  CORE_COREDAO: CoreDAO,
+  CORE_COREDAO_TEST: CoreDAO,
   EOS,
   EOS_TEST: EOS,
   ATOM_COS: Cosmos,
@@ -112,6 +116,8 @@ export const WalletClasses = {
   XEM_TEST: NEM,
   HBAR: Hedera,
   HBAR_TEST: Hedera,
+  CELESTIA: Celestia,
+  CELESTIA_TEST: Celestia,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];

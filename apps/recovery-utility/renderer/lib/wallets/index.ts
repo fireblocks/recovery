@@ -19,6 +19,7 @@ import { NEM } from './NEM';
 import { Hedera } from './HBAR';
 import { Algorand } from './ALGO';
 import { Bitcoin, BitcoinSV, LiteCoin, Dash, ZCash, Doge } from './BTC';
+import { Celestia } from './CELESTIA';
 
 const fillEVMs = () => {
   const evms = Object.keys(assets).reduce(
@@ -73,6 +74,8 @@ export const WalletClasses = {
   XRP_TEST: Ripple,
   LUNA2: Luna,
   LUNA2_TEST: Luna,
+  CELESTIA: Celestia,
+  CELESTIA_TEST: Celestia,
 
   // EDDSA
   SOL: Solana,
