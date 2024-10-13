@@ -25,7 +25,7 @@ export class Cosmos extends BaseCosmos implements SigningWallet {
         toAddress: to,
         amount: [
           {
-            amount: `${amount * 1_000_000}`,
+            amount: `${amount * 1_000_000 - 2000}`,
             denom: 'uatom',
           },
         ],
