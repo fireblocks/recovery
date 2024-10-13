@@ -1,4 +1,6 @@
-import { Wallet, parseEther } from 'ethers';
+/* eslint-disable no-unneeded-ternary */
+/* eslint-disable no-nested-ternary */
+import { Wallet } from 'ethers';
 import { EVMWallet as EVMBase, Input } from '@fireblocks/wallet-derivation';
 import { TxPayload, GenerateTxInput } from '../types';
 import { SigningWallet } from '../SigningWallet';
@@ -21,8 +23,9 @@ export class EVM extends EVMBase implements SigningWallet {
     }
 
     const balanceHex = extraParams?.get(this.KEY_EVM_WEI_BALANCE);
+    const forceLegacyTx = extraParams?.get(this.KEY_EVM_FORCE_LEGACY_TX);
 
-    this.utilityLogger.logSigningTx('EVM', {
+    const txObject = {
       from: this.address,
       to,
       nonce,
@@ -30,17 +33,16 @@ export class EVM extends EVMBase implements SigningWallet {
       gasPrice,
       value: BigInt(`0x${balanceHex}`),
       chainId: chainId ? chainId : this.path.coinType === 1 ? 5 : 1,
-    });
+      type: forceLegacyTx ? 0 : undefined,
+    };
 
-    const serialized = await new Wallet(this.privateKey).signTransaction({
-      from: this.address,
-      to,
-      nonce,
-      gasLimit: 21000,
-      gasPrice,
-      value: BigInt(`0x${balanceHex}`),
-      chainId: chainId ? chainId : this.path.coinType === 1 ? 5 : 1,
-    });
+    if (txObject.type === undefined) {
+      delete txObject.type;
+    }
+
+    this.utilityLogger.logSigningTx('EVM', txObject);
+
+    const serialized = await new Wallet(this.privateKey).signTransaction(txObject);
 
     return {
       tx: serialized,

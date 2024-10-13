@@ -11,4 +11,6 @@ export class EVMWallet extends ECDSAWallet {
   }
 
   protected readonly KEY_EVM_WEI_BALANCE = 'b';
+
+  protected readonly KEY_EVM_FORCE_LEGACY_TX = 'fltx';
 }
