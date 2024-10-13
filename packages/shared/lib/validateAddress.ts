@@ -114,27 +114,25 @@ export class AddressValidator {
     return accountIdRegex.test(address) || implicitAddressRegex.test(address);
   }
 
+  private validateCosmosBased(prefix: string): (address: string) => boolean {
+    return (address: string): boolean => {
+      const decoded = bech32.decode(address);
+      if (decoded.prefix !== prefix) {
+        return false;
+      }
+      const encoded = bech32.encode(decoded.prefix, decoded.words);
+      if (encoded !== address.toLowerCase()) {
+        return false;
+      }
+      return true;
+    };
+  }
+
   private validateCOSMOS(address: string): boolean {
-    const decoded = bech32.decode(address);
-    if (decoded.prefix !== 'cosmos') {
-      return false;
-    }
-    const encoded = bech32.encode(decoded.prefix, decoded.words);
-    if (encoded !== address.toLowerCase()) {
-      return false;
-    }
-    return true;
+    return [this.validateCosmosBased('cosmos'), this.validateCosmosBased('celestia')].map((fn) => fn(address)).includes(true);
   }
 
   private validateTERRA(address: string): boolean {
-    const decoded = bech32.decode(address);
-    if (decoded.prefix !== 'terra') {
-      return false;
-    }
-    const encoded = bech32.encode(decoded.prefix, decoded.words);
-    if (encoded !== address.toLowerCase()) {
-      return false;
-    }
-    return true;
+    return this.validateCosmosBased('terra')(address);
   }
 }

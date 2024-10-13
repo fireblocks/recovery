@@ -146,6 +146,12 @@ describe('AddressValidator', () => {
       address: '0x9d3e052eC15978aE1FC134a58162Cb2F8447Ad48',
       assetId: 'ETC',
     },
+    {
+      label: 'Celestia',
+      networkProtocol: 'COSMOS',
+      address: 'celestia1lhspmgj2ckxrvsyz66tv2mjy9xklcahk3ejzxl',
+      assetId: 'CELESTIA',
+    },
   ];
 
   beforeEach(() => {
@@ -185,7 +191,7 @@ describe('CSV Import', () => {
 
   const invalidCsvMissingDerPath = `Account Name,Account ID,Asset,Asset Name,Address,Address Type,Address Description,Tag,HD Path
 Test,1523,BTC,Bitcoin,abcd,Deposit,1111111111,,`;
-  
+
   it('Should import CSV', async () => {
     await csvImport(Readable.from(validCSV), 'addresses', (row) => {
       expect(row.address === 'abcd').toBe(true);
