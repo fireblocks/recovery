@@ -54,6 +54,9 @@ export const startWithdrawal = async (page: Page, assetId: string, toAddress: st
   await page.getByLabel(`Withdraw ${assetId}`).click();
   await page.getByLabel('Recipient Address').fill(toAddress);
   await page.getByRole('button', { name: 'Create Transaction' }).click();
+  if (await page.getByText('Invalid address format').isVisible()) {
+    throw new FixError('Invalid format when not expected.');
+  }
   return (await page.getByLabel('Relay URL').inputValue()) ?? '';
 };
 
@@ -118,11 +121,3 @@ export const broadcastTransaction = async (page: Page, signedTxData: string): Pr
 };
 
 const _fillQrCode = async (page: Page, qrCodeData: string) => await page.getByLabel('QR Code URL').fill(qrCodeData);
-
-// export const deriveAsset = wrapFunc(_deriveAsset);
-// export const createVaults = wrapFunc(_createVaults);
-// export const getAddressForAsset = wrapFunc(_getAddressForAsset);
-// export const startWithdrawal = wrapFunc(_startWithdrawal);
-// export const fetchTxParamData = wrapFunc(_fetchTxParamData);
-// export const approveTransaction = wrapFunc(_approveTransaction);
-// export const broadcastTransaction = wrapFunc(_broadcastTransaction);
