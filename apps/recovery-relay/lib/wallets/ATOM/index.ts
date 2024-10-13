@@ -2,7 +2,7 @@ import { Cosmos as BaseCosmos, Input } from '@fireblocks/wallet-derivation';
 import { Tendermint34Client } from '@cosmjs/tendermint-rpc';
 import { StargateClient } from '@cosmjs/stargate';
 import { SignDoc, TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-import { AccountData, RawSignature } from '../types';
+import { AccountData } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
 
 export class Cosmos extends BaseCosmos implements ConnectedWallet {
@@ -16,7 +16,7 @@ export class Cosmos extends BaseCosmos implements ConnectedWallet {
     super(input);
 
     this.tendermintClient = undefined;
-    this.rpcURL = input.isTestnet ? 'https://cosmos-testnet-rpc.allthatnode.com:26657' : 'https://cosmos-lcd.quickapi.com/';
+    this.rpcURL = input.isTestnet ? 'https://rpc.sentry-01.theta-testnet.polypore.xyz' : 'https://cosmos-rpc.publicnode.com';
   }
 
   public async getBalance(): Promise<number> {
@@ -43,17 +43,7 @@ export class Cosmos extends BaseCosmos implements ConnectedWallet {
   public async broadcastTx(txHex: string): Promise<string> {
     await this.prepareClients();
 
-    // TODO: Serialize tx with signature
-    // const sig = sigs[0];
-    // const signature: string = `${sig.r}${sig.s}`;
-    const signDoc: SignDoc = SignDoc.fromJSON(JSON.parse(Buffer.from(txHex, 'hex').toString()));
-    // Continuation of SigningStargateClient.signDirect from after "this.sign...."
-    const txRaw: TxRaw = TxRaw.fromPartial({
-      bodyBytes: signDoc.bodyBytes,
-      authInfoBytes: signDoc.authInfoBytes,
-      // signatures: [Buffer.from(signature, 'hex')],
-    });
-
+    const txRaw: TxRaw = TxRaw.decode(Uint8Array.from(Buffer.from(txHex, 'hex')));
     try {
       const txRes = await this.stargateClient!.broadcastTx(TxRaw.encode(txRaw).finish());
       this.relayLogger.debug(`Cosmos: Broadcasted tx: ${txRes.transactionHash}`);

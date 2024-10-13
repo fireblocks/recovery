@@ -70,13 +70,13 @@ export const nativeAssetPatches: NativeAssetPatches = {
   AOA: evm('browser.aurorachain.io', 'https://mainnet.aurora.dev'),
   ATOM_COS: {
     derive: true,
-    transfer: false,
+    transfer: true,
     rpcUrl: 'cosmos-rpc.quickapi.com',
     getExplorerUrl: getAtomExplorer('bigdipper.live/cosmos'),
   },
   ATOM_COS_TEST: {
     derive: true,
-    transfer: false,
+    transfer: true,
     rpcUrl: 'cosmos-lcd.quickapi.com',
     getExplorerUrl: getAtomExplorer('explorer.theta-testnet.polypore.xyz'),
   },
