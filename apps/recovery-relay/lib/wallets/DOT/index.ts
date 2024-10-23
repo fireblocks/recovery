@@ -1,17 +1,19 @@
-import { Polkadot as BaseDOT, Input } from '@fireblocks/wallet-derivation';
+import { Polkadot as BaseDOT } from '@fireblocks/wallet-derivation';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { construct } from '@substrate/txwrapper-polkadot';
 import { ConnectedWallet } from '../ConnectedWallet';
 import { AccountData } from '../types';
 
 export class Polkadot extends BaseDOT implements ConnectedWallet {
-  private provider: WsProvider;
+  public rpcURL: string | undefined;
+
+  private provider: WsProvider | undefined;
 
   private polkadotApi: ApiPromise | undefined;
 
-  constructor(input: Input) {
-    super(input);
-    this.provider = new WsProvider(input.isTestnet ? 'wss://westend-rpc.polkadot.io' : 'wss://rpc.polkadot.io');
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
+    this.provider = new WsProvider(url);
   }
 
   public async getBalance(): Promise<number> {
@@ -24,7 +26,6 @@ export class Polkadot extends BaseDOT implements ConnectedWallet {
 
   public async prepare(): Promise<AccountData> {
     const balance = await this.getBalance();
-    //@ts-ignore
     const { nonce } = await this.polkadotApi!.query.system.account(this.address);
     const genesisHash = this.polkadotApi!.genesisHash.toHex();
     const blockHash = (await this.polkadotApi!.rpc.chain.getBlockHash()).toHex();

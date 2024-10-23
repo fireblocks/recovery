@@ -4,6 +4,8 @@ import { LateInitConnectedWallet } from '../LateInitConnectedWallet';
 import { AccountData } from '../types';
 
 export class Hedera extends BaseHBAR implements LateInitConnectedWallet {
+  public rpcURL: string | undefined;
+
   private client: Client | undefined;
 
   public updateDataEndpoint(endpoint: string): void {
@@ -11,6 +13,10 @@ export class Hedera extends BaseHBAR implements LateInitConnectedWallet {
   }
   public getLateInitLabel(): string {
     return 'The address of your Hedera Hashgraph wallet';
+  }
+
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
   }
 
   public isLateInit(): boolean {

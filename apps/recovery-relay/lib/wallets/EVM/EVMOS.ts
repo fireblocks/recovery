@@ -7,6 +7,6 @@ export class EVMOS extends EVM implements ConnectedWallet {
     if (input.isTestnet) {
       throw new Error('No EVMOS testnet support');
     }
-    super(input, 'https://evmos-evm.publicnode.com');
+    super(input, 9001);
   }
 }

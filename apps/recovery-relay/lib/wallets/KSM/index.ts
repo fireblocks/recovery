@@ -5,16 +5,22 @@ import { ConnectedWallet } from '../ConnectedWallet';
 import { AccountData } from '../types';
 
 export class Kusama extends BaseKSM implements ConnectedWallet {
-  protected provider: WsProvider;
+  protected provider: WsProvider | undefined;
 
   private kusamaApi: ApiPromise | undefined;
+
+  public rpcURL: string | undefined;
 
   constructor(input: Input) {
     super(input);
     if (input.isTestnet) {
       throw new Error("Can't use testnet with Kusama, please use Westend");
     }
-    this.provider = new WsProvider('wss://kusama-rpc.polkadot.io');
+  }
+
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
+    this.provider = new WsProvider(this.rpcURL);
   }
 
   public async getBalance(): Promise<number> {
@@ -27,7 +33,6 @@ export class Kusama extends BaseKSM implements ConnectedWallet {
 
   public async prepare(): Promise<AccountData> {
     const balance = await this.getBalance();
-    //@ts-ignore
     const { nonce } = await this.kusamaApi!.query.system.account(this.address);
     const genesisHash = this.kusamaApi!.genesisHash.toHex();
     const blockHash = (await this.kusamaApi!.rpc.chain.getBlockHash()).toHex();
@@ -35,7 +40,6 @@ export class Kusama extends BaseKSM implements ConnectedWallet {
     const specVersion = this.kusamaApi!.runtimeVersion.specVersion.toNumber();
     const specName = this.kusamaApi!.runtimeVersion.specName.toHuman();
     const transactionVersion = this.kusamaApi!.runtimeVersion.transactionVersion.toNumber();
-    const rpc = (await this.kusamaApi!.rpc.state.getMetadata()).toHex();
 
     const extraParams = new Map<string, any>();
     extraParams.set(this.KEY_BLOCK_HASH, blockHash);
@@ -72,6 +76,6 @@ export class Kusama extends BaseKSM implements ConnectedWallet {
     if (this.kusamaApi) {
       return;
     }
-    this.kusamaApi = await ApiPromise.create({ provider: this.provider });
+    this.kusamaApi = await ApiPromise.create({ provider: this.provider! });
   }
 }

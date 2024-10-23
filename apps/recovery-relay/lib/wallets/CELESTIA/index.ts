@@ -1,7 +1,7 @@
 import { Celestia as BaseCelestia, Input } from '@fireblocks/wallet-derivation';
 import { Tendermint34Client } from '@cosmjs/tendermint-rpc';
 import { StargateClient } from '@cosmjs/stargate';
-import { SignDoc, TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
+import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { AccountData } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
 
@@ -10,13 +10,16 @@ export class Celestia extends BaseCelestia implements ConnectedWallet {
 
   private stargateClient: StargateClient | undefined;
 
-  private rpcURL: string;
+  public rpcURL: string | undefined;
 
   constructor(input: Input) {
     super(input);
 
     this.tendermintClient = undefined;
-    this.rpcURL = input.isTestnet ? 'https://celestia-mocha-rpc.publicnode.com' : 'https://celestia-rpc.publicnode.com';
+  }
+
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
   }
 
   public async getBalance(): Promise<number> {
@@ -55,8 +58,8 @@ export class Celestia extends BaseCelestia implements ConnectedWallet {
 
   private async prepareClients(): Promise<void> {
     if (!this.tendermintClient || !this.stargateClient) {
-      this.tendermintClient = await Tendermint34Client.connect(this.rpcURL);
-      this.stargateClient = await StargateClient.connect(this.rpcURL);
+      this.tendermintClient = await Tendermint34Client.connect(this.rpcURL!);
+      this.stargateClient = await StargateClient.connect(this.rpcURL!);
     }
   }
 }

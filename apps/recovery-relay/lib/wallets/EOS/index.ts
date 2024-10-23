@@ -9,13 +9,15 @@ import { AccountData } from '../types';
 import { EmptySigProvider } from './EmptySigProvider';
 
 export class EOS extends BaseEOS implements ConnectedWallet {
-  private api: Api;
+  private api: Api | undefined;
 
   private accounts: string[] | undefined;
 
-  constructor(input: Input) {
-    super(input);
-    const rpc = new JsonRpc(input.isTestnet ? 'https://jungle.eosusa.io' : 'https://api.eoseoul.io', { fetch });
+  public rpcURL: string | undefined;
+
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
+    const rpc = new JsonRpc(url, { fetch });
     const signatureProvider = new EmptySigProvider();
     this.api = new Api({
       rpc,
@@ -24,7 +26,7 @@ export class EOS extends BaseEOS implements ConnectedWallet {
   }
 
   private async _getAccounts(): Promise<void> {
-    const { accounts } = await this.api.rpc.get_accounts_by_authorizers([], [this.address]);
+    const { accounts } = await this.api!.rpc.get_accounts_by_authorizers([], [this.address]);
     accounts.forEach((account) => {
       if (account.permission_name === 'owner') {
         if (!this.accounts) {
@@ -41,7 +43,7 @@ export class EOS extends BaseEOS implements ConnectedWallet {
     }
     // We should theoretically have only a single account that we're the owner of, but this should be adjusted if there exists a scenario where we are not owners of a single account.
     const accountName = this.accounts![0];
-    const account = await this.api.rpc.get_account(accountName);
+    const account = await this.api!.rpc.get_account(accountName);
 
     return parseFloat(account.core_liquid_balance!.replace(' EOS', ''));
   }
@@ -58,11 +60,11 @@ export class EOS extends BaseEOS implements ConnectedWallet {
         insufficientBalance: true,
       };
     }
-    await this.api.getAbi('eosio.token');
-    const txBuilder = this.api.buildTransaction() as TransactionBuilder;
+    await this.api!.getAbi('eosio.token');
+    const txBuilder = this.api!.buildTransaction() as TransactionBuilder;
     const actionBuilder = txBuilder.with('eosio.token').as([{ actor: this.accounts![0], permission: 'owner' }]);
     const action = await actionBuilder.transfer(this.accounts![0], to!, `${balance} EOS`, memo ?? '');
-    const tx: PushTransactionArgs = (await this.api.transact(
+    const tx: PushTransactionArgs = (await this.api!.transact(
       {
         actions: [action],
       },
@@ -74,7 +76,7 @@ export class EOS extends BaseEOS implements ConnectedWallet {
         requiredKeys: [this.address],
       },
     )) as PushTransactionArgs;
-    const chainId = (await this.api.rpc.get_info()).chain_id;
+    const chainId = (await this.api!.rpc.get_info()).chain_id;
     const serTx = superjson.stringify(tx);
     extraParams.set(this.KEY_TX, serTx);
     extraParams.set(this.KEY_CHAIN_ID, chainId);
@@ -91,7 +93,7 @@ export class EOS extends BaseEOS implements ConnectedWallet {
   public async broadcastTx(txHex: string): Promise<string> {
     try {
       const tx = superjson.parse<PushTransactionArgs>(txHex);
-      const txRes = (await this.api.pushSignedTransaction(tx)) as TransactResult;
+      const txRes = (await this.api!.pushSignedTransaction(tx)) as TransactResult;
       this.relayLogger.debug(`EOS: Tx broadcasted: ${JSON.stringify(txRes, null, 2)}`);
       return txRes.transaction_id;
     } catch (e) {

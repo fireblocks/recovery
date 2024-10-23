@@ -7,7 +7,7 @@ export class XinFin extends EVM implements ConnectedWallet {
     if (input.isTestnet) {
       throw new Error('No XDC testnet support.');
     }
-    super(input, 'https://rpc.xinfin.network');
+    super(input, 50);
   }
 
   protected getAddress(): string {

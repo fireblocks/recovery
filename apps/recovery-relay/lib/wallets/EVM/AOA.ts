@@ -7,6 +7,6 @@ export class Aurora extends EVM implements ConnectedWallet {
     if (input.isTestnet) {
       throw new Error('No Aurora testnet support');
     }
-    super(input, 'https://mainnet.aurora.dev');
+    super(input, 1313161554);
   }
 }

@@ -7,6 +7,6 @@ export class Moonbeam extends EVM implements ConnectedWallet {
     if (input.isTestnet) {
       throw new Error('No Moonbeam testnet support');
     }
-    super(input, 'https://rpc.api.moonbeam.network');
+    super(input, 1284);
   }
 }

@@ -10,13 +10,12 @@ import { AddressSummary, FullUTXO, StandardUTXO, UTXOSummary } from './types';
 export class Bitcoin extends BaseBTC implements ConnectedWallet {
   private static readonly satsPerBtc = 100000000;
 
-  private readonly baseUrl: string;
+  public rpcURL: string | undefined;
 
   private utils: BTCRelayWalletUtils | undefined;
 
   constructor(input: Input) {
     super(input);
-    this.baseUrl = input.isTestnet ? 'https://api.blockchair.com/bitcoin/testnet' : 'https://api.blockchair.com/bitcoin';
     // Legacy requires a custom site
     if (this.isLegacy) {
       // When calling any custom function provided as part of the relay wallet utils
@@ -102,6 +101,10 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
         }
       })(this.isTestnet ? 'https://blockstream.info/testnet/api' : 'https://blockstream.info/api') as BTCRelayWalletUtils;
     }
+  }
+
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
   }
 
   public async getBalance(): Promise<number> {

@@ -1,5 +1,6 @@
-import { Tezos as BaseXTZ, Input } from '@fireblocks/wallet-derivation';
-import { DEFAULT_FEE, DEFAULT_STORAGE_LIMIT, TezosToolkit } from '@taquito/taquito';
+/* eslint-disable @typescript-eslint/naming-convention */
+import { Tezos as BaseXTZ } from '@fireblocks/wallet-derivation';
+import { DEFAULT_FEE, TezosToolkit } from '@taquito/taquito';
 import axios from 'axios';
 import { ConnectedWallet } from '../ConnectedWallet';
 import { AccountData } from '../types';
@@ -7,17 +8,19 @@ import BigNumber from 'bignumber.js';
 import { NoopSigner } from './NoopSigner';
 
 export class Tezos extends BaseXTZ implements ConnectedWallet {
-  private tezos: TezosToolkit;
+  public rpcURL: string | undefined;
 
-  constructor(input: Input) {
-    super(input);
-    this.tezos = new TezosToolkit(input.isTestnet ? 'https://ghostnet.smartpy.io' : 'https://rpc.tzbeta.net');
+  private tezos: TezosToolkit | undefined;
+
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
+    this.tezos = new TezosToolkit(url);
     this.tezos.setSignerProvider(new NoopSigner(this.publicKey, this.address));
   }
 
   public async getBalance(): Promise<number> {
     // TODO: Big number consideration?
-    return (await this.tezos.tz.getBalance(this.address)).toNumber() / 10 ** 6;
+    return (await this.tezos!.tz.getBalance(this.address)).toNumber() / 10 ** 6;
   }
 
   public async prepare(to?: string): Promise<AccountData> {
@@ -28,7 +31,7 @@ export class Tezos extends BaseXTZ implements ConnectedWallet {
         insufficientBalance: true,
       };
     }
-    const estimate = await this.tezos.estimate.transfer({
+    const estimate = await this.tezos!.estimate.transfer({
       to: to!,
       source: this.address,
       amount: Math.round((balance - DEFAULT_FEE.TRANSFER / 10 ** 6) * 10 ** 6) / 10 ** 6,
@@ -36,10 +39,10 @@ export class Tezos extends BaseXTZ implements ConnectedWallet {
 
     const protocolConstants = await this._getProtocolConstants();
     const accountLimit = await this._getAccountLimits(protocolConstants);
-    const blockHash = (await this.tezos.rpc.getBlockHeader()).hash;
-    const protocol = (await this.tezos.rpc.getProtocols({ block: 'head' })).next_protocol;
-    const headCounter = (await this.tezos.rpc.getContract(this.address, { block: 'head' })).counter || '0';
-    const manager = await this.tezos.rpc.getManagerKey(this.address, { block: 'head' });
+    const blockHash = (await this.tezos!.rpc.getBlockHeader()).hash;
+    const protocol = (await this.tezos!.rpc.getProtocols({ block: 'head' })).next_protocol;
+    const headCounter = (await this.tezos!.rpc.getContract(this.address, { block: 'head' })).counter || '0';
+    const manager = await this.tezos!.rpc.getManagerKey(this.address, { block: 'head' });
     const revealNeeded = !(manager && typeof manager === 'object' ? !!manager.key : !!manager);
 
     const extraParams = new Map<string, any>();
@@ -75,7 +78,7 @@ export class Tezos extends BaseXTZ implements ConnectedWallet {
       });
       this.relayLogger.debug(`Tezos: Tx broadcasted: ${JSON.stringify(res, null, 2)}`);
       return res.data;
-      // return await this.tezos.rpc.injectOperation(tx);
+      // return await this.tezos!.rpc.injectOperation(tx);
     } catch (e: any) {
       const resData = e.response.data;
       this.relayLogger.error(`Tezos: Error broadcasting tx: ${JSON.stringify(resData, null, 2)}`);
@@ -97,7 +100,7 @@ export class Tezos extends BaseXTZ implements ConnectedWallet {
       cost_per_byte,
       tx_rollup_origination_size,
       smart_rollup_origination_size,
-    } = await this.tezos.rpc.getConstants({ block: 'head' });
+    } = await this.tezos!.rpc.getConstants({ block: 'head' });
     return {
       time_between_blocks,
       minimal_block_delay,
@@ -111,7 +114,7 @@ export class Tezos extends BaseXTZ implements ConnectedWallet {
   }
 
   private async _getAccountLimits(constants: any) {
-    const balance = await this.tezos.rpc.getBalance(this.address, { block: 'head' });
+    const balance = await this.tezos!.rpc.getBalance(this.address, { block: 'head' });
 
     const { hard_gas_limit_per_operation, hard_storage_limit_per_operation, cost_per_byte } = constants;
     return {

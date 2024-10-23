@@ -1,4 +1,4 @@
-import { Ripple as BaseRipple, Input } from '@fireblocks/wallet-derivation';
+import { Ripple as BaseRipple } from '@fireblocks/wallet-derivation';
 import { Client, SubmitResponse, xrpToDrops } from 'xrpl';
 import getFeeXrp from 'xrpl/dist/npm/sugar/getFeeXrp';
 import BigNumber from 'bignumber.js';
@@ -6,18 +6,20 @@ import { ConnectedWallet } from '../ConnectedWallet';
 import { AccountData } from '../types';
 
 export class Ripple extends BaseRipple implements ConnectedWallet {
-  private xrpClient: Client;
+  public rpcURL: string | undefined;
 
-  constructor(input: Input) {
-    super(input);
-    this.xrpClient = new Client(input.isTestnet ? 'wss://s.altnet.rippletest.net:51233' : 'wss://xrplcluster.com/');
+  private xrpClient: Client | undefined;
+
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
+    this.xrpClient = new Client(url);
   }
 
   public async getBalance(): Promise<number> {
-    if (!this.xrpClient.isConnected()) {
-      await this.xrpClient.connect();
+    if (!this.xrpClient!.isConnected()) {
+      await this.xrpClient!.connect();
     }
-    const balances = await this.xrpClient.getBalances(this.address);
+    const balances = await this.xrpClient!.getBalances(this.address);
     return balances
       .filter((tokenBalance) => tokenBalance.currency === 'XRP')
       .map((tokenBalance) => parseFloat(tokenBalance.value))[0];
@@ -26,21 +28,21 @@ export class Ripple extends BaseRipple implements ConnectedWallet {
   public async prepare(): Promise<AccountData> {
     const balance = await this.getBalance();
     // Fee calculation
-    const netFeeXRP = await getFeeXrp(this.xrpClient);
+    const netFeeXRP = await getFeeXrp(this.xrpClient!);
     const netFeeDrops = xrpToDrops(netFeeXRP);
     let baseFee = new BigNumber(netFeeDrops);
     baseFee = BigNumber.sum(baseFee, new BigNumber(netFeeDrops).times(2).toString());
-    const maxFeeDrops = xrpToDrops(this.xrpClient.maxFeeXRP);
+    const maxFeeDrops = xrpToDrops(this.xrpClient!.maxFeeXRP);
     const totalFee = BigNumber.min(baseFee, maxFeeDrops);
     const fee = totalFee.dp(0, BigNumber.ROUND_CEIL).toString(10);
 
     const extraParams = new Map<string, any>();
-    extraParams.set(this.KEY_LEDGER_SEQUENCE, (await this.xrpClient.getLedgerIndex()) + 100);
+    extraParams.set(this.KEY_LEDGER_SEQUENCE, (await this.xrpClient!.getLedgerIndex()) + 100);
     extraParams.set(this.KEY_FEE, fee);
     extraParams.set(
       this.KEY_SEQUENCE,
       (
-        await this.xrpClient.request({
+        await this.xrpClient!.request({
           command: 'account_info',
           account: this.address,
           ledger_index: 'current',
@@ -59,19 +61,19 @@ export class Ripple extends BaseRipple implements ConnectedWallet {
   }
 
   public async broadcastTx(tx: string): Promise<string> {
-    if (!this.xrpClient.isConnected()) {
-      await this.xrpClient.connect();
+    if (!this.xrpClient!.isConnected()) {
+      await this.xrpClient!.connect();
     }
     try {
-      const { result: txResult } = (await this.xrpClient.submit(tx)) as SubmitResponse;
+      const { result: txResult } = (await this.xrpClient!.submit(tx)) as SubmitResponse;
       this.relayLogger.debug(`Ripple: Tx broadcasted: ${JSON.stringify(txResult, null, 2)}`);
       const { hash } = txResult.tx_json;
       if (!hash) {
-          const errorMessage = txResult.accepted 
-              ? "Unknown error - Transaction didn't return hash"
-              : `Transaction not accepted: ${txResult.engine_result_message}`;
-          this.relayLogger.error('XRP: Failed to broadcast transaction', errorMessage, txResult);
-          throw new Error(errorMessage);
+        const errorMessage = txResult.accepted
+          ? "Unknown error - Transaction didn't return hash"
+          : `Transaction not accepted: ${txResult.engine_result_message}`;
+        this.relayLogger.error('XRP: Failed to broadcast transaction', errorMessage, txResult);
+        throw new Error(errorMessage);
       }
       return hash;
     } catch (e) {

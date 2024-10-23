@@ -5,20 +5,22 @@ import { AccountData } from '../types';
 import SuperJSON from 'superjson';
 
 export class Luna extends BaseLuna implements ConnectedWallet {
-  private lcdClient: LCDClient;
+  private lcdClient: LCDClient | undefined;
 
-  constructor(input: Input) {
-    super(input);
+  public rpcURL: string | undefined;
+
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
 
     this.lcdClient = new LCDClient({
-      URL: input.isTestnet ? 'https://pisco-lcd.terra.dev/' : 'https://phoenix-lcd.terra.dev',
-      chainID: input.isTestnet ? 'pisco-1' : 'phoenix-1',
+      URL: this.rpcURL,
+      chainID: this.isTestnet ? 'pisco-1' : 'phoenix-1',
       isClassic: false,
     });
   }
 
   public async getBalance(): Promise<number> {
-    const balances = await this.lcdClient.bank.balance(this.address, {
+    const balances = await this.lcdClient!.bank.balance(this.address, {
       'pagination.limit': '500',
     });
 
@@ -46,12 +48,12 @@ export class Luna extends BaseLuna implements ConnectedWallet {
       };
     }
 
-    const account = await this.lcdClient.auth.accountInfo(this.address);
+    const account = await this.lcdClient!.auth.accountInfo(this.address);
     const sequence = account.getSequenceNumber();
 
     const sendMsg = new MsgSend(this.address, to!, { uluna: balance * 1000000 });
 
-    const fee = await this.lcdClient.tx.estimateFee([{ sequenceNumber: sequence, publicKey: account.getPublicKey() }], {
+    const fee = await this.lcdClient!.tx.estimateFee([{ sequenceNumber: sequence, publicKey: account.getPublicKey() }], {
       msgs: [sendMsg],
       memo,
     });
@@ -59,7 +61,7 @@ export class Luna extends BaseLuna implements ConnectedWallet {
     const extraParams = new Map<string, any>();
     extraParams.set(this.KEY_SEQUENCE, sequence);
     extraParams.set(this.KEY_FEE_ESTIMATE, fee);
-    extraParams.set(this.KEY_CHAIN_ID, this.lcdClient.config.chainID);
+    extraParams.set(this.KEY_CHAIN_ID, this.lcdClient!.config.chainID);
     extraParams.set(this.KEY_ACCOUNT_NUMBER, account.getAccountNumber());
 
     const preparedData = {
@@ -81,7 +83,7 @@ export class Luna extends BaseLuna implements ConnectedWallet {
       }),
     );
     const signedTx = Tx.fromData(halfBaked);
-    const res = await this.lcdClient.tx.broadcast(signedTx);
+    const res = await this.lcdClient!.tx.broadcast(signedTx);
     if (res.txhash && res.logs.length > 0) {
       this.relayLogger.debug(`Luna: Tx broadcasted: ${JSON.stringify(res, null, 2)}`);
       return res.txhash;

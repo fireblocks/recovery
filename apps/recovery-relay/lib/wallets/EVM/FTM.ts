@@ -7,6 +7,6 @@ export class Fantom extends EVM implements ConnectedWallet {
     if (input.isTestnet) {
       throw new Error('No Fantom testnet support');
     }
-    super(input, 'https://rpcapi.fantom.network');
+    super(input, 250);
   }
 }

@@ -20,14 +20,12 @@ type BSVAddressSummary = {
 };
 
 export class BitcoinSV extends BSVBase implements ConnectedWallet {
-  private baseUrl: string = '';
+  public rpcURL: string | undefined;
 
-  private utils;
+  private utils: unknown | undefined;
 
-  constructor(input: Input) {
-    super(input);
-    this.baseUrl = input.isTestnet ? 'https://api.whatsonchain.com/v1/bsv/test' : 'https://api.whatsonchain.com/v1/bsv/main';
-
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
     // When calling any custom function provided as part of the relay wallet utils
     // we bind it to `this` from the BTCRelayWallet class, thus every internal reference to this
     // within the custom functions must be considered as a call to the BTCRelayWalletUtils and not
@@ -107,7 +105,7 @@ export class BitcoinSV extends BSVBase implements ConnectedWallet {
 
         return txBroadcastRes;
       }
-    })(this.baseUrl);
+    })(this.rpcURL!);
   }
 
   public async getBalance(): Promise<number> {

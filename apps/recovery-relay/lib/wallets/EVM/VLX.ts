@@ -4,6 +4,6 @@ import { EVM } from '.';
 
 export class Velas extends EVM implements ConnectedWallet {
   constructor(input: Input) {
-    super(input, input.isTestnet ? 'https://api.testnet.velas.com' : 'https://api.velas.com');
+    super(input, input.isTestnet ? 111 : 106);
   }
 }

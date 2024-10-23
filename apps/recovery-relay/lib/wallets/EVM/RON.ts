@@ -1,12 +1,14 @@
 import { EVMWallet as EVMBase, Input } from '@fireblocks/wallet-derivation';
 import { LateInitConnectedWallet } from '../LateInitConnectedWallet';
-import { AccountData, TxPayload, RawSignature } from '../types';
+import { AccountData } from '../types';
 import { EVM } from '.';
 
 export class Ronin extends EVMBase implements LateInitConnectedWallet {
   private inputDup: Input;
 
   private subWallet: EVM | undefined;
+
+  public rpcURL: string | undefined;
 
   public getLateInitLabel() {
     return 'Ronin';
@@ -18,6 +20,11 @@ export class Ronin extends EVMBase implements LateInitConnectedWallet {
     }
     super(input);
     this.inputDup = JSON.parse(JSON.stringify(input)) as Input;
+  }
+
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
+    this.updateDataEndpoint(url);
   }
 
   public async getBalance(): Promise<number> {
@@ -50,7 +57,9 @@ export class Ronin extends EVMBase implements LateInitConnectedWallet {
 
   public updateDataEndpoint(endpoint: string): void {
     try {
-      this.subWallet = new EVM(this.inputDup, endpoint);
+      this.rpcURL = endpoint;
+      this.subWallet = new EVM(this.inputDup, 2020);
+      this.subWallet.setRPCUrl(this.rpcURL!);
     } catch (e) {
       this.subWallet = undefined;
       throw new Error(`Failed updating endpoint: ${e}`);

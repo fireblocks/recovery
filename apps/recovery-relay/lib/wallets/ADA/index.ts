@@ -35,11 +35,15 @@ export class Cardano extends BaseCardano implements LateInitConnectedWallet {
 
   private bkfClient: BlockFrostAPI | undefined = undefined;
 
-  private endpoint: string | undefined = undefined;
+  public rpcURL: string | undefined;
 
   constructor(input: Input) {
     super(input);
     this.isLateInit = () => true;
+  }
+
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
   }
 
   public getLateInitLabel(): string {
@@ -47,7 +51,7 @@ export class Cardano extends BaseCardano implements LateInitConnectedWallet {
   }
 
   public updateDataEndpoint(endpoint: string): void {
-    this.endpoint = endpoint;
+    this.rpcURL = endpoint;
     if (endpoint.startsWith('http')) {
       this.gqlClient = new ApolloClient({
         uri: endpoint,
@@ -120,7 +124,7 @@ export class Cardano extends BaseCardano implements LateInitConnectedWallet {
     const preparedData = {
       utxos,
       balance: balance / 1_000_000,
-      endpoint: this.endpoint,
+      endpoint: this.rpcURL,
       insufficientBalance: balance / 1_000_000 < 0.001,
     };
 

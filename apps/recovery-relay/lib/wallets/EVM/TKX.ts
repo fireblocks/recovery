@@ -8,6 +8,8 @@ export class TokenX extends EVMBase implements LateInitConnectedWallet {
 
   private subWallet: EVM | undefined;
 
+  public rpcURL: string | undefined;
+
   public getLateInitLabel() {
     return 'TokenX';
   }
@@ -18,6 +20,11 @@ export class TokenX extends EVMBase implements LateInitConnectedWallet {
     }
     super(input);
     this.inputDup = JSON.parse(JSON.stringify(input)) as Input;
+  }
+
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
+    this.updateDataEndpoint(url);
   }
 
   public async getBalance(): Promise<number> {
@@ -48,9 +55,11 @@ export class TokenX extends EVMBase implements LateInitConnectedWallet {
     return (await this.subWallet!.broadcastTx(txHex)) as string;
   }
 
-  public updateDataEndpoint(endpoint: string): void {
+  public updateDataEndpoint(url: string): void {
     try {
-      this.subWallet = new EVM(this.inputDup, endpoint);
+      this.rpcURL = url;
+      this.subWallet = new EVM(this.inputDup, 18888);
+      this.subWallet.setRPCUrl(this.rpcURL!);
     } catch (e) {
       this.subWallet = undefined;
       throw new Error(`Failed updating endpoint: ${e}`);

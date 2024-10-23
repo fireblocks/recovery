@@ -10,7 +10,7 @@ export class BTCRelayWallet {
 
   public async getBalance(): Promise<number> {
     // @ts-ignore
-    const utils = (this.utils as BTCRelayWalletUtils) || new StandardBTCRelayWalletUtils(this.baseUrl);
+    const utils = (this.utils as BTCRelayWalletUtils) || new StandardBTCRelayWalletUtils(this.rpcURL);
     // @ts-ignore
     const balance = await utils.getAddressBalance(this.address);
     const btcBalance = BTCRelayWallet._satsToBtc(balance);
@@ -19,10 +19,10 @@ export class BTCRelayWallet {
 
   public async prepare(): Promise<AccountData> {
     // @ts-ignore
-    const { isLegacy, relayLogger: logger, baseUrl, address } = this;
+    const { isLegacy, relayLogger: logger, rpcURL, address } = this;
 
     // @ts-ignore
-    const utils = (this.utils as BTCRelayWalletUtils) || new StandardBTCRelayWalletUtils(baseUrl);
+    const utils = (this.utils as BTCRelayWalletUtils) || new StandardBTCRelayWalletUtils(rpcURL);
     const balance = await BTCRelayWallet.prototype.getBalance.bind(this)();
 
     if (balance === 0) {
@@ -57,10 +57,10 @@ export class BTCRelayWallet {
     // const tx = Psbt.fromHex(txHex, { network: this.network });
 
     // @ts-ignore
-    const { relayLogger: logger, baseUrl } = this;
+    const { relayLogger: logger, rpcURL } = this;
 
     // @ts-ignore
-    const utils = (this.utils as BTCRelayWalletUtils) || new StandardBTCRelayWalletUtils(baseUrl);
+    const utils = (this.utils as BTCRelayWalletUtils) || new StandardBTCRelayWalletUtils(rpcURL);
 
     // @ts-ignore
     return utils.broadcastTx(txHex, logger);

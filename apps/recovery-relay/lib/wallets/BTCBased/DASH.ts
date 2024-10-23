@@ -4,7 +4,7 @@ import { ConnectedWallet } from '../ConnectedWallet';
 import { BTCRelayWallet } from './BTCRelayWallet';
 
 export class DASH extends BaseDASH implements ConnectedWallet {
-  private readonly baseUrl: string;
+  public rpcURL: string | undefined;
 
   constructor(input: Input) {
     super(input);
@@ -12,8 +12,10 @@ export class DASH extends BaseDASH implements ConnectedWallet {
     if (input.isTestnet) {
       throw new Error('No Dash testnet support.');
     }
+  }
 
-    this.baseUrl = 'https://api.blockchair.com/dash';
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
   }
 
   public async getBalance(): Promise<number> {

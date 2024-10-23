@@ -1,21 +1,20 @@
 import { Buffer } from 'buffer';
 import * as web3 from '@solana/web3.js';
 import { ipcRenderer } from 'electron';
-import { Solana as BaseSolana, Input } from '@fireblocks/wallet-derivation';
+import { Solana as BaseSolana } from '@fireblocks/wallet-derivation';
 import { AccountData } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
 
 export class Solana extends BaseSolana implements ConnectedWallet {
-  private readonly solConnection: web3.Connection;
+  public rpcURL: string | undefined;
 
-  constructor(input: Input) {
-    super(input);
+  private solConnection: web3.Connection | undefined;
 
-    const endpoint = input.isTestnet ? web3.clusterApiUrl('devnet') : web3.clusterApiUrl('mainnet-beta');
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
 
-    this.solConnection = new web3.Connection(endpoint, {
+    this.solConnection = new web3.Connection(url, {
       commitment: 'confirmed',
-      //@ts-ignore
       fetch: async (input: string | URL | Request, init) => {
         const res = await ipcRenderer.invoke('main_proc_fetch', input, init);
         return new Response(res);
@@ -24,14 +23,14 @@ export class Solana extends BaseSolana implements ConnectedWallet {
   }
 
   public async getBalance() {
-    const lamports = await this.solConnection.getBalance(this.web3PubKey);
+    const lamports = await this.solConnection!.getBalance(this.web3PubKey);
     const balance = lamports / web3.LAMPORTS_PER_SOL;
     return balance;
   }
 
   public async broadcastTx(tx: string): Promise<string> {
     try {
-      const txHash = await this.solConnection.sendRawTransaction(Buffer.from(tx, 'hex'));
+      const txHash = await this.solConnection!.sendRawTransaction(Buffer.from(tx, 'hex'));
       this.relayLogger.debug(`Solana: Tx broadcasted: ${txHash}`);
       return txHash;
     } catch (e) {
@@ -42,7 +41,7 @@ export class Solana extends BaseSolana implements ConnectedWallet {
 
   public async prepare(): Promise<AccountData> {
     const accountBalance = await this.getBalance();
-    let blockInfo = (await this.solConnection.getLatestBlockhash()).blockhash;
+    let blockInfo = (await this.solConnection!.getLatestBlockhash()).blockhash;
 
     //Simulate tx for fee
     const tx = new web3.Transaction({ feePayer: this.web3PubKey, recentBlockhash: blockInfo });
@@ -54,9 +53,9 @@ export class Solana extends BaseSolana implements ConnectedWallet {
       }),
     );
 
-    const feeForTx = ((await this.solConnection.getFeeForMessage(tx.compileMessage())).value ?? 0) / web3.LAMPORTS_PER_SOL;
+    const feeForTx = ((await this.solConnection!.getFeeForMessage(tx.compileMessage())).value ?? 0) / web3.LAMPORTS_PER_SOL;
 
-    blockInfo = (await this.solConnection.getLatestBlockhash()).blockhash;
+    blockInfo = (await this.solConnection!.getLatestBlockhash()).blockhash;
     const extraParams = new Map<string, string>();
     extraParams.set(this.KEY_RECENT_BLOCKHASH, blockInfo);
 

@@ -6,11 +6,10 @@ import { BTCRelayWallet } from './BTCRelayWallet';
 export class DOGE extends BaseDOGE implements ConnectedWallet {
   private static readonly satsPerBtc = 100000000;
 
-  private readonly baseUrl: string;
+  public rpcURL: string | undefined;
 
-  constructor(input: Input) {
-    super(input);
-    this.baseUrl = 'https://api.blockchair.com/dogecoin';
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
   }
 
   public async prepare(): Promise<AccountData> {

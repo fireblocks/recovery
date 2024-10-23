@@ -1,17 +1,19 @@
-import { Stellar as BaseXLM, Input } from '@fireblocks/wallet-derivation';
+import { Stellar as BaseXLM } from '@fireblocks/wallet-derivation';
 import { AccountResponse, Networks, Server, Transaction, xdr } from 'stellar-sdk';
 import { ConnectedWallet } from '../ConnectedWallet';
 import { AccountData } from '../types';
 
 export class Stellar extends BaseXLM implements ConnectedWallet {
-  private xlmServer: Server;
+  public rpcURL: string | undefined;
+
+  private xlmServer: Server | undefined;
+
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
+    this.xlmServer = new Server(url);
+  }
 
   private account: AccountResponse | undefined;
-
-  constructor(input: Input) {
-    super(input);
-    this.xlmServer = new Server(input.isTestnet ? 'https://horizon-testnet.stellar.org/' : 'https://horizon.stellar.org/');
-  }
 
   public async getBalance(): Promise<number> {
     await this._loadAccount();
@@ -33,7 +35,7 @@ export class Stellar extends BaseXLM implements ConnectedWallet {
 
     const preparedData = {
       balance,
-      feeRate: await this.xlmServer.fetchBaseFee(),
+      feeRate: await this.xlmServer!.fetchBaseFee(),
       extraParams,
       insufficientBalance: balance < 0.00001,
     };
@@ -48,7 +50,7 @@ export class Stellar extends BaseXLM implements ConnectedWallet {
       this.isTestnet ? Networks.TESTNET : Networks.PUBLIC,
     );
     try {
-      const txResponse = await this.xlmServer.submitTransaction(tx);
+      const txResponse = await this.xlmServer!.submitTransaction(tx);
       this.relayLogger.debug(`Stellar: Tx broadcasted: ${txResponse}`);
       return txResponse.hash;
     } catch (e: any) {
@@ -66,6 +68,6 @@ export class Stellar extends BaseXLM implements ConnectedWallet {
 
   private async _loadAccount(): Promise<void> {
     if (this.account !== undefined) return;
-    this.account = await this.xlmServer.loadAccount(this.address);
+    this.account = await this.xlmServer!.loadAccount(this.address);
   }
 }
