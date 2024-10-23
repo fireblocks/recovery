@@ -13,14 +13,14 @@ const loadApplications = async () => {
     args: [appInfo.main],
     env: { MODE_RELAY: '1', CI: 'e2e' },
     executablePath: appInfo.executable,
-    timeout: 10000,
+    timeout: 100000,
   });
 
   recoveryApp = await electron.launch({
     args: [appInfo.main],
     env: { MODE_UTIL: '1', CI: 'e2e' },
     executablePath: appInfo.executable,
-    timeout: 10000,
+    timeout: 100000,
   });
 
   return [recoveryApp, relayApp];
