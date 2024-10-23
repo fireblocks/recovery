@@ -1,28 +1,18 @@
-import { getLogger, useWrappedState } from '@fireblocks/recovery-shared';
+import { getLogger, RelaySettingsInput, settingsInput, useWrappedState } from '@fireblocks/recovery-shared';
 import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
 import { createContext, useContext, useEffect, ReactNode } from 'react';
 import { z } from 'zod';
+import { defaultRPCs } from '../lib/defaultRPCs';
 
-export const settingsInput = z.object({
-  rpcURLs: z.array(
-    z.object({
-      assetId: z.string(),
-      rpcURL: z.string(),
-    }),
-  ),
-});
+export type SettingsInput = z.infer<(typeof settingsInput)['RELAY']>;
 
-export type SettingsInput = z.infer<typeof settingsInput>;
-
-type Settings = z.infer<typeof settingsInput>;
-
-interface ISettingsContext extends Settings {
-  saveSettings: (settings: Settings) => Promise<void>;
+interface ISettingsContext extends RelaySettingsInput {
+  saveSettings: (settings: RelaySettingsInput) => Promise<void>;
 }
 
 const defaultValue: ISettingsContext = {
-  rpcURLs: [],
   saveSettings: async () => undefined,
+  RPCs: defaultRPCs,
 };
 
 const logger = getLogger(LOGGER_NAME_RELAY);
@@ -36,7 +26,7 @@ type Props = {
 };
 
 export const SettingsProvider = ({ children }: Props) => {
-  const [settings, setSettings] = useWrappedState<Settings>('relay-settings', defaultValue);
+  const [settings, setSettings] = useWrappedState<RelaySettingsInput>('relay-settings', defaultValue);
 
   useEffect(() => {
     const storedSettings = window.localStorage.getItem('settings');
@@ -46,7 +36,7 @@ export const SettingsProvider = ({ children }: Props) => {
     }
   }, []);
 
-  const saveSettings = async (data: Settings) => {
+  const saveSettings = async (data: RelaySettingsInput) => {
     logger.info('Storing new settings', data);
     window.localStorage.setItem('settings', JSON.stringify(data));
   };

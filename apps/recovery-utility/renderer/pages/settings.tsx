@@ -13,7 +13,7 @@ import { getLogs as ipcGetLogs, getLogsPath as ipcGetLogsPath } from '../lib/ipc
 import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 import { shell } from 'electron';
 
-type FormData = z.infer<typeof settingsInput>;
+type FormData = z.infer<(typeof settingsInput)['UTILITY']>;
 
 const RELAY_SOURCE_URL = 'github.com/fireblocks/recovery';
 
@@ -29,7 +29,7 @@ const Settings = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(settingsInput),
+    resolver: zodResolver(settingsInput.UTILITY),
     defaultValues: {
       idleMinutes,
       relayBaseUrl,
