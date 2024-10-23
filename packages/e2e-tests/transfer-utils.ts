@@ -1,6 +1,13 @@
 import { Page } from 'playwright-core';
 import { waitForLoadingToEnd } from './utils';
-import { FixError, SkipError } from './types';
+import {
+  UtilityDisabledAssetError,
+  FixableError,
+  UtilityInvalidAddressFormatError,
+  SkipError,
+  RelayMissingEndpointError,
+  RelayBalanceFetchError,
+} from './types';
 
 export const deriveAsset = async (page: Page, assetId: string) => {
   await page.getByRole('button', { name: 'Asset Wallet' }).click();
@@ -13,7 +20,7 @@ export const deriveAsset = async (page: Page, assetId: string) => {
 
   if (await page.getByRole('heading', { name: '❗️Add Wallet Failed', exact: true }).isVisible()) {
     const errorText = await page.getByLabel('❗️Add Wallet Failed').locator('div').nth(1).innerText();
-    throw new FixError(`Failed to derive wallet - ${errorText}`);
+    throw new FixableError(`Failed to derive wallet - ${errorText}`);
   }
 };
 
@@ -49,13 +56,13 @@ export const getAddressForAsset = async (page: Page, assetId: string): Promise<s
 export const startWithdrawal = async (page: Page, assetId: string, toAddress: string): Promise<string> => {
   // If the asset is disabled the getByLabel will fail on timeout, this is an alternative approach to obtain the relevant item
   if (await page.getByRole('row', { name: assetId }).getByRole('menuitem').last().isDisabled()) {
-    throw new SkipError(`Asset ID ${assetId} is disabled for withdraw`);
+    throw new UtilityDisabledAssetError(`Asset ID ${assetId} is disabled for withdraw`);
   }
   await page.getByLabel(`Withdraw ${assetId}`).click();
   await page.getByLabel('Recipient Address').fill(toAddress);
   await page.getByRole('button', { name: 'Create Transaction' }).click();
   if (await page.getByText('Invalid address format').isVisible()) {
-    throw new FixError('Invalid format when not expected.');
+    throw new UtilityInvalidAddressFormatError('Invalid format when not expected.');
   }
   return (await page.getByLabel('Relay URL').inputValue()) ?? '';
 };
@@ -68,7 +75,7 @@ export const fetchTxParamData = async (page: Page, txInitData: string, endpointD
   // If some endpoint or additional data is required but missing, the prepare transaction button will be disabled, and the below getByRole will fail.
   if (await page.locator('#endpoint').isVisible()) {
     if (!endpointData) {
-      throw new FixError('Endpoint needed but not provided');
+      throw new RelayMissingEndpointError('Endpoint needed but not provided');
     }
     await page.locator('#endpoint').fill(endpointData);
   }
@@ -85,7 +92,7 @@ export const fetchTxParamData = async (page: Page, txInitData: string, endpointD
 
   try {
     if (await page.getByText('Could not get balance', { exact: true }).isVisible()) {
-      throw new FixError('Unable to fetch balance');
+      throw new RelayBalanceFetchError('Unable to fetch balance');
     }
   } catch (e) {}
 
