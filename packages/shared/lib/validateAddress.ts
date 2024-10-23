@@ -1,8 +1,8 @@
 import * as WAValidator from 'multicoin-address-validator';
 import { bech32 } from 'bech32';
+import { isTestnetAsset } from '@fireblocks/asset-config';
 import { getLogger } from './getLogger';
 import { LOGGER_NAME_SHARED } from '../constants';
-import { isTestnetAsset } from '@fireblocks/asset-config';
 
 const logger = getLogger(LOGGER_NAME_SHARED);
 
@@ -30,6 +30,7 @@ export class AddressValidator {
 
   public isValidAddress(address: string, networkProtocol: string | undefined, assetId: string): boolean {
     try {
+      this.patchValidator();
       let isValid = false;
       let validationOptions: WAValidator.ValidateOpts = {};
       let asset = assetId;
@@ -56,6 +57,20 @@ export class AddressValidator {
       logger.error(error);
       throw new Error(`Error validating address with network protocol ${networkProtocol}: ${error.message}`);
     }
+  }
+
+  /**
+   * Fixes the validator dependency to fix some validations.
+   */
+  private patchValidator() {
+    // Fix cardano testnet prefix:
+    const adaTestBech32 = WAValidator.findCurrency('ADA')?.bech32Hrp.testnet;
+    adaTestBech32.pop();
+    adaTestBech32.push('addr_test');
+
+    const trxTestAddrTypes = WAValidator.findCurrency('TRX')?.addressTypes.testnet;
+    trxTestAddrTypes.pop();
+    trxTestAddrTypes.push(0x41);
   }
 
   private doesValidatorExist(networkProtocol: string | undefined): boolean {
