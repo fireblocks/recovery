@@ -74,6 +74,11 @@ describe('AddressValidator', () => {
       assetId: 'TRX',
     },
     {
+      networkProtocol: 'TRX',
+      address: 'TCqjeroh5XyCQwMHL7Csz5yJttWTPSsH3n',
+      assetId: 'TRX_TEST',
+    },
+    {
       networkProtocol: 'SOL',
       address: 'Es8cMivoZYEsCfKBYvZEkgeyYN3saNpzfkoagUBCLy5p',
       assetId: 'SOL',
@@ -87,6 +92,11 @@ describe('AddressValidator', () => {
       networkProtocol: 'ADA',
       address: 'addr1qxk0uuhghpk2zxpzth5ryv20fmfem3ym4pxektwjzvfumrchg6feqy3pzpzm63kpvt2ayh5qcwxf8prey4swhgmqld6srxkf3u',
       assetId: 'ADA',
+    },
+    {
+      networkProtocol: 'ADA',
+      address: 'addr_test1qrpv7sases4yuljdkmg806335syqmfl30aaamy959hywx8gy80s43lrcxu6qttpl2a6h3lr8f02ff54nywzry4kge8lqgsdf0f',
+      assetId: 'ADA_TEST',
     },
     {
       networkProtocol: 'DOT',
