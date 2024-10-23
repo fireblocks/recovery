@@ -14,8 +14,9 @@ import { getDerivableAssetConfig } from '@fireblocks/asset-config';
 import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
 import { sanatize } from '@fireblocks/recovery-shared/lib/sanatize';
 import { useWorkspace } from '../../context/Workspace';
-import { CreateTransaction } from './CreateTransaction';
+import { CreateTransaction, getAssetURL } from './CreateTransaction';
 import { LateInitConnectedWallet } from '../../lib/wallets/LateInitConnectedWallet';
+import { useSettings } from '../../context/Settings';
 
 const logger = getLogger(LOGGER_NAME_RELAY);
 
@@ -40,6 +41,7 @@ const getAssetId = (inboundRelayParams?: RelayRequestParams) => {
 
 export const WithdrawModal = () => {
   const { accounts, inboundRelayParams, getOutboundRelayUrl, setInboundRelayUrl, resetInboundRelayUrl } = useWorkspace();
+  const { RPCs } = useSettings();
 
   const action = inboundRelayParams?.action;
 
@@ -127,8 +129,15 @@ export const WithdrawModal = () => {
 
                       const derivation = wallet?.derivations?.get(inboundRelayParams?.signedTx.from);
 
-                      if (derivation?.isLateInit()) {
-                        (derivation as LateInitConnectedWallet).updateDataEndpoint(inboundRelayParams.endpoint!);
+                      const rpcUrl = getAssetURL(derivation?.assetId ?? '', RPCs);
+                      if (rpcUrl === undefined) {
+                        throw new Error(`No RPC URL for asset ${derivation?.assetId}`);
+                      } else if (rpcUrl === null) {
+                        if (derivation?.isLateInit()) {
+                          (derivation as LateInitConnectedWallet).updateDataEndpoint(inboundRelayParams.endpoint!);
+                        }
+                      } else {
+                        derivation?.setRPCUrl(rpcUrl);
                       }
 
                       const signedTxHex = inboundRelayParams?.signedTx.hex;

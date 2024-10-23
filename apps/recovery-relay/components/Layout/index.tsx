@@ -70,6 +70,11 @@ export const Layout = ({ children }: Props) => {
       icon: ImportExport,
       disabled: !hasExtendedPublicKeys,
     },
+    {
+      label: 'Settings',
+      path: '/settings',
+      icon: Settings,
+    },
     // {
     //   label: 'Settings',
     //   path: '/settings',

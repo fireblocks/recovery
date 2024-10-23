@@ -91,3 +91,18 @@ export function WithdrawIcon({ active, ...props }: Props) {
     </SvgIcon>
   );
 }
+
+export function EditIcon({ active, ...props }: Props) {
+  return (
+    <SvgIcon xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' {...props}>
+      <g fill={active ? theme.palette.primary.main : 'currentColor'}>
+        <path
+          fill='currentColor'
+          fillRule='evenodd'
+          d='M14.053 2.386a2.518 2.518 0 0 1 3.56 3.561l-1.248 1.25h-.002L10.53 13.03a.75.75 0 0 1-.53.22H7.5a.75.75 0 0 1-.75-.75V10a.75.75 0 0 1 .22-.53zm-.72 2.841L8.25 10.311v1.439h1.44l5.083-5.083zm2.5.379-1.439-1.44.72-.719a1.018 1.018 0 0 1 1.439 1.44zm-12.542.185A2.42 2.42 0 0 1 5 5.083h2.5a.75.75 0 1 1 0 1.5H5a.917.917 0 0 0-.917.917V15a.917.917 0 0 0 .917.917h7.5a.917.917 0 0 0 .917-.917v-2.5a.75.75 0 0 1 1.5 0V15a2.417 2.417 0 0 1-2.417 2.417H5A2.416 2.416 0 0 1 2.583 15V7.5c0-.64.255-1.256.708-1.709'
+          clipRule='evenodd'
+        />
+      </g>
+    </SvgIcon>
+  );
+}

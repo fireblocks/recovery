@@ -6,6 +6,7 @@ import { PushTransactionArgs } from 'eosjs/dist/eosjs-rpc-interfaces';
 import { CosmosFee } from '@fireblocks/wallet-derivation/wallets/chains/ATOM';
 import { WorkspaceProvider } from '../context/Workspace';
 import { Layout } from '../components/Layout';
+import { SettingsProvider } from '../context/Settings';
 
 type AppProps = NextAppProps & {
   emotionCache?: EmotionCache;
@@ -72,15 +73,17 @@ SuperJSON.registerCustom<PushTransactionArgs, string>(
 export default function App({ Component, emotionCache, pageProps }: AppProps) {
   return (
     <SharedProviders emotionCache={emotionCache}>
-      <WorkspaceProvider>
-        {/* @ts-ignore */}
-        <ErrorBoundary>
-          <Layout>
-            {/* @ts-ignore */}
-            <Component {...pageProps} />
-          </Layout>
-        </ErrorBoundary>
-      </WorkspaceProvider>
+      <SettingsProvider>
+        <WorkspaceProvider>
+          {/* @ts-ignore */}
+          <ErrorBoundary>
+            <Layout>
+              {/* @ts-ignore */}
+              <Component {...pageProps} />
+            </Layout>
+          </ErrorBoundary>
+        </WorkspaceProvider>
+      </SettingsProvider>
     </SharedProviders>
   );
 }
