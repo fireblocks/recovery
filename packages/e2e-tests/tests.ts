@@ -1,7 +1,8 @@
+import { Page } from 'playwright-core';
 import { AssetTestConfig } from './types';
 
-const nativeTestnetAssets = [
-  // { assetId: 'ADA_TEST' },
+const nativeTestnetAssets: AssetTestConfig[] = [
+  // { assetId: 'ADA_TEST', postTestFn: async (utility: Page, relay: Page) => await relay.pause() },
   // { assetId: 'ALGO_TEST' },
   // { assetId: 'ATOM_COS_TEST' },
   // { assetId: 'AVAXTEST' },
@@ -20,19 +21,13 @@ const nativeTestnetAssets = [
   // { assetId: 'EOS_TEST' },
   // { assetId: 'ETC_TEST' },
   // { assetId: 'ETH_TEST' },
-  // { assetId: 'ETH_TEST2' },
-  // { assetId: 'ETH_TEST3' },
-  // { assetId: 'ETH_TEST4' },
   // { assetId: 'ETH_TEST5' },
-  // { assetId: 'ETH_TEST6' },
+  // { assetId: 'ETH_TEST6', newEndpoint: 'https://1rpc.io/holesky' },
   // { assetId: 'ETH-AETH_RIN' },
   // { assetId: 'ETH-OPT_KOV' },
-  // { assetId: 'FB_ATHENA_TEST' },
   // { assetId: 'HBAR_TEST' },
-  // { assetId: 'HT_CHAIN_TEST' },
   // { assetId: 'LTC_TEST' },
   // { assetId: 'LUNA2_TEST' },
-  // { assetId: 'MATIC_POLYGON_MUMBAI' },
   // { assetId: 'NEAR_TEST' },
   // { assetId: 'RBTC_TEST' },
   // { assetId: 'SOL_TEST' },
