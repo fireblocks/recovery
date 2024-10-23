@@ -1,6 +1,6 @@
 // import { Bitcoin } from './BTC';
 import { assets } from '@fireblocks/asset-config';
-import { ERC20 } from '@fireblocks/wallet-derivation';
+import { ERC20, ETC } from '@fireblocks/wallet-derivation';
 import { Ripple } from './XRP';
 import { Cosmos } from './ATOM';
 import { EOS } from './EOS';
@@ -60,6 +60,8 @@ export const WalletClasses = {
   LTC_TEST: LiteCoin,
   ZEC: ZCash,
   ZEC_TEST: ZCash,
+  ETC,
+  ETC_TEST: ETC,
   ETH: EVM,
   ETH_TEST3: EVM,
   ETH_TEST5: EVM,
