@@ -1,6 +1,6 @@
 {
   "name": "@fireblocks/e2e-tests",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "End to end testing for the recovery tool",
   "main": "index.test.ts",
   "repository": "https://github.com/fireblocks/recovery/tree/main/packages/e2e-tests",

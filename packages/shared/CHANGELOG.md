@@ -1,5 +1,25 @@
 # shared
 
+## 0.5.0
+
+### Minor Changes
+
+- b836b7c: Updated settings schema for configurable RPC
+- e081c5a: fixed address validation for cosmos based chains
+
+### Patch Changes
+
+- Updated dependencies [ab2ea37]
+- Updated dependencies [210c378]
+- Updated dependencies [ecb2e9b]
+- Updated dependencies [665e844]
+- Updated dependencies [cccaa37]
+- Updated dependencies [cf7bb23]
+- Updated dependencies [ef57e43]
+- Updated dependencies [e0395df]
+  - @fireblocks/asset-config@0.4.0
+  - @fireblocks/wallet-derivation@0.6.0
+
 ## 0.4.0
 
 ### Minor Changes
