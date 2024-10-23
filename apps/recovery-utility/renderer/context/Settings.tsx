@@ -4,7 +4,7 @@ import { getLogger, settingsInput, useWrappedState } from '@fireblocks/recovery-
 import { restoreSettings as ipcRestoreSettings, saveSettings as ipcSaveSettings } from '../lib/ipc';
 import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 
-type Settings = z.infer<typeof settingsInput>;
+type Settings = z.infer<(typeof settingsInput)['UTILITY']>;
 
 interface ISettingsContext extends Settings {
   saveSettings: (settings: Settings) => Promise<void>;
