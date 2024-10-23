@@ -18,13 +18,6 @@
   </a>
 </p>
 
-## Early Access
-
-⚠️⚠️⚠️ WARNING ⚠️⚠️⚠️<br/>
-This tool is currently in early access state, it is subject to change and might contain bugs.
-
----
-
 ## [📚 User Guide](apps/recovery-utility/README.md)
 
 ## 🆕 Coming from [fireblocks-key-recovery-tool](https://github.com/fireblocks/fireblocks-key-recovery-tool)?
