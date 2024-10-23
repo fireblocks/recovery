@@ -4,7 +4,8 @@ import type { NativeAssetPatch, NativeAssetPatches, GetExplorerUrl } from '../ty
 
 type ExplorerUrlBuilder = (baseUrl: string) => GetExplorerUrl;
 
-const getStandardExplorer = (baseUrl: string) => (type: string) => (value: string) => `https://${baseUrl}/${type}/${value}`;
+const getStandardExplorer = (baseUrl: string) => (type: string) => (value: string) =>
+  baseUrl.startsWith('https://') ? `${baseUrl}/${type}/${value}` : `https://${baseUrl}/${type}/${value}`;
 
 const getAdaExplorer: ExplorerUrlBuilder = (baseUrl) => (type) => {
   const segment = type === 'tx' ? 'transaction' : type;
@@ -24,9 +25,9 @@ const getSolanaExplorer: ExplorerUrlBuilder = (cluster?: string) => (type) => (v
   return `${baseUrl}?cluster=${cluster}`;
 };
 
-const evm = (baseExplorerUrl: string, rpcUrl?: string): NativeAssetPatch => ({
+const evm = (baseExplorerUrl: string, rpcUrl?: string, transfer = true): NativeAssetPatch => ({
   derive: true,
-  transfer: true,
+  transfer,
   rpcUrl,
   getExplorerUrl: getStandardExplorer(baseExplorerUrl),
 });
@@ -114,7 +115,7 @@ export const nativeAssetPatches: NativeAssetPatches = {
   },
   EOS: {
     derive: true,
-    transfer: true,
+    transfer: false,
     utxo: false,
     segwit: false,
     minBalance: false,
@@ -123,7 +124,7 @@ export const nativeAssetPatches: NativeAssetPatches = {
   },
   EOS_TEST: {
     derive: true,
-    transfer: true,
+    transfer: false,
     utxo: false,
     segwit: false,
     minBalance: false,
@@ -259,11 +260,11 @@ export const nativeAssetPatches: NativeAssetPatches = {
   VLX_TEST: evm('testnet.velas.com', 'https://api.testnet.velas.com'),
   VLX_VLX: evm('native.velas.com', 'https://api.velas.com'),
   WND: evm('westend.subscan.io', 'https://rpc.westend.subscan.io'),
-  XDB: evm('xdbexplorer.com', 'https://rpc.xdbchain.com'),
-  XDB_TEST: evm('xdbexplorer.com', 'https://rpc.xdbchain.com'),
+  XDB: evm('xdbexplorer.com', 'https://rpc.xdbchain.com', false),
+  XDB_TEST: evm('xdbexplorer.com', 'https://rpc.xdbchain.com', false),
   XDC: evm('observer.xdc.org', 'https://rpc.xinfin.network'),
-  XEC: btc('explorer.bitcoinabc.org', false),
-  XEC_TEST: btc('texplorer.bitcoinabc.org', false),
+  XEC: btc('explorer.bitcoinabc.org', false, true, false),
+  XEC_TEST: btc('texplorer.bitcoinabc.org', false, true, false),
   XEM: {
     derive: true,
     transfer: true,
