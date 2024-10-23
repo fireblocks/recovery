@@ -35,10 +35,10 @@ export class ERC20 extends Ethereum implements ConnectedWallet {
   }
 
   public async generateTx(to: string, amount: number): Promise<TxPayload> {
-    const nonce = await this.provider.getTransactionCount(this.address, 'latest');
+    const nonce = await this.provider!.getTransactionCount(this.address, 'latest');
 
     // Should we use maxGasPrice? i.e. EIP1559.
-    const { gasPrice } = await this.provider.getFeeData();
+    const { gasPrice } = await this.provider!.getFeeData();
 
     const tx = {
       from: this.address,

@@ -1,4 +1,4 @@
-import { ZCash as BaseZEC, Input } from '@fireblocks/wallet-derivation';
+import { ZCash as BaseZEC } from '@fireblocks/wallet-derivation';
 import { AccountData } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
 import { BTCRelayWallet } from './BTCRelayWallet';
@@ -7,11 +7,10 @@ import { StandardBTCRelayWalletUtils } from './BTCRelayWalletUtils';
 export class ZEC extends BaseZEC implements ConnectedWallet {
   private static readonly satsPerBtc = 100000000;
 
-  private readonly baseUrl: string;
+  public rpcURL: string | undefined;
 
-  constructor(input: Input) {
-    super(input);
-    this.baseUrl = 'https://api.blockchair.com/zcash';
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
   }
 
   public async prepare(): Promise<AccountData> {
@@ -31,7 +30,7 @@ export class ZEC extends BaseZEC implements ConnectedWallet {
   }
 
   private async _getCurrentBlockHeight() {
-    const utils = new StandardBTCRelayWalletUtils(this.baseUrl);
+    const utils = new StandardBTCRelayWalletUtils(this.rpcURL!);
     const stats = await utils.requestJson<{
       data: {
         blocks: number;

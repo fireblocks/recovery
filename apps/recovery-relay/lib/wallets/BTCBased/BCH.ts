@@ -5,14 +5,17 @@ import { LateInitConnectedWallet } from '../LateInitConnectedWallet';
 import { BCHUTXO } from './types';
 
 export class BitcoinCash extends BCHBase implements LateInitConnectedWallet {
-  private endpoint: string;
-
   private network: Networks.Network;
+
+  public rpcURL: string | undefined;
 
   constructor(input: Input) {
     super(input);
-    this.endpoint = 'https://rest.bch.actorforth.org/v2';
     this.network = Networks.mainnet;
+  }
+
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -25,18 +28,18 @@ export class BitcoinCash extends BCHBase implements LateInitConnectedWallet {
   }
 
   public updateDataEndpoint(endpoint: string): void {
-    this.endpoint = endpoint;
+    this.rpcURL = endpoint;
   }
 
   public async getBalance(): Promise<number> {
-    if (this.isLateInit() && this.endpoint === '') {
+    if (this.isLateInit() && (this.rpcURL === '' || this.rpcURL === undefined)) {
       throw new Error('Endpoint not initialized yet');
     }
     return (await this.prepare()).balance;
   }
 
   public async prepare(): Promise<AccountData> {
-    if (this.isLateInit() && this.endpoint === '') {
+    if (this.isLateInit() && (this.rpcURL === '' || this.rpcURL === undefined)) {
       throw new Error('Endpoint not initialized yet');
     }
 
@@ -73,7 +76,7 @@ export class BitcoinCash extends BCHBase implements LateInitConnectedWallet {
   }
 
   private async _get<T>(path: string) {
-    const res = await fetch(`${this.endpoint}${path}`);
+    const res = await fetch(`${this.rpcURL}${path}`);
 
     const data: Promise<T> = res.json();
 
@@ -81,7 +84,7 @@ export class BitcoinCash extends BCHBase implements LateInitConnectedWallet {
   }
 
   private async _post(path: string) {
-    const res = await fetch(`${this.endpoint}${path}`, {
+    const res = await fetch(`${this.rpcURL}${path}`, {
       method: 'POST',
     });
 

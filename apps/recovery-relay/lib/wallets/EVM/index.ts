@@ -5,20 +5,25 @@ import { ConnectedWallet } from '../ConnectedWallet';
 import BigNumber from 'bignumber.js';
 
 export class EVM extends EVMBase implements ConnectedWallet {
-  protected readonly provider: JsonRpcProvider;
+  protected provider: JsonRpcProvider | undefined;
 
   protected weiBalance: bigint = BigInt(0);
 
-  constructor(input: Input, rpcEndpoint: string, chainId?: number) {
+  public rpcURL: string | undefined;
+
+  constructor(input: Input, private chainId?: number) {
     super(input);
 
-    this.relayLogger.info('Creating EVM wallet:', { rpcEndpoint, chainId, input });
+    this.relayLogger.info('Creating EVM wallet:', { chainId, input });
+  }
 
-    this.provider = new JsonRpcProvider(rpcEndpoint, chainId, { cacheTimeout: -1 });
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
+    this.provider = new JsonRpcProvider(this.rpcURL, this.chainId, { cacheTimeout: -1 });
   }
 
   public async getBalance() {
-    this.weiBalance = await this.provider.getBalance(this.address);
+    this.weiBalance = await this.provider!.getBalance(this.address);
     const balance = formatEther(this.weiBalance);
     const ethBalance = Number(balance);
 
@@ -37,10 +42,10 @@ export class EVM extends EVMBase implements ConnectedWallet {
       };
     }
 
-    const nonce = await this.provider.getTransactionCount(this.address, 'latest');
+    const nonce = await this.provider!.getTransactionCount(this.address, 'latest');
 
     // Should we use maxGasPrice? i.e. EIP1559.
-    const { gasPrice } = await this.provider.getFeeData();
+    const { gasPrice } = await this.provider!.getFeeData();
 
     if (!gasPrice) {
       throw new Error('No gas price found');
@@ -55,7 +60,7 @@ export class EVM extends EVMBase implements ConnectedWallet {
       this.relayLogger.error('Insufficient balance');
     }
 
-    const chainId = (await this.provider.getNetwork()).chainId;
+    const chainId = (await this.provider!.getNetwork()).chainId;
 
     const extraParams = new Map();
     extraParams.set(this.KEY_EVM_WEI_BALANCE, adjustedBalance.toString(16));
@@ -74,7 +79,7 @@ export class EVM extends EVMBase implements ConnectedWallet {
 
   public async broadcastTx(tx: string): Promise<string> {
     try {
-      const txRes = await this.provider.broadcastTransaction(tx);
+      const txRes = await this.provider!.broadcastTransaction(tx);
       this.relayLogger.debug(`EVM: Tx broadcasted: ${JSON.stringify(txRes, null, 2)}`);
       return txRes.hash;
     } catch (e) {

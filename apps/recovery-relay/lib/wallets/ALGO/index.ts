@@ -1,15 +1,19 @@
 import { Algorand as BaseALGO } from '@fireblocks/wallet-derivation';
+import { Algodv2 } from 'algosdk';
 import { AccountData } from '../types';
 import { LateInitConnectedWallet } from '../LateInitConnectedWallet';
 
-import { Algodv2 } from 'algosdk';
-
 export class Algorand extends BaseALGO implements LateInitConnectedWallet {
-  private endpoint: string | undefined;
+  public rpcURL: string | undefined;
+
   private algoClient: Algodv2 | undefined;
 
   public updateDataEndpoint(endpoint: string): void {
-    this.endpoint = endpoint;
+    this.rpcURL = endpoint;
+  }
+
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
   }
 
   public getLateInitLabel(): string {
@@ -24,6 +28,7 @@ export class Algorand extends BaseALGO implements LateInitConnectedWallet {
     }
     return accountInfo.amount;
   }
+
   public async prepare(): Promise<AccountData> {
     this.createClient();
 
@@ -42,15 +47,16 @@ export class Algorand extends BaseALGO implements LateInitConnectedWallet {
     return {
       balance,
       extraParams,
-      endpoint: this.endpoint,
+      endpoint: this.rpcURL,
     };
   }
+
   public broadcastTx(tx: string): Promise<string> {
     throw new Error('Method not implemented.');
   }
 
   private createClient() {
-    if (!this.endpoint) {
+    if (!this.rpcURL) {
       throw new Error('Wallet not initialized yet');
     }
 
@@ -58,8 +64,8 @@ export class Algorand extends BaseALGO implements LateInitConnectedWallet {
       return;
     }
 
-    const [host, port, apiToken] = this.endpoint.split(':');
+    const [host, port, apiToken] = this.rpcURL.split(':');
 
-    this.algoClient = new Algodv2(apiToken, host, parseInt(port));
+    this.algoClient = new Algodv2(apiToken, host, parseInt(port, 10));
   }
 }

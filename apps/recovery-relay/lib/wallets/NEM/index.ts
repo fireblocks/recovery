@@ -3,16 +3,16 @@ import { ConnectedWallet } from '../ConnectedWallet';
 import { AccountData } from '../types';
 import axios from 'axios';
 export class NEM extends BaseNEM implements ConnectedWallet {
-  private endpoint: string;
+  public rpcURL: string | undefined;
 
-  private readonly defaultMainnet: string = 'http://hugealice3.nem.ninja';
-  private readonly defaultTestnet: string = 'http://hugetestalice.nem.ninja';
+  private endpoint: string | undefined;
+
   private readonly defaultPort: number = 7890;
   private readonly websocketPort: number = 7778;
 
-  constructor(input: Input) {
-    super(input);
-    this.endpoint = this.isTestnet ? `${this.defaultTestnet}:${this.defaultPort}` : `${this.defaultMainnet}:${this.defaultPort}`;
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
+    this.endpoint = this.isTestnet ? `${url}:${this.defaultPort}` : `${url}:${this.defaultPort}`;
   }
 
   public async getBalance(): Promise<number> {
@@ -22,7 +22,7 @@ export class NEM extends BaseNEM implements ConnectedWallet {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        url: this.endpoint + `/account/get?address=${this.address}`,
+        url: this.endpoint! + `/account/get?address=${this.address}`,
       })
     ).data.account;
     return accountData.balance / 1000000;
@@ -42,7 +42,7 @@ export class NEM extends BaseNEM implements ConnectedWallet {
     const txRes = (
       await axios({
         method: 'POST',
-        url: `${this.endpoint}/transaction/announce`,
+        url: `${this.endpoint!}/transaction/announce`,
         headers: {
           'Content-Type': 'application/json',
           'Content-Length': Buffer.from(tx, 'hex').byteLength,

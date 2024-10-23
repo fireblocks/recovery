@@ -7,6 +7,6 @@ export class Celo extends EVM implements ConnectedWallet {
     if (input.isTestnet) {
       throw new Error('No CELO testnet support.');
     }
-    super(input, 'https://forno.celo.org');
+    super(input, 42220);
   }
 }

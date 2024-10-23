@@ -5,6 +5,8 @@ import { AccountData } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
 
 export class Near extends BaseNEAR implements ConnectedWallet {
+  public rpcURL: string | undefined;
+
   private near: NearApi | undefined;
 
   public async getBalance(): Promise<number> {
@@ -13,6 +15,10 @@ export class Near extends BaseNEAR implements ConnectedWallet {
     const acc = await near.account(this.address);
     const balance = await acc.getAccountBalance();
     return parseFloat(balance.available) / 10 ** 24;
+  }
+
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
   }
 
   public async prepare(): Promise<AccountData> {
@@ -55,7 +61,7 @@ export class Near extends BaseNEAR implements ConnectedWallet {
     }
     const mainnetConfig = {
       networkId: 'mainnet',
-      nodeUrl: 'https://rpc.mainnet.near.org',
+      nodeUrl: this.rpcURL!,
       walletUrl: 'https://wallet.mainnet.near.org',
       helperUrl: 'https://helper.mainnet.near.org',
       explorerUrl: 'https://explorer.mainnet.near.org',
@@ -63,7 +69,7 @@ export class Near extends BaseNEAR implements ConnectedWallet {
     };
     const testnetConfig = {
       networkId: 'testnet',
-      nodeUrl: 'https://rpc.testnet.near.org',
+      nodeUrl: this.rpcURL!,
       walletUrl: 'https://wallet.testnet.near.org',
       helperUrl: 'https://helper.testnet.near.org',
       explorerUrl: 'https://explorer.testnet.near.org',

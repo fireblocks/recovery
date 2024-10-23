@@ -1,4 +1,4 @@
-import { LiteCoin as BaseLTC, Input } from '@fireblocks/wallet-derivation';
+import { LiteCoin as BaseLTC } from '@fireblocks/wallet-derivation';
 import { AccountData } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
 import { BTCRelayWallet } from './BTCRelayWallet';
@@ -6,11 +6,10 @@ import { BTCRelayWallet } from './BTCRelayWallet';
 export class LTC extends BaseLTC implements ConnectedWallet {
   private static readonly satsPerBtc = 100000000;
 
-  private readonly baseUrl: string;
+  public rpcURL: string | undefined;
 
-  constructor(input: Input) {
-    super(input);
-    this.baseUrl = 'https://api.blockchair.com/litecoin';
+  public setRPCUrl(url: string): void {
+    this.rpcURL = url;
   }
 
   public async getBalance(): Promise<number> {
