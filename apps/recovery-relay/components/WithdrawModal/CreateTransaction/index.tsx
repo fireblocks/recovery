@@ -16,13 +16,76 @@ import {
   sanatize,
   useOfflineQuery,
 } from '@fireblocks/recovery-shared';
-import { AssetConfig } from '@fireblocks/asset-config';
+import { AssetConfig, getAssetConfig, isNativeAssetId } from '@fireblocks/asset-config';
 import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
 import { useWorkspace } from '../../../context/Workspace';
 import { Derivation, AccountData } from '../../../lib/wallets';
 import { LateInitConnectedWallet } from '../../../lib/wallets/LateInitConnectedWallet';
+import { useSettings } from '../../../context/Settings';
 
 const logger = getLogger(LOGGER_NAME_RELAY);
+
+const getRPCKey = (
+  assetId: string,
+  RPCs: Record<
+    string,
+    {
+      enabled: boolean;
+      allowedEmptyValue: boolean;
+      name: string;
+      url?: string | null | undefined;
+    }
+  >,
+): string | undefined => {
+  if (assetId === '') {
+    return undefined;
+  }
+  let baseAsset = assetId;
+  if (!isNativeAssetId(baseAsset)) {
+    const assetConfig = getAssetConfig(baseAsset);
+    if (assetConfig === undefined) {
+      logger.error(`Unknown asset: ${baseAsset}`);
+      return undefined;
+    }
+    baseAsset = assetConfig.nativeAsset;
+  }
+  if (!Object.keys(RPCs).includes(baseAsset)) {
+    logger.error(`Unknown base asset Id: ${baseAsset}`);
+    return undefined;
+  }
+  return baseAsset;
+};
+
+export const getAssetURL = (
+  assetId: string,
+  RPCs: Record<
+    string,
+    {
+      enabled: boolean;
+      allowedEmptyValue: boolean;
+      name: string;
+      url?: string | null | undefined;
+    }
+  >,
+): string | null | undefined => {
+  const rpcKey = getRPCKey(assetId, RPCs);
+  if (rpcKey === undefined) {
+    return undefined;
+  }
+
+  const assetRPCData = RPCs[rpcKey];
+  const { url } = assetRPCData;
+  logger.info(`RPC URL for ${rpcKey} is ${assetRPCData.enabled ? 'enabled' : 'disabled'} and is ${url}`);
+
+  if (assetRPCData.allowedEmptyValue && (url === null || url === undefined)) {
+    return null;
+  }
+  if (!assetRPCData.enabled) {
+    // If not enabled we shouldn't be getting a request to the relay for it regardless.
+    return undefined;
+  }
+  return url;
+};
 
 const getWallet = (accounts: Map<number, VaultAccount<Derivation>>, accountId?: number, assetId?: string) => {
   if (typeof accountId === 'undefined' || typeof assetId === 'undefined') {
@@ -54,6 +117,7 @@ type Props = {
 
 export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponseUrl }: Props) => {
   const { accounts } = useWorkspace();
+  const { saveSettings, RPCs } = useSettings();
 
   const { accountId } = inboundRelayParams;
   const { id: txId, to: toAddress } = inboundRelayParams.newTx;
@@ -87,15 +151,6 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
 
   const derivation = wallet?.derivations?.get(fromAddress);
 
-  // const balanceQueryKey = ['balance', accountId, asset?.id, fromAddress];
-
-  // const balanceQuery = useOfflineQuery({
-  //   queryKey: balanceQueryKey,
-  //   enabled: !!derivation,
-  //   queryFn: async () => derivation!.getBalance?.(),
-  //   onError: (err: Error) => console.error('Failed to query balance', err),
-  // });
-
   // TODO: Show both original balance and adjusted balance in create tx UI
 
   const prepareQueryKey = ['prepare', fromAddress, values.memo];
@@ -105,6 +160,12 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
     enabled: !!derivation,
     queryFn: async () => {
       logger.debug(`Querying prepare transaction ${toAddress}`);
+      const rpcUrl = getAssetURL(derivation?.assetId ?? '', RPCs);
+      if (rpcUrl === undefined) {
+        logger.error(`Unknown URL for ${derivation?.assetId ?? '<empty>'}`);
+        throw new Error(`No RPC Url for: ${derivation?.assetId}`);
+      }
+      if (rpcUrl !== null) derivation!.setRPCUrl(rpcUrl);
       return await derivation!.prepare?.(toAddress, values.memo);
     },
     onSuccess: (prepare: AccountData) => {
@@ -288,7 +349,14 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
             id='endpoint'
             label={(derivation as LateInitConnectedWallet).getLateInitLabel()}
             onChange={async (e) => {
-              (derivation as LateInitConnectedWallet).updateDataEndpoint(e.target.value as string);
+              const url = e.target.value as string;
+              (derivation as LateInitConnectedWallet).updateDataEndpoint(url);
+              const rpcKey = getRPCKey(derivation.assetId ?? '', RPCs);
+              if (rpcKey !== undefined && !rpcKey.includes('HBAR')) {
+                RPCs[rpcKey].url = url;
+                await saveSettings({ RPCs });
+              }
+
               await prepareQuery.refetch();
             }}
           />

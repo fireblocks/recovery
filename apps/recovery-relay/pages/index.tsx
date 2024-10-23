@@ -1,5 +1,5 @@
 import { Box, Grid } from '@mui/material';
-import { LeakAdd } from '@mui/icons-material';
+import { LeakAdd, Settings } from '@mui/icons-material';
 import { LogoHero, Button, NextLinkComposed } from '@fireblocks/recovery-shared';
 
 const Index = () => (
@@ -17,6 +17,10 @@ const Index = () => (
           <Grid item xs={12}>
             <Button size='large' color='primary' fullWidth component={NextLinkComposed} to='/relay'>
               Scan QR Code
+            </Button>
+            <span style={{ paddingBottom: '2em' }}>&nbsp;</span>
+            <Button size='large' color='primary' fullWidth component={NextLinkComposed} to='/settings'>
+              <Settings /> Settings
             </Button>
           </Grid>
         </Grid>
