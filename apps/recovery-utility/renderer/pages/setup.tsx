@@ -247,7 +247,7 @@ const Setup = () => {
             primaryTypographyProps={{ variant: 'h2' }}
             secondary={
               <Typography variant='body1' paragraph>
-                If you already have a privatae-public key pair, you can simply upload the public key here instead of generating a
+                If you already have a private-public key pair, you can simply upload the public key here instead of generating a
                 public key
               </Typography>
             }
