@@ -4,9 +4,19 @@ import fs from 'fs';
 import path from 'path';
 import stream from 'stream';
 import archiver from 'archiver';
-import { AsyncFn, SkipError, FixError } from './types';
+import {
+  AsyncFn,
+  SkipError,
+  UtilityDisabledAssetError,
+  FixableError,
+  UtilityUnknownError,
+  RelayBalanceFetchError,
+  UtilityInvalidAddressFormatError,
+  RelayMissingEndpointError,
+} from './types';
 import { reset } from './test-utils';
 import test from 'playwright/test';
+import { env } from 'process';
 
 const assert = (condition: unknown, message: string) => {
   if (!condition) throw new Error(message);
@@ -17,7 +27,7 @@ const sleep = async (ms: number) => await new Promise((r) => setTimeout(r, ms));
 const waitForLoadingToEnd = async (page: Page) => {
   for (;;) {
     if (await page.getByText('Could not get balance').isVisible()) {
-      throw new FixError('Unable to obtain balance');
+      throw new RelayBalanceFetchError('Unable to obtain balance');
     }
     const visible = await page.locator('.MuiCircularProgress-indeterminate').first().isVisible();
     if (visible) {
@@ -110,7 +120,7 @@ const testFailed = async (onApp: 'utility' | 'relay', assetId: string) => {
   } catch {}
   fs.writeFileSync(`./failed-tests/${assetId}-${Date.now()}.zip`, zipBuffer);
 
-  throw new Error(`Failed to transfer ${assetId} due to console error`);
+  throw new UtilityUnknownError(`Failed to transfer ${assetId} due to console error`);
 };
 
 const wrapStep = <T extends AsyncFn>(
@@ -122,7 +132,7 @@ const wrapStep = <T extends AsyncFn>(
     try {
       return await call(...args);
     } catch (e) {
-      if (e instanceof SkipError || e instanceof FixError) {
+      if (e instanceof SkipError || e instanceof FixableError) {
         throw e;
       }
       if (!(e as Error).message.includes('Target page, context or browser has been closed') && process.env.PAUSE_ON_ERROR)
@@ -133,15 +143,35 @@ const wrapStep = <T extends AsyncFn>(
   };
 };
 
-export const skipTest = async (e: SkipError | FixError, assetId: string, relayWindow: Page, utilWindow: Page) => {
+export const skipTest = async (e: SkipError | FixableError, assetId: string, relayWindow: Page, utilWindow: Page) => {
+  const disabledAssetError = e instanceof UtilityDisabledAssetError;
+  if (disabledAssetError) {
+    console.log(`${assetId} is disabled for withdraw, not failing.`);
+    return;
+  }
+
   const skipError = e instanceof SkipError;
   try {
     fs.mkdirSync('./failed-tests/', { recursive: true });
   } catch {}
-  fs.writeFileSync(
-    `./failed-tests/${assetId}-${skipError ? 'INSUFFICIENT-BALANCE' : 'FIX'}.txt`,
-    skipError ? '' : `${e.message}, stack: ${e.stack}`,
-  );
+  const errorDescription = skipError
+    ? 'INSUFFICIENT-BALANCE'
+    : e instanceof UtilityInvalidAddressFormatError
+    ? 'ADDRESS-FORMAT'
+    : e instanceof RelayMissingEndpointError
+    ? 'NO-RELAY-ENDPOINT'
+    : e instanceof RelayBalanceFetchError
+    ? 'RELAY-BALANCE-FETCH'
+    : 'FIX';
+  fs.writeFileSync(`./failed-tests/${assetId}-${errorDescription}.txt`, skipError ? '' : `${e.message}, stack: ${e.stack}`);
+
+  if (env.PAUSE_ON_ERROR) {
+    if (errorDescription.includes('RELAY')) {
+      await relayWindow.pause();
+    } else {
+      await utilWindow.pause();
+    }
+  }
 
   await reset(utilWindow);
   await reset(relayWindow);
