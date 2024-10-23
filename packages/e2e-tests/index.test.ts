@@ -11,9 +11,10 @@ import {
   startWithdrawal,
 } from './transfer-utils';
 import { testAssets } from './tests';
-import { AssetTestConfig, FixError, SkipError } from './types';
+import { AssetTestConfig, UtilityDisabledAssetError, FixableError, SkipError } from './types';
 import { assert, skipTest, testFailed, wrapStep } from './utils';
 import { navigateToVault, reset } from './test-utils';
+import { updateRPCURL } from './relay-utils';
 
 let recoveryApp: ElectronApplication, relayApp: ElectronApplication;
 let relayWindow: Page, utilWindow: Page;
@@ -56,6 +57,7 @@ const consoleMessageCallback = (windowType: 'utility' | 'relay') => async (msg: 
   }
 
   if (process.env.PAUSE_ON_ERROR) {
+    console.log('Trying to pause');
     if (windowType === 'relay') await relayWindow.pause();
     else await utilWindow.pause();
   }
@@ -65,7 +67,7 @@ const consoleMessageCallback = (windowType: 'utility' | 'relay') => async (msg: 
   }
 
   if (fixErrors.some((err) => msg.text().includes(err))) {
-    throw new FixError(msg.text());
+    throw new FixableError(msg.text());
   }
 
   console.error(`${windowType.toUpperCase()} Faced an error: ${msg.text()}`);
@@ -78,7 +80,7 @@ const tryTransferAsset = (assetConfig: AssetTestConfig) => {
   const transferAsset = async (testInfo: TestInfo): Promise<void> => {
     const relayWindow = await relayApp.firstWindow();
     const utilWindow = await recoveryApp.firstWindow();
-    const { assetId, endpoint, toAddress } = assetConfig;
+    const { assetId, newEndpoint, toAddress } = assetConfig;
 
     await navigateToVault(utilWindow, parseInt(process.env.VAULT_TO_USE!));
     if (!(await utilWindow.getByRole('cell', { name: assetId }).isVisible())) {
@@ -86,16 +88,24 @@ const tryTransferAsset = (assetConfig: AssetTestConfig) => {
       try {
         await deriveAsset(utilWindow, assetId);
       } catch (e) {
-        throw new FixError(`Failed to derive ${assetId} - ${(e as Error).message}`);
+        throw new FixableError(`Failed to derive ${assetId} - ${(e as Error).message}`);
       }
+    }
+    if (newEndpoint) {
+      await wrapStep('relay', assetId, updateRPCURL)(relayWindow, assetId, newEndpoint);
     }
 
     const address = await wrapStep('utility', assetId, getAddressForAsset)(utilWindow, assetId);
     const txInitData = await wrapStep('utility', assetId, startWithdrawal)(utilWindow, assetId, toAddress ?? address);
-    const txParamData = await wrapStep('relay', assetId, fetchTxParamData)(relayWindow, txInitData, endpoint);
+    const txParamData = await wrapStep('relay', assetId, fetchTxParamData)(relayWindow, txInitData, newEndpoint);
     const signedTxData = await wrapStep('utility', assetId, approveTransaction)(utilWindow, txParamData);
     const txHash = await wrapStep('relay', assetId, broadcastTransaction)(relayWindow, signedTxData);
+
     console.log('TxHash: ', txHash);
+
+    if (assetConfig.postTestFn) {
+      await assetConfig.postTestFn(utilWindow, relayWindow);
+    }
 
     await reset(utilWindow);
     await reset(relayWindow);
@@ -105,7 +115,7 @@ const tryTransferAsset = (assetConfig: AssetTestConfig) => {
     try {
       await transferAsset(testInfo);
     } catch (e) {
-      if (e instanceof SkipError || e instanceof FixError) {
+      if (e instanceof SkipError || e instanceof FixableError) {
         await skipTest(e, assetConfig.assetId, relayWindow, utilWindow);
         return;
       }
