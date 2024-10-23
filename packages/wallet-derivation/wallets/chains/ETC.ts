@@ -9,4 +9,8 @@ export class ETC extends ECDSAWallet {
   protected getAddress(evmAddress?: string) {
     return evmAddress as string;
   }
+
+  protected readonly KEY_EVM_WEI_BALANCE = 'b';
+
+  protected readonly KEY_EVM_FORCE_LEGACY_TX = 'fltx';
 }
