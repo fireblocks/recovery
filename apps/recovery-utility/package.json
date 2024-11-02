@@ -32,7 +32,7 @@
     "@taquito/taquito": "^16.2.0",
     "@taquito/utils": "^16.2.0",
     "@terra-money/terra.js": "^3.1.10",
-    "algosdk": "2.5.0",
+    "algosdk": "2.9.0",
     "archiver": "^5.3.1",
     "bignumber.js": "^9.1.2",
     "bitcoinjs-lib": "^6.1.3",
