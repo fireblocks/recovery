@@ -21,7 +21,7 @@
     "@cosmjs/amino": "^0.31.0",
     "@cosmjs/encoding": "^0.31.0",
     "@cosmjs/math": "^0.31.0",
-    "@cosmjs/proto-signing": "^0.31.0",
+    "@cosmjs/proto-signing": "^0.32.4",
     "@cosmjs/stargate": "^0.32.1",
     "@dashevo/dashcore-lib": "^0.21.0",
     "@emurgo/cardano-serialization-lib-asmjs": "^11.4.0",
