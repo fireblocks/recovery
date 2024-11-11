@@ -1,23 +1,5 @@
 # recovery-utility
 
-## 1.0.0
-
-### Major Changes
-
-- 2042e27: Removed early access warning
-
-### Minor Changes
-
-- ef57e43: Fixed ETC withdrawal
-
-### Patch Changes
-
-- fb852ae: Fix typo
-- ab2ea37: Re-enabled transfer of and fixed ATOM
-- b836b7c: Updated settings schema for configurable RPC
-- cf7bb23: Added celestia and coredao logic
-- e0395df: Added flag to force legacy transaction format
-
 ## 0.6.0
 
 ### Minor Changes

@@ -1,18 +1,5 @@
 # @fireblocks/asset-config
 
-## 0.4.0
-
-### Minor Changes
-
-- ecb2e9b: Fixed standard explorer URL and disabled EOS, XDB and XEC asset transfer
-- cccaa37: refactor(@fireblocks/asset-config): :wrench: updated global assets
-
-### Patch Changes
-
-- ab2ea37: Re-enabled transfer of and fixed ATOM
-- 210c378: Added celestia and coredao to native patches]
-- 665e844: Fixed address validation for TRX & ADA_TEST
-
 ## 0.3.0
 
 ### Minor Changes

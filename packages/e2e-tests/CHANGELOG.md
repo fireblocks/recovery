@@ -1,22 +1,5 @@
 # @fireblocks/e2e-tests
 
-## 0.3.0
-
-### Minor Changes
-
-- f3906da: Created more descriptive error types
-- 2418fcb: raise error if couldn't get balance
-
-### Patch Changes
-
-- 213ebf9: raise error if invalid address format
-- 72000ba: Added support for testing configurable rpc
-- 7e455f8: added .env example for e2e test
-- 9846d3e: Added support for configurable rpc test and error types
-- 9effeb7: updated asset list for test
-- 28c8ebd: Updated possible test assets
-- c320e08: Updated launch timeout
-
 ## 0.2.0
 
 ### Minor Changes

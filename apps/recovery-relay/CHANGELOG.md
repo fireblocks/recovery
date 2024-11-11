@@ -1,37 +1,5 @@
 # recovery-relay
 
-## 1.0.0
-
-### Major Changes
-
-- 2042e27: Removed early access warning
-
-### Minor Changes
-
-- 3ec08d8: Added default RPC URLs
-
-### Patch Changes
-
-- ab2ea37: Re-enabled transfer of and fixed ATOM
-- 0d3674f: yarn file and version bump
-- b836b7c: Updated settings schema for configurable RPC
-- cf7bb23: Added celestia and coredao logic
-- fc90716: Updated relay UI for configurable RPC
-- af041e2: Updated wallets to use configurable RPCs
-- Updated dependencies [ab2ea37]
-- Updated dependencies [210c378]
-- Updated dependencies [ecb2e9b]
-- Updated dependencies [b836b7c]
-- Updated dependencies [665e844]
-- Updated dependencies [e081c5a]
-- Updated dependencies [cccaa37]
-- Updated dependencies [cf7bb23]
-- Updated dependencies [ef57e43]
-- Updated dependencies [e0395df]
-  - @fireblocks/asset-config@0.4.0
-  - @fireblocks/recovery-shared@0.5.0
-  - @fireblocks/wallet-derivation@0.6.0
-
 ## 0.6.0
 
 ### Minor Changes
