@@ -57,7 +57,7 @@
     "@polkadot/wasm-util": "7.2.1"
   },
   "dependencies": {
-    "@changesets/cli": "^2.26.2",
+    "@changesets/cli": "^2.27.10",
     "@commitlint/cli": "^17.6.6",
     "@commitlint/config-conventional": "^17.6.6",
     "@commitlint/prompt-cli": "^17.6.6",
