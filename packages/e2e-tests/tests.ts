@@ -41,6 +41,7 @@ const nativeTestnetAssets: AssetTestConfig[] = [
   // { assetId: 'XRP_TEST' },
   // { assetId: 'XTZ_TEST' },
   // { assetId: 'ZEC_TEST' },
+  // { assetId: 'TON_TEST' },
 ];
 
 const nativeMainnetAssets = [
@@ -98,6 +99,7 @@ const nativeMainnetAssets = [
   // { assetId: 'XRP' },
   // { assetId: 'XTZ' },
   // { assetId: 'ZEC' },
+  // { assetId: 'TON' },
 ];
 
 export const testAssets: AssetTestConfig[] = [...nativeTestnetAssets, ...nativeMainnetAssets];

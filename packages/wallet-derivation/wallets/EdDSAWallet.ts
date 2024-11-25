@@ -141,7 +141,7 @@ export abstract class EdDSAWallet extends BaseWallet {
 
     const privateKeyInt = hexToNumber(this.privateKey.slice(2));
     const privateKeyBytes = numberToBytesLE(privateKeyInt, 32);
-    const messagesBytes = typeof message === 'string' ? Buffer.from(message) : message;
+    const messagesBytes = typeof message === 'string' ? Buffer.from(message, 'hex') : message;
     const messageBytes = concatBytes(messagesBytes);
 
     const seed = randomBytes();

@@ -20,6 +20,7 @@ import { Hedera } from './HBAR';
 import { Algorand } from './ALGO';
 import { Bitcoin, BitcoinSV, LiteCoin, Dash, ZCash, Doge } from './BTC';
 import { Celestia } from './CELESTIA';
+import { Ton } from './TON';
 
 const fillEVMs = () => {
   const evms = Object.keys(assets).reduce(
@@ -95,6 +96,8 @@ export const WalletClasses = {
   XEM_TEST: NEM,
   HBAR: Hedera,
   HBAR_TEST: Hedera,
+  TON: Ton,
+  TON_TEST: Ton,
 
   ...fillEVMs(),
 } as const;
