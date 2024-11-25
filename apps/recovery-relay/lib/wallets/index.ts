@@ -36,6 +36,7 @@ import { Tezos } from './XTZ';
 import { Algorand } from './ALGO';
 import { Celestia } from './CELESTIA';
 import { CoreDAO } from './EVM/CORE_COREDAO';
+import { Ton } from './TON';
 export { ConnectedWallet } from './ConnectedWallet';
 
 export const WalletClasses = {
@@ -118,6 +119,8 @@ export const WalletClasses = {
   HBAR_TEST: Hedera,
   CELESTIA: Celestia,
   CELESTIA_TEST: Celestia,
+  TON: Ton,
+  TON_TEST: Ton,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];

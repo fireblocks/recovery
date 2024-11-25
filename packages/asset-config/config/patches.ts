@@ -337,4 +337,34 @@ export const nativeAssetPatches: NativeAssetPatches = {
     memo: false,
     getExplorerUrl: getStandardExplorer('explorer.testnet.z.cash'),
   },
+  TON: {
+    derive: true,
+    transfer: true,
+    utxo: false,
+    segwit: false,
+    minBalance: true,
+    memo: true,
+    getExplorerUrl: (type) => (value) => {
+      if (type === 'tx') {
+        return `https://tonviewer.com/transaction/${value}`;
+      }
+
+      return `https://tonviewer.com/${value}`;
+    },
+  },
+  TON_TEST: {
+    derive: true,
+    transfer: true,
+    utxo: false,
+    segwit: false,
+    minBalance: true,
+    memo: true,
+    getExplorerUrl: (type) => (value) => {
+      if (type === 'tx') {
+        return `https://testnet.tonviewer.com/transaction/${value}`;
+      }
+
+      return `https://testnet.tonviewer.com/${value}`;
+    },
+  },
 };

@@ -3,6 +3,7 @@ import { bech32 } from 'bech32';
 import { isTestnetAsset } from '@fireblocks/asset-config';
 import { getLogger } from './getLogger';
 import { LOGGER_NAME_SHARED } from '../constants';
+import { Address } from '@ton/ton';
 
 const logger = getLogger(LOGGER_NAME_SHARED);
 
@@ -101,6 +102,9 @@ export class AddressValidator {
         return this.validateCOSMOS(address);
       case 'TERRA':
         return this.validateTERRA(address);
+      case 'TON':
+      case 'TON_TEST':
+        return this.validateTON(address);
       default:
         logger.error(`Unsupported networkProtocol for address validation ${validatorReference}`);
         throw new Error(`Unsupported networkProtocol for address validation ${validatorReference}`);
@@ -149,5 +153,14 @@ export class AddressValidator {
 
   private validateTERRA(address: string): boolean {
     return this.validateCosmosBased('terra')(address);
+  }
+
+  private validateTON(address: string): boolean {
+    try {
+      Address.parse(address);
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }

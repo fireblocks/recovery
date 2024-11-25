@@ -156,4 +156,16 @@ export const defaultRPCs: Record<
     enabled: true,
     allowedEmptyValue: false,
   },
+  TON_TEST: {
+    url: 'https://testnet.toncenter.com/api/v2/jsonRPC',
+    name: 'The Open Network - Testnet',
+    enabled: true,
+    allowedEmptyValue: false,
+  },
+  TON: {
+    url: 'https://toncenter.com/api/v2/jsonRPC',
+    name: 'The Open Network',
+    enabled: true,
+    allowedEmptyValue: false,
+  },
 };
