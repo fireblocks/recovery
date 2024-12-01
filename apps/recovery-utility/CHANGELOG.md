@@ -1,5 +1,11 @@
 # recovery-utility
 
+## 1.1.0
+
+### Minor Changes
+
+- 3e6e341: Bump versions
+
 ## 1.0.0
 
 ### Major Changes

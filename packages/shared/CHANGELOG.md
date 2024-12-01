@@ -1,5 +1,17 @@
 # shared
 
+## 0.6.0
+
+### Minor Changes
+
+- 3e6e341: Bump versions
+
+### Patch Changes
+
+- Updated dependencies [3e6e341]
+  - @fireblocks/asset-config@0.5.0
+  - @fireblocks/wallet-derivation@0.7.0
+
 ## 0.5.0
 
 ### Minor Changes

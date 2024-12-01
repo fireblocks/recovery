@@ -1,5 +1,11 @@
 # @fireblocks/e2e-tests
 
+## 0.4.0
+
+### Minor Changes
+
+- 3e6e341: Bump versions
+
 ## 0.3.0
 
 ### Minor Changes
