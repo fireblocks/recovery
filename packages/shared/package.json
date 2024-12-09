@@ -34,7 +34,7 @@
     "copy-to-clipboard": "^3.3.3",
     "jsoncrush": "^1.1.8",
     "multicoin-address-validator": "^0.5.13",
-    "nanoid": "^4.0.2",
+    "nanoid": "^5.0.9",
     "next": "^13.4.19",
     "papaparse": "^5.4.1",
     "qr-scanner": "^1.4.2",
