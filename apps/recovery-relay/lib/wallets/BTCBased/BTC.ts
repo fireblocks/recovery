@@ -49,7 +49,7 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
 
         async getFeeRate(): Promise<number> {
           const feeEstimate = await this.btcWalletUtils.requestJson.bind(this)<{ [key: string]: number }>('/fee-estimates');
-          const feeRate = feeEstimate['3'];
+          const feeRate = feeEstimate['1'];
           return feeRate;
         }
 
