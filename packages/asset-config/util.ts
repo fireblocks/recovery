@@ -42,6 +42,14 @@ export const isExplorerUrl = (url: string) => {
 
 export const getAssetConfig = (assetId?: string) => (isAssetId(assetId) ? assets[assetId] : undefined);
 
+export const isTransferableToken = (assetId?: string) => {
+  if (!isAssetId) return false;
+  const assetConfig = assets[assetId!];
+
+  // Is this a non-native asset, has a contract / address that represents it (i.e token) and we enabled the transfer option
+  return assetConfig.nativeAsset !== assetConfig.id && assetConfig.address && assetConfig.transfer;
+};
+
 export const getNetworkProtocol = (assetId: string) => getAssetConfig(assetId)?.protocol;
 
 export const getNativeAssetConfig = <ID extends string>(assetId?: ID) =>

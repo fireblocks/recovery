@@ -17,6 +17,7 @@ import { handleRelayUrl } from '../lib/ipc/handleRelayUrl';
 import { SigningWallet } from '../lib/wallets/SigningWallet';
 import { useSettings } from './Settings';
 import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
+import { isTransferableToken } from '@fireblocks/asset-config/util';
 
 type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K> : never;
 
@@ -65,7 +66,14 @@ export const WorkspaceProvider = ({ children }: Props) => {
     app: 'utility',
     relayBaseUrl,
     deriveWallet: (input) => {
-      const nativeAssetId = (getAssetConfig(input.assetId)?.nativeAsset ?? input.assetId) as keyof typeof WalletClasses;
+      let transferableToken = false;
+      const config = getAssetConfig(input.assetId);
+      if (config?.address && isTransferableToken(input.assetId)) {
+        transferableToken = true;
+      }
+      const nativeAssetId = (
+        transferableToken ? input.assetId : config?.nativeAsset ?? input.assetId
+      ) as keyof typeof WalletClasses;
 
       logger.info('Deriving native asset', nativeAssetId);
 

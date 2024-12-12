@@ -100,6 +100,9 @@ const nativeMainnetAssets = [
   // { assetId: 'XTZ' },
   // { assetId: 'ZEC' },
   // { assetId: 'TON' },
+  // { assetId: 'USDT_TON' },
+  // { assetId: 'NOTCOIN_TON' },
+  // { assetId: 'DOGS_TON' },
 ];
 
 export const testAssets: AssetTestConfig[] = [...nativeTestnetAssets, ...nativeMainnetAssets];

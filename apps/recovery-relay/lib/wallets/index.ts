@@ -37,6 +37,7 @@ import { Algorand } from './ALGO';
 import { Celestia } from './CELESTIA';
 import { CoreDAO } from './EVM/CORE_COREDAO';
 import { Ton } from './TON';
+import { Jetton } from './Jetton';
 export { ConnectedWallet } from './ConnectedWallet';
 
 export const WalletClasses = {
@@ -121,6 +122,9 @@ export const WalletClasses = {
   CELESTIA_TEST: Celestia,
   TON: Ton,
   TON_TEST: Ton,
+  USDT_TON: Jetton,
+  NOTCOIN_TON: Jetton,
+  DOGS_TON: Jetton,
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];
