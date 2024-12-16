@@ -126,7 +126,7 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(input: Deri
       wallet.derivations.delete(address);
     }
 
-    wallet.derivations.set(derivation.address, derivation);
+    wallet.derivations.set(`${derivation.assetId}-${derivation.address}`, derivation); // fix for token support
   }
 
   // Handle legacy + Segwit derivations

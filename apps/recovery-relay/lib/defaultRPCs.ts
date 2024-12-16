@@ -168,4 +168,10 @@ export const defaultRPCs: Record<
     enabled: true,
     allowedEmptyValue: false,
   },
+  Jetton: {
+    url: 'https://toncenter.com/api/v2/jsonRPC',
+    name: 'The Open Network',
+    enabled: true,
+    allowedEmptyValue: false,
+  },
 };

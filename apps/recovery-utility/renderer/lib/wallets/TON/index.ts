@@ -10,8 +10,7 @@ export class Ton extends BaseTon implements SigningWallet {
 
   public async generateTx({ to, amount, feeRate, memo, extraParams }: GenerateTxInput): Promise<TxPayload> {
     // calculate the amount to withdraw
-    const fee = BigInt(toNano(feeRate!)); // feeRate as BigInt in nano
-    const amountToWithdraw = BigInt(toNano(amount)) - fee; // amount is the wallet balance
+    const amountToWithdraw = BigInt(toNano(amount)) - BigInt(feeRate!);
     let internalMessageMemo = undefined;
     if (memo) {
       internalMessageMemo = beginCell().storeUint(0, 32).storeStringTail(memo).endCell();

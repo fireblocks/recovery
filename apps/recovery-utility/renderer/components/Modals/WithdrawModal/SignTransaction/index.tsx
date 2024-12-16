@@ -73,7 +73,9 @@ export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Pr
 
     const { to, amount, misc } = unsignedTx;
 
-    const derivation = account.wallets.get(asset.id)?.derivations.get(unsignedTx.from);
+    const derivation = account.wallets
+      .get(asset.id)
+      ?.derivations.get(`${inboundRelayParams?.unsignedTx.assetId}-${inboundRelayParams?.unsignedTx.from}`);
 
     if (!derivation) {
       throw new Error('Derivation not found');

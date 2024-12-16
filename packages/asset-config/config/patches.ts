@@ -24,6 +24,13 @@ const getSolanaExplorer: ExplorerUrlBuilder = (cluster?: string) => (type) => (v
 
   return `${baseUrl}?cluster=${cluster}`;
 };
+const getTonExplorerUrl: ExplorerUrlBuilder = (baseUrl) => (type) => (value) => {
+  if (type === 'tx') {
+    return `${baseUrl}/transaction/${value}`;
+  }
+
+  return `${baseUrl}/${value}`;
+};
 
 const evm = (baseExplorerUrl: string, rpcUrl?: string, transfer = true): NativeAssetPatch => ({
   derive: true,
@@ -344,13 +351,7 @@ export const nativeAssetPatches: NativeAssetPatches = {
     segwit: false,
     minBalance: true,
     memo: true,
-    getExplorerUrl: (type) => (value) => {
-      if (type === 'tx') {
-        return `https://tonviewer.com/transaction/${value}`;
-      }
-
-      return `https://tonviewer.com/${value}`;
-    },
+    getExplorerUrl: getTonExplorerUrl('https://tonviewer.com'),
   },
   TON_TEST: {
     derive: true,
@@ -359,12 +360,33 @@ export const nativeAssetPatches: NativeAssetPatches = {
     segwit: false,
     minBalance: true,
     memo: true,
-    getExplorerUrl: (type) => (value) => {
-      if (type === 'tx') {
-        return `https://testnet.tonviewer.com/transaction/${value}`;
-      }
-
-      return `https://testnet.tonviewer.com/${value}`;
-    },
+    getExplorerUrl: getTonExplorerUrl('https://testnet/tonviewer.com'),
+  },
+  DOGS_TON: {
+    derive: true,
+    transfer: true,
+    utxo: false,
+    segwit: false,
+    minBalance: true,
+    memo: true,
+    getExplorerUrl: getTonExplorerUrl('https://tonviewer.com'),
+  },
+  USDT_TON: {
+    derive: true,
+    transfer: true,
+    utxo: false,
+    segwit: false,
+    minBalance: true,
+    memo: true,
+    getExplorerUrl: getTonExplorerUrl('https://tonviewer.com'),
+  },
+  NOTCOIN_TON: {
+    derive: true,
+    transfer: true,
+    utxo: false,
+    segwit: false,
+    minBalance: true,
+    memo: true,
+    getExplorerUrl: getTonExplorerUrl('https://tonviewer.com'),
   },
 };
