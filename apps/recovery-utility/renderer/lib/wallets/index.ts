@@ -21,6 +21,7 @@ import { Algorand } from './ALGO';
 import { Bitcoin, BitcoinSV, LiteCoin, Dash, ZCash, Doge } from './BTC';
 import { Celestia } from './CELESTIA';
 import { Ton } from './TON';
+import { Jetton } from './Jetton';
 
 const fillEVMs = () => {
   const evms = Object.keys(assets).reduce(
@@ -38,6 +39,18 @@ const fillEVMs = () => {
   Object.keys(evms).forEach((key) => (evms[key] === undefined ? delete evms[key] : {}));
   return evms;
 };
+
+// const fillJettons = () => {
+//   const jettons = Object.keys(assets).reduce(
+//     (o, assetId) => ({
+//       ...o,
+//       [assets[assetId].id]: assets[assetId].protocol === 'TON' && assets[assetId].address ? Ton : undefined,
+//     }),
+//     {},
+//   ) as any;
+//   Object.keys(jettons).forEach((key) => (jettons[key] === undefined ? delete jettons[key] : {}));
+//   return jettons;
+// };
 
 export { SigningWallet as BaseWallet } from './SigningWallet';
 
@@ -98,6 +111,9 @@ export const WalletClasses = {
   HBAR_TEST: Hedera,
   TON: Ton,
   TON_TEST: Ton,
+  USDT_TON: Jetton,
+  NOTCOIN_TON: Jetton,
+  DOGS_TON: Jetton,
 
   ...fillEVMs(),
 } as const;

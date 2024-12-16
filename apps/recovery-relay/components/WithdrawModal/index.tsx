@@ -127,7 +127,9 @@ export const WithdrawModal = () => {
                         .get(inboundRelayParams?.accountId)
                         ?.wallets.get(inboundRelayParams?.signedTx.assetId);
 
-                      const derivation = wallet?.derivations?.get(inboundRelayParams?.signedTx.from);
+                      const derivation = wallet?.derivations?.get(
+                        `${inboundRelayParams?.signedTx.assetId}-${inboundRelayParams?.signedTx.from}`,
+                      ); // fix for token support
 
                       const rpcUrl = getAssetURL(derivation?.assetId ?? '', RPCs);
                       if (rpcUrl === undefined) {

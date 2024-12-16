@@ -26,6 +26,7 @@ import { ZCash } from './ZEC';
 import { Hedera } from './HBAR';
 import { Celestia } from './TIA';
 import { Ton } from './TON';
+import { Jetton } from './Jetton';
 
 export const getWallet = (assetId: string) => {
   const asset = assets[assetId];
@@ -75,6 +76,10 @@ export const getWallet = (assetId: string) => {
     case 'TON':
     case 'TON_TEST':
       return Ton;
+    case 'USDT_TON':
+    case 'NOTCOIN_TON':
+    case 'DOGS_TON':
+      return Jetton;
 
     // ECDSA
     case 'ATOM_COS':

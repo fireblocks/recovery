@@ -10,6 +10,7 @@ export const deriveWallet = (input: Input): BaseWallet => {
   const WalletInstance = getWallet(nativeAssetId);
 
   // TODO: defaultCoinType should be unnecessary here, fix types / class inheritance
+  //@ts-ignore
   const wallet = new WalletInstance(input, 0);
 
   return wallet;

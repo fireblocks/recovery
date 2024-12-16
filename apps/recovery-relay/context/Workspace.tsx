@@ -14,6 +14,7 @@ import { getAssetConfig } from '@fireblocks/asset-config';
 import packageJson from '../package.json';
 import { WalletClasses, Derivation } from '../lib/wallets';
 import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
+import { isTransferableToken } from '@fireblocks/asset-config/util';
 
 type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K> : never;
 
@@ -61,7 +62,6 @@ const getInboundRelayWalletIds = (inboundRelayParams?: RelayRequestParams) => {
     return null;
   }
 
-  logger.info('Inbound Relay params', inboundRelayParams);
   let ret;
   switch (inboundRelayParams.action) {
     case 'import':
@@ -116,6 +116,14 @@ export const WorkspaceProvider = ({ children }: Props) => {
     app: 'relay',
     relayBaseUrl: 'fireblocks-recovery:/',
     deriveWallet: (input) => {
+      if (isTransferableToken(input.assetId)) {
+        if (input.assetId in WalletClasses) {
+          return new WalletClasses[input.assetId as keyof typeof WalletClasses](input, 0);
+        } else {
+          throw new Error(`Unsupported token: ${input.assetId}`);
+        }
+      }
+
       const nativeAssetId = (getAssetConfig(input.assetId)?.nativeAsset ?? input.assetId) as keyof typeof WalletClasses;
 
       if (nativeAssetId in WalletClasses) {

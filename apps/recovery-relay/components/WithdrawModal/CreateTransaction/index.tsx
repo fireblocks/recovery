@@ -22,6 +22,7 @@ import { useWorkspace } from '../../../context/Workspace';
 import { Derivation, AccountData } from '../../../lib/wallets';
 import { LateInitConnectedWallet } from '../../../lib/wallets/LateInitConnectedWallet';
 import { useSettings } from '../../../context/Settings';
+import { Jetton } from '../../../lib/wallets/Jetton';
 
 const logger = getLogger(LOGGER_NAME_RELAY);
 
@@ -149,7 +150,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
 
   const fromAddress = values.fromAddress ?? defaultValues.fromAddress;
 
-  const derivation = wallet?.derivations?.get(fromAddress);
+  const derivation = wallet?.derivations?.get(`${asset?.id}-${fromAddress}`); // fix for token support
 
   // TODO: Show both original balance and adjusted balance in create tx UI
 
@@ -166,6 +167,11 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
         throw new Error(`No RPC Url for: ${derivation?.assetId}`);
       }
       if (rpcUrl !== null) derivation!.setRPCUrl(rpcUrl);
+      if (asset.address && asset.protocol === 'TON') {
+        (derivation as Jetton).setTokenAddress(asset.address);
+        (derivation as Jetton).setDecimals(asset.decimals);
+      }
+
       return await derivation!.prepare?.(toAddress, values.memo);
     },
     onSuccess: (prepare: AccountData) => {
@@ -421,6 +427,10 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
           <Typography variant='body1' color={(theme) => theme.palette.error.main}>
             Insufficient balance for transaction
           </Typography>
+        ) : prepareQuery.data?.insufficientFeeBalance === true && prepareQuery.data?.insufficientBalance !== true ? (
+          <Typography variant='body1' color={(theme) => theme.palette.error.main}>
+            Insufficient fee asset balance for token transaction
+          </Typography>
         ) : (
           ''
         )}
@@ -430,7 +440,12 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
           type='submit'
           disabled={
             !prepareQuery.data?.balance ||
-            (prepareQuery.data && prepareQuery.data?.insufficientBalance !== undefined && prepareQuery.data.insufficientBalance)
+            (prepareQuery.data &&
+              prepareQuery.data?.insufficientBalance !== undefined &&
+              prepareQuery.data.insufficientBalance) ||
+            (prepareQuery.data &&
+              prepareQuery.data?.insufficientFeeBalance !== undefined &&
+              prepareQuery.data.insufficientFeeBalance)
           }
         >
           Prepare Transaction
