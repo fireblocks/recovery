@@ -15,6 +15,7 @@ import {
   getLogger,
   sanatize,
   useOfflineQuery,
+  getDerivationMapKey,
 } from '@fireblocks/recovery-shared';
 import { AssetConfig, getAssetConfig, isNativeAssetId } from '@fireblocks/asset-config';
 import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
@@ -150,7 +151,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
 
   const fromAddress = values.fromAddress ?? defaultValues.fromAddress;
 
-  const derivation = wallet?.derivations?.get(`${asset?.id}-${fromAddress}`);
+  const derivation = wallet?.derivations?.get(getDerivationMapKey(asset?.id, fromAddress));
 
   // TODO: Show both original balance and adjusted balance in create tx UI
 
