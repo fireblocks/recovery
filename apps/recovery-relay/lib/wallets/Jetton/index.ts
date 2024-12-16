@@ -10,6 +10,10 @@ export class Jetton extends BaseTon implements LateInitConnectedWallet {
   public memo: string | undefined;
   public tokenAddress: string | undefined;
   public decimals: number | undefined;
+  public rpcURL: string | undefined;
+  private client: TonClient | undefined;
+
+  private tonWallet = WalletContractV4.create({ publicKey: Buffer.from(this.publicKey.replace('0x', ''), 'hex'), workchain: 0 });
 
   public setTokenAddress(address: string) {
     this.tokenAddress = address;
@@ -24,30 +28,11 @@ export class Jetton extends BaseTon implements LateInitConnectedWallet {
   }
 
   public getLateInitLabel(): string {
-    throw new Error('Method not implemented.');
+    return 'Ton client wallet';
   }
-
-  public rpcURL: string | undefined;
 
   public setRPCUrl(url: string): void {
     this.rpcURL = url;
-  }
-
-  private client: TonClient | undefined;
-
-  private init() {
-    this.client = new TonClient({
-      endpoint: this.rpcURL!,
-    });
-  }
-
-  private tonWallet = WalletContractV4.create({ publicKey: Buffer.from(this.publicKey.replace('0x', ''), 'hex'), workchain: 0 });
-
-  private async getContractAddress(): Promise<Address | undefined> {
-    const jettonMasterAddress = Address.parse(this.tokenAddress!);
-    const walletAddress = Address.parse(this.address);
-    const jettonMaster = this?.client?.open(JettonMaster.create(jettonMasterAddress));
-    return await jettonMaster?.getWalletAddress(walletAddress);
   }
 
   public async getBalance(): Promise<number> {
@@ -156,6 +141,20 @@ export class Jetton extends BaseTon implements LateInitConnectedWallet {
 
     return preperedData;
   }
+
+  private init() {
+    this.client = new TonClient({
+      endpoint: this.rpcURL!,
+    });
+  }
+
+  private async getContractAddress(): Promise<Address | undefined> {
+    const jettonMasterAddress = Address.parse(this.tokenAddress!);
+    const walletAddress = Address.parse(this.address);
+    const jettonMaster = this?.client?.open(JettonMaster.create(jettonMasterAddress));
+    return await jettonMaster?.getWalletAddress(walletAddress);
+  }
+
   private async getSeqno() {
     await new Promise((resolve) => setTimeout(resolve, 2000));
     return await this.client!.open(this.tonWallet).getSeqno();
