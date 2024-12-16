@@ -68,6 +68,8 @@ export { sanatize } from './lib/sanatize';
 
 export { AddressValidator } from './lib/validateAddress';
 
+export { getDerivationMapKey } from './lib/getDerivation';
+
 // Theme
 export { monospaceFontFamily, theme } from './theme';
 export { heebo } from './theme/fonts/heebo';

@@ -150,7 +150,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
 
   const fromAddress = values.fromAddress ?? defaultValues.fromAddress;
 
-  const derivation = wallet?.derivations?.get(`${asset?.id}-${fromAddress}`); // fix for token support
+  const derivation = wallet?.derivations?.get(`${asset?.id}-${fromAddress}`);
 
   // TODO: Show both original balance and adjusted balance in create tx UI
 

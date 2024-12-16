@@ -43,6 +43,10 @@ export const getWallet = (assetId: string) => {
     return EVMWallet;
   }
 
+  if (asset.protocol === 'TON' && asset.address) {
+    return Jetton;
+  }
+
   switch (assetId) {
     // EdDSA
     case 'ADA':
@@ -76,10 +80,6 @@ export const getWallet = (assetId: string) => {
     case 'TON':
     case 'TON_TEST':
       return Ton;
-    case 'USDT_TON':
-    case 'NOTCOIN_TON':
-    case 'DOGS_TON':
-      return Jetton;
 
     // ECDSA
     case 'ATOM_COS':

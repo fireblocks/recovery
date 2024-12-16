@@ -4,6 +4,7 @@ import { VaultAccount, Wallet } from '../../types';
 import { LOGGER_NAME_SHARED } from '../../constants';
 import { getLogger } from '../../lib/getLogger';
 import { sanatize } from '../../lib/sanatize';
+import { getDerivationMapKey } from '../../lib/getDerivation';
 
 const logger = getLogger(LOGGER_NAME_SHARED);
 
@@ -126,7 +127,7 @@ export const reduceDerivations = <T extends BaseWallet = BaseWallet>(input: Deri
       wallet.derivations.delete(address);
     }
 
-    wallet.derivations.set(`${derivation.assetId}-${derivation.address}`, derivation); // fix for token support
+    wallet.derivations.set(getDerivationMapKey(derivation.assetId, derivation.address), derivation);
   }
 
   // Handle legacy + Segwit derivations

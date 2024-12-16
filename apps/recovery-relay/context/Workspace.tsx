@@ -118,6 +118,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
     deriveWallet: (input) => {
       if (isTransferableToken(input.assetId)) {
         if (input.assetId in WalletClasses) {
+          logger.debug(`Dervied wallet for a token: ${input.assetId}`);
           return new WalletClasses[input.assetId as keyof typeof WalletClasses](input, 0);
         } else {
           throw new Error(`Unsupported token: ${input.assetId}`);

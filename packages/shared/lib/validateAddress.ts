@@ -104,9 +104,7 @@ export class AddressValidator {
         return this.validateTERRA(address);
       case 'TON':
       case 'TON_TEST':
-      case 'USDT_TON':
-      case 'DOGS_TON':
-      case 'NOTCOIN_TON':
+      case 'Jetton':
         return this.validateTON(address);
       default:
         logger.error(`Unsupported networkProtocol for address validation ${validatorReference}`);

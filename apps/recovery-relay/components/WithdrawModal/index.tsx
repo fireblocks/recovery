@@ -9,6 +9,7 @@ import {
   RelaySignTxResponseParams,
   getLogger,
   useWrappedState,
+  getDerivationMapKey,
 } from '@fireblocks/recovery-shared';
 import { getDerivableAssetConfig } from '@fireblocks/asset-config';
 import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
@@ -128,8 +129,8 @@ export const WithdrawModal = () => {
                         ?.wallets.get(inboundRelayParams?.signedTx.assetId);
 
                       const derivation = wallet?.derivations?.get(
-                        `${inboundRelayParams?.signedTx.assetId}-${inboundRelayParams?.signedTx.from}`,
-                      ); // fix for token support
+                        getDerivationMapKey(inboundRelayParams?.signedTx.assetId, inboundRelayParams?.signedTx.from),
+                      );
 
                       const rpcUrl = getAssetURL(derivation?.assetId ?? '', RPCs);
                       if (rpcUrl === undefined) {
