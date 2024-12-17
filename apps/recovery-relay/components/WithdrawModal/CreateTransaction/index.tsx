@@ -428,7 +428,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
           <Typography variant='body1' color={(theme) => theme.palette.error.main}>
             Insufficient balance for transaction
           </Typography>
-        ) : prepareQuery.data?.insufficientFeeBalance === true && prepareQuery.data?.insufficientBalance !== true ? (
+        ) : prepareQuery.data?.insufficientBalanceForTokenTransfer === true && prepareQuery.data?.insufficientBalance !== true ? (
           <Typography variant='body1' color={(theme) => theme.palette.error.main}>
             Insufficient fee asset balance for token transaction
           </Typography>
@@ -445,8 +445,8 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
               prepareQuery.data?.insufficientBalance !== undefined &&
               prepareQuery.data.insufficientBalance) ||
             (prepareQuery.data &&
-              prepareQuery.data?.insufficientFeeBalance !== undefined &&
-              prepareQuery.data.insufficientFeeBalance)
+              prepareQuery.data?.insufficientBalanceForTokenTransfer !== undefined &&
+              prepareQuery.data.insufficientBalanceForTokenTransfer)
           }
         >
           Prepare Transaction

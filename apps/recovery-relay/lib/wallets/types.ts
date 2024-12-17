@@ -28,7 +28,7 @@ export type AccountData = {
   extraParams?: Map<string, any>;
   endpoint?: string;
   insufficientBalance?: boolean;
-  insufficientFeeBalance?: boolean;
+  insufficientBalanceForTokenTransfer?: boolean;
 };
 
 export type TxPayload = {

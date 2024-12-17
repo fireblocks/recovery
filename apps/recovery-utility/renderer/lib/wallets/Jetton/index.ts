@@ -14,7 +14,7 @@ export class Jetton extends BaseTon implements SigningWallet {
       throw new Error('Jetton: Missing jetton parameters');
     }
 
-    const JettonTransferOpcode = 0x0f8a7ea5;
+    const jettonTransferOpcode = 0x0f8a7ea5;
     const decimals = extraParams?.get('decimals');
     const normalizingFactor = 10 ** decimals;
     const amountToWithdraw = amount * normalizingFactor; // amount is the wallet balance
@@ -22,7 +22,7 @@ export class Jetton extends BaseTon implements SigningWallet {
     let internalMessageMemo = undefined;
     // create the tx payload
     const internalMessageBody = beginCell()
-      .storeUint(JettonTransferOpcode, 32) // opcode for jetton transfer
+      .storeUint(jettonTransferOpcode, 32) // opcode for jetton transfer
       .storeUint(0, 64) // query id
       .storeCoins(amountToWithdraw) // jetton balance
       .storeAddress(Address.parse(to)) // tx destination
