@@ -52,7 +52,7 @@ For your convinience we have provided base methods for common types of chains:
 
 ### Add a new Jetton token
 
-To add support for withdrawals of a listed Jetton, make sure the token is listed in [globalAssets](/Users/tomerhorviz/Documents/recovery/packages/asset-config/data/globalAssets.ts) and in [patches](packages/asset-config/config/patches.ts).
+To add support for withdrawals of a listed Jetton, make sure the token is listed in `globalAssets.ts` and in `patches.ts`.
 The Jetton master contract address must be present in the 'globalAssets' list as the 'address' parameter.
 
 ### Token or new Base Asset Support
