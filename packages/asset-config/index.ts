@@ -1,10 +1,10 @@
 import { orderId, orderAssetById } from './config/sort';
 import { isNativeAssetId, isDerivableAssetId, isTestnetAsset } from './util';
-import { assets } from './assets';
+import { assets, getAllJettons } from './assets';
 
 export { getAssetConfig, getNativeAssetConfig, getDerivableAssetConfig, isExplorerUrl } from './util';
 
-export { assets };
+export { assets, getAllJettons };
 
 export type * from './types';
 

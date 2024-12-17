@@ -1,6 +1,6 @@
 import { Ton as BaseTon } from '@fireblocks/wallet-derivation';
 import { JettonMaster, TonClient, WalletContractV4 } from '@ton/ton';
-import { Address, beginCell, Cell, fromNano, toNano } from '@ton/core';
+import { Address, beginCell, Cell, toNano } from '@ton/core';
 import { AccountData } from '../types';
 import { defaultTonWalletV4R2code } from '../TON/tonParams';
 import axios from 'axios';
@@ -28,7 +28,7 @@ export class Jetton extends BaseTon implements LateInitConnectedWallet {
   }
 
   public getLateInitLabel(): string {
-    return 'Ton client wallet';
+    return 'Ton wallet client';
   }
 
   public setRPCUrl(url: string): void {
@@ -136,7 +136,7 @@ export class Jetton extends BaseTon implements LateInitConnectedWallet {
       feeRate,
       extraParams,
       insufficientBalance: jettonBalance <= 0,
-      insufficientFeeBalance: tonBalance < feeRate,
+      insufficientBalanceForTokenTransfer: tonBalance < feeRate,
     } as AccountData;
 
     return preperedData;

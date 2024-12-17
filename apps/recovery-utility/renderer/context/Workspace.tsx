@@ -68,8 +68,9 @@ export const WorkspaceProvider = ({ children }: Props) => {
     deriveWallet: (input) => {
       let transferableToken = false;
       const config = getAssetConfig(input.assetId);
-      if (config?.address && isTransferableToken(input.assetId)) {
+      if (isTransferableToken(input.assetId)) {
         transferableToken = true;
+        logger.info('Found a transferable token:', input.assetId);
       }
       const nativeAssetId = (
         transferableToken ? input.assetId : config?.nativeAsset ?? input.assetId

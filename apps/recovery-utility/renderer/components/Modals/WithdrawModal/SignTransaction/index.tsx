@@ -12,6 +12,7 @@ import {
   getLogger,
   sanatize,
   useWrappedState,
+  getDerivationMapKey,
 } from '@fireblocks/recovery-shared';
 import { AssetConfig } from '@fireblocks/asset-config';
 import { CallMade, CallReceived, LeakAdd, Toll } from '@mui/icons-material';
@@ -75,7 +76,7 @@ export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Pr
 
     const derivation = account.wallets
       .get(asset.id)
-      ?.derivations.get(`${inboundRelayParams?.unsignedTx.assetId}-${inboundRelayParams?.unsignedTx.from}`);
+      ?.derivations.get(getDerivationMapKey(inboundRelayParams?.unsignedTx.assetId, inboundRelayParams?.unsignedTx.from));
 
     if (!derivation) {
       throw new Error('Derivation not found');

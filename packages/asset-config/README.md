@@ -50,6 +50,11 @@ For your convinience we have provided base methods for common types of chains:
 - `evm(baseExplorerUrl: string, rpcUrl?: string)` to create a basic EVM chain, simply provide the `baseExplorerUrl` (the URL of an explorer) and optionally `rpcUrl` as the URL of the RPC to communicate with
 - `btc(baseExplorerUrl: string, segwit: boolean)` to create a basic BTC chain (ZCash, LTC, etc are all considered such) simply provide the `baseExplorerUrl` (the URL of an explorer) and optionally `segwit` should be false, as only BTC is relevant for this field
 
+### Add a new Jetton token
+
+To add support for withdrawals of a listed Jetton, make sure the token is listed in [globalAssets](/Users/tomerhorviz/Documents/recovery/packages/asset-config/data/globalAssets.ts) and in [patches](packages/asset-config/config/patches.ts).
+The Jetton master contract address must be present in the 'globalAssets' list as the 'address' parameter.
+
 ### Token or new Base Asset Support
 
 In case a token has bad data, alternatively a token is missing or you want to add a new base asset, it can be added by performing the following steps:

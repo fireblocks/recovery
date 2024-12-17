@@ -1,3 +1,4 @@
+import { getAllJettons } from '@fireblocks/asset-config';
 import { Cardano } from './ADA';
 import { Cosmos } from './ATOM';
 import { Bitcoin, BitcoinCash, BitcoinSV, DASH, DogeCoin, LiteCoin, ZCash } from './BTCBased';
@@ -39,6 +40,19 @@ import { CoreDAO } from './EVM/CORE_COREDAO';
 import { Ton } from './TON';
 import { Jetton } from './Jetton';
 export { ConnectedWallet } from './ConnectedWallet';
+
+const fillJettons = () => {
+  const jettonsList = getAllJettons();
+  const jettons = jettonsList.reduce(
+    (prev, curr) => ({
+      ...prev,
+      [curr]: Jetton,
+    }),
+    {},
+  ) as any;
+  Object.keys(jettons).forEach((key) => (jettons[key] === undefined ? delete jettons[key] : {}));
+  return jettons;
+};
 
 export const WalletClasses = {
   ALGO: Algorand,
@@ -122,9 +136,7 @@ export const WalletClasses = {
   CELESTIA_TEST: Celestia,
   TON: Ton,
   TON_TEST: Ton,
-  USDT_TON: Jetton,
-  NOTCOIN_TON: Jetton,
-  DOGS_TON: Jetton,
+  ...fillJettons(),
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];

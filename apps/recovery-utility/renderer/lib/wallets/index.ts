@@ -1,5 +1,5 @@
 // import { Bitcoin } from './BTC';
-import { assets } from '@fireblocks/asset-config';
+import { assets, getAllJettons } from '@fireblocks/asset-config';
 import { ERC20, ETC } from '@fireblocks/wallet-derivation';
 import { Ripple } from './XRP';
 import { Cosmos } from './ATOM';
@@ -41,14 +41,11 @@ const fillEVMs = () => {
 };
 
 const fillJettons = () => {
-  const jettons = Object.keys(assets).reduce(
-    (o, assetId) => ({
-      ...o,
-      [assets[assetId].id]: assets[assetId].protocol === 'TON' && assets[assetId].address ? Jetton : undefined,
-    }),
-    {},
-  ) as any;
-  Object.keys(jettons).forEach((key) => (jettons[key] === undefined ? delete jettons[key] : {}));
+  const jettonsList = getAllJettons();
+  const jettons: { [key: string]: any } = {};
+  for (const jetton of jettonsList) {
+    jettons[jetton] = Jetton;
+  }
   return jettons;
 };
 
@@ -111,9 +108,6 @@ export const WalletClasses = {
   HBAR_TEST: Hedera,
   TON: Ton,
   TON_TEST: Ton,
-  // USDT_TON: Jetton,
-  // NOTCOIN_TON: Jetton,
-  // DOGS_TON: Jetton,
 
   ...fillJettons(),
   ...fillEVMs(),

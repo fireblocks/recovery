@@ -12,3 +12,13 @@ export const assets = globalAssets.reduce<AssetsConfig>(
   }),
   {},
 );
+
+export function getAllJettons(): string[] {
+  const jettons = [];
+  for (const asset of globalAssets) {
+    if (asset.protocol === 'TON' && asset.address) {
+      jettons.push(asset.id);
+    }
+  }
+  return jettons;
+}
