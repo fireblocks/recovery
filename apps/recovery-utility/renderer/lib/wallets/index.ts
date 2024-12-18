@@ -1,5 +1,5 @@
 // import { Bitcoin } from './BTC';
-import { assets, getAllJettons } from '@fireblocks/asset-config';
+import { assets, getAllJettons, getAllERC20s } from '@fireblocks/asset-config';
 import { ERC20, ETC } from '@fireblocks/wallet-derivation';
 import { Ripple } from './XRP';
 import { Cosmos } from './ATOM';
