@@ -1,4 +1,4 @@
-import { getAllJettons } from '@fireblocks/asset-config';
+import { getAllJettons, getAllERC20s } from '@fireblocks/asset-config';
 import { Cardano } from './ADA';
 import { Cosmos } from './ATOM';
 import { Bitcoin, BitcoinCash, BitcoinSV, DASH, DogeCoin, LiteCoin, ZCash } from './BTCBased';

@@ -22,3 +22,13 @@ export function getAllJettons(): string[] {
   }
   return jettons;
 }
+
+export function getAllERC20s(): string[] {
+  const erc20Tokens = [];
+  for (const asset of globalAssets) {
+    if (asset.protocol === 'ETH' && asset.address) {
+      erc20Tokens.push(asset.id);
+    }
+  }
+  return erc20Tokens;
+}
