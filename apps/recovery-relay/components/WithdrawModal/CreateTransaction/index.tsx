@@ -444,9 +444,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
             (prepareQuery.data &&
               prepareQuery.data?.insufficientBalance !== undefined &&
               prepareQuery.data.insufficientBalance) ||
-            (prepareQuery.data &&
-              prepareQuery.data?.insufficientBalanceForTokenTransfer !== undefined &&
-              prepareQuery.data.insufficientBalanceForTokenTransfer)
+            (prepareQuery.data && prepareQuery.data.insufficientBalanceForTokenTransfer)
           }
         >
           Prepare Transaction
