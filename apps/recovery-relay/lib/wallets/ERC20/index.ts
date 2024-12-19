@@ -64,6 +64,7 @@ export class ERC20 extends EVM implements ConnectedWallet {
     const gasLimit = await this.provider?.estimateGas(tx);
 
     const extraParams = new Map();
+    extraParams.set('tokenAddress', this.tokenAddress);
     extraParams.set('gasLimit', gasLimit);
     extraParams.set('maxFee', maxFeePerGas);
     extraParams.set('priorityFee', maxPriorityFeePerGas);
