@@ -24,6 +24,7 @@ import { Derivation, AccountData } from '../../../lib/wallets';
 import { LateInitConnectedWallet } from '../../../lib/wallets/LateInitConnectedWallet';
 import { useSettings } from '../../../context/Settings';
 import { Jetton } from '../../../lib/wallets/Jetton';
+import { ERC20 } from '../../../lib/wallets/ERC20';
 
 const logger = getLogger(LOGGER_NAME_RELAY);
 
@@ -171,6 +172,11 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
       if (asset.address && asset.protocol === 'TON') {
         (derivation as Jetton).setTokenAddress(asset.address);
         (derivation as Jetton).setDecimals(asset.decimals);
+      }
+      if (asset.address && asset.protocol === 'ETH') {
+        (derivation as ERC20).setTokenAddress(asset.address);
+        (derivation as ERC20).setDecimals(asset.decimals);
+        (derivation as ERC20).setToAddress(toAddress);
       }
 
       return await derivation!.prepare?.(toAddress, values.memo);
