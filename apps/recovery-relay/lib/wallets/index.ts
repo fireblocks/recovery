@@ -39,6 +39,7 @@ import { Celestia } from './CELESTIA';
 import { CoreDAO } from './EVM/CORE_COREDAO';
 import { Ton } from './TON';
 import { Jetton } from './Jetton';
+import { ERC20 } from './ERC20';
 export { ConnectedWallet } from './ConnectedWallet';
 
 const fillJettons = () => {
@@ -52,6 +53,19 @@ const fillJettons = () => {
   ) as any;
   Object.keys(jettons).forEach((key) => (jettons[key] === undefined ? delete jettons[key] : {}));
   return jettons;
+};
+
+const fillERC20s = () => {
+  const jerc20List = getAllERC20s();
+  const erc20Tokens = jerc20List.reduce(
+    (prev, curr) => ({
+      ...prev,
+      [curr]: ERC20,
+    }),
+    {},
+  ) as any;
+  Object.keys(erc20Tokens).forEach((key) => (erc20Tokens[key] === undefined ? delete erc20Tokens[key] : {}));
+  return erc20Tokens;
 };
 
 export const WalletClasses = {
@@ -137,6 +151,7 @@ export const WalletClasses = {
   TON: Ton,
   TON_TEST: Ton,
   ...fillJettons(),
+  ...fillERC20s(),
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];
