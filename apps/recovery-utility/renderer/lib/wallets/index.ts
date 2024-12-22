@@ -1,6 +1,6 @@
 // import { Bitcoin } from './BTC';
 import { assets, getAllJettons } from '@fireblocks/asset-config';
-import { ERC20, ETC } from '@fireblocks/wallet-derivation';
+import { ETC } from '@fireblocks/wallet-derivation';
 import { Ripple } from './XRP';
 import { Cosmos } from './ATOM';
 import { EOS } from './EOS';
@@ -22,6 +22,7 @@ import { Bitcoin, BitcoinSV, LiteCoin, Dash, ZCash, Doge } from './BTC';
 import { Celestia } from './CELESTIA';
 import { Ton } from './TON';
 import { Jetton } from './Jetton';
+import { ERC20 } from './ERC20';
 
 const fillEVMs = () => {
   const evms = Object.keys(assets).reduce(
@@ -89,6 +90,7 @@ export const WalletClasses = {
   LUNA2_TEST: Luna,
   CELESTIA: Celestia,
   CELESTIA_TEST: Celestia,
+  ...fillEVMs(),
 
   // EDDSA
   SOL: Solana,
@@ -110,7 +112,6 @@ export const WalletClasses = {
   TON_TEST: Ton,
 
   ...fillJettons(),
-  ...fillEVMs(),
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];

@@ -140,7 +140,7 @@ export const nativeAssetPatches: NativeAssetPatches = {
   },
   ETC: evm('blockscout.com/etc/mainnet', 'https://geth-de.etc-network.info'),
   ETC_TEST: evm('blockscout.com/etc/kotti', 'https://geth-mordor.etc-network.info'),
-  ETH: evm('etherscan.io', 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'),
+  ETH: evm('etherscan.io', 'https://eth-mainnet.public.blastapi.io'),
   ETH_TEST3: evm('goerli.etherscan.io', 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'),
   ETH_TEST5: evm('sepolia.etherscan.io', 'https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'),
   ETH_TEST6: evm('holesky.etherscan.io', 'https://ethereum-holesky-rpc.publicnode.com'),

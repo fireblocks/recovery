@@ -169,26 +169,31 @@ export const WithdrawModal = () => {
                 </>
               )}
               {!!txHash && (
-                <Typography
-                  variant='body1'
-                  paragraph
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    '& > *': {
-                      marginRight: '0.5rem',
-                    },
-                  }}
-                >
-                  <Typography variant='body1'>Transaction hash:</Typography>
-                  {asset.getExplorerUrl ? (
-                    <Link href={asset.getExplorerUrl!('tx')(txHash)} target='_blank' rel='noopener noreferrer'>
-                      {txHash}
-                    </Link>
-                  ) : (
-                    txHash
-                  )}
-                </Typography>
+                <Box>
+                  <Typography
+                    variant='body1'
+                    paragraph
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      '& > *': {
+                        marginRight: '0.5rem',
+                      },
+                    }}
+                  >
+                    <Typography variant='body1'>Transaction Hash:</Typography>
+                    {asset.getExplorerUrl ? (
+                      <Link href={asset.getExplorerUrl!('tx')(txHash)} target='_blank' rel='noopener noreferrer'>
+                        {txHash}
+                      </Link>
+                    ) : (
+                      txHash
+                    )}
+                  </Typography>
+                  <Typography variant='body1'>
+                    The transaction might take a few seconds to appear on the block explorer
+                  </Typography>
+                </Box>
               )}
               {!!txBroadcastError && (
                 <Typography variant='body1' fontWeight='600' color={(theme) => theme.palette.error.main}>
