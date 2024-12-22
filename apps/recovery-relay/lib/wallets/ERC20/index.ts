@@ -1,21 +1,31 @@
 /* eslint-disable prefer-destructuring */
-import { Contract, ethers, formatEther, JsonRpcProvider } from 'ethers';
+import { Contract, ethers, JsonRpcProvider } from 'ethers';
 import { AccountData } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
-import { EVM } from '../EVM';
+import { EVMWallet as EVMBase } from '@fireblocks/wallet-derivation';
 import { erc20Abi } from './erc20.abi';
+import { getChainId } from './chains';
 
-export class ERC20 extends EVM implements ConnectedWallet {
+export class ERC20 extends EVMBase implements ConnectedWallet {
   protected provider: JsonRpcProvider | undefined;
   public rpcURL: string | undefined;
   public contract!: Contract;
   public tokenAddress: string | undefined;
   public decimals: number | undefined;
   public toAddress: string | undefined;
+  private normalizingFactor: bigint | undefined;
+  private chainId: number | undefined;
+
+  public getNativeAsset(nativeAsset: string) {
+    this.chainId = getChainId(nativeAsset);
+    if (!this.chainId) {
+      throw new Error('Unrecognaized native asset for ERC20 token withdrawal');
+    }
+  }
 
   public setRPCUrl(url: string): void {
     this.rpcURL = url;
-    this.provider = new JsonRpcProvider(this.rpcURL);
+    this.provider = new JsonRpcProvider(this.rpcURL, this.chainId, { cacheTimeout: -1 });
   }
 
   public setTokenAddress(address: string) {
@@ -32,6 +42,7 @@ export class ERC20 extends EVM implements ConnectedWallet {
 
   public setDecimals(decimals: number) {
     this.decimals = decimals;
+    this.normalizingFactor = BigInt(10 ** decimals);
   }
 
   public setToAddress(toAddress: string) {
@@ -39,22 +50,21 @@ export class ERC20 extends EVM implements ConnectedWallet {
   }
 
   public async getBalance(): Promise<number> {
-    const weiBalance = await this.contract.balanceOf(this.address);
-    return parseFloat(parseFloat(ethers.formatEther(weiBalance)).toFixed(2));
+    const weiBalance: bigint = await this.contract.balanceOf(this.address);
+    return Number(weiBalance / this.normalizingFactor!);
   }
 
   public async prepare(): Promise<AccountData> {
     this.init();
     const nonce = await this.provider!.getTransactionCount(this.address, 'latest');
-    const chainId = (await this.provider!.getNetwork()).chainId;
 
     const displayBalance = await this.getBalance();
     const ethBalance = await this.getEthBalance();
 
-    let { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = await this.provider!.getFeeData();
+    const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = await this.provider!.getFeeData();
 
     const iface = new ethers.Interface(erc20Abi);
-    const data = iface.encodeFunctionData('transfer', [this.toAddress, ethers.parseUnits(displayBalance.toFixed(2), 'ether')]);
+    const data = iface.encodeFunctionData('transfer', [this.toAddress, BigInt(displayBalance) * this.normalizingFactor!]);
 
     const tx = {
       to: this.tokenAddress,
@@ -63,69 +73,44 @@ export class ERC20 extends EVM implements ConnectedWallet {
     };
     const gasLimit = await this.provider?.estimateGas(tx);
 
-    const extraParams = new Map();
+    const extraParams = new Map<string, any>();
     extraParams.set('tokenAddress', this.tokenAddress);
-    extraParams.set('gasLimit', gasLimit);
-    extraParams.set('maxFee', maxFeePerGas);
-    extraParams.set('priorityFee', maxPriorityFeePerGas);
+    extraParams.set('gasLimit', gasLimit?.toString());
+    extraParams.set('maxFee', maxFeePerGas?.toString());
+    extraParams.set('priorityFee', maxPriorityFeePerGas?.toString());
+    extraParams.set('weiBalance', (BigInt(displayBalance) * this.normalizingFactor!).toString());
 
     const preparedData: AccountData = {
       balance: displayBalance,
       extraParams,
       gasPrice,
       nonce,
-      chainId: Number(chainId),
+      chainId: this.chainId,
       insufficientBalance: displayBalance <= 0,
-      insufficientBalanceForTokenTransfer: ethBalance <= gasPrice! * gasLimit!,
+      insufficientBalanceForTokenTransfer: Number(ethBalance!) <= Number(gasPrice! * gasLimit!),
     };
-    this.relayLogger.logPreparedData('ERC20', preparedData);
     return preparedData;
   }
 
-  // public async generateTx(to: string, amount: number): Promise<TxPayload> {
-  //   const nonce = await this.provider!.getTransactionCount(this.address, 'latest');
-
-  //   // Should we use maxGasPrice? i.e. EIP1559.
-  //   const { gasPrice } = await this.provider!.getFeeData();
-
-  //   const tx = {
-  //     from: this.address,
-  //     to,
-  //     nonce,
-  //     gasLimit: 21000,
-  //     gasPrice,
-  //     value: 0,
-  //     chainId: this.path.coinType === 1 ? 5 : 1,
-  //     data: new Interface(transferAbi).encodeFunctionData('transfer', [
-  //       to,
-  //       BigInt(amount) * BigInt(await this.contract.decimals()),
-  //     ]),
-  //   };
-
-  //   this.relayLogger.debug(`ERC20: Generated tx: ${JSON.stringify(tx, (_, v) => (typeof v === 'bigint' ? v.toString() : v), 2)}`);
-
-  //   const unsignedTx = Transaction.from(tx).serialized;
-
-  //   const preparedData = {
-  //     derivationPath: this.pathParts,
-  //     tx: unsignedTx,
-  //   };
-
-  //   this.relayLogger.debug(`ERC20: Prepared data: ${JSON.stringify(preparedData, null, 2)}`);
-  //   return preparedData;
-  // }
-
   public async broadcastTx(txHex: string): Promise<string> {
-    return super.broadcastTx(txHex);
+    try {
+      const txRes = await this.provider!.broadcastTransaction(txHex);
+      this.relayLogger.debug(`EVM: Tx broadcasted: ${JSON.stringify(txRes, null, 2)}`);
+      return txRes.hash;
+    } catch (e) {
+      this.relayLogger.error('EVM: Error broadcasting tx:', e);
+      if ((e as Error).message.includes('insufficient funds for intrinsic transaction cost')) {
+        throw new Error(
+          'Insufficient funds for transfer, this might be due to a spike in network fees, please wait and try again',
+        );
+      }
+      throw e;
+    }
   }
 
   private async getEthBalance() {
-    const weiBalance = await this.provider?.getBalance(this.address);
-    const balance = formatEther(weiBalance!);
-    const ethBalance = Number(balance);
-
-    console.info('Eth balance info', { ethBalance });
-
-    return ethBalance;
+    const weiBalanceBN = await this.provider?.getBalance(this.address);
+    console.info('Eth balance info', { weiBalanceBN });
+    return weiBalanceBN;
   }
 }
