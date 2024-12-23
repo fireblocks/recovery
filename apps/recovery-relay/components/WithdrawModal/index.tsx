@@ -18,6 +18,8 @@ import { useWorkspace } from '../../context/Workspace';
 import { CreateTransaction, getAssetURL } from './CreateTransaction';
 import { LateInitConnectedWallet } from '../../lib/wallets/LateInitConnectedWallet';
 import { useSettings } from '../../context/Settings';
+import { getAssetConfig, isTransferableToken } from '@fireblocks/asset-config/util';
+import { ERC20 } from '../../lib/wallets/ERC20';
 
 const logger = getLogger(LOGGER_NAME_RELAY);
 
@@ -123,15 +125,15 @@ export const WithdrawModal = () => {
                     disabled={process.env.CI === 'e2e' ? false : txBroadcastError !== undefined}
                     onClick={async () => {
                       logger.info('Inbound parameters:', { inboundRelayParams });
-
-                      const wallet = accounts
-                        .get(inboundRelayParams?.accountId)
-                        ?.wallets.get(inboundRelayParams?.signedTx.assetId);
+                      const assetId = inboundRelayParams?.signedTx.assetId;
+                      const wallet = accounts.get(inboundRelayParams?.accountId)?.wallets.get(assetId);
 
                       const derivation = wallet?.derivations?.get(
-                        getDerivationMapKey(inboundRelayParams?.signedTx.assetId, inboundRelayParams?.signedTx.from),
+                        getDerivationMapKey(assetId, inboundRelayParams?.signedTx.from),
                       );
-
+                      if (isTransferableToken(assetId) && derivation instanceof ERC20) {
+                        (derivation as ERC20).setNativeAsset(getAssetConfig(assetId)!.nativeAsset);
+                      }
                       const rpcUrl = getAssetURL(derivation?.assetId ?? '', RPCs);
                       if (rpcUrl === undefined) {
                         throw new Error(`No RPC URL for asset ${derivation?.assetId}`);

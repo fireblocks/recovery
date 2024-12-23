@@ -50,6 +50,12 @@ For your convinience we have provided base methods for common types of chains:
 - `evm(baseExplorerUrl: string, rpcUrl?: string)` to create a basic EVM chain, simply provide the `baseExplorerUrl` (the URL of an explorer) and optionally `rpcUrl` as the URL of the RPC to communicate with
 - `btc(baseExplorerUrl: string, segwit: boolean)` to create a basic BTC chain (ZCash, LTC, etc are all considered such) simply provide the `baseExplorerUrl` (the URL of an explorer) and optionally `segwit` should be false, as only BTC is relevant for this field
 
+### Add a new ERC20 token
+
+To add support for withdrawals of a listed ERC20 on supported EVM chain, make sure the token is listed in `globalAssets.ts`.
+The token contract address must be present in the `globalAssets` list as the `address` parameter.
+Note: the tool will support ERC20 token withdrawals only on EVM chains that has withdrawal support for the base asset as well.
+
 ### Add a new Jetton token
 
 To add support for withdrawals of a listed Jetton, make sure the token is listed in `globalAssets.ts`.

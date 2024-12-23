@@ -1,4 +1,4 @@
-import { JsonRpcProvider, formatEther, parseEther } from 'ethers';
+import { JsonRpcProvider, formatEther } from 'ethers';
 import { EVMWallet as EVMBase, Input } from '@fireblocks/wallet-derivation';
 import { AccountData } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
@@ -7,11 +7,11 @@ import BigNumber from 'bignumber.js';
 export class EVM extends EVMBase implements ConnectedWallet {
   protected provider: JsonRpcProvider | undefined;
 
-  protected weiBalance: bigint = BigInt(0);
+  protected weiBalance: bigint | string | undefined = BigInt(0);
 
   public rpcURL: string | undefined;
 
-  constructor(input: Input, private chainId?: number) {
+  constructor(input: Input, protected chainId?: number) {
     super(input);
 
     this.relayLogger.info('Creating EVM wallet:', { chainId, input });
@@ -52,6 +52,7 @@ export class EVM extends EVMBase implements ConnectedWallet {
     }
 
     const gas = gasPrice * 21000n;
+    //@ts-ignore
     const balance = new BigNumber(this.weiBalance.toString());
 
     const adjustedBalance = balance.minus(new BigNumber(gas.toString()));
