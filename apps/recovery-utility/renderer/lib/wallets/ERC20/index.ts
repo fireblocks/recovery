@@ -5,7 +5,7 @@ import { SigningWallet } from '../SigningWallet';
 import { erc20Abi } from './erc20.abi';
 
 export class ERC20 extends EVMBase implements SigningWallet {
-  public async generateTx({ to, extraParams, nonce, chainId, gasPrice }: GenerateTxInput): Promise<TxPayload> {
+  public async generateTx({ to, extraParams, nonce, chainId }: GenerateTxInput): Promise<TxPayload> {
     if (!this.privateKey) {
       throw new Error('No private key found');
     }
@@ -17,6 +17,7 @@ export class ERC20 extends EVMBase implements SigningWallet {
     const maxPriorityFeePerGas = (BigInt(extraParams?.get('priorityFee')) * 115n) / 100n; //increase priority fee by 15% to increase chance of tx to be included in next block
     const maxFeePerGas = BigInt(extraParams?.get('maxFee'));
     const gasLimit = BigInt(extraParams?.get('gasLimit'));
+    const gasPrice = BigInt(extraParams?.get('gasPrice'));
 
     const iface = new ethers.Interface(erc20Abi);
     const data = iface.encodeFunctionData('transfer', [to, balanceWei]);

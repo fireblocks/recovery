@@ -31,7 +31,14 @@ export const sanatize = (value: any, depth = 0): any => {
       return;
     }
     const typeOf = typeof value[key];
-    sanatized[key] = typeOf === 'object' ? sanatize(value[key], depth + 1) : typeOf === 'function' ? '[Function]' : value[key];
+    sanatized[key] =
+      typeOf === 'object'
+        ? sanatize(value[key], depth + 1)
+        : typeOf === 'function'
+        ? '[Function]'
+        : typeOf === 'bigint'
+        ? value[key].toString(16)
+        : value[key];
   });
   return sanatized;
 };

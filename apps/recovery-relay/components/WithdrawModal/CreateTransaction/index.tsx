@@ -168,7 +168,6 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
         logger.error(`Unknown URL for ${derivation?.assetId ?? '<empty>'}`);
         throw new Error(`No RPC Url for: ${derivation?.assetId}`);
       }
-      if (rpcUrl !== null) derivation!.setRPCUrl(rpcUrl);
       if (asset.address && asset.protocol === 'TON') {
         (derivation as Jetton).setTokenAddress(asset.address);
         (derivation as Jetton).setDecimals(asset.decimals);
@@ -177,8 +176,9 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
         (derivation as ERC20).setTokenAddress(asset.address);
         (derivation as ERC20).setDecimals(asset.decimals);
         (derivation as ERC20).setToAddress(toAddress);
-        (derivation as ERC20).getNativeAsset(asset.nativeAsset);
+        (derivation as ERC20).setNativeAsset(asset.nativeAsset);
       }
+      if (rpcUrl !== null) derivation!.setRPCUrl(rpcUrl); // this must remain the last method called on derivation for ERC20 support
 
       return await derivation!.prepare?.(toAddress, values.memo);
     },
@@ -244,18 +244,18 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
   const balanceId = useId();
   const addressExplorerId = useId();
 
-  // logger.info('Parameters for CreateTransaction ', {
-  //   txId,
-  //   accountId,
-  //   values,
-  //   asset,
-  //   derivation: sanatize(derivation),
-  //   prepare: JSON.stringify(
-  //     prepareQuery.data,
-  //     (_, v) => (typeof v === 'bigint' ? v.toString() : typeof v === 'function' ? 'function' : v),
-  //     2,
-  //   ),
-  // });
+  logger.info('Parameters for CreateTransaction ', {
+    txId,
+    accountId,
+    values,
+    asset,
+    derivation: sanatize(derivation),
+    prepare: JSON.stringify(
+      prepareQuery.data,
+      (_, v) => (typeof v === 'bigint' ? v.toString() : typeof v === 'function' ? 'function' : v),
+      2,
+    ),
+  });
 
   return (
     <Grid
