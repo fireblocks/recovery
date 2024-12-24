@@ -76,8 +76,11 @@ export class ERC20 extends EVMBase implements ConnectedWallet {
 
     const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = await this.provider!.getFeeData();
 
-    const iface = new ethers.Interface(erc20Abi);
-    const data = iface.encodeFunctionData('transfer', [this.toAddress, BigInt(displayBalance) * BigInt(this.normalizingFactor!)]);
+    const abiInterface = new ethers.Interface(erc20Abi);
+    const data = abiInterface.encodeFunctionData('transfer', [
+      this.toAddress,
+      BigInt(displayBalance) * BigInt(this.normalizingFactor!),
+    ]);
 
     const tx = {
       to: this.tokenAddress,
