@@ -183,12 +183,14 @@ export const WithdrawModal = () => {
                       },
                     }}
                   >
-                    <Typography variant='body1'>Transaction Hash:</Typography>
-                    {
+                  <Typography variant='body1'>Transaction Hash:</Typography>
+                    {asset.getExplorerUrl ? (
                       <Link href={asset.getExplorerUrl!('tx')(txHash)} target='_blank' rel='noopener noreferrer'>
                         {txHash}
                       </Link>
-                    }
+                    ) : (
+                      {txHash}
+                    )}
                   </Typography>
                   <Typography variant='body1'>
                     The transaction might take a few seconds to appear on the block explorer
