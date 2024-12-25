@@ -189,7 +189,7 @@ export const WithdrawModal = () => {
                         {txHash}
                       </Link>
                     ) : (
-                      {txHash}
+                      txHash
                     )}
                   </Typography>
                   <Typography variant='body1'>
