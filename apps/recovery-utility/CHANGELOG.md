@@ -1,5 +1,11 @@
 # recovery-utility
 
+## 1.2.0
+
+### Minor Changes
+
+- 19bea91: Version Bump
+
 ## 1.1.0
 
 ### Minor Changes

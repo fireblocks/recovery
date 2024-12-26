@@ -1,5 +1,12 @@
 # @fireblocks/wallet-derivation
 
+## 0.7.1
+
+### Patch Changes
+
+- Updated dependencies [19bea91]
+  - @fireblocks/asset-config@0.6.0
+
 ## 0.7.0
 
 ### Minor Changes
