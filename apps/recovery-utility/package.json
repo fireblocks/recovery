@@ -49,7 +49,7 @@
     "nanoid": "^4.0.2",
     "near-api-js": "^2.1.4",
     "next": "^13.4.19",
-    "stellar-sdk": "^10.4.1",
+    "stellar-sdk": "^13.1.0",
     "superjson": "^1.12.4",
     "tiny-secp256k1": "^2.2.3",
     "tronweb": "^5.2.0",
