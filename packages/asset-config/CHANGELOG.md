@@ -1,5 +1,11 @@
 # @fireblocks/asset-config
 
+## 0.6.0
+
+### Minor Changes
+
+- 19bea91: Version Bump
+
 ## 0.5.0
 
 ### Minor Changes
