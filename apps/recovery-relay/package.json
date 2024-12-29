@@ -29,7 +29,7 @@
     "@mui/material": "^5.13.7",
     "@mui/styles": "^5.13.7",
     "@mui/x-data-grid": "^6.9.2",
-    "@polkadot/api": "10.9.1",
+    "@polkadot/api": "10.13.1",
     "@polkadot/types": "10.9.1",
     "@solana/web3.js": "^1.78.0",
     "@tanstack/react-query": "^4.29.19",
