@@ -51,7 +51,7 @@ export class Ripple extends BaseRipple implements ConnectedWallet {
     );
 
     const preparedData = {
-      balance: balance - this.MIN_XRP_BALANCE,
+      balance: parseFloat((balance - this.MIN_XRP_BALANCE).toFixed(6)),
       extraParams,
       insufficientBalance: balance - this.MIN_XRP_BALANCE < 0.0001,
     };
