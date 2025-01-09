@@ -37,7 +37,7 @@ export function getAllTRC20s(): string[] {
   const trc20s = [];
   for (const asset of globalAssets) {
     if (asset.protocol === 'TRX' && asset.address) {
-      jettons.push(asset.id);
+      trc20s.push(asset.id);
     }
   }
   return trc20s;

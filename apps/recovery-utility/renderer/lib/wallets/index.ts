@@ -1,5 +1,5 @@
 // import { Bitcoin } from './BTC';
-import { assets, getAllJettons } from '@fireblocks/asset-config';
+import { assets, getAllJettons, getAllTRC20s } from '@fireblocks/asset-config';
 import { ETC } from '@fireblocks/wallet-derivation';
 import { Ripple } from './XRP';
 import { Cosmos } from './ATOM';
@@ -23,6 +23,7 @@ import { Celestia } from './CELESTIA';
 import { Ton } from './TON';
 import { Jetton } from './Jetton';
 import { ERC20 } from './ERC20';
+import { TRC20 } from './TRC20';
 
 const fillEVMs = () => {
   const evms = Object.keys(assets).reduce(
@@ -48,6 +49,15 @@ const fillJettons = () => {
     jettons[jetton] = Jetton;
   }
   return jettons;
+};
+
+const fillTRC20s = () => {
+  const trc20List = getAllTRC20s();
+  const trc20s: { [key: string]: any } = {};
+  for (const trc20 of trc20List) {
+    trc20s[trc20] = TRC20;
+  }
+  return trc20s;
 };
 
 export { SigningWallet as BaseWallet } from './SigningWallet';
@@ -91,6 +101,7 @@ export const WalletClasses = {
   CELESTIA: Celestia,
   CELESTIA_TEST: Celestia,
   ...fillEVMs(),
+  ...fillTRC20s(),
 
   // EDDSA
   SOL: Solana,

@@ -20,6 +20,8 @@ export class TRC20 extends BaseTron implements ConnectedWallet {
 
   private tokenAddress: string | undefined;
 
+  protected offlinePrvKey: string = 'da146374a75310b9666e834ee4ad0866d6f4035967bfc76217c5a495fff9f0d0';
+
   public setNativeAsset(nativeAsset: String) {
     this.backendWallet = new WalletClasses[nativeAsset as keyof typeof WalletClasses]({ ...this.input, assetId: nativeAsset });
   }
@@ -41,7 +43,7 @@ export class TRC20 extends BaseTron implements ConnectedWallet {
     const fullNode = new HttpProvider(endpointUrl);
     const solidityNode = new HttpProvider(endpointUrl);
     const eventServer = new HttpProvider(endpointUrl);
-    this.tronWeb = new TronWeb(fullNode, solidityNode, eventServer);
+    this.tronWeb = new TronWeb(fullNode, solidityNode, eventServer, this.offlinePrvKey);
   }
 
   public async getBalance(): Promise<number> {
