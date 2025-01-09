@@ -1,9 +1,17 @@
-import { Tron as BaseTron } from '@fireblocks/wallet-derivation';
+import { Tron as BaseTron, Input } from '@fireblocks/wallet-derivation';
 import { ConnectedWallet } from '../ConnectedWallet';
 import { abi } from './trc20.abi';
 import { AccountData } from '../types';
+import { WalletClasses } from '..';
+import { Tron } from '../TRON';
 
 export class TRC20 extends BaseTron implements ConnectedWallet {
+  constructor(private input: Input) {
+    super(input);
+  }
+
+  protected backendWallet: Tron | undefined;
+
   private tronWeb: any | undefined;
 
   public rpcURL: string | undefined;
@@ -11,6 +19,10 @@ export class TRC20 extends BaseTron implements ConnectedWallet {
   private decimals: number | undefined;
 
   private tokenAddress: string | undefined;
+
+  public setNativeAsset(nativeAsset: String) {
+    this.backendWallet = new WalletClasses[nativeAsset as keyof typeof WalletClasses]({ ...this.input, assetId: nativeAsset });
+  }
 
   public setDecimals(decimals: number): void {
     this.decimals = decimals;
