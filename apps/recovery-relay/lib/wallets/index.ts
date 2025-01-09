@@ -1,4 +1,4 @@
-import { getAllJettons, getAllERC20s } from '@fireblocks/asset-config';
+import { getAllJettons, getAllERC20s, getAllTRC20s } from '@fireblocks/asset-config';
 import { Cardano } from './ADA';
 import { Cosmos } from './ATOM';
 import { Bitcoin, BitcoinCash, BitcoinSV, DASH, DogeCoin, LiteCoin, ZCash } from './BTCBased';
@@ -40,6 +40,7 @@ import { CoreDAO } from './EVM/CORE_COREDAO';
 import { Ton } from './TON';
 import { Jetton } from './Jetton';
 import { ERC20 } from './ERC20';
+import { TRC20 } from './TRC20';
 export { ConnectedWallet } from './ConnectedWallet';
 
 const fillJettons = () => {
@@ -56,11 +57,24 @@ const fillJettons = () => {
 };
 
 const fillERC20s = () => {
-  const jerc20List = getAllERC20s();
-  const erc20Tokens = jerc20List.reduce(
+  const erc20List = getAllERC20s();
+  const erc20Tokens = erc20List.reduce(
     (prev, curr) => ({
       ...prev,
       [curr]: ERC20,
+    }),
+    {},
+  ) as any;
+  Object.keys(erc20Tokens).forEach((key) => (erc20Tokens[key] === undefined ? delete erc20Tokens[key] : {}));
+  return erc20Tokens;
+};
+
+const fillTRC20s = () => {
+  const trc20List = getAllTRC20s();
+  const erc20Tokens = trc20List.reduce(
+    (prev, curr) => ({
+      ...prev,
+      [curr]: TRC20,
     }),
     {},
   ) as any;
@@ -152,6 +166,7 @@ export const WalletClasses = {
   TON_TEST: Ton,
   ...fillJettons(),
   ...fillERC20s(),
+  ...fillTRC20s(),
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];
