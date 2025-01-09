@@ -49,8 +49,9 @@ export class TRC20 extends BaseTron implements ConnectedWallet {
 
     const extraParams = new Map<string, any>();
 
-    extraParams.set('t', trxBalance);
+    extraParams.set('t', this.tokenAddress);
     extraParams.set('d', this.decimals);
+    extraParams.set('r', this.rpcURL);
 
     const preparedData: AccountData = {
       balance,
