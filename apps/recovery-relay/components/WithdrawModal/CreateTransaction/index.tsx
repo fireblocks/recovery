@@ -25,6 +25,7 @@ import { LateInitConnectedWallet } from '../../../lib/wallets/LateInitConnectedW
 import { useSettings } from '../../../context/Settings';
 import { Jetton } from '../../../lib/wallets/Jetton';
 import { ERC20 } from '../../../lib/wallets/ERC20';
+import { TRC20 } from '../../../lib/wallets/TRC20';
 
 const logger = getLogger(LOGGER_NAME_RELAY);
 
@@ -177,6 +178,11 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
         (derivation as ERC20).setDecimals(asset.decimals);
         (derivation as ERC20).setToAddress(toAddress);
         (derivation as ERC20).setNativeAsset(asset.nativeAsset);
+      }
+      if (asset.address && asset.protocol === 'TRX') {
+        (derivation as TRC20).setTokenAddress(asset.address);
+        (derivation as TRC20).setDecimals(asset.decimals);
+        (derivation as TRC20).setNativeAsset(asset.nativeAsset);
       }
       if (rpcUrl !== null) derivation!.setRPCUrl(rpcUrl); // this must remain the last method called on derivation for ERC20 support
 

@@ -35,6 +35,8 @@ export class TRC20 extends BaseTron implements SigningWallet {
 
     const signedTx = await tronWeb.trx.sign(tx.transaction);
 
+    this.utilityLogger.logSigningTx('TRC20', signedTx);
+
     return signedTx;
   }
 }
