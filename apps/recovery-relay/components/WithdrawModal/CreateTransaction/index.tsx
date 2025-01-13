@@ -182,7 +182,7 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
       if (asset.address && asset.protocol === 'TRX') {
         (derivation as TRC20).setTokenAddress(asset.address);
         (derivation as TRC20).setDecimals(asset.decimals);
-        (derivation as TRC20).setNativeAsset(asset.nativeAsset);
+        (derivation as ERC20).setToAddress(toAddress);
       }
       if (rpcUrl !== null) derivation!.setRPCUrl(rpcUrl); // this must remain the last method called on derivation for ERC20 support
 

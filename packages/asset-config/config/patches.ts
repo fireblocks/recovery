@@ -32,6 +32,14 @@ const getTonExplorerUrl: ExplorerUrlBuilder = (baseUrl) => (type) => (value) => 
   return `${baseUrl}/${value}`;
 };
 
+const getTronExplorerUrl: ExplorerUrlBuilder = (baseUrl) => (type) => (value) => {
+  if (type === 'tx') {
+    return `${baseUrl}/#/transaction/${value}`;
+  }
+
+  return `${baseUrl}/#/${type}/${value}`;
+};
+
 const evm = (baseExplorerUrl: string, rpcUrl?: string, transfer = true): NativeAssetPatch => ({
   derive: true,
   transfer,
@@ -253,7 +261,7 @@ export const nativeAssetPatches: NativeAssetPatches = {
     segwit: false,
     minBalance: false,
     memo: false,
-    getExplorerUrl: getStandardExplorer('tronscan.org'),
+    getExplorerUrl: getTronExplorerUrl('https://tronscan.org'),
   },
   TRX_TEST: {
     derive: true,
