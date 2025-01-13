@@ -4,6 +4,8 @@ import { abi } from './trc20.abi';
 import { AccountData } from '../types';
 import { WalletClasses } from '..';
 import { Tron } from '../TRON';
+import zlib from 'node:zlib';
+import { promisify } from 'util';
 
 export class TRC20 extends BaseTron implements ConnectedWallet {
   constructor(private input: Input) {
@@ -12,19 +14,15 @@ export class TRC20 extends BaseTron implements ConnectedWallet {
 
   protected backendWallet: Tron | undefined;
 
-  private tronWeb: any | undefined;
-
   public rpcURL: string | undefined;
 
   private decimals: number | undefined;
 
   private tokenAddress: string | undefined;
 
-  protected offlinePrvKey: string = 'da146374a75310b9666e834ee4ad0866d6f4035967bfc76217c5a495fff9f0d0';
+  private toAddress: string | undefined;
 
-  public setNativeAsset(nativeAsset: String) {
-    this.backendWallet = new WalletClasses[nativeAsset as keyof typeof WalletClasses]({ ...this.input, assetId: nativeAsset });
-  }
+  private tronWeb: any | undefined;
 
   public setDecimals(decimals: number): void {
     this.decimals = decimals;
@@ -34,27 +32,26 @@ export class TRC20 extends BaseTron implements ConnectedWallet {
     this.tokenAddress = tokenAddress;
   }
 
+  public setToAddress(toAddress: string) {
+    this.toAddress = toAddress;
+  }
+
   public setRPCUrl(url: string): void {
     this.rpcURL = url;
-    // eslint-disable-next-line global-require
     const TronWeb = require('tronweb');
     const { HttpProvider } = TronWeb.providers;
     const endpointUrl = this.rpcURL;
     const fullNode = new HttpProvider(endpointUrl);
     const solidityNode = new HttpProvider(endpointUrl);
     const eventServer = new HttpProvider(endpointUrl);
-    this.tronWeb = new TronWeb(fullNode, solidityNode, eventServer, this.offlinePrvKey);
+    //random prvKey is used for gas estimations
+    const randomPrvKey = Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
+    this.tronWeb = new TronWeb(fullNode, solidityNode, eventServer, randomPrvKey);
   }
 
   public async getBalance(): Promise<number> {
     const contract = await this.tronWeb.contract(abi, this.tokenAddress);
-    // eslint-disable-next-line @typescript-eslint/return-await
-    return await contract.balanceOf(this.address).call();
-  }
-
-  public async getTrxBalance(): Promise<number> {
-    // eslint-disable-next-line @typescript-eslint/return-await
-    return await this.tronWeb.trx.getBalance(this.address);
+    return (await contract.balanceOf(this.address).call()).toNumber();
   }
 
   public async prepare(): Promise<AccountData> {
@@ -67,12 +64,14 @@ export class TRC20 extends BaseTron implements ConnectedWallet {
     extraParams.set('d', this.decimals);
     extraParams.set('r', this.rpcURL);
 
+    const feeRate = (await this.estimateGas()) ?? 40_000_000;
+
     const preparedData: AccountData = {
       balance,
-      feeRate: 15_000_000,
+      feeRate,
       extraParams,
       insufficientBalance: balance <= 0,
-      insufficientBalanceForTokenTransfer: trxBalance <= 15_000_000,
+      insufficientBalanceForTokenTransfer: trxBalance < feeRate,
     };
 
     this.relayLogger.logPreparedData('TRC20', preparedData);
@@ -80,12 +79,55 @@ export class TRC20 extends BaseTron implements ConnectedWallet {
   }
 
   public async broadcastTx(tx: string): Promise<string> {
-    const result = await this.tronWeb.trx.sendRawTransaction(tx);
-    if ('code' in result) {
-      this.relayLogger.error(`Tron: Error broadcasting tx: ${JSON.stringify(result, null, 2)}`);
-      throw new Error(result.code);
+    try {
+      // decompress and decode
+      const gunzip = promisify(zlib.gunzip);
+      const compressedBuffer = Buffer.from(tx, 'base64');
+      const decompressedBuffer = await gunzip(new Uint8Array(compressedBuffer));
+      const signedTx = JSON.parse(decompressedBuffer.toString());
+
+      //broadcast the tx
+      const result = await this.tronWeb.trx.sendRawTransaction(signedTx);
+      if ('code' in result) {
+        this.relayLogger.error(`TRC20: Error broadcasting tx: ${JSON.stringify(result, null, 2)}`);
+        throw new Error(result.code);
+      }
+      this.relayLogger.debug(`TRC20: Tx broadcasted: ${result.txid}`);
+      return result.txid;
+    } catch (e) {
+      this.relayLogger.error('TRC20: Error broadcasting tx:', e);
+      throw new Error(`TRC20: Error broadcasting tx: ${e}`);
     }
-    this.relayLogger.debug(`TRC20: Tx broadcasted: ${result.txid}`);
-    return result.txid;
+  }
+
+  private async getTrxBalance(): Promise<number> {
+    return await this.tronWeb.trx.getBalance(this.address);
+  }
+
+  private async estimateGas(): Promise<number | undefined> {
+    try {
+      const functionSelector = 'transfer(address,uint256)';
+      const balance = await this.getBalance();
+      const parameter = [
+        { type: 'address', value: this.toAddress },
+        { type: 'uint256', value: balance },
+      ];
+      // Trigger a dry-run of the transaction to estimate energy consumption
+      const energyEstimate = await this.tronWeb.transactionBuilder.triggerConstantContract(
+        this.tokenAddress,
+        functionSelector,
+        parameter,
+      );
+
+      // Get current energy prices from network
+      const parameterInfo = await this.tronWeb.trx.getChainParameters();
+      const energyFeeParameter = parameterInfo.find((param: any) => param.key === 'getEnergyFee');
+      const energyFee = energyFeeParameter ? energyFeeParameter.value : 420;
+
+      return energyEstimate.energy * energyFee * 1.1; // add 10% margin
+    } catch (error) {
+      this.relayLogger.error(`TRC20: Error estimating gas, ${error}`);
+      return undefined;
+    }
   }
 }
