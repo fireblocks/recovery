@@ -55,7 +55,11 @@ export class TRC20 extends BaseTron implements ConnectedWallet {
   }
 
   public async prepare(): Promise<AccountData> {
-    const balance = ((await this.getBalance()) / 10 ** this.decimals!) as number;
+    if (!this.decimals) {
+      this.relayLogger.error('TRC20: Decimals not set');
+      throw new Error('TRC20: Decimals not set');
+    }
+    const balance = ((await this.getBalance()) / 10 ** this.decimals) as number;
     const trxBalance = await this.getTrxBalance();
 
     const extraParams = new Map<string, any>();

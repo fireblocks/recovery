@@ -20,9 +20,6 @@ export class TRC20 extends BaseTron implements SigningWallet {
       const tronWeb = new TronWeb(fullNode, solidityNode, eventServer, this.privateKey?.replace('0x', ''));
 
       const decimals = extraParams?.get('d');
-      if (!decimals) {
-        this.utilityLogger.error('TRC20: Decimals not set');
-      }
       const tokenAddress = extraParams?.get('t');
 
       const functionSelector = 'transfer(address,uint256)';
