@@ -48,10 +48,15 @@ export class Jetton extends BaseTon implements LateInitConnectedWallet {
         throw new Error(`TON Jettons: wallet's contract address unavailable`);
       }
 
+      if (!this.decimals) {
+        this.relayLogger.error(`TON Jettons: token decimals not set`);
+        throw new Error(`TON Jettons: token decimals not set`);
+      }
+
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       const { stack } = await this.client.runMethod(contractAddress, 'get_wallet_data');
-      const normalizingFactor = 10 ** this.decimals!;
+      const normalizingFactor = 10 ** this.decimals;
 
       return stack.readNumber() / normalizingFactor;
     } else {

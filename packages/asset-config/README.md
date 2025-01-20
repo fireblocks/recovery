@@ -56,10 +56,15 @@ To add support for withdrawals of a listed ERC20 on supported EVM chain, make su
 The token contract address must be present in the `globalAssets` list as the `address` parameter.
 Note: the tool will support ERC20 token withdrawals only on EVM chains that has withdrawal support for the base asset as well.
 
+### Add a new TRC20 token
+
+To add support for withdrawals of a listed TRC20 token, make sure the token is listed in `globalAssets.ts`.
+The token contract address must be present in the `globalAssets` list as the `address` parameter, make sure that `decimals` is also updated accordingly.
+
 ### Add a new Jetton token
 
 To add support for withdrawals of a listed Jetton, make sure the token is listed in `globalAssets.ts`.
-The Jetton master contract address must be present in the `globalAssets` list as the `address` parameter.
+The Jetton master contract address must be present in the `globalAssets` list as the `address` parameter, make sure that `decimals` is also updated accordingly.
 
 ### Token or new Base Asset Support
 
