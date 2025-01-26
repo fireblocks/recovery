@@ -4,7 +4,7 @@
   "author": "Fireblocks (https://www.fireblocks.com)",
   "repository": "https://github.com/fireblocks/recovery/tree/main/packages/wallet-derivation",
   "homepage": "https://www.fireblocks.com",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "license": "GPL-3.0-or-later",
   "main": "index.ts",
   "scripts": {
@@ -13,7 +13,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@fireblocks/asset-config": "^0.6.0",
+    "@fireblocks/asset-config": "^0.7.0",
     "@noble/curves": "^1.1.0",
     "@noble/ed25519": "^2.0.0",
     "@noble/hashes": "^1.3.1",

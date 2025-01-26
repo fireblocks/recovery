@@ -1,5 +1,11 @@
 # recovery-utility
 
+## 1.3.0
+
+### Minor Changes
+
+- e7d7726: Update versions
+
 ## 1.2.0
 
 ### Minor Changes

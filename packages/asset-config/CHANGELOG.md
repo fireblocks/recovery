@@ -1,5 +1,11 @@
 # @fireblocks/asset-config
 
+## 0.7.0
+
+### Minor Changes
+
+- e7d7726: Update versions
+
 ## 0.6.0
 
 ### Minor Changes

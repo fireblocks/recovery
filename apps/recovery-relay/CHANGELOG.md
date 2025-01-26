@@ -1,5 +1,18 @@
 # recovery-relay
 
+## 1.3.0
+
+### Minor Changes
+
+- e7d7726: Update versions
+
+### Patch Changes
+
+- Updated dependencies [e7d7726]
+  - @fireblocks/asset-config@0.7.0
+  - @fireblocks/recovery-shared@0.8.0
+  - @fireblocks/wallet-derivation@0.8.0
+
 ## 1.2.0
 
 ### Minor Changes
