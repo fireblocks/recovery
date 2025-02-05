@@ -64,7 +64,7 @@
     "stellar-sdk": "^10.4.1",
     "superjson": "^1.12.4",
     "tronweb": "^5.2.0",
-    "xrpl": "^2.8.1",
+    "xrpl": "^3.0.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
