@@ -152,7 +152,7 @@ jobs:
           yarn forcebuild
 
       - name: Upload Recovery Utility ${{ matrix.os }} artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Recovery Utility ${{ matrix.os }}
           path: |
@@ -161,9 +161,9 @@ jobs:
             apps/recovery-utility/dist/*.zip
 
       - name: Upload Recovery Relay artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: Recovery Relay
+          name: Recovery Relay - ${{ matrix.os }}
           path: apps/recovery-relay/out/
 
       # - name: Clean up Apple Developer secrets
