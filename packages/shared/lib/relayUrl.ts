@@ -105,7 +105,7 @@ export const getRelayParams = <
  * Get a Relay URL from a base URL and parameters
  *
  * @param target Targeted app (relay or utility)
- * @param baseUrl Relay base URL of the destination app (e.g. https://relay.fireblocks.solutions or fireblocks-recovery://)
+ * @param baseUrl Relay base URL of the destination app (e.g. fireblocks-recovery://)
  * @param params Relay URL parameters
  * @returns Relay URL
  */

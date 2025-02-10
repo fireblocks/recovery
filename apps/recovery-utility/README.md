@@ -29,7 +29,7 @@
    - Encrypted on all partitions
    - Stored in a safe box when not in use
 2. [Install the latest release of Recovery Utility](https://github.com/fireblocks/recovery/releases) on the offline recovery machine.
-3. **(Optional)** [Install the latest release of Recovery Relay](https://github.com/fireblocks/recovery/releases) on a web server. [Recovery Relay](../recovery-relay/) is a companion web app that gets wallet balances and sends transactions without revealing your private keys. Fireblocks hosts an instance at [relay.fireblocks.solutions](https://relay.fireblocks.solutions), but you can host your own instance and set its URL in Recovery Utility's Settings tab.
+3. **(Optional)** [Install the latest release of Recovery Relay](https://github.com/fireblocks/recovery/releases) on a web server. [Recovery Relay](../recovery-relay/) is a companion web app that gets wallet balances and sends transactions without revealing your private keys.
 4. Open Recovery Utility to use one of the following tools...
 
 ### 🧰 Tools

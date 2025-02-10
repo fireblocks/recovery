@@ -11,7 +11,6 @@ This repository contains a collection of TypeScript/Python apps and packages to:
 
 [Recovery Utility](../apps/recovery-utility/) includes the compiled [@fireblocks/extended-key-recovery](../packages/extended-key-recovery) module in its [contents](https://www.electron.build/configuration/contents.html#extrafiles) and spawns it as a child process to restore a workspace's extended private/public keys. Both [Recovery Utility](../apps/recovery-utility/) and [Recovery Relay](../apps/recovery-relay/) use [@fireblocks/wallet-derivation](../packages/wallet-derivation/) to derive wallets' addresses and their private/public keys.
 
-Recovery Relay can be hosted on any static file server, and Fireblocks maintains an instance hosted on Vercel at [relay.fireblocks.solutions](https://relay.fireblocks.solutions). Users can set a custom Recovery Relay URL in Recovery Utility's settings, after recovering their extended private keys.
 
 ## Packages
 
