@@ -9,35 +9,46 @@ import { promisify } from 'util';
 export class TRC20 extends BaseTron implements SigningWallet {
   public async generateTx({ to, amount, feeRate, extraParams }: GenerateTxInput): Promise<TxPayload> {
     try {
-      const rpcUrl = extraParams?.get('r');
-
-      // eslint-disable-next-line global-require
-      const TronWeb = require('tronweb');
-      const { HttpProvider } = TronWeb.providers;
-      const fullNode = new HttpProvider(rpcUrl);
-      const solidityNode = new HttpProvider(rpcUrl);
-      const eventServer = new HttpProvider(rpcUrl);
-      const tronWeb = new TronWeb(fullNode, solidityNode, eventServer, this.privateKey?.replace('0x', ''));
-
+      const tronWeb = require('tronweb');
+      const metadata = extraParams?.get('m');
+      metadata.fee_limit = feeRate;
       const decimals = extraParams?.get('d');
       const tokenAddress = extraParams?.get('t');
 
-      const functionSelector = 'transfer(address,uint256)';
-      const parameter = [
-        { type: 'address', value: to },
-        { type: 'uint256', value: amount * 10 ** decimals },
-      ];
+      const fixedAmount = amount * 10 ** decimals;
+      const data = `a9059cbb${tronWeb.address.toHex(to).replace('/^(41)/', '0x').padStart(64, '0')}${fixedAmount
+        .toString(16)
+        .padStart(64, '0')}`;
+      this.relayLogger.debug('TRC20: Data:', data);
+      const tx = {
+        visible: false,
+        txID: '',
+        raw_data_hex: '',
+        raw_data: {
+          contract: [
+            {
+              parameter: {
+                value: {
+                  data,
+                  owner_address: tronWeb.address.toHex(this.address),
+                  contract_address: tronWeb.address.toHex(tokenAddress),
+                },
+                type_url: 'type.googleapis.com/protocol.TriggerSmartContract',
+              },
+              type: 'TriggerSmartContract',
+            },
+          ],
+          ...metadata,
+        },
+      };
 
-      const tx = await tronWeb.transactionBuilder.triggerSmartContract(
-        tokenAddress,
-        functionSelector,
-        { feeLimit: feeRate },
-        parameter,
-      );
+      const pb = tronWeb.utils.transaction.txJsonToPb(tx);
 
-      const signedTx = await tronWeb.trx.sign(tx.transaction);
+      this.utilityLogger.logSigningTx('Tron', tx);
 
-      this.utilityLogger.logSigningTx('TRC20', signedTx);
+      tx.txID = tronWeb.utils.transaction.txPbToTxID(pb).replace(/^0x/, '');
+      tx.raw_data_hex = tronWeb.utils.transaction.txPbToRawDataHex(pb).toLowerCase();
+      const signedTx = tronWeb.utils.crypto.signTransaction(Buffer.from(this.privateKey!.replace('0x', ''), 'hex'), tx);
 
       //encode and compress for qr code
       const gzip = promisify(zlib.gzip);

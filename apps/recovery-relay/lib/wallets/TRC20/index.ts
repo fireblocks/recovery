@@ -62,11 +62,19 @@ export class TRC20 extends BaseTron implements ConnectedWallet {
     const balance = ((await this.getBalance()) / 10 ** this.decimals) as number;
     const trxBalance = await this.getTrxBalance();
 
+    const blockData = await this.tronWeb!.fullNode.request('wallet/getblock', { detail: false }, 'post');
+    const metadata = {
+      ref_block_bytes: blockData.block_header.raw_data.number.toString(16).slice(-4).padStart(4, '0'),
+      ref_block_hash: blockData.blockID.slice(16, 32),
+      expiration: blockData.block_header.raw_data.timestamp + 600 * 1000,
+      timestamp: blockData.block_header.raw_data.timestamp,
+    };
+
     const extraParams = new Map<string, any>();
 
     extraParams.set('t', this.tokenAddress);
     extraParams.set('d', this.decimals);
-    extraParams.set('r', this.rpcURL);
+    extraParams.set('m', metadata);
 
     const feeRate = (await this.estimateGas()) ?? 40_000_000;
 
