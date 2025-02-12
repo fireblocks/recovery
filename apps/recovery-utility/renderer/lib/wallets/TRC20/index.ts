@@ -10,12 +10,13 @@ export class TRC20 extends BaseTron implements SigningWallet {
   public async generateTx({ to, amount, feeRate, extraParams }: GenerateTxInput): Promise<TxPayload> {
     try {
       const tronWeb = require('tronweb');
-      const metadata = extraParams?.get('m');
+      const metadata = extraParams?.get(this.KEY_METADATA);
       metadata.fee_limit = feeRate;
-      const decimals = extraParams?.get('d');
-      const tokenAddress = extraParams?.get('t');
-
+      const decimals = extraParams?.get(this.KEY_DECIMALS);
+      const tokenAddress = extraParams?.get(this.KEY_TOKEN_ADDRESS);
       const fixedAmount = amount * 10 ** decimals;
+
+      //serialized data - functionSelector(transfer) + toAddress + amount
       const data = `a9059cbb${tronWeb.address.toHex(to).replace('/^(41)/', '0x').padStart(64, '0')}${fixedAmount
         .toString(16)
         .padStart(64, '0')}`;
@@ -50,7 +51,7 @@ export class TRC20 extends BaseTron implements SigningWallet {
       tx.raw_data_hex = tronWeb.utils.transaction.txPbToRawDataHex(pb).toLowerCase();
       const signedTx = tronWeb.utils.crypto.signTransaction(Buffer.from(this.privateKey!.replace('0x', ''), 'hex'), tx);
 
-      //encode and compress for qr code
+      //encode and compress to fit qr code limits
       const gzip = promisify(zlib.gzip);
       const compressedTx = (await gzip(JSON.stringify(signedTx))).toString('base64');
 
