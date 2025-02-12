@@ -72,9 +72,9 @@ export class TRC20 extends BaseTron implements ConnectedWallet {
 
     const extraParams = new Map<string, any>();
 
-    extraParams.set('t', this.tokenAddress);
-    extraParams.set('d', this.decimals);
-    extraParams.set('m', metadata);
+    extraParams.set(this.KEY_TOKEN_ADDRESS, this.tokenAddress);
+    extraParams.set(this.KEY_DECIMALS, this.decimals);
+    extraParams.set(this.KEY_METADATA, metadata);
 
     const feeRate = (await this.estimateGas()) ?? 40_000_000;
 
