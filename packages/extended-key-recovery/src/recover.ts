@@ -39,7 +39,7 @@ const recoverKeysShares = (
         players[keyId] = {};
       }
       players[keyId][playerId] = value;
-    } else if (['metadata.json', 'RSA_PASSPHRASE'].includes(file.entryName)) {
+    } else if (['metadata.json', 'RSA_PASSPHRASE'].includes(file.entryName) || file.entryName.endsWith('backup.public_key.pem')) {
       continue;
     } else {
       let cosigner: string;
