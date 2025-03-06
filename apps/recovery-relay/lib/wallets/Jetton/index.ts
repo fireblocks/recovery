@@ -111,40 +111,45 @@ export class Jetton extends BaseTon implements LateInitConnectedWallet {
   }
 
   public async prepare(): Promise<AccountData> {
-    // init the TonClient
-    this.init();
+    try {
+      // init the TonClient
+      this.init();
 
-    const jettonBalance = await this.getBalance();
-    const contract = this.client!.open(this.tonWallet);
-    const tonBalance = await contract.getBalance();
+      const jettonBalance = await this.getBalance();
+      const contract = this.client!.open(this.tonWallet);
+      const tonBalance = await contract.getBalance();
 
-    // fee for token tx is hardcoded to 0.1 TON
-    const feeRate = Number(toNano(0.1));
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+      // fee for token tx is hardcoded to 0.1 TON
+      const feeRate = Number(toNano(0.1));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    // get seqno of the wallet, set it as exrtaParams
-    const seqno = await this.getSeqno();
+      // get seqno of the wallet, set it as exrtaParams
+      const seqno = await this.getSeqno();
 
-    // get the contract address of the wallet
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    const contractAddress = await this.getContractAddress();
+      // get the contract address of the wallet
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const contractAddress = await this.getContractAddress();
 
-    // set extraParams
-    const extraParams = new Map<string, any>();
-    extraParams.set('seqno', seqno);
-    extraParams.set('contract-address', contractAddress?.toString({ bounceable: true, testOnly: false }));
-    extraParams.set('decimals', this.decimals);
+      // set extraParams
+      const extraParams = new Map<string, any>();
+      extraParams.set('seqno', seqno.toString());
+      extraParams.set('contract-address', contractAddress?.toString({ bounceable: true, testOnly: false }));
+      extraParams.set('decimals', this.decimals?.toString());
 
-    const preperedData = {
-      balance: jettonBalance,
-      memo: this.memo,
-      feeRate,
-      extraParams,
-      insufficientBalance: jettonBalance <= 0,
-      insufficientBalanceForTokenTransfer: tonBalance < feeRate,
-    } as AccountData;
+      const preperedData = {
+        balance: jettonBalance,
+        memo: this.memo,
+        feeRate,
+        extraParams,
+        insufficientBalance: jettonBalance <= 0,
+        insufficientBalanceForTokenTransfer: tonBalance < feeRate,
+      } as AccountData;
 
-    return preperedData;
+      return preperedData;
+    } catch (e) {
+      this.relayLogger.error(`Jetton: Error preparing account data: ${e}`);
+      throw e;
+    }
   }
 
   private init() {
