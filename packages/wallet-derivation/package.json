@@ -40,7 +40,7 @@
     "ethers": "^6.6.2",
     "stellar-base": "^8.2.2",
     "tronweb": "^5.2.0",
-    "xrpl": "^2.8.1"
+    "xrpl": "^3.0.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.3",
