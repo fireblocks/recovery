@@ -52,7 +52,7 @@
     "stellar-sdk": "^10.4.1",
     "superjson": "^1.12.4",
     "tiny-secp256k1": "^2.2.3",
-    "tronweb": "^5.2.0",
+    "tronweb": "^6.0.0",
     "xrpl": "^2.8.1",
     "zod": "^3.22.4"
   },
