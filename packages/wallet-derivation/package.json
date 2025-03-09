@@ -39,7 +39,7 @@
     "buffer": "^6.0.3",
     "ethers": "^6.6.2",
     "stellar-base": "^8.2.2",
-    "tronweb": "^5.2.0",
+    "tronweb": "^6.0.0",
     "xrpl": "^2.8.1"
   },
   "devDependencies": {
