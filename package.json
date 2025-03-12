@@ -76,7 +76,7 @@
     "playwright-core": "^1.40.1",
     "react-dom": "^18.2.0",
     "turbo": "^1.10.12",
-    "wait-on": "^7.0.1",
+    "wait-on": "^8.0.3",
     "xvfb-maybe": "^0.2.1"
   }
 }
