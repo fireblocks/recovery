@@ -1,5 +1,11 @@
 # recovery-utility
 
+## 1.6.0
+
+### Minor Changes
+
+- b1be475: display transaction details before broadcasting
+
 ## 1.3.0
 
 ### Minor Changes

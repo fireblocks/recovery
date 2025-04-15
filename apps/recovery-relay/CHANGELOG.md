@@ -1,5 +1,18 @@
 # recovery-relay
 
+## 1.5.0
+
+### Minor Changes
+
+- b1be475: display transaction details before broadcasting
+
+### Patch Changes
+
+- Updated dependencies [b1be475]
+- Updated dependencies [67b1d88]
+- Updated dependencies [22fae46]
+  - @fireblocks/recovery-shared@0.9.0
+
 ## 1.3.0
 
 ### Minor Changes
