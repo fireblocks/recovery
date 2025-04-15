@@ -108,7 +108,7 @@ export const approveTransaction = async (page: Page, txParamsData: string): Prom
 
 export const broadcastTransaction = async (page: Page, signedTxData: string): Promise<string> => {
   await _fillQrCode(page, signedTxData);
-  await page.getByRole('button', { name: 'Confirm and broadcast', exact: true }).click();
+  await page.getByRole('button', { name: 'Broadcast Transaction', exact: true }).click();
 
   if (
     await page
