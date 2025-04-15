@@ -185,7 +185,7 @@ export const WithdrawModal = () => {
                 >
                   {asset.getExplorerUrl ? (
                     <Link href={asset.getExplorerUrl!('tx')(txHash)} target='_blank' rel='noopener noreferrer'>
-                      <Typography variant='h4'>Transaction Hash:</Typography>
+                      <Typography variant='body1'>Transaction Hash</Typography>
                     </Link>
                   ) : (
                     <Tooltip title={txHash}>
