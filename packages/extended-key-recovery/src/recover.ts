@@ -1,3 +1,9 @@
+/* eslint-disable no-new */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable prefer-destructuring */
+/* eslint-disable no-lonely-if */
+/* eslint-disable no-continue */
+/* eslint-disable no-restricted-syntax */
 import fs from 'fs';
 import path from 'path';
 import AdmZip, { IZipEntry } from 'adm-zip';
@@ -70,7 +76,7 @@ const recoverKeysShares = (
           throw new InvalidRSAPrivateKeyError();
         }
 
-        let decrypted: any;
+        let decrypted: unknown;
         try {
           // @ts-ignore
           decrypted = Buffer.from(privateKey.decrypt(data, 'RSA-OAEP'), 'binary').toString('hex');
@@ -147,11 +153,11 @@ export const recoverKeys = (params: KeyRecoveryConfig): RecoveredKeys => {
     }
   }
 
-  const privateKeysTemp: CalculatedPrivateKey | undefined = reconstructKeys(players, signingKeys);
-  if (!privateKeysTemp) {
+  const tmp: CalculatedPrivateKey | undefined = reconstructKeys(players, signingKeys);
+  if (!tmp) {
     throw new Error('Mismatch between recovered keys and metadata - unable to continue');
   }
-  const privateKeys = privateKeysTemp!;
+  const privateKeys = tmp!;
 
   const keyAlgorithms: Algorithm[] = Object.keys(privateKeys) as Algorithm[];
   let ecdsa: Algorithm;
