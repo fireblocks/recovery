@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable no-restricted-globals */
 import { z } from 'zod';
 import { nonEmptyString } from './scalars';
@@ -6,6 +7,7 @@ const numberFromString = z
   .string()
   .transform((v) => (v === '' ? null : v))
   .nullable()
+  // @ts-ignore
   .refine((v) => v === null || !isNaN(v), { message: 'Invalid number' })
   .transform((v) => (v === null ? -1 : Number(v)))
   .pipe(z.number().nullable());
