@@ -1,23 +1,19 @@
-import { ReactNode, useEffect } from 'react';
-import { Typography, Box, Grid, List, ListItem, ListItemIcon, ListItemText, SxProps, Theme } from '@mui/material';
+/* eslint-disable no-nested-ternary */
+import { ReactNode } from 'react';
+import { Typography, Box } from '@mui/material';
 import {
   VaultAccount,
   RelayRxTx,
   RelaySignTxResponseParams,
-  Button,
-  monospaceFontFamily,
-  VaultAccountIcon,
-  AssetIcon,
-  AssetsIcon,
   getLogger,
   sanatize,
   useWrappedState,
   getDerivationMapKey,
 } from '@fireblocks/recovery-shared';
 import { AssetConfig } from '@fireblocks/asset-config';
-import { CallMade, CallReceived, LeakAdd, Toll } from '@mui/icons-material';
+import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
+import { SignOrBroadcastTransaction } from '@fireblocks/recovery-shared/components';
 import { useWorkspace } from '../../../../context/Workspace';
-import { useSettings } from '../../../../context/Settings';
 import { SigningWallet } from '../../../../lib/wallets/SigningWallet';
 import {
   StdUTXO,
@@ -27,7 +23,6 @@ import {
   BTCLegacyUTXO,
   GenerateTxInput,
 } from '../../../../lib/wallets/types';
-import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 
 const BlockedMessage = ({ children }: { children: ReactNode }) => (
   <Box>
@@ -36,12 +31,6 @@ const BlockedMessage = ({ children }: { children: ReactNode }) => (
     </Typography>
   </Box>
 );
-
-const textOverflowStyles: SxProps<Theme> = {
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-};
 
 type Props = {
   txId: string;
@@ -58,8 +47,6 @@ export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Pr
   const { unsignedTx } = inboundRelayParams;
 
   const { extendedKeys, getOutboundRelayUrl } = useWorkspace();
-
-  const { relayBaseUrl } = useSettings();
 
   const [outboundRelayUrl, setOutboundRelayUrl] = useWrappedState<string | undefined>('outboundRelayUrl', undefined);
 
@@ -96,7 +83,7 @@ export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Pr
     const { tx } = await (derivation as SigningWallet).generateTx({
       to,
       amount,
-      utxos: utxos, // TODO: Fix type
+      utxos, // TODO: Fix type
       feeRate: misc?.feeRate,
       nonce: misc?.nonce,
       gasPrice: misc?.gasPrice,
@@ -138,109 +125,14 @@ export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Pr
     return <BlockedMessage>Unexpected transaction ID from Recovery Relay.</BlockedMessage>;
   }
 
-  return (
-    <Box display='flex' flexDirection='column' alignItems='center'>
-      {outboundRelayUrl ? (
-        <RelayRxTx txTitle='Signed transaction' txUrl={outboundRelayUrl} />
-      ) : (
-        <>
-          <Typography variant='body1' color='error' paragraph>
-            Carefully confirm all transaction details before signing with your private key.
-          </Typography>
-          <Grid container spacing={2} padding='1em'>
-            <Grid item xs={6}>
-              <List aria-label='Transaction parameters'>
-                <ListItem disablePadding>
-                  <ListItemIcon sx={{ minWidth: '42px' }}>
-                    <AssetsIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary='Asset'
-                    secondary={
-                      <>
-                        <AssetIcon assetId={asset.id} fontSize='small' sx={{ marginRight: '0.25em' }} /> {asset.name}
-                      </>
-                    }
-                    primaryTypographyProps={{ fontWeight: '600', color: '#000' }}
-                    secondaryTypographyProps={{ display: 'flex', alignItems: 'center', sx: textOverflowStyles }}
-                  />
-                </ListItem>
-                <ListItem disablePadding>
-                  <ListItemIcon sx={{ minWidth: '42px' }}>
-                    <CallMade />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary='From'
-                    secondary={
-                      <>
-                        <Typography component='span' variant='body1' display='flex' alignItems='center' sx={textOverflowStyles}>
-                          <VaultAccountIcon color='primary' fontSize='small' sx={{ marginRight: '0.25em' }} /> {account.name}
-                        </Typography>
-                        <Typography component='span' variant='body1' fontFamily={monospaceFontFamily} sx={textOverflowStyles}>
-                          {unsignedTx.from}
-                        </Typography>
-                      </>
-                    }
-                    primaryTypographyProps={{ fontWeight: '600', color: '#000' }}
-                    secondaryTypographyProps={{ sx: textOverflowStyles }}
-                  />
-                </ListItem>
-                <ListItem disablePadding>
-                  <ListItemIcon sx={{ minWidth: '42px' }}>
-                    <CallReceived />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary='To'
-                    secondary={unsignedTx.to}
-                    primaryTypographyProps={{ fontWeight: '600', color: '#000' }}
-                    secondaryTypographyProps={{ fontFamily: monospaceFontFamily, sx: textOverflowStyles }}
-                  />
-                </ListItem>
-                <ListItem disablePadding>
-                  <ListItemIcon sx={{ minWidth: '42px' }}>
-                    <Toll />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary='Amount'
-                    secondary={unsignedTx.amount}
-                    primaryTypographyProps={{ fontWeight: '600', color: '#000' }}
-                    secondaryTypographyProps={{ fontFamily: monospaceFontFamily, sx: textOverflowStyles }}
-                  />
-                </ListItem>
-              </List>
-            </Grid>
-            <Grid item xs={6}>
-              <List aria-label='Recovery Relay Instance'>
-                <ListItem disablePadding>
-                  <ListItemIcon sx={{ minWidth: '42px' }}>
-                    <LeakAdd />
-                  </ListItemIcon>
-                  <ListItemText primary='Recovery Relay Instance' primaryTypographyProps={{ fontWeight: '600', color: '#000' }} />
-                </ListItem>
-                <ListItem disablePadding>
-                  <ListItemText
-                    primary='IP'
-                    secondary={inboundRelayParams.ip || 'Unknown'}
-                    primaryTypographyProps={{ fontWeight: '500' }}
-                    secondaryTypographyProps={{ fontFamily: monospaceFontFamily, sx: textOverflowStyles }}
-                    sx={{ paddingLeft: '42px' }}
-                  />
-                </ListItem>
-                <ListItem disablePadding>
-                  <ListItemText
-                    primary='Version'
-                    secondary={inboundRelayParams.version}
-                    primaryTypographyProps={{ fontWeight: '500' }}
-                    secondaryTypographyProps={{ fontFamily: monospaceFontFamily, sx: textOverflowStyles }}
-                    sx={{ paddingLeft: '42px' }}
-                  />
-                </ListItem>
-              </List>
-            </Grid>
-          </Grid>
-          <Button onClick={onApproveTransaction}>Approve & Sign Transaction</Button>
-        </>
-      )}
-    </Box>
+  return outboundRelayUrl ? (
+    <RelayRxTx txTitle='Signed transaction' txUrl={outboundRelayUrl} />
+  ) : (
+    <SignOrBroadcastTransaction
+      account={account}
+      asset={asset}
+      onApproveTransaction={onApproveTransaction}
+      inboundRelayParams={inboundRelayParams}
+    />
   );
 };
