@@ -2,20 +2,24 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { recoverAccountInput, RecoverAccountInput } from '../../../schemas';
+import { Accordion, AccordionDetails, AccordionSummary, InputAdornment, Tooltip, Typography } from '@mui/material';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import { RecoverAccountInput, recoverAccountInputByAccounts } from '../../../schemas';
 import { BaseModal } from '../../BaseModal';
 import { Button } from '../../Button';
 import { TextField } from '../../TextField';
 
 type Props = {
   open: boolean;
+  accountsKeys: number[];
   onClose: VoidFunction;
   addAccount: (name: string, id?: number) => number;
 };
 
 const defaultValues: RecoverAccountInput = { name: '' };
 
-export const RecoverAccountModal = ({ open, onClose: _onClose, addAccount }: Props) => {
+export const RecoverAccountModal = ({ open, onClose: _onClose, accountsKeys, addAccount }: Props) => {
   const router = useRouter();
 
   const {
@@ -24,7 +28,7 @@ export const RecoverAccountModal = ({ open, onClose: _onClose, addAccount }: Pro
     handleSubmit,
     formState: { errors },
   } = useForm<RecoverAccountInput>({
-    resolver: zodResolver(recoverAccountInput),
+    resolver: zodResolver(recoverAccountInputByAccounts(accountsKeys)),
     defaultValues,
   });
 
@@ -35,7 +39,7 @@ export const RecoverAccountModal = ({ open, onClose: _onClose, addAccount }: Pro
   };
 
   const onSubmit = (formData: RecoverAccountInput) => {
-    const accountId = addAccount(formData.name);
+    const accountId = addAccount(formData.name, formData.id);
 
     router.push({
       pathname: '/accounts/vault/[accountId]',
@@ -67,6 +71,34 @@ export const RecoverAccountModal = ({ open, onClose: _onClose, addAccount }: Pro
         autoFocus
         {...register('name')}
       />
+      <Typography>&nbsp;</Typography>
+      <Accordion>
+        <AccordionSummary expandIcon={<ArrowDownwardIcon />}>
+          <Typography component='span'>Advanced</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <TextField
+            id='accountId'
+            label='Account Id (Optional)'
+            placeholder='e.g. 1,2,...'
+            error={errors.id?.message}
+            autoFocus
+            inputProps={{ type: 'number' }}
+            inputMode='numeric'
+            {...register('id')}
+            endAdornment={
+              <InputAdornment position='end'>
+                <Tooltip
+                  title='Vault Account ID is a unique positive integer that defines each vault.
+          If you don’t provide this value, the utility will automatically use a new number by adding to the latest number used.'
+                >
+                  <HelpOutlineIcon />
+                </Tooltip>
+              </InputAdornment>
+            }
+          />
+        </AccordionDetails>
+      </Accordion>
     </BaseModal>
   );
 };

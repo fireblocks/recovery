@@ -231,7 +231,12 @@ export const VaultBasePage = ({ extendedKeys, accounts, addAccount, withdrawModa
           </Grid>
         </Grid>
       )}
-      <RecoverAccountModal open={isRecoverAccountModalOpen} onClose={handleCloseRecoverAccountModal} addAccount={addAccount} />
+      <RecoverAccountModal
+        open={isRecoverAccountModalOpen}
+        accountsKeys={Array.from(accounts.keys())}
+        onClose={handleCloseRecoverAccountModal}
+        addAccount={addAccount}
+      />
       {!!WithdrawModal && (
         <WithdrawModal
           key={withdrawalAccountId}
