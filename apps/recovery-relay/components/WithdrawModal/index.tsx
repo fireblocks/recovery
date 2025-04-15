@@ -1,24 +1,25 @@
 import { ReactNode } from 'react';
-import { Typography, Box, Link } from '@mui/material';
+import { Typography, Box, Link, Tooltip } from '@mui/material';
 import {
   AssetIcon,
   BaseModal,
-  Button,
   RelayRequestParams,
   RelayRxTx,
   RelaySignTxResponseParams,
   getLogger,
   useWrappedState,
   getDerivationMapKey,
+  RelayBroadcastTxRequestParams,
 } from '@fireblocks/recovery-shared';
 import { getDerivableAssetConfig } from '@fireblocks/asset-config';
 import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
 import { sanatize } from '@fireblocks/recovery-shared/lib/sanatize';
+import { getAssetConfig, isTransferableToken } from '@fireblocks/asset-config/util';
+import { SignOrBroadcastTransaction } from '@fireblocks/recovery-shared/components';
 import { useWorkspace } from '../../context/Workspace';
 import { CreateTransaction, getAssetURL } from './CreateTransaction';
 import { LateInitConnectedWallet } from '../../lib/wallets/LateInitConnectedWallet';
 import { useSettings } from '../../context/Settings';
-import { getAssetConfig, isTransferableToken } from '@fireblocks/asset-config/util';
 import { ERC20 } from '../../lib/wallets/ERC20';
 
 const logger = getLogger(LOGGER_NAME_RELAY);
@@ -73,6 +74,44 @@ export const WithdrawModal = () => {
     );
   };
 
+  const broadcastTransaction = async () => {
+    if (!inboundRelayParams) {
+      throw new Error("No inbound relay parameters, can't proceed.");
+    }
+    const params = inboundRelayParams as RelayBroadcastTxRequestParams;
+    logger.info('Inbound parameters:', { inboundRelayParams });
+    const { assetId } = params.signedTx;
+    const wallet = accounts.get(params.accountId)?.wallets.get(assetId);
+
+    const derivation = wallet?.derivations?.get(getDerivationMapKey(assetId, params.signedTx.from));
+    if (isTransferableToken(assetId) && derivation instanceof ERC20) {
+      (derivation as ERC20).setNativeAsset(getAssetConfig(assetId)!.nativeAsset);
+    }
+    const rpcUrl = getAssetURL(derivation?.assetId ?? '', RPCs);
+    if (rpcUrl === undefined) {
+      throw new Error(`No RPC URL for asset ${derivation?.assetId}`);
+    } else if (rpcUrl === null) {
+      if (derivation?.isLateInit()) {
+        (derivation as LateInitConnectedWallet).updateDataEndpoint(params.endpoint!);
+      }
+    } else {
+      derivation?.setRPCUrl(rpcUrl);
+    }
+
+    const signedTxHex = params.signedTx.hex;
+
+    const cleanDerivation = derivation ? sanatize(derivation) : undefined;
+    logger.info('Derivation and signed transaction hash:', { cleanDerivation, signedTxHex });
+    try {
+      const newTxHash = await derivation?.broadcastTx(signedTxHex);
+
+      setTxHash(newTxHash);
+      logger.info({ newTxHash });
+    } catch (e) {
+      setTxBroadcastError((e as Error).message);
+    }
+  };
+
   const onDecodeInboundRelayQrCode = (url: string) => {
     if (url) setInboundRelayUrl(url);
   };
@@ -118,80 +157,41 @@ export const WithdrawModal = () => {
               />
             ))}
           {action === 'tx/broadcast' && (
-            <Box display='flex' alignItems='center' justifyContent='center' flexDirection='column'>
-              {!txHash && (
-                <>
-                  <Button
-                    disabled={process.env.CI === 'e2e' ? false : txBroadcastError !== undefined}
-                    onClick={async () => {
-                      logger.info('Inbound parameters:', { inboundRelayParams });
-                      const assetId = inboundRelayParams?.signedTx.assetId;
-                      const wallet = accounts.get(inboundRelayParams?.accountId)?.wallets.get(assetId);
-
-                      const derivation = wallet?.derivations?.get(
-                        getDerivationMapKey(assetId, inboundRelayParams?.signedTx.from),
-                      );
-                      if (isTransferableToken(assetId) && derivation instanceof ERC20) {
-                        (derivation as ERC20).setNativeAsset(getAssetConfig(assetId)!.nativeAsset);
-                      }
-                      const rpcUrl = getAssetURL(derivation?.assetId ?? '', RPCs);
-                      if (rpcUrl === undefined) {
-                        throw new Error(`No RPC URL for asset ${derivation?.assetId}`);
-                      } else if (rpcUrl === null) {
-                        if (derivation?.isLateInit()) {
-                          (derivation as LateInitConnectedWallet).updateDataEndpoint(inboundRelayParams.endpoint!);
-                        }
-                      } else {
-                        derivation?.setRPCUrl(rpcUrl);
-                      }
-
-                      const signedTxHex = inboundRelayParams?.signedTx.hex;
-
-                      const cleanDerivation = derivation ? sanatize(derivation) : undefined;
-                      logger.info('Derivation and signed transaction hash:', { cleanDerivation, signedTxHex });
-                      try {
-                        const newTxHash = await derivation?.broadcastTx(signedTxHex);
-
-                        setTxHash(newTxHash);
-                        logger.info({ newTxHash });
-                      } catch (e) {
-                        setTxBroadcastError((e as Error).message);
-                      }
-                    }}
-                  >
-                    Confirm and broadcast
-                  </Button>
-                  {!!txBroadcastError && (
-                    <Box height='100%' display='flex' flexDirection='column' borderRadius='6px' padding='8px 8px 0 8px'>
-                      <Typography variant='body1' textAlign='center' fontWeight='600' color={(theme) => theme.palette.error.main}>
-                        Transaction broadcast failed due to: {txBroadcastError}
-                      </Typography>
-                    </Box>
-                  )}
-                </>
+            <>
+              <Box display='flex' justifyContent='center' alignItems='center' flexDirection='column'>
+                <SignOrBroadcastTransaction
+                  account={accounts.get(inboundRelayParams.accountId)!}
+                  asset={asset!}
+                  inboundRelayParams={inboundRelayParams}
+                  broadcastTransaction={broadcastTransaction}
+                  broadcastHidden={txHash !== undefined || txBroadcastError !== undefined}
+                />
+              </Box>
+              {!!txBroadcastError && (
+                <Box height='100%' display='flex' flexDirection='column' borderRadius='6px' padding='8px 8px 0 8px'>
+                  <Typography variant='body1' textAlign='center' fontWeight='600' color={(theme) => theme.palette.error.main}>
+                    Transaction broadcast failed due to: {txBroadcastError}
+                  </Typography>
+                </Box>
               )}
               {!!txHash && (
-                <Box>
-                  <Typography
-                    variant='body1'
-                    paragraph
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      '& > *': {
-                        marginRight: '0.5rem',
-                      },
-                    }}
-                  >
-                  <Typography variant='body1'>Transaction Hash:</Typography>
-                    {asset.getExplorerUrl ? (
-                      <Link href={asset.getExplorerUrl!('tx')(txHash)} target='_blank' rel='noopener noreferrer'>
-                        {txHash}
-                      </Link>
-                    ) : (
-                      txHash
-                    )}
-                  </Typography>
+                <Box
+                  sx={{
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                  textAlign='center'
+                >
+                  {asset.getExplorerUrl ? (
+                    <Link href={asset.getExplorerUrl!('tx')(txHash)} target='_blank' rel='noopener noreferrer'>
+                      <Typography variant='h4'>Transaction Hash:</Typography>
+                    </Link>
+                  ) : (
+                    <Tooltip title={txHash}>
+                      <Typography variant='body1'>{txHash}</Typography>
+                    </Tooltip>
+                  )}
                   <Typography variant='body1'>
                     The transaction might take a few seconds to appear on the block explorer
                   </Typography>
@@ -204,7 +204,7 @@ export const WithdrawModal = () => {
                   {txBroadcastError}
                 </Typography>
               )}
-            </Box>
+            </>
           )}
         </>
       ) : (
