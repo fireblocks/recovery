@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
@@ -17,7 +18,7 @@ type Props = {
   addAccount: (name: string, id?: number) => number;
 };
 
-const defaultValues: RecoverAccountInput = { name: '' };
+const defaultValues: RecoverAccountInput = { name: '', id: null };
 
 export const RecoverAccountModal = ({ open, onClose: _onClose, accountsKeys, addAccount }: Props) => {
   const router = useRouter();
@@ -39,7 +40,10 @@ export const RecoverAccountModal = ({ open, onClose: _onClose, accountsKeys, add
   };
 
   const onSubmit = (formData: RecoverAccountInput) => {
-    const accountId = addAccount(formData.name, formData.id);
+    const accountId = addAccount(
+      formData.name,
+      formData.id !== null && formData.id < 0 ? undefined : formData.id !== null ? formData.id : undefined,
+    );
 
     router.push({
       pathname: '/accounts/vault/[accountId]',
