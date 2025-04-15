@@ -1,5 +1,11 @@
 # @fireblocks/e2e-tests
 
+## 0.5.0
+
+### Minor Changes
+
+- c33832f: update vault navigation to be able to go to vault from main page or from specific vault
+
 ## 0.4.0
 
 ### Minor Changes

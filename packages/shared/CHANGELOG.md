@@ -1,5 +1,16 @@
 # shared
 
+## 0.9.0
+
+### Minor Changes
+
+- b1be475: display transaction details before broadcasting
+- 67b1d88: added option for specific vault account recovery
+
+### Patch Changes
+
+- 22fae46: fixed account recovery when id not provided
+
 ## 0.8.0
 
 ### Minor Changes
