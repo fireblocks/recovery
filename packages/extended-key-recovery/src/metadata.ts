@@ -1,3 +1,5 @@
+/* eslint-disable guard-for-in */
+/* eslint-disable no-restricted-syntax */
 import { NCWWalletMasterMetadata, RecoveryPackageMetadata, SigningKeyMetadata, UnknownChainCodeError } from './types';
 
 export const parseMetadataFile = (metadataFile: string): RecoveryPackageMetadata => {
@@ -29,7 +31,7 @@ export const parseMetadataFile = (metadataFile: string): RecoveryPackageMetadata
       if (typeof keysInKit[key].chainCode === 'string') {
         metadataChainCode = Buffer.from(keysInKit[key].chainCode! as string, 'hex');
       } else {
-        metadataChainCode = keysInKit[key].chainCode! as Buffer;
+        metadataChainCode = keysInKit[key].chainCode! as unknown as Buffer;
       }
     } else {
       metadataChainCode = Buffer.from(defaultChainCode); // Copy of chaincode.
@@ -62,12 +64,12 @@ export const parseMetadataFile = (metadataFile: string): RecoveryPackageMetadata
     if (typeof keyMetadata.walletSeed === 'string') {
       walletSeed = Buffer.from(keyMetadata.walletSeed, 'hex');
     } else {
-      walletSeed = keyMetadata.walletSeed as Buffer;
+      walletSeed = keyMetadata.walletSeed as unknown as Buffer;
     }
     if (typeof keyMetadata.assetSeed === 'string') {
       assetSeed = Buffer.from(keyMetadata.assetSeed, 'hex');
     } else {
-      assetSeed = keyMetadata.assetSeed as Buffer;
+      assetSeed = keyMetadata.assetSeed as unknown as Buffer;
     }
     const { cosigners } = keyMetadata;
 
