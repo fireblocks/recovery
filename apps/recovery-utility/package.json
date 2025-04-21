@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@cosmjs/amino": "^0.31.0",
-    "@cosmjs/encoding": "^0.31.0",
+    "@cosmjs/encoding": "^0.32.4",
     "@cosmjs/math": "^0.31.0",
     "@cosmjs/proto-signing": "^0.31.0",
     "@cosmjs/stargate": "^0.32.1",
