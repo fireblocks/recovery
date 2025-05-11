@@ -70,7 +70,7 @@
     "electron-playwright-helpers": "^1.7.0",
     "husky": "^8.0.3",
     "is-ci": "^3.0.1",
-    "lint-staged": "^13.2.3",
+    "lint-staged": "^16.0.0",
     "obs-websocket-js": "^5.0.3",
     "playwright": "^1.40.1",
     "playwright-core": "^1.40.1",
