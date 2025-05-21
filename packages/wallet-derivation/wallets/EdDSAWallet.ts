@@ -14,7 +14,7 @@ import { BaseWallet } from './BaseWallet';
  * @param messages list of byte arrays
  * @returns byte array of SHA-512 digest
  */
-const sha512 = async (...messages: Uint8Array[]) => {
+export const sha512 = async (...messages: Uint8Array[]) => {
   const buffer = concatBytes(...messages);
 
   const digest = await crypto.subtle.digest('SHA-512', buffer);
@@ -141,11 +141,11 @@ export abstract class EdDSAWallet extends BaseWallet {
 
     const privateKeyInt = hexToNumber(this.privateKey.slice(2));
     const privateKeyBytes = numberToBytesLE(privateKeyInt, 32);
-    const messagesBytes = typeof message === 'string' ? Buffer.from(message, 'hex') : message;
+    const messagesBytes = typeof message === 'string' ? new Uint8Array(Buffer.from(message, 'hex')) : message;
     const messageBytes = concatBytes(messagesBytes);
 
-    const seed = randomBytes();
-
+    const seedBuffer = randomBytes();
+    const seed = Buffer.isBuffer(seedBuffer) ? new Uint8Array(seedBuffer) : seedBuffer;
     const nonceDigest = await hasher(seed, privateKeyBytes, messageBytes);
     const nonce = etc.mod(bytesToNumberLE(nonceDigest), edCURVE.n);
 
