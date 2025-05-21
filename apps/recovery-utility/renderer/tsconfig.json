@@ -1,12 +1,13 @@
 {
   "extends": "../tsconfig.json",
+  "sourceMap": true,
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     "../../../packages/shared/lib/csv.ts",
     "../../../packages/shared/lib/download.ts",
-    "../../../packages/shared/lib/readFile.ts"
+    "../../../packages/shared/lib/readFile.ts",
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
 }
