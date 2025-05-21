@@ -1,46 +1,47 @@
 import React, { useState, ChangeEvent } from 'react';
 import { Box, Chip, TextField, Typography } from '@mui/material';
+import { HDPath } from '@fireblocks/wallet-derivation';
 
 interface DerivationPathInputProps {
-  onChange?: (path: string) => void;
+  onChange?: (path: HDPath) => void;
   disabled?: boolean;
-  defaultValues?: {
-    coinType?: string;
-    account?: string;
-    change?: string;
-    addressIndex?: string;
-  };
+  defaultValues?: Partial<HDPath>;
 }
 
-const DerivationPathInput: React.FC<DerivationPathInputProps> = ({ onChange, disabled, defaultValues = {} }) => {
-  const [coinType, setCoinType] = useState(defaultValues.coinType || '');
-  const [account, setAccount] = useState(defaultValues.account || '');
-  const [change, setChange] = useState(defaultValues.change || '');
-  const [addressIndex, setAddressIndex] = useState(defaultValues.addressIndex || '');
+const DerivationPathInput: React.FC<DerivationPathInputProps> = (props) => {
+  const { onChange, disabled, defaultValues = {} } = props;
+  const [coinType, setCoinType] = useState(defaultValues.coinType || 0);
+  const [account, setAccount] = useState(defaultValues.account || 0);
+  const [change, setChange] = useState(defaultValues.changeIndex || 0);
+  const [addressIndex, setAddressIndex] = useState(defaultValues.addressIndex || 0);
 
   const handleCoinTypeChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setCoinType(e.target.value);
-    updatePath(e.target.value, account, change, addressIndex);
+    const updatedCoinType = Number(e.target.value);
+    setCoinType(updatedCoinType);
+    updatePath(updatedCoinType, account, change, addressIndex);
   };
 
   const handleAccountChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setAccount(e.target.value);
-    updatePath(coinType, e.target.value, change, addressIndex);
+    const updatedAccount = Number(e.target.value);
+    setAccount(updatedAccount);
+    updatePath(coinType, updatedAccount, change, addressIndex);
   };
 
   const handleChangeChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setChange(e.target.value);
-    updatePath(coinType, account, e.target.value, addressIndex);
+    const updatedChange = Number(e.target.value);
+    setChange(updatedChange);
+    updatePath(coinType, account, updatedChange, addressIndex);
   };
 
   const handleAddressIndexChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setAddressIndex(e.target.value);
-    updatePath(coinType, account, change, e.target.value);
+    const updatedAddressIndex = Number(e.target.value);
+    setAddressIndex(updatedAddressIndex);
+    updatePath(coinType, account, change, updatedAddressIndex);
   };
 
-  const updatePath = (coinType: string, account: string, change: string, addressIndex: string) => {
+  const updatePath = (coinType: number, account: number, changeIndex: number, addressIndex: number) => {
     if (onChange) {
-      const path = `m/44'/${coinType}'/${account}'/${change}/${addressIndex}`;
+      const path = { coinType, account, changeIndex, addressIndex };
       onChange(path);
     }
   };
@@ -52,11 +53,6 @@ const DerivationPathInput: React.FC<DerivationPathInputProps> = ({ onChange, dis
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
-          p: 2,
-          border: '1px solid',
-          borderColor: 'divider',
-          borderRadius: 1,
-          bgcolor: 'background.paper',
         }}
       >
         <Chip label='m/' variant='filled' color='default' sx={{ mr: 0.5, fontFamily: 'monospace' }} />

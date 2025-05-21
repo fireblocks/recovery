@@ -1,13 +1,15 @@
-import { useMemo, useState } from 'react';
+'use client';
+import { useCallback, useMemo, useState } from 'react';
+import { getBytes, keccak256 } from 'ethers';
 import { useWorkspace } from '../context/Workspace';
-import { Box, Checkbox, Chip, FormControlLabel, FormGroup, Grid, SelectChangeEvent, Typography } from '@mui/material';
+import { HDPath } from '@fireblocks/wallet-derivation';
 import { getAssetConfig } from '@fireblocks/asset-config';
 import { SigningWallet } from '../lib/wallets/SigningWallet';
-import { Button, getDerivationMapKey, getLogger, Select, TextField } from '@fireblocks/recovery-shared';
-import { getBytes, keccak256 } from 'ethers';
-import DerivationPathInput from '@fireblocks/recovery-shared/components/DerivationPathInput';
 import { ECDSAWallet } from '@fireblocks/wallet-derivation/wallets/ECDSAWallet';
 import { EdDSAWallet, sha512 } from '@fireblocks/wallet-derivation/wallets/EdDSAWallet';
+import DerivationPathInput from '@fireblocks/recovery-shared/components/DerivationPathInput';
+import { Button, getDerivationMapKey, getLogger, Select, TextField } from '@fireblocks/recovery-shared';
+import { Box, Checkbox, FormControlLabel, FormGroup, Grid, SelectChangeEvent, Typography } from '@mui/material';
 
 const logger = getLogger('utility');
 
@@ -26,7 +28,7 @@ class DerivationPathECDSAWallet extends ECDSAWallet {
 
 class DerivationPathEDDSAWallet extends EdDSAWallet {
   protected getAddress(evmAddress?: string): string {
-    throw new Error('Method not implemented.');
+    return evmAddress || '';
   }
 
   async signMessage(message: string | Uint8Array, hasher: (...msgs: Uint8Array[]) => Promise<Uint8Array> = sha512) {
@@ -52,6 +54,7 @@ const RawSigning: React.FC = () => {
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
   const [selectedWallet, setSelectedWallet] = useState<SigningWalletWithSign | null>(null);
 
+  const [derivationPath, setDerivationPath] = useState<HDPath>({ coinType: 0, account: 0, changeIndex: 0, addressIndex: 0 });
   const [dpAlgorithm, setDpAlgorithm] = useState<SigningAlgorithms>(SigningAlgorithms.ECDSA);
 
   const [unsignedTx, setUnignedTx] = useState<string | null>(null);
@@ -96,18 +99,38 @@ const RawSigning: React.FC = () => {
     setSelectedWallet(derivation);
   };
 
-  const signTx = async () => {
+  const formatECDSASignature = (signatureHex: string) => {
+    const sigBytes = getBytes(signatureHex);
+
+    const r = sigBytes.slice(0, 32);
+    const s = sigBytes.slice(32, 64);
+    const v = sigBytes[64];
+
+    const rHex = Buffer.from(r).toString('hex');
+    const sHex = Buffer.from(s).toString('hex');
+
+    return {
+      signature: signatureHex,
+      r: rHex,
+      s: sHex,
+      v: v,
+    };
+  };
+
+  const signTx = useCallback(async () => {
     try {
       // const solUnsignedTx = 'ef45bc8da9622b709f4a3cdcc4d09ffb7e8fc2b7c3a9b87a17f0c0b7d8967e4d';
 
       // const bitcoinUnsignedTx = '0e3e2357e806b6cdb1f70b54c3a3a8e60d1f085437ff66e2c4e5a42c0a5f4f3c';
 
-      if (!unsignedTx) return;
+      if (!unsignedTx) {
+        throw new Error('transaction was not provided');
+      }
+      const txHashBuffer = Buffer.from(unsignedTx, 'hex');
+
+      const message = Uint8Array.from(txHashBuffer);
       if (rawSignMethod === RawSignMethod.ACCOUNT) {
         if (!selectedWallet) return;
-        const txHashBuffer = Buffer.from(unsignedTx, 'hex');
-
-        const message = Uint8Array.from(txHashBuffer);
 
         if (!selectedWallet.sign) return;
 
@@ -123,88 +146,49 @@ const RawSigning: React.FC = () => {
 
             break;
           case 'ECDSA':
-            const sigBytes = getBytes(sigHex);
-            const r = sigBytes.slice(0, 32);
-            const s = sigBytes.slice(32, 64);
-            const v = sigBytes[64];
-
-            const rHex = Buffer.from(r).toString('hex');
-            const sHex = Buffer.from(s).toString('hex');
-
-            const formattedSig = {
-              signature: sigHex,
-              r: rHex,
-              s: sHex,
-              v: v,
-            };
+            const formattedSig = formatECDSASignature(sigHex);
 
             setSignedTx(JSON.stringify(formattedSig));
             break;
           default:
-            console.error('unkown wallet algorithm');
+            logger.error('unkown wallet algorithm');
             break;
         }
       } else if (rawSignMethod === RawSignMethod.DERIVATION_PATH) {
-        const bitcoinHDPath = {
-          coinType: 0,
-          account: 0,
-          changeIndex: 0,
-          addressIndex: 0,
+        // const bitcoinHDPath = {
+        //   coinType: 0,
+        //   account: 0,
+        //   changeIndex: 0,
+        //   addressIndex: 0,
+        // };
+
+        // const solanaHDPath = {
+        //   coinType: 501,
+        //   account: 0,
+        //   changeIndex: 0,
+        //   addressIndex: 0,
+        // };
+        if (!extendedKeys?.xprv || !extendedKeys?.fprv || !extendedKeys?.xpub || !extendedKeys?.fpub) return;
+
+        const dpParams = {
+          xprv: extendedKeys?.xprv,
+          fprv: extendedKeys?.fprv,
+          xpub: extendedKeys?.xpub,
+          fpub: extendedKeys?.fpub,
+          assetId: String(derivationPath.coinType),
+          path: derivationPath,
         };
 
-        const solanaHDPath = {
-          coinType: 501,
-          account: 0,
-          changeIndex: 0,
-          addressIndex: 0,
-        };
-
-        const txHashBuffer = Buffer.from(unsignedTx, 'hex');
-        const message = Uint8Array.from(txHashBuffer);
         switch (dpAlgorithm) {
           case SigningAlgorithms.ECDSA:
-            const dpECDSAWallet = new DerivationPathECDSAWallet(
-              {
-                xprv: extendedKeys?.xprv,
-                fprv: extendedKeys?.fprv,
-                xpub: extendedKeys?.xprv,
-                fpub: extendedKeys?.fpub,
-                assetId: '0',
-                path: bitcoinHDPath,
-              },
-              5,
-            );
+            const dpECDSAWallet = new DerivationPathECDSAWallet(dpParams, derivationPath.coinType);
             const ecdsaSigHex = await dpECDSAWallet.signMessage(message);
-
-            const sigBytes = getBytes(ecdsaSigHex);
-            const r = sigBytes.slice(0, 32);
-            const s = sigBytes.slice(32, 64);
-            const v = sigBytes[64];
-
-            const rHex = Buffer.from(r).toString('hex');
-            const sHex = Buffer.from(s).toString('hex');
-
-            const formattedSig = {
-              signature: ecdsaSigHex,
-              r: rHex,
-              s: sHex,
-              v: v,
-            };
+            const formattedSig = formatECDSASignature(ecdsaSigHex);
 
             setSignedTx(JSON.stringify(formattedSig));
             break;
           case SigningAlgorithms.EDDSA:
-            const dpEDDSAWallet = new DerivationPathEDDSAWallet(
-              {
-                xprv: extendedKeys?.xprv,
-                fprv: extendedKeys?.fprv,
-                xpub: extendedKeys?.xprv,
-                fpub: extendedKeys?.fpub,
-                assetId: '501',
-                path: solanaHDPath,
-              },
-              5,
-            );
+            const dpEDDSAWallet = new DerivationPathEDDSAWallet(dpParams, derivationPath.coinType);
             const eddsaSigHex = await dpEDDSAWallet.signMessage(message);
             const signatureString = Buffer.from(eddsaSigHex).toString('hex');
             console.log(signatureString);
@@ -212,14 +196,14 @@ const RawSigning: React.FC = () => {
 
             break;
           default:
-            console.error('Derivation path algorithm error');
+            logger.error('Derivation path algorithm error');
             break;
         }
       }
     } catch (error) {
-      console.error('sign tx error', error);
+      logger.error(`sign tx error ${error}`);
     }
-  };
+  }, [unsignedTx, rawSignMethod, selectedWallet, extendedKeys, derivationPath, dpAlgorithm]);
 
   return (
     <>
@@ -281,12 +265,22 @@ const RawSigning: React.FC = () => {
             }}
           />
 
-          <DerivationPathInput
-            disabled={rawSignMethod !== RawSignMethod.DERIVATION_PATH}
-            onChange={(path) => {
-              console.log(path);
-            }} //  sx={{ mt: 2 }}
-          />
+          <Box sx={{ pl: 4, pr: 4, mb: 2, width: '100%', display: 'flex', flexDirection: 'row', gap: 2 }}>
+            <DerivationPathInput
+              disabled={rawSignMethod !== RawSignMethod.DERIVATION_PATH}
+              onChange={(path) => setDerivationPath(path)}
+            />
+            <Select
+              id='algoritm'
+              value={dpAlgorithm}
+              items={Object.values(SigningAlgorithms).map((algo) => ({ value: algo, children: algo.toUpperCase() }))}
+              onChange={(event) => {
+                setDpAlgorithm(event.target.value as SigningAlgorithms);
+              }}
+              sx={{ width: '124px' }}
+              disabled={rawSignMethod !== RawSignMethod.DERIVATION_PATH}
+            />
+          </Box>
         </FormGroup>
 
         <FormGroup>
@@ -298,11 +292,11 @@ const RawSigning: React.FC = () => {
             onChange={(e) => {
               setUnignedTx(e.target.value);
             }}
+            sx={{ ml: 2, mr: 4 }}
           />
         </FormGroup>
 
         <Button
-          type='submit'
           sx={{ width: 'fit-content', mt: 2 }}
           color='primary'
           disabled={rawSignMethod === RawSignMethod.ACCOUNT ? !selectedWallet : false}
@@ -310,132 +304,95 @@ const RawSigning: React.FC = () => {
         >
           {'Sign Tx'}
         </Button>
+
+        {signedTx &&
+          ((rawSignMethod === RawSignMethod.ACCOUNT && selectedWallet?.algorithm === 'ECDSA') ||
+          (rawSignMethod === RawSignMethod.DERIVATION_PATH && dpAlgorithm === SigningAlgorithms.ECDSA) ? (
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Typography variant='h6'>ECDSA Signature Components:</Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant='body1' sx={{ fontWeight: 'bold' }}>
+                  Full Signature:
+                </Typography>
+                <Typography
+                  variant='body2'
+                  sx={{
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    width: '100%',
+                    padding: 1,
+                    borderRadius: 1,
+                  }}
+                >
+                  {JSON.parse(signedTx).signature}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Typography variant='body1' sx={{ fontWeight: 'bold' }}>
+                  r:
+                </Typography>
+                <Typography
+                  variant='body2'
+                  sx={{
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word',
+                    padding: 1,
+                    borderRadius: 1,
+                  }}
+                >
+                  {JSON.parse(signedTx).r}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Typography variant='body1' sx={{ fontWeight: 'bold' }}>
+                  s:
+                </Typography>
+                <Typography
+                  variant='body2'
+                  sx={{
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word',
+                    padding: 1,
+                    borderRadius: 1,
+                  }}
+                >
+                  {JSON.parse(signedTx).s}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Typography variant='body1' sx={{ fontWeight: 'bold' }}>
+                  v:
+                </Typography>
+                <Typography
+                  variant='body2'
+                  sx={{
+                    padding: 1,
+                    borderRadius: 1,
+                  }}
+                >
+                  {JSON.parse(signedTx).v}
+                </Typography>
+              </Grid>
+            </Grid>
+          ) : (rawSignMethod === RawSignMethod.ACCOUNT && selectedWallet?.algorithm === 'EDDSA') ||
+            (rawSignMethod === RawSignMethod.DERIVATION_PATH && dpAlgorithm === SigningAlgorithms.EDDSA) ? (
+            <Typography
+              variant='body1'
+              sx={{
+                wordBreak: 'break-word',
+                overflowWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                width: '100%',
+              }}
+              paragraph
+            >
+              {signedTx}
+            </Typography>
+          ) : null)}
       </Box>
-      {/* raw signing
-      <div>
-        <Select
-          id='account'
-          value={selectedAccountId !== null ? String(selectedAccountId) : ''}
-          items={accountsArray.map((account) => ({ value: String(account.id), children: account.name }))}
-          onChange={(e) => {
-            setSelectedAccountId(Number(e.target.value));
-            setSelectedWallet(null);
-            setSignedTx(null);
-          }}
-        />
-        {selectedAccountId}
-        <Select id='wallet' value={selectedWallet?.assetId ?? ''} onChange={handleWalletChange} items={walletOptions} />
-        {selectedWallet && selectedWallet.pathParts.join(', ')}
-
-        <Grid item xs={12}>
-          <TextField
-            id='unsigned-tx'
-            value={unsignedTx || ''}
-            type='text'
-            label='Add Hashed Transaction'
-            onChange={(e) => {
-              setUnignedTx(e.target.value);
-            }}
-            disabled={!selectedWallet}
-          />
-        </Grid>
-
-        <Button type='submit' color='primary' disabled={!selectedWallet} onClick={signTx}>
-          {'Sign Tx'}
-        </Button>
-
-        {signedTx && selectedWallet?.algorithm === 'ECDSA' && (
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Typography variant='h6'>ECDSA Signature Components:</Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant='body1' sx={{ fontWeight: 'bold' }}>
-                Full Signature:
-              </Typography>
-              <Typography
-                variant='body2'
-                sx={{
-                  wordBreak: 'break-word',
-                  overflowWrap: 'break-word',
-                  whiteSpace: 'pre-wrap',
-                  width: '100%',
-                  backgroundColor: (theme) => theme.palette.grey[100],
-                  padding: 1,
-                  borderRadius: 1,
-                }}
-              >
-                {JSON.parse(signedTx).signature}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography variant='body1' sx={{ fontWeight: 'bold' }}>
-                r:
-              </Typography>
-              <Typography
-                variant='body2'
-                sx={{
-                  wordBreak: 'break-word',
-                  overflowWrap: 'break-word',
-                  backgroundColor: (theme) => theme.palette.grey[100],
-                  padding: 1,
-                  borderRadius: 1,
-                }}
-              >
-                {JSON.parse(signedTx).r}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography variant='body1' sx={{ fontWeight: 'bold' }}>
-                s:
-              </Typography>
-              <Typography
-                variant='body2'
-                sx={{
-                  wordBreak: 'break-word',
-                  overflowWrap: 'break-word',
-                  backgroundColor: (theme) => theme.palette.grey[100],
-                  padding: 1,
-                  borderRadius: 1,
-                }}
-              >
-                {JSON.parse(signedTx).s}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography variant='body1' sx={{ fontWeight: 'bold' }}>
-                v:
-              </Typography>
-              <Typography
-                variant='body2'
-                sx={{
-                  backgroundColor: (theme) => theme.palette.grey[100],
-                  padding: 1,
-                  borderRadius: 1,
-                }}
-              >
-                {JSON.parse(signedTx).v}
-              </Typography>
-            </Grid>
-          </Grid>
-        )}
-
-        {signedTx && selectedWallet?.algorithm === 'EDDSA' && (
-          <Typography
-            variant='body1'
-            color={(theme) => theme.palette.error.main}
-            sx={{
-              wordBreak: 'break-word',
-              overflowWrap: 'break-word',
-              whiteSpace: 'pre-wrap',
-              width: '100%',
-            }}
-            paragraph
-          >
-            {signedTx}
-          </Typography>
-        )}
-      </div> */}
     </>
   );
 };
