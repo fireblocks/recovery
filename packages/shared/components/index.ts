@@ -1,6 +1,7 @@
 export * from './BaseModal';
 export * from './Button';
 export * from './DataGrid';
+export * from './DerivationPathInput';
 export * from './EmotionHeadTags';
 export * from './ErrorBoundary';
 export * from './Glyph';
