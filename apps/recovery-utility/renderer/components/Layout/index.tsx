@@ -100,6 +100,7 @@ export const Layout = ({ children }: Props) => {
       label: 'Raw Signing',
       path: '/raw-signing',
       icon: DrawIcon,
+      disabled: !hasExtendedKeys,
     },
     {
       label: 'Settings',
