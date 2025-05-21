@@ -32,9 +32,12 @@ export class Solana extends BaseSolana implements SigningWallet {
     const serializedTx = tx.serializeMessage();
     this.utilityLogger.logSigningTx('Solana', tx);
 
-    const signature = await this.sign(serializedTx);
+    // const signature = await this.sign(serializedTx);
+    const signature = await this.sign(Uint8Array.from(serializedTx));
 
-    tx.addSignature(this.web3PubKey, signature as Buffer);
+    // tx.addSignature(this.web3PubKey, signature as Buffer);
+    tx.addSignature(this.web3PubKey, Buffer.from(signature));
+
     // unsignedTx.addSignature(this.web3PubKey, Buffer.concat([Buffer.from(sig.r, 'hex'), Buffer.from(sig.s, 'hex')]));
 
     const encodedSerializedTx = tx.serialize();
@@ -43,4 +46,9 @@ export class Solana extends BaseSolana implements SigningWallet {
       tx: encodedSerializedTx.toString('hex'),
     };
   }
+
+  // public async rawSignTx(txHashBuffer: Buffer): Promise<string> {
+  //   const signature = await this.sign(Uint8Array.from(txHashBuffer));
+  //   return Buffer.from(signature).toString('hex');
+  // }
 }
