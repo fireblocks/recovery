@@ -1,5 +1,6 @@
 import { ReactNode, useEffect } from 'react';
 import { Report, Restore, Verified, /* LeakAdd, */ ImportExport, ManageHistory, Settings } from '@mui/icons-material';
+import DrawIcon from '@mui/icons-material/Draw';
 import {
   Layout as BaseLayout,
   LayoutProps as BaseLayoutProps,
@@ -94,6 +95,11 @@ export const Layout = ({ children }: Props) => {
       label: 'Extended Keys',
       path: '/keys',
       icon: KeyIcon,
+    },
+    {
+      label: 'Raw Signing',
+      path: '/raw-signing',
+      icon: DrawIcon,
     },
     {
       label: 'Settings',
