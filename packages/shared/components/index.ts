@@ -13,6 +13,7 @@ export * from './LogoHero';
 export * from './Modals';
 export * from './QrCode';
 export * from './QrCodeScanner';
+export * from './RawSigningForm';
 export * from './RelayRxTx';
 export * from './Select';
 export * from './SharedProviders';
