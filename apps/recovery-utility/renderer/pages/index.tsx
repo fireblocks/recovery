@@ -32,7 +32,7 @@ type BoxButtonProps = {
   onClick?: VoidFunction;
 };
 
-const BoxButton = ({ icon: Icon, title, description, color = 'primary', href, disabled, onClick }: BoxButtonProps) => (
+export const BoxButton = ({ icon: Icon, title, description, color = 'primary', href, disabled, onClick }: BoxButtonProps) => (
   <Button
     {...(href ? { to: href, component: NextLinkComposed } : {})}
     size='large'
