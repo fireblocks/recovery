@@ -79,10 +79,6 @@ const DerivationPathInput: React.FC<DerivationPathInputProps> = (props) => {
         />
 
         <Typography variant='body2' sx={{ mx: 0.5 }}>
-          '
-        </Typography>
-
-        <Typography variant='body2' sx={{ mx: 0.5 }}>
           /
         </Typography>
 
@@ -100,10 +96,6 @@ const DerivationPathInput: React.FC<DerivationPathInputProps> = (props) => {
             },
           }}
         />
-
-        <Typography variant='body2' sx={{ mx: 0.5 }}>
-          '
-        </Typography>
 
         <Typography variant='body2' sx={{ mx: 0.5 }}>
           /
@@ -145,7 +137,7 @@ const DerivationPathInput: React.FC<DerivationPathInputProps> = (props) => {
       </Box>
 
       <Typography variant='caption' sx={{ mt: 1, display: 'block' }}>
-        Format: m / purpose' / coin_type' / account' / change / address_index
+        Format: m / purpose / coin_type / account / change / address_index
       </Typography>
     </Box>
   );
