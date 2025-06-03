@@ -15,7 +15,7 @@ variables:
     description: "Checkpoint from which to start mirroring to github from main branch"
     value: ""
   EXECUTABLES_DIR: "apps/recovery-utility/dist"
-  GITHUB_REPO: "https://oauth2:${GITHUB_TOKEN}@github.com/youruser/yourrepo.git"
+  GITHUB_REPO: "https://oauth2:${GITHUB_TOKEN}@github.com/fireblocks/mirror-test.git"
 
 default:
   image: node:lts-gallium
