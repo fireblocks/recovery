@@ -1,0 +1,168 @@
+stages:
+  - detect
+  - version
+  - build
+  - sync
+
+variables:
+  EXCLUDE_TAG:
+    description: "Git tag to exclude from syncing commits"
+    value: "" # Required manual input when triggering the pipeline
+
+  GIT_DEPTH: 2
+  NODE_ENV: development
+  CHECKPOINT:
+    description: "Checkpoint from which to start mirroring to github from main branch"
+    value: ""
+  EXECUTABLES_DIR: "apps/recovery-utility/dist"
+  GITHUB_REPO: "https://oauth2:${GITHUB_TOKEN}@github.com/youruser/yourrepo.git"
+
+default:
+  image: node:lts-gallium
+  before_script:
+    - apt-get update && apt-get install -y curl jq git
+    - corepack enable
+    - |
+      if [ -z "$EXCLUDE_TAG" ]; then
+        echo "❌ ERROR: EXCLUDE_TAG must be provided when triggering the pipeline.";
+        exit 1;
+      fi
+      if [ -z "$CHECKPOINT" ]; then
+        echo "❌ ERROR: CHECKPOINT must be provided when triggering the pipeline.";
+        exit 1;
+      fi
+
+fetch_label_state:
+  stage: detect
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "hidden"'
+      when: always
+    - when: never
+  script: |
+    HEAD_SHA=$(git rev-parse HEAD)
+    echo "Waiting for MR with commit $HEAD_SHA to be merged..."
+
+    timeout=300
+    interval=10
+    elapsed=0
+
+    while true; do
+      MR_JSON=$(curl -s --header "PRIVATE-TOKEN: $GITLAB_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/commits/$HEAD_SHA/merge_requests")
+      MR_STATE=$(echo "$MR_JSON" | jq -r '.[0].state')
+      MR_LABELS=$(echo "$MR_JSON" | jq -r '.[0].labels | join(",")')
+      echo "MR State: $MR_STATE"
+
+      if [ "$MR_STATE" = "merged" ]; then
+        echo "$MR_LABELS" | grep -q "new-version" && echo "TRIGGER=true" >> flags.env || echo "TRIGGER=false" >> flags.env
+        break
+      fi
+
+      if [ $elapsed -ge $timeout ]; then
+        echo "Timeout waiting for MR to be merged."
+        exit 1
+      fi
+
+      echo "Still waiting... ($elapsed seconds)"
+      sleep $interval
+      elapsed=$((elapsed + interval))
+    done
+  artifacts:
+    reports:
+      dotenv: flags.env
+
+version_packages:
+  stage: version
+  needs: [fetch_label_state]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "hidden"'
+      when: always
+    - when: never
+  script:
+    - if [ "$TRIGGER" = "true" ]; then
+      yarn install;
+      npx changeset status;
+      npx changeset version;
+      npx changeset publish;
+      else
+      echo "Skipping changeset — TRIGGER=$TRIGGER";
+      fi
+
+build_linux:
+  stage: build
+  needs: [version_packages]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "hidden"'
+      when: always
+    - when: never
+  script:
+    - if [ "$TRIGGER" = "true" ]; then
+      yarn install --frozen-lockfile --network-timeout 100000;
+      export NODE_OPTIONS="--max_old_space_size=4096";
+      yarn forcebuild;
+      else
+      echo "Skipping build — TRIGGER=$TRIGGER";
+      fi
+  artifacts:
+    name: "Recovery-Build-Linux"
+    paths:
+      - apps/recovery-utility/dist/*.AppImage
+      - apps/recovery-utility/dist/*.exe
+      - apps/recovery-utility/dist/*.zip
+      - apps/recovery-relay/out/
+    expire_in: 7 days
+
+sync_to_github:
+  stage: sync
+  image: alpine:latest
+  needs: [build_linux]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: always
+    - when: never
+  before_script:
+    - apk add --no-cache git bash
+    - |
+      if [ -z "$EXCLUDE_TAG" ]; then
+        echo "❌ ERROR: EXCLUDE_TAG must be provided.";
+        exit 1;
+      fi
+  script:
+    - if [ "$TRIGGER" != "true" ]; then
+      echo "Skipping GitHub sync — TRIGGER=$TRIGGER";
+      exit 0;
+      fi
+
+    - git config --global user.email "ci@gitlab.com"
+    - git config --global user.name "GitLab CI"
+    - git fetch --unshallow || true
+
+    - COMMITS=$(git log ${CHECKPOINT}..HEAD --oneline --no-merges | awk '{print $1}')
+
+    - echo "Filtering commits..."
+    - for COMMIT in $COMMITS; do
+      TAGS=$(git tag --contains $COMMIT);
+      if [[ "$TAGS" != *"${EXCLUDE_TAG}"* ]]; then
+      echo $COMMIT >> selected_commits.txt;
+      fi;
+      done
+
+    - echo "Selected commits:"
+    - cat selected_commits.txt || echo "No commits to sync"
+
+    - git clone "$GITHUB_REPO" github-mirror
+    - cd github-mirror
+
+    - |
+      while read COMMIT; do
+        git cherry-pick $COMMIT || echo "Cherry-pick failed or already applied: $COMMIT";
+      done < ../selected_commits.txt
+
+    - cd ..
+    - mkdir -p github-mirror/${EXECUTABLES_DIR}
+    - cp -r ${EXECUTABLES_DIR}/* github-mirror/${EXECUTABLES_DIR}/ || echo "No executables found."
+
+    - cd github-mirror
+    - git add .
+    - |
+      git commit -m "Sync from GitLab CI: commits + executables" || echo "Nothing to commit"
+    - git push origin main
