@@ -63,7 +63,7 @@ const generateRsaKeypair = (passphrase: string) => {
       const { privateKey, publicKey } = keypair;
 
       const privateKeyPem = pki.encryptRsaPrivateKey(privateKey, passphrase, {
-        legacy: true,
+        legacy: false,
         algorithm: 'aes128',
         prfAlgorithm: 'sha256',
       });
