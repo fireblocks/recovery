@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { Alert, AlertTitle } from '@mui/material';
 import { LeakAdd, ImportExport, Settings } from '@mui/icons-material';
+import DrawIcon from '@mui/icons-material/Draw';
 import semver from 'semver';
 import {
   Layout as BaseLayout,
@@ -68,6 +69,12 @@ export const Layout = ({ children }: Props) => {
       label: 'Import / Export',
       path: '/csv',
       icon: ImportExport,
+      disabled: !hasExtendedPublicKeys,
+    },
+    {
+      label: 'Raw Signing',
+      path: '/raw-signing',
+      icon: DrawIcon,
       disabled: !hasExtendedPublicKeys,
     },
     {
