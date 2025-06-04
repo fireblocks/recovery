@@ -7,6 +7,7 @@ import {
   relayCreateTxRequestParams,
   relayBroadcastTxRequestParams,
   relaySignTxResponseParams,
+  relayRawSignTxResponseParams,
   RelayParams,
   RelayRequestParams,
   RelayResponseParams,
@@ -39,8 +40,15 @@ const getSchema = (action: RelayParams['action'], app: 'utility' | 'relay') => {
     }
   }
 
-  if (app === 'utility' && action === 'tx/sign') {
-    return relaySignTxResponseParams;
+  if (app === 'utility') {
+    switch (action) {
+      case 'tx/sign':
+        return relaySignTxResponseParams;
+      case 'tx/raw-sign':
+        return relayRawSignTxResponseParams;
+      default:
+        throw error;
+    }
   }
 
   throw error;
