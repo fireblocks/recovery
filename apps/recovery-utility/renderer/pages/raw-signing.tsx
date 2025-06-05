@@ -1,14 +1,15 @@
 'use client';
-import { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { BoxButton } from '.';
 import { Grid } from '@mui/material';
 import { useWorkspace } from '../context/Workspace';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
-import RawSigningModal from '../components/Modals/RawSigningModal';
-import RawSigningForm from '@fireblocks/recovery-shared/components/RawSigningForm';
 import { useRawSignMessage } from '@fireblocks/recovery-shared/hooks/useRawSignMessage';
 import SignedMessage from '@fireblocks/recovery-shared/components/RawSigningForm/SignedMessage';
+
+const RawSigningForm = React.lazy(() => import('@fireblocks/recovery-shared/components/RawSigningForm'));
+const RawSigningModal = React.lazy(() => import('../components/Modals/RawSigningModal'));
 
 enum PageStatus {
   STATUS_SELECTION = 'statusSelection',
@@ -58,12 +59,16 @@ const RawSigning: React.FC = () => {
 
       {pageStatus === PageStatus.GENERATE_SIGNATURE && (
         <>
-          <RawSigningForm accounts={accounts} onSubmit={signMessage} />
+          <Suspense>
+            <RawSigningForm accounts={accounts} onSubmit={signMessage} />
+          </Suspense>
 
           {signedMessage && <SignedMessage selectedAlgorithm={selectedAlgorithm} signedMessage={signedMessage} />}
         </>
       )}
-      <RawSigningModal open={pageStatus === PageStatus.SIGN_QR} onClose={handleCloseQRModal} />
+      <Suspense>
+        <RawSigningModal open={pageStatus === PageStatus.SIGN_QR} onClose={handleCloseQRModal} />
+      </Suspense>
     </>
   );
 };

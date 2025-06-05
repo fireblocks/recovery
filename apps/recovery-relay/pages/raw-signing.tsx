@@ -1,17 +1,21 @@
 'use client';
-import { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { useWorkspace } from '../context/Workspace';
 import { HDPath } from '@fireblocks/wallet-derivation';
-import RawSigningModal from '../components/RawSigningModal';
 import { useSettings } from '../../recovery-utility/renderer/context/Settings';
 import { DeploymentStore } from '../../recovery-utility/main/store/deployment';
 import { useRelayUrl } from '@fireblocks/recovery-shared/hooks/useBaseWorkspace/useRelayUrl';
 import { RawSignMethod, SigningAlgorithms } from '@fireblocks/recovery-shared/reducers/rawSignReducer';
 import RawSigningForm, { SignMessageParams } from '@fireblocks/recovery-shared/components/RawSigningForm';
 
+const RawSigningModal = React.lazy(() => import('../components/RawSigningModal'));
+
 const RawSigning: React.FC = () => {
   const { accounts } = useWorkspace();
   const settings = useSettings();
+
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [qrData, setQrData] = useState<string | null>(null);
 
   const { relayBaseUrl } = settings;
   const deployment = DeploymentStore.get();
@@ -20,7 +24,6 @@ const RawSigning: React.FC = () => {
     console.error('app protocol error');
   }
   const { getOutboundRelayUrl } = useRelayUrl('utility', relayBaseUrl);
-  const [qrData, setQrData] = useState<string | null>(null);
 
   const generateQr = async ({
     unsignedMessage,
@@ -58,6 +61,7 @@ const RawSigning: React.FC = () => {
       });
       const baseUrl = relayBaseUrl !== '' ? relayBaseUrl : 'fireblocks-recovery:/';
       setQrData(`${baseUrl}${data}`);
+      setIsModalOpen(true);
     } catch (e) {
       console.error(e);
     }
@@ -66,7 +70,17 @@ const RawSigning: React.FC = () => {
   return (
     <>
       <RawSigningForm accounts={accounts} onSubmit={generateQr} />
-      {qrData && <RawSigningModal open={qrData !== null} qrData={qrData} onClose={() => {}} />}
+      {qrData && isModalOpen && (
+        <Suspense>
+          <RawSigningModal
+            open={qrData !== null}
+            qrData={qrData}
+            onClose={() => {
+              setIsModalOpen(false);
+            }}
+          />
+        </Suspense>
+      )}
     </>
   );
 };
