@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactNode, useCallback, useState } from 'react';
 import QrScanner from 'qr-scanner';
 import { Typography, Box, Grid } from '@mui/material';
 import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
@@ -8,7 +8,6 @@ import {
   QrCodeScanner,
   getRelayParams,
   QrCode,
-  RelayRawSignTxRequestParams,
   RelayRawSignTxResponseParams,
 } from '@fireblocks/recovery-shared';
 import { SigningAlgorithms } from '@fireblocks/recovery-shared/reducers/rawSignReducer';
@@ -51,7 +50,7 @@ const RawSigningModal: React.FC<RawSigningModalProps> = (props) => {
         (
           <Typography variant='h1' display='flex' alignItems='center'>
             <Box display='flex' alignItems='center' marginRight='0.5rem'>
-              Raw Siging
+              Raw Signing
             </Box>
           </Typography>
         ) as ReactNode
@@ -68,7 +67,7 @@ const RawSigningModal: React.FC<RawSigningModalProps> = (props) => {
         </Grid>
       ) : (
         <>
-          <QrCode title='Signed Message' data={signedMessage} />
+          <QrCode title='Signed Message' data={signedMessage} height='25rem' />
           <SignedMessage selectedAlgorithm={signingAlgorithm} signedMessage={signedMessage} />
         </>
       )}

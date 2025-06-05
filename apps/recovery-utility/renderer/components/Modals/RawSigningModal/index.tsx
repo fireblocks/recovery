@@ -94,11 +94,11 @@ const RawSigningModal: React.FC<RawSigningModalProps> = (props) => {
       }
     >
       {!formattedSignedMessage ? (
-        <Grid item xs={6}>
+        <Grid item xs={6} height='25rem'>
           <QrCodeScanner onDecode={onDecode} />
         </Grid>
       ) : (
-        <QrCode data={formattedSignedMessage} showRawData={false} />
+        <QrCode data={formattedSignedMessage} showRawData={false} height='25rem' />
       )}
     </BaseModal>
   );
