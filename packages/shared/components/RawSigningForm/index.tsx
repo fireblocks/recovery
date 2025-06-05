@@ -8,17 +8,27 @@ import { SigningWallet } from '../../../../apps/recovery-utility/renderer/lib/wa
 
 // const logger = getLogger('utility');
 
+export type SignMessageParams = {
+  unsignedMessage: string;
+  rawSignMethod: RawSignMethod;
+  selectedWallet?: SigningWalletWithSign;
+  inputChangeIndex: number;
+  inputAdressIndex: number;
+  derivationPath: HDPath;
+  dpAlgorithm: SigningAlgorithms;
+};
+
 type RawSigningFormProps = {
   accounts: Map<number, VaultAccount<SigningWallet>>;
-  onSubmit: (
-    unsignedTx: string,
-    rawSignMethod: RawSignMethod,
-    selectedWallet: SigningWalletWithSign,
-    inputChangeIndex: number,
-    inputAdressIndex: number,
-    derivationPath: HDPath,
-    dpAlgorithm: SigningAlgorithms,
-  ) => Promise<void>;
+  onSubmit: ({
+    unsignedMessage,
+    rawSignMethod,
+    selectedWallet,
+    inputChangeIndex,
+    inputAdressIndex,
+    derivationPath,
+    dpAlgorithm,
+  }: SignMessageParams) => Promise<void>;
 };
 
 enum RawSignMethod {
@@ -65,7 +75,15 @@ const RawSigningForm: React.FC<RawSigningFormProps> = (props) => {
     if (!unsignedTx || !selectedWallet) {
       throw new Error('transaction was not provided');
     }
-    await onSubmit(unsignedTx, rawSignMethod, selectedWallet, inputChangeIndex, inputAdressIndex, derivationPath, dpAlgorithm);
+    await onSubmit({
+      unsignedMessage: unsignedTx,
+      rawSignMethod,
+      selectedWallet,
+      inputChangeIndex,
+      inputAdressIndex,
+      derivationPath,
+      dpAlgorithm,
+    });
   }, [unsignedTx, rawSignMethod, selectedWallet, inputChangeIndex, inputAdressIndex, derivationPath, dpAlgorithm]);
 
   return (
