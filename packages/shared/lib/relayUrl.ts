@@ -11,6 +11,7 @@ import {
   RelayParams,
   RelayRequestParams,
   RelayResponseParams,
+  relayRawSignTxRequestParams,
 } from '../schemas/relayUrl';
 import { getLogger } from './getLogger';
 import { LOGGER_NAME_SHARED } from '../constants';
@@ -35,6 +36,8 @@ const getSchema = (action: RelayParams['action'], app: 'utility' | 'relay') => {
         return relayCreateTxRequestParams;
       case 'tx/broadcast':
         return relayBroadcastTxRequestParams;
+      case 'tx/raw-sign':
+        return relayRawSignTxRequestParams;
       default:
         throw error;
     }
@@ -44,8 +47,10 @@ const getSchema = (action: RelayParams['action'], app: 'utility' | 'relay') => {
     switch (action) {
       case 'tx/sign':
         return relaySignTxResponseParams;
-      case 'tx/raw-sign':
+
+      case 'tx/broadcast-raw-sign':
         return relayRawSignTxResponseParams;
+
       default:
         throw error;
     }

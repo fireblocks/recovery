@@ -43,25 +43,6 @@ export const relayImportRequestParams = relayBaseRequestParams.extend({
 /** Import extended public keys into Recovery Relay */
 export type RelayImportRequestParams = z.infer<typeof relayImportRequestParams>;
 
-export const relayRawSignTxResponseParams = relayBaseRequestParams.extend({
-  action: actionSchema('tx/raw-sign'),
-  algorithm: z.enum(['ECDSA', 'EDDSA']),
-  derivationPath: z.object({
-    coinType: z.number().nonnegative(),
-    account: z.number().nonnegative(),
-    changeIndex: z.number().nonnegative(),
-    addressIndex: z.number().nonnegative(),
-  }),
-  message: z.instanceof(Uint8Array),
-  accountId: z.number().optional(),
-  version: z.string().optional(),
-  platform: z.string().optional(),
-  xpub: z.string().optional(),
-  fpub: z.string().optional(),
-});
-
-export type RelayRawSignTxResponseParams = z.infer<typeof relayRawSignTxResponseParams>;
-
 export const relayCreateTxRequestParams = relayBaseRequestParams.extend({
   action: actionSchema('tx/create'),
   newTx: newTxSchema,
@@ -94,6 +75,26 @@ export const relayBroadcastTxRequestParams = relayBaseRequestParams.extend({
 
 /** Request transaction broadcast from Recovery Relay */
 export type RelayBroadcastTxRequestParams = z.infer<typeof relayBroadcastTxRequestParams>;
+
+export const relayRawSignTxRequestParams = relayBaseRequestParams.extend({
+  action: actionSchema('tx/raw-sign'),
+  algorithm: z.enum(['ECDSA', 'EDDSA']),
+  derivationPath: z.object({
+    coinType: z.number().nonnegative(),
+    account: z.number().nonnegative(),
+    changeIndex: z.number().nonnegative(),
+    addressIndex: z.number().nonnegative(),
+  }),
+  message: z.instanceof(Uint8Array),
+  accountId: z.number().optional(),
+  version: z.string().optional(),
+  platform: z.string().optional(),
+  xpub: z.string().optional(),
+  fpub: z.string().optional(),
+});
+
+/** creating unsigned message on Relay, sending to Utility */
+export type RelayRawSignTxRequestParams = z.infer<typeof relayRawSignTxRequestParams>;
 
 // Responses (Relay -> Utility)
 
@@ -143,6 +144,17 @@ export const relaySignTxResponseParams = relayBaseResponseParams.extend({
 /** Respond to Recovery Utility with unsigned transaction for signing */
 export type RelaySignTxResponseParams = z.infer<typeof relaySignTxResponseParams>;
 
+export const relayRawSignTxResponseParams = relayBaseResponseParams.extend({
+  action: actionSchema('tx/broadcast-raw-sign'),
+  signedMessage: z.string(),
+  algorithm: z.enum(['ECDSA', 'EDDSA']),
+  accountId: z.number().optional(),
+  version: z.string().optional(),
+});
+
+/** singing message on Utility, sending back to Relay */
+export type RelayRawSignTxResponseParams = z.infer<typeof relayRawSignTxResponseParams>;
+
 // export const relayBalancesResponseParams = relayBaseResponseParams.extend({
 //   action: actionSchema('balances/update'),
 //   balances: z.array(z.tuple([z.string(), z.number().nonnegative()])),
@@ -152,7 +164,11 @@ export type RelaySignTxResponseParams = z.infer<typeof relaySignTxResponseParams
 // export type RelayBalancesResponseParams = z.infer<typeof relayBalancesResponseParams>;
 
 /** Relay URL parameters for sending data to Recovery Relay */
-export type RelayRequestParams = RelayImportRequestParams | RelayCreateTxRequestParams | RelayBroadcastTxRequestParams;
+export type RelayRequestParams =
+  | RelayImportRequestParams
+  | RelayCreateTxRequestParams
+  | RelayBroadcastTxRequestParams
+  | RelayRawSignTxRequestParams;
 
 /** Relay URL parameters for sending data to Recovery Utility */
 export type RelayResponseParams = RelaySignTxResponseParams | RelayRawSignTxResponseParams; // | RelayBalancesResponseParams;
