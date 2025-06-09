@@ -48,7 +48,7 @@
     "ethers": "^6.6.2",
     "nanoid": "^4.0.2",
     "near-api-js": "^2.1.4",
-    "next": "^13.4.19",
+    "next": "^14.2.25",
     "stellar-sdk": "^10.4.1",
     "superjson": "^1.12.4",
     "tiny-secp256k1": "^2.2.3",
