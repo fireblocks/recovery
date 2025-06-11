@@ -36,7 +36,7 @@
 
 ## [📦 Packages](packages/)
 
-- [**@fireblocks/extended-key-recovery**](packages/extended-key-recovery/): Recover extended private/public keys from a Recovery Kit (Python)
+- [**@fireblocks/extended-key-recovery**](packages/extended-key-recovery/): Recover extended private/public keys from a Recovery Kit (TypeScript)
 - [**@fireblocks/wallet-derivation**](packages/wallet-derivation/): Derive wallet keys and addresses from extended keys and HD paths (TypeScript)
 - [**@fireblocks/recovery-shared**](packages/shared/): Shared frontend components and utilities (TypeScript)
 
