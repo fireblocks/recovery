@@ -57,11 +57,11 @@
     "@polkadot/wasm-util": "7.2.1"
   },
   "dependencies": {
-    "@changesets/cli": "^2.26.2",
+    "@changesets/cli": "^2.27.8",
     "@commitlint/cli": "^17.6.6",
     "@commitlint/config-conventional": "^17.6.6",
-    "@commitlint/prompt-cli": "^17.6.6",
-    "@manypkg/cli": "^0.21.1",
+    "@commitlint/prompt-cli": "^19.5.0",
+    "@manypkg/cli": "^0.24.0",
     "@playwright/test": "^1.40.1",
     "@typescript-eslint/utils": "^5.61.0",
     "asar": "^3.2.0",
