@@ -42,7 +42,7 @@ enum SigningAlgorithms {
 }
 
 type SigningWalletWithSign = SigningWallet & {
-  sign?: (message: Uint8Array, hasher?: (...msgs: Uint8Array[]) => Promise<Uint8Array>) => Promise<any>;
+  sign?: (message: Uint8Array | string, hasher?: (...msgs: Uint8Array[]) => Promise<Uint8Array>) => Promise<any>;
 };
 
 const RawSigningForm: React.FC<RawSigningFormProps> = (props) => {
@@ -93,9 +93,9 @@ const RawSigningForm: React.FC<RawSigningFormProps> = (props) => {
           Raw Signing
         </Typography>
         <Typography variant='body1' paragraph>
-          Use this tool to sign transaction hashes with your Fireblocks keys by selecting assets either from your accounts or by
-          specifying a custom derivation path. This secure signing process allows you to create cryptographic signatures for
-          blockchain transactions without exposing your private keys.
+          Use this tool to sign messages with your Fireblocks keys by selecting assets either from your accounts or by specifying
+          a custom derivation path. This secure signing process allows you to create cryptographic signatures for blockchain
+          transactions without exposing your private keys.
         </Typography>
 
         <Typography variant='h2' component='h2' gutterBottom sx={{ mt: 2 }}>
@@ -204,7 +204,11 @@ const RawSigningForm: React.FC<RawSigningFormProps> = (props) => {
         <Button
           sx={{ width: 'fit-content', mt: 2 }}
           color='primary'
-          disabled={rawSignMethod === RawSignMethod.ACCOUNT ? !selectedWallet : false}
+          disabled={
+            rawSignMethod === RawSignMethod.ACCOUNT
+              ? !selectedWallet || unsignedTx === null || unsignedTx === ''
+              : unsignedTx === null || unsignedTx === ''
+          }
           onClick={handleOnSubmit}
         >
           {appProtocol === 'UTILITY' ? 'Sign Message' : 'Generate QR'}
