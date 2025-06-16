@@ -1,5 +1,5 @@
 'use client';
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useCallback, useState } from 'react';
 import { BoxButton } from '.';
 import { Grid } from '@mui/material';
 import { useWorkspace } from '../context/Workspace';
@@ -7,6 +7,8 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 import { useRawSignMessage } from '@fireblocks/recovery-shared/hooks/useRawSignMessage';
 import SignedMessage from '@fireblocks/recovery-shared/components/RawSigningForm/SignedMessage';
+import { BaseModal } from '@fireblocks/recovery-shared';
+import { SignMessageParams } from '@fireblocks/recovery-shared/components';
 
 const RawSigningForm = React.lazy(() => import('@fireblocks/recovery-shared/components/RawSigningForm'));
 const RawSigningModal = React.lazy(() => import('../components/Modals/RawSigningModal'));
@@ -21,12 +23,41 @@ const RawSigning: React.FC = () => {
   const { extendedKeys, accounts } = useWorkspace();
 
   const [pageStatus, setPageStatus] = useState<PageStatus>(PageStatus.STATUS_SELECTION);
+  const [isSignedModalOpen, setIsSignedModalOpen] = useState<boolean>(false);
 
   const handleCloseQRModal = () => {
     setPageStatus(PageStatus.STATUS_SELECTION);
   };
 
   const { signMessage, signedMessage, selectedAlgorithm } = useRawSignMessage(extendedKeys);
+
+  const handleSigningMessage = useCallback(
+    async ({
+      unsignedMessage,
+      rawSignMethod,
+      selectedWallet,
+      inputChangeIndex,
+      inputAdressIndex,
+      derivationPath,
+      dpAlgorithm,
+    }: SignMessageParams) => {
+      try {
+        await signMessage({
+          unsignedMessage,
+          rawSignMethod,
+          selectedWallet,
+          inputChangeIndex,
+          inputAdressIndex,
+          derivationPath,
+          dpAlgorithm,
+        });
+        setIsSignedModalOpen(true);
+      } catch (error) {
+        console.error(`utility raw signing error - ${error}`);
+      }
+    },
+    [signMessage, isSignedModalOpen],
+  );
 
   return (
     <>
@@ -40,6 +71,7 @@ const RawSigning: React.FC = () => {
               color='error'
               onClick={() => {
                 setPageStatus(PageStatus.GENERATE_SIGNATURE);
+                setIsSignedModalOpen(true);
               }}
             />
           </Grid>
@@ -60,10 +92,20 @@ const RawSigning: React.FC = () => {
       {pageStatus === PageStatus.GENERATE_SIGNATURE && (
         <>
           <Suspense>
-            <RawSigningForm accounts={accounts} onSubmit={signMessage} />
+            <RawSigningForm accounts={accounts} onSubmit={handleSigningMessage} />
           </Suspense>
 
-          {signedMessage && <SignedMessage selectedAlgorithm={selectedAlgorithm} signedMessage={signedMessage} />}
+          {signedMessage && (
+            <BaseModal
+              open={isSignedModalOpen}
+              onClose={() => {
+                setIsSignedModalOpen(false);
+              }}
+              title='Signed Message'
+            >
+              <SignedMessage selectedAlgorithm={selectedAlgorithm} signedMessage={signedMessage} />
+            </BaseModal>
+          )}
         </>
       )}
       <Suspense>
