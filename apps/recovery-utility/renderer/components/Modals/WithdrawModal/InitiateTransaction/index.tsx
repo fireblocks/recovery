@@ -51,15 +51,19 @@ export const InitiateTransaction = ({ accountsArray, assetsInAccount, initialAcc
   });
 
   const onSubmitForm = async (data: TransactionInitInput) => {
-    const destAddressValidator = new AddressValidator();
-    const networkProtocol: string | undefined = getNetworkProtocol(data.assetId);
-    if (destAddressValidator.isValidAddress(data.to, networkProtocol, data.assetId)) {
-      onSubmit(data);
-    } else {
-      setError('to', {
-        type: 'manual',
-        message: 'Invalid address format',
-      });
+    try {
+      const destAddressValidator = new AddressValidator();
+      const networkProtocol: string | undefined = getNetworkProtocol(data.assetId);
+      if (destAddressValidator.isValidAddress(data.to, networkProtocol, data.assetId)) {
+        onSubmit(data);
+      } else {
+        setError('to', {
+          type: 'manual',
+          message: 'Invalid address format',
+        });
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
