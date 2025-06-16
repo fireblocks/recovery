@@ -9,49 +9,51 @@ import { RawSignMethod, SigningAlgorithms } from '../reducers/rawSignReducer';
 import { ECDSAWallet } from '@fireblocks/wallet-derivation/wallets/ECDSAWallet';
 import { EdDSAWallet, sha512 } from '@fireblocks/wallet-derivation/wallets/EdDSAWallet';
 
+class DerivationPathECDSAWallet extends ECDSAWallet {
+  protected getAddress(evmAddress?: string): string {
+    return evmAddress || '';
+  }
+  async signMessage(message: Uint8Array) {
+    return await this.sign(message);
+  }
+}
+
+class DerivationPathEDDSAWallet extends EdDSAWallet {
+  protected getAddress(evmAddress?: string): string {
+    return evmAddress || '';
+  }
+
+  async signMessage(message: string | Uint8Array, hasher: (...msgs: Uint8Array[]) => Promise<Uint8Array> = sha512) {
+    return await this.sign(message, hasher);
+  }
+}
+
+const formatECDSASignature = (signatureHex: string) => {
+  if (signatureHex.startsWith('0x')) {
+    signatureHex = signatureHex.slice(2);
+  }
+
+  if (signatureHex.length !== 130) {
+    throw new Error('Invalid signature length');
+  }
+
+  const r = '0x' + signatureHex.slice(0, 64);
+  const s = '0x' + signatureHex.slice(64, 128);
+  const v = parseInt(signatureHex.slice(128, 130), 16);
+  return {
+    signature: signatureHex,
+    r,
+    s,
+    v,
+  };
+};
+
 export const useRawSignMessage = (extendedKeys?: ExtendedKeys) => {
   const [signedMessage, setSignedMessage] = useState<string | null>(null);
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<SigningAlgorithms>(SigningAlgorithms.ECDSA);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const logger = getLogger(LOGGER_NAME_UTILITY);
-
-  class DerivationPathECDSAWallet extends ECDSAWallet {
-    protected getAddress(evmAddress?: string): string {
-      return evmAddress || '';
-    }
-    async signMessage(message: string | Uint8Array, hasher = keccak256) {
-      return await this.sign(message, hasher);
-    }
-  }
-
-  class DerivationPathEDDSAWallet extends EdDSAWallet {
-    protected getAddress(evmAddress?: string): string {
-      return evmAddress || '';
-    }
-
-    async signMessage(message: string | Uint8Array, hasher: (...msgs: Uint8Array[]) => Promise<Uint8Array> = sha512) {
-      return await this.sign(message, hasher);
-    }
-  }
-
-  const formatECDSASignature = (signatureHex: string) => {
-    const sigBytes = getBytes(signatureHex);
-
-    const r = sigBytes.slice(0, 32);
-    const s = sigBytes.slice(32, 64);
-    const v = sigBytes[64];
-
-    const rHex = Buffer.from(r).toString('hex');
-    const sHex = Buffer.from(s).toString('hex');
-
-    return {
-      signature: signatureHex,
-      r: rHex,
-      s: sHex,
-      v: v,
-    };
-  };
 
   const signMessage = useCallback(
     async ({
