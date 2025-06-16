@@ -1,5 +1,6 @@
 import { Grid, Typography } from '@mui/material';
 import { SigningAlgorithms } from '../../../reducers/rawSignReducer';
+import { TextField } from '../../TextField';
 
 interface SignedMessageProps {
   selectedAlgorithm: SigningAlgorithms;
@@ -9,9 +10,25 @@ interface SignedMessageProps {
 const SignedMessage: React.FC<SignedMessageProps> = (props) => {
   const { selectedAlgorithm, signedMessage } = props;
   return (
-    <>
+    <Grid
+      item
+      xs={12}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        flexGrow: 1,
+        width: '100%',
+      }}
+    >
       {selectedAlgorithm === SigningAlgorithms.ECDSA ? (
-        <Grid container spacing={2}>
+        <Grid
+          container
+          spacing={2}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
           <Grid item xs={12}>
             <Typography variant='h6'>ECDSA Signature Components:</Typography>
           </Grid>
@@ -19,8 +36,10 @@ const SignedMessage: React.FC<SignedMessageProps> = (props) => {
             <Typography variant='body1' sx={{ fontWeight: 'bold' }}>
               Full Signature:
             </Typography>
-            <Typography
-              variant='body2'
+            <TextField
+              id='full-signed'
+              enableCopy={true}
+              multiline
               sx={{
                 wordBreak: 'break-word',
                 overflowWrap: 'break-word',
@@ -29,55 +48,65 @@ const SignedMessage: React.FC<SignedMessageProps> = (props) => {
                 padding: 1,
                 borderRadius: 1,
               }}
-            >
-              {JSON.parse(signedMessage).signature}
-            </Typography>
+              value={JSON.parse(signedMessage).signature}
+            />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12}>
             <Typography variant='body1' sx={{ fontWeight: 'bold' }}>
               r:
             </Typography>
-            <Typography
-              variant='body2'
+            <TextField
+              id='r-signed'
+              enableCopy={true}
+              multiline
               sx={{
                 wordBreak: 'break-word',
                 overflowWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                width: '100%',
                 padding: 1,
                 borderRadius: 1,
               }}
-            >
-              {JSON.parse(signedMessage).r}
-            </Typography>
+              value={JSON.parse(signedMessage).r}
+            />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12}>
             <Typography variant='body1' sx={{ fontWeight: 'bold' }}>
               s:
             </Typography>
-            <Typography
-              variant='body2'
+            <TextField
+              id='s-signed'
+              enableCopy={true}
+              multiline
               sx={{
                 wordBreak: 'break-word',
                 overflowWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                width: '100%',
                 padding: 1,
                 borderRadius: 1,
               }}
-            >
-              {JSON.parse(signedMessage).s}
-            </Typography>
+              value={JSON.parse(signedMessage).s}
+            />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12}>
             <Typography variant='body1' sx={{ fontWeight: 'bold' }}>
               v:
             </Typography>
-            <Typography
-              variant='body2'
+            <TextField
+              id='v-signed'
+              enableCopy={true}
+              multiline
               sx={{
+                wordBreak: 'break-word',
+                overflowWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                width: '100%',
                 padding: 1,
                 borderRadius: 1,
               }}
-            >
-              {JSON.parse(signedMessage).v}
-            </Typography>
+              value={JSON.parse(signedMessage).v}
+            />
           </Grid>
         </Grid>
       ) : selectedAlgorithm === SigningAlgorithms.EDDSA ? (
@@ -91,10 +120,26 @@ const SignedMessage: React.FC<SignedMessageProps> = (props) => {
           }}
           paragraph
         >
-          {signedMessage}
+          <Typography variant='h2' display='flex' alignItems='center'>
+            Signed Message
+          </Typography>
+          <TextField
+            id='signed'
+            enableCopy={true}
+            multiline
+            sx={{
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              width: '100%',
+              padding: 1,
+              borderRadius: 1,
+            }}
+            value={signedMessage}
+          />
         </Typography>
       ) : null}
-    </>
+    </Grid>
   );
 };
 
