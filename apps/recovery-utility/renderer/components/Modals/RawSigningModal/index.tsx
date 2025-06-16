@@ -1,6 +1,6 @@
-import { ReactNode, useEffect, useMemo } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import QrScanner from 'qr-scanner';
-import { Typography, Box, Grid } from '@mui/material';
+import { Typography, Box, Grid, CircularProgress } from '@mui/material';
 import { useSettings } from '../../../context/Settings';
 import { useWorkspace } from '../../../context/Workspace';
 import { DeploymentStore } from '../../../../main/store/deployment';
@@ -42,20 +42,31 @@ const RawSigningModal: React.FC<RawSigningModalProps> = (props) => {
 
   const { signMessage, signedMessage, setSignedMessage, selectedAlgorithm } = useRawSignMessage(extendedKeys);
 
-  const onDecode = async (data: QrScanner.ScanResult) => {
-    const decodedData = data.data;
-    const parsed = getRelayParams('relay', decodedData) as RelayRawSignTxRequestParams;
-    console.log('Parsed data:', parsed.message);
-    const unsignedMessage = Buffer.from(parsed.message).toString('hex');
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
-    await signMessage({
-      unsignedMessage,
-      rawSignMethod: RawSignMethod.DERIVATION_PATH,
-      inputChangeIndex: parsed.derivationPath.changeIndex,
-      inputAdressIndex: parsed.derivationPath.addressIndex,
-      derivationPath: parsed.derivationPath,
-      dpAlgorithm: parsed.algorithm as SigningAlgorithms,
-    });
+  const onDecode = async (data: QrScanner.ScanResult) => {
+    try {
+      setIsProcessing(true);
+      const decodedData = data.data;
+      const parsed = getRelayParams('relay', decodedData) as RelayRawSignTxRequestParams;
+      console.log('Parsed data:', parsed.message);
+      const unsignedMessage = Buffer.from(parsed.message).toString('hex');
+
+      await signMessage({
+        unsignedMessage,
+        rawSignMethod: RawSignMethod.DERIVATION_PATH,
+        inputChangeIndex: parsed.derivationPath.changeIndex,
+        inputAdressIndex: parsed.derivationPath.addressIndex,
+        derivationPath: parsed.derivationPath,
+        dpAlgorithm: parsed.algorithm as SigningAlgorithms,
+      });
+      setTimeout(() => {
+        setIsProcessing(false);
+      }, 1250);
+    } catch (error) {
+      console.error('Error processing QR code:', error);
+      setIsProcessing(false);
+    }
   };
 
   useEffect(() => {
@@ -83,6 +94,11 @@ const RawSigningModal: React.FC<RawSigningModalProps> = (props) => {
     <BaseModal
       open={open}
       onClose={onClose}
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
       title={
         (
           <Typography variant='h1' display='flex' alignItems='center'>
@@ -94,11 +110,34 @@ const RawSigningModal: React.FC<RawSigningModalProps> = (props) => {
       }
     >
       {!formattedSignedMessage ? (
-        <Grid item xs={6} height='25rem'>
+        <Grid
+          item
+          xs={6}
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: '25rem',
+          }}
+        >
           <QrCodeScanner onDecode={onDecode} />
         </Grid>
+      ) : isProcessing ? (
+        <Grid
+          item
+          xs={6}
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: '25rem',
+            height: '25rem',
+          }}
+        >
+          <CircularProgress size={60} />
+        </Grid>
       ) : (
-        <QrCode data={formattedSignedMessage} showRawData={false} height='25rem' />
+        <QrCode data={formattedSignedMessage} title='Signed Message' showRawData={true} height='25rem' />
       )}
     </BaseModal>
   );
