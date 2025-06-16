@@ -12,7 +12,7 @@ export enum SigningAlgorithms {
 }
 
 export type SigningWalletWithSign = SigningWallet & {
-  sign?: (message: Uint8Array, hasher?: (...msgs: Uint8Array[]) => Promise<Uint8Array>) => Promise<any>;
+  sign?: (message: string | Uint8Array, hasher?: (...msgs: Uint8Array[]) => Promise<Uint8Array>) => Promise<any>;
 };
 
 export type RawSignState = {
