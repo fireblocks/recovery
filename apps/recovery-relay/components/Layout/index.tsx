@@ -103,7 +103,7 @@ export const Layout = ({ children }: Props) => {
         </Alert>
       )}
       {children}
-      <WithdrawModal key={getWithdrawModalKey(inboundRelayParams)} />;
+      <WithdrawModal key={getWithdrawModalKey(inboundRelayParams)} />
     </BaseLayout>
   );
 };
