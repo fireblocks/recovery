@@ -6,7 +6,7 @@ import { useWorkspace } from '../context/Workspace';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 import { useRawSignMessage } from '@fireblocks/recovery-shared/hooks/useRawSignMessage';
-import SignedMessage from '@fireblocks/recovery-shared/components/RawSigningForm/SignedMessage';
+import Signature from '@fireblocks/recovery-shared/components/RawSigningForm/Signature';
 import { BaseModal } from '@fireblocks/recovery-shared';
 import { SignMessageParams } from '@fireblocks/recovery-shared/components';
 
@@ -29,7 +29,7 @@ const RawSigning: React.FC = () => {
     setPageStatus(PageStatus.STATUS_SELECTION);
   };
 
-  const { signMessage, signedMessage, selectedAlgorithm } = useRawSignMessage(extendedKeys);
+  const { generateSignature, signature, selectedAlgorithm } = useRawSignMessage(extendedKeys);
 
   const handleSigningMessage = useCallback(
     async ({
@@ -42,7 +42,7 @@ const RawSigning: React.FC = () => {
       dpAlgorithm,
     }: SignMessageParams) => {
       try {
-        await signMessage({
+        await generateSignature({
           unsignedMessage,
           rawSignMethod,
           selectedWallet,
@@ -56,7 +56,7 @@ const RawSigning: React.FC = () => {
         console.error(`utility raw signing error - ${error}`);
       }
     },
-    [signMessage, isSignedModalOpen],
+    [signature, isSignedModalOpen],
   );
 
   return (
@@ -95,15 +95,15 @@ const RawSigning: React.FC = () => {
             <RawSigningForm accounts={accounts} onSubmit={handleSigningMessage} />
           </Suspense>
 
-          {signedMessage && (
+          {signature && (
             <BaseModal
               open={isSignedModalOpen}
               onClose={() => {
                 setIsSignedModalOpen(false);
               }}
-              title='Signed Message'
+              title='Signature'
             >
-              <SignedMessage selectedAlgorithm={selectedAlgorithm} signedMessage={signedMessage} />
+              <Signature selectedAlgorithm={selectedAlgorithm} signature={signature} />
             </BaseModal>
           )}
         </>

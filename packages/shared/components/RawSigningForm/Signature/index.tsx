@@ -2,13 +2,13 @@ import { Grid, Typography } from '@mui/material';
 import { SigningAlgorithms } from '../../../reducers/rawSignReducer';
 import { TextField } from '../../TextField';
 
-interface SignedMessageProps {
+interface SignatureProps {
   selectedAlgorithm: SigningAlgorithms;
-  signedMessage: string;
+  signature: string;
 }
 
-const SignedMessage: React.FC<SignedMessageProps> = (props) => {
-  const { selectedAlgorithm, signedMessage } = props;
+const Signature: React.FC<SignatureProps> = (props) => {
+  const { selectedAlgorithm, signature } = props;
   return (
     <Grid
       item
@@ -48,7 +48,7 @@ const SignedMessage: React.FC<SignedMessageProps> = (props) => {
                 padding: 1,
                 borderRadius: 1,
               }}
-              value={JSON.parse(signedMessage).signature}
+              value={JSON.parse(signature).signature}
             />
           </Grid>
           <Grid item xs={12}>
@@ -67,7 +67,7 @@ const SignedMessage: React.FC<SignedMessageProps> = (props) => {
                 padding: 1,
                 borderRadius: 1,
               }}
-              value={JSON.parse(signedMessage).r}
+              value={JSON.parse(signature).r}
             />
           </Grid>
           <Grid item xs={12}>
@@ -86,7 +86,7 @@ const SignedMessage: React.FC<SignedMessageProps> = (props) => {
                 padding: 1,
                 borderRadius: 1,
               }}
-              value={JSON.parse(signedMessage).s}
+              value={JSON.parse(signature).s}
             />
           </Grid>
           <Grid item xs={12}>
@@ -105,7 +105,7 @@ const SignedMessage: React.FC<SignedMessageProps> = (props) => {
                 padding: 1,
                 borderRadius: 1,
               }}
-              value={JSON.parse(signedMessage).v}
+              value={JSON.parse(signature).v}
             />
           </Grid>
         </Grid>
@@ -135,7 +135,7 @@ const SignedMessage: React.FC<SignedMessageProps> = (props) => {
               padding: 1,
               borderRadius: 1,
             }}
-            value={signedMessage}
+            value={signature}
           />
         </Typography>
       ) : null}
@@ -143,4 +143,4 @@ const SignedMessage: React.FC<SignedMessageProps> = (props) => {
   );
 };
 
-export default SignedMessage;
+export default Signature;

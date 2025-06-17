@@ -11,7 +11,7 @@ import {
   RelayRawSignTxResponseParams,
 } from '@fireblocks/recovery-shared';
 import { SigningAlgorithms } from '@fireblocks/recovery-shared/reducers/rawSignReducer';
-import SignedMessage from '@fireblocks/recovery-shared/components/RawSigningForm/SignedMessage';
+import Signature from '@fireblocks/recovery-shared/components/RawSigningForm/Signature';
 import { CallMade, CallReceived } from '@mui/icons-material';
 
 type RawSigningModalProps = {
@@ -26,7 +26,7 @@ const RawSigningModal: React.FC<RawSigningModalProps> = (props) => {
   const { open, qrData, onClose: onCloseModal } = props;
 
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [signedMessage, setSignedMessage] = useState<string | null>(null);
+  const [signature, setSignature] = useState<string | null>(null);
   const [signingAlgorithm, setSigningAlgorithm] = useState<SigningAlgorithms | null>(null);
 
   const onDecode = async (data: QrScanner.ScanResult) => {
@@ -34,9 +34,9 @@ const RawSigningModal: React.FC<RawSigningModalProps> = (props) => {
       setIsProcessing(true);
       const decodedData = data.data;
       const parsed = getRelayParams('utility', decodedData) as RelayRawSignTxResponseParams;
-      console.log('Parsed data:', parsed.signedMessage);
-      const parsedMessage = parsed.signedMessage;
-      setSignedMessage(parsedMessage);
+      console.log('Parsed data:', parsed.signature);
+      const parsedMessage = parsed.signature;
+      setSignature(parsedMessage);
       const parsedAlgorithm = parsed.algorithm as SigningAlgorithms;
       setSigningAlgorithm(parsedAlgorithm);
       setTimeout(() => {
@@ -67,7 +67,7 @@ const RawSigningModal: React.FC<RawSigningModalProps> = (props) => {
         ) as ReactNode
       }
     >
-      {!signedMessage || !signingAlgorithm ? (
+      {!signature || !signingAlgorithm ? (
         <>
           <Box
             sx={(t) => ({
@@ -130,7 +130,7 @@ const RawSigningModal: React.FC<RawSigningModalProps> = (props) => {
           <CircularProgress size={60} />
         </Grid>
       ) : (
-        /* <QrCode showRawData={false} title='Signed Message' data={signedMessage} height='25rem' /> */
+        /* <QrCode showRawData={false} title='Signed Message' data={signature} height='25rem' /> */
         <Grid
           item
           xs={12}
@@ -139,7 +139,7 @@ const RawSigningModal: React.FC<RawSigningModalProps> = (props) => {
             flexGrow: 1,
           }}
         >
-          <SignedMessage selectedAlgorithm={signingAlgorithm} signedMessage={signedMessage} />
+          <Signature selectedAlgorithm={signingAlgorithm} signature={signature} />
         </Grid>
       )}
     </BaseModal>

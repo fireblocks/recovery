@@ -211,7 +211,7 @@ const RawSigningForm: React.FC<RawSigningFormProps> = (props) => {
           }
           onClick={handleOnSubmit}
         >
-          {appProtocol === 'UTILITY' ? 'Sign Message' : 'Generate QR'}
+          {appProtocol === 'UTILITY' ? 'Generate Signature' : 'Generate QR'}
         </Button>
       </Box>
     </>

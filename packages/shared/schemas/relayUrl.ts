@@ -146,7 +146,7 @@ export type RelaySignTxResponseParams = z.infer<typeof relaySignTxResponseParams
 
 export const relayRawSignTxResponseParams = relayBaseResponseParams.extend({
   action: actionSchema('tx/broadcast-raw-sign'),
-  signedMessage: z.string(),
+  signature: z.string(),
   algorithm: z.enum(['ECDSA', 'EDDSA']),
   accountId: z.number().optional(),
   version: z.string().optional(),

@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
 import { Buffer } from 'buffer';
-import { getBytes, keccak256 } from 'ethers';
 import { SignMessageParams } from '../components';
 import { HDPathParts } from '@fireblocks/wallet-derivation';
 import { ExtendedKeys, getLogger } from '@fireblocks/recovery-shared';
@@ -49,13 +48,13 @@ const formatECDSASignature = (signatureHex: string) => {
 };
 
 export const useRawSignMessage = (extendedKeys?: ExtendedKeys) => {
-  const [signedMessage, setSignedMessage] = useState<string | null>(null);
+  const [signature, setSignature] = useState<string | null>(null);
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<SigningAlgorithms>(SigningAlgorithms.ECDSA);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const logger = getLogger(LOGGER_NAME_UTILITY);
 
-  const signMessage = useCallback(
+  const generateSignature = useCallback(
     async ({
       unsignedMessage,
       rawSignMethod,
@@ -70,7 +69,7 @@ export const useRawSignMessage = (extendedKeys?: ExtendedKeys) => {
         if (!unsignedMessage) {
           throw new Error('transaction was not provided');
         }
-        setSignedMessage(null);
+        setSignature(null);
         const messageHashBuffer = Buffer.from(unsignedMessage, 'hex');
 
         const message = Uint8Array.from(messageHashBuffer);
@@ -98,11 +97,11 @@ export const useRawSignMessage = (extendedKeys?: ExtendedKeys) => {
             case 'EDDSA':
               const signatureString = Buffer.from(sigHex).toString('hex');
               console.log(signatureString);
-              setSignedMessage(signatureString || 'error');
+              setSignature(signatureString || 'error');
               break;
             case 'ECDSA':
               const formattedSig = formatECDSASignature(sigHex);
-              setSignedMessage(JSON.stringify(formattedSig));
+              setSignature(JSON.stringify(formattedSig));
               break;
             default:
               throw new Error('Unknown wallet algorithm');
@@ -126,21 +125,21 @@ export const useRawSignMessage = (extendedKeys?: ExtendedKeys) => {
               const dpECDSAWallet = new DerivationPathECDSAWallet(dpParams, derivationPath.coinType);
               const ecdsaSigHex = await dpECDSAWallet.signMessage(message);
               const formattedSig = formatECDSASignature(ecdsaSigHex);
-              setSignedMessage(JSON.stringify(formattedSig));
+              setSignature(JSON.stringify(formattedSig));
               break;
             case SigningAlgorithms.EDDSA:
               const dpEDDSAWallet = new DerivationPathEDDSAWallet(dpParams, derivationPath.coinType);
               const eddsaSigHex = await dpEDDSAWallet.signMessage(message);
               const signatureString = Buffer.from(eddsaSigHex).toString('hex');
               console.log(signatureString);
-              setSignedMessage(signatureString || 'error');
+              setSignature(signatureString || 'error');
               break;
             default:
               throw new Error('Derivation path algorithm error');
           }
         }
       } catch (error) {
-        console.error(`signMessage error - ${error}`);
+        console.error(`generateSignature error - ${error}`);
         logger.error(error instanceof Error ? error.message : 'Unknown error');
       } finally {
         setIsLoading(false);
@@ -150,11 +149,11 @@ export const useRawSignMessage = (extendedKeys?: ExtendedKeys) => {
   );
 
   return {
-    signMessage,
-    signedMessage,
+    generateSignature,
+    signature,
     selectedAlgorithm,
     isLoading,
-    setSignedMessage,
+    setSignature,
     setSelectedAlgorithm,
   };
 };

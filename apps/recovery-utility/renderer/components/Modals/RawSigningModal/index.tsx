@@ -40,7 +40,7 @@ const RawSigningModal: React.FC<RawSigningModalProps> = (props) => {
   }
   const { getOutboundRelayUrl } = useRelayUrl('relay', relayBaseUrl);
 
-  const { signMessage, signedMessage, setSignedMessage, selectedAlgorithm } = useRawSignMessage(extendedKeys);
+  const { generateSignature, signature, setSignature, selectedAlgorithm } = useRawSignMessage(extendedKeys);
 
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
@@ -52,7 +52,7 @@ const RawSigningModal: React.FC<RawSigningModalProps> = (props) => {
       console.log('Parsed data:', parsed.message);
       const unsignedMessage = Buffer.from(parsed.message).toString('hex');
 
-      await signMessage({
+      await generateSignature({
         unsignedMessage,
         rawSignMethod: RawSignMethod.DERIVATION_PATH,
         inputChangeIndex: parsed.derivationPath.changeIndex,
@@ -70,23 +70,23 @@ const RawSigningModal: React.FC<RawSigningModalProps> = (props) => {
   };
 
   useEffect(() => {
-    console.log(signedMessage);
-  }, [signedMessage]);
+    console.log(signature);
+  }, [signature]);
 
   const formattedSignedMessage = useMemo(() => {
-    if (!signedMessage) return null;
+    if (!signature) return null;
     const data = getOutboundRelayUrl({
       action: 'tx/broadcast-raw-sign',
       algorithm: selectedAlgorithm,
-      signedMessage: signedMessage,
+      signature: signature,
     });
 
     return data;
-  }, [signedMessage, selectedAlgorithm, relayBaseUrl, getOutboundRelayUrl]);
+  }, [signature, selectedAlgorithm, relayBaseUrl, getOutboundRelayUrl]);
 
   const onClose = () => {
     logger.info(`Closing raw-signing modal`);
-    setSignedMessage(null);
+    setSignature(null);
     onCloseModal();
   };
 
