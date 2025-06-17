@@ -97,14 +97,14 @@ const RawSigningModal: React.FC<RawSigningModalProps> = (props) => {
                   <CallReceived fontSize='small' sx={{ marginRight: '0.25rem' }} /> Receiving
                 </Typography>
                 <Typography variant='body1' color='inherit'>
-                  Signed message
+                  Signature
                 </Typography>
               </Grid>
             </Grid>
           </Box>
           <Typography variant='body1' paragraph>
             Scan the QR code using the Recovery Utility to sign a message. Then, scan the QR code produced by the Recovery Utility
-            to obtain the signed message.
+            to obtain the signature of the message.
           </Typography>
           <Grid container spacing={1} alignItems='flex-start' justifyContent='center'>
             <Grid item xs={6}>

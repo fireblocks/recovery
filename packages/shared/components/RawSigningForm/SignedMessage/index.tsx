@@ -121,7 +121,7 @@ const SignedMessage: React.FC<SignedMessageProps> = (props) => {
           paragraph
         >
           <Typography variant='h2' display='flex' alignItems='center'>
-            Signed Message
+            Signature
           </Typography>
           <TextField
             id='signed'

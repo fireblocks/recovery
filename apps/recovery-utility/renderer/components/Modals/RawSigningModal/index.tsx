@@ -137,7 +137,7 @@ const RawSigningModal: React.FC<RawSigningModalProps> = (props) => {
           <CircularProgress size={60} />
         </Grid>
       ) : (
-        <QrCode data={formattedSignedMessage} title='Signed Message' showRawData={true} height='25rem' />
+        <QrCode data={formattedSignedMessage} title='Signature' showRawData={true} height='25rem' />
       )}
     </BaseModal>
   );
