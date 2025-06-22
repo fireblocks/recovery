@@ -50,7 +50,7 @@ export class ERC20 extends EVMBase implements ConnectedWallet {
 
   public setDecimals(decimals: number) {
     this.decimals = decimals;
-    if (!this.decimals) {
+    if (this.decimals === undefined || this.decimals === null) {
       this.relayLogger.error(`ERC20 Token decimals are unavailable: ${this.assetId}`);
       throw new Error(`ERC20 Token decimals are unavailable: ${this.assetId}`);
     }
