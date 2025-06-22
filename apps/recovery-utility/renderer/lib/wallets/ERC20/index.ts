@@ -14,8 +14,11 @@ export class ERC20 extends EVMBase implements SigningWallet {
 
     const tokenAddress = extraParams?.get('tokenAddress');
 
-    const maxPriorityFeePerGas = (BigInt(extraParams?.get('priorityFee')) * 115n) / 100n; //increase priority fee by 15% to increase chance of tx to be included in next block
     const maxFeePerGas = BigInt(extraParams?.get('maxFee'));
+    const maxPriorityFeePerGas =
+      (BigInt(extraParams?.get('priorityFee')) * 115n) / 100n >= maxFeePerGas
+        ? maxFeePerGas
+        : (BigInt(extraParams?.get('priorityFee')) * 115n) / 100n; //increase priority fee by 15% to increase chance of tx to be included in next block
     const gasLimit = BigInt(extraParams?.get('gasLimit'));
     const gasPrice = BigInt(extraParams?.get('gasPrice'));
 
