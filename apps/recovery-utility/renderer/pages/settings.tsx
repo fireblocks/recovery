@@ -129,17 +129,17 @@ const Settings = () => {
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={4}>
-                  <Typography variant='caption' paragraph>
+                  <Typography variant='caption'>
                     Recovery Utility<Typography fontFamily={monospaceFontFamily}>{utilityPackage.version}</Typography>
                   </Typography>
                 </Grid>
                 <Grid item xs={4}>
-                  <Typography variant='caption' paragraph>
+                  <Typography variant='caption'>
                     Wallet Derivation<Typography fontFamily={monospaceFontFamily}>{walletDerivationPackage.version}</Typography>
                   </Typography>
                 </Grid>
                 <Grid item xs={4}>
-                  <Typography variant='caption' paragraph>
+                  <Typography variant='caption'>
                     Extended Key Recovery
                     <Typography fontFamily={monospaceFontFamily}>{extendedKeyRecoveryPackage.version}</Typography>
                   </Typography>

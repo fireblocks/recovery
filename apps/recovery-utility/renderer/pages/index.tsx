@@ -2,9 +2,9 @@ import { ReactNode, useEffect } from 'react';
 import { Grid, Typography, SxProps, CircularProgress, Box } from '@mui/material';
 import { ImportExport, ManageHistory, Restore, Verified, Warning, LeakAdd } from '@mui/icons-material';
 import { Button, NextLinkComposed, KeyIcon, VaultAccountIcon, getLogger, useWrappedState } from '@fireblocks/recovery-shared';
+import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 import { useWorkspace } from '../context/Workspace';
 import { getDeployment, useDeployment } from '../lib/ipc';
-import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 import { resetDeployment } from '../lib/ipc/useDeployment';
 import { resetLogs } from '../lib/ipc/getLogs';
 
@@ -32,7 +32,7 @@ type BoxButtonProps = {
   onClick?: VoidFunction;
 };
 
-const BoxButton = ({ icon: Icon, title, description, color = 'primary', href, disabled, onClick }: BoxButtonProps) => (
+export const BoxButton = ({ icon: Icon, title, description, color = 'primary', href, disabled, onClick }: BoxButtonProps) => (
   <Button
     {...(href ? { to: href, component: NextLinkComposed } : {})}
     size='large'
@@ -54,17 +54,18 @@ const BoxButton = ({ icon: Icon, title, description, color = 'primary', href, di
 );
 
 const Index = () => {
-  const { extendedKeys: { xpub, fpub, xprv, fprv } = {} } = useWorkspace();
+  const { getExtendedKeysForAccountId } = useWorkspace();
 
   const logger = getLogger(LOGGER_NAME_UTILITY);
 
+  const { xpub, fpub, xprv, fprv } = getExtendedKeysForAccountId(0) || {};
   const hasExtendedKeys = !!xpub || !!fpub || !!xprv || !!fprv;
 
   const [loading, setLoading] = useWrappedState<boolean>('util-loading', true);
   const [protocol, setProtocol] = useWrappedState<'UTILITY' | 'RELAY' | null>('util-protocol', null);
 
   const onClickDeployment = async (_protocol: 'UTILITY' | 'RELAY') => {
-    resetLogs();
+    // resetLogs();
     logger.debug(`Setting deployment ${_protocol}`);
     useDeployment(_protocol);
   };

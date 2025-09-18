@@ -12,8 +12,16 @@ const numberFromString = z
   .transform((v) => (v === null ? -1 : Number(v)))
   .pipe(z.number().nullable());
 
+const booleanFromYNString = z
+  .string()
+  .nullable()
+  .transform((v) => (v === null ? false : v === 'yes'))
+  .nullable();
+
 export const recoverAccountInput = z.object({
   name: nonEmptyString('Account name is required').describe('Vault Account name'),
+  incrementEcdsaKeyset: booleanFromYNString,
+  incrementEddsaKeyset: booleanFromYNString,
   id: numberFromString,
 });
 
@@ -22,6 +30,8 @@ export const recoverAccountInputByAccounts = (accountKeys: number[]) =>
     .object({
       name: nonEmptyString('Account name is required').describe('Vault Account name'),
       id: numberFromString,
+      incrementEcdsaKeyset: booleanFromYNString,
+      incrementEddsaKeyset: booleanFromYNString,
     })
     .superRefine((data, ctx) => {
       if (data.id !== null && accountKeys.includes(data.id)) {

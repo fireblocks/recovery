@@ -1,5 +1,6 @@
 import { ReactNode, useEffect } from 'react';
 import { Report, Restore, Verified, /* LeakAdd, */ ImportExport, ManageHistory, Settings } from '@mui/icons-material';
+import DrawIcon from '@mui/icons-material/Draw';
 import {
   Layout as BaseLayout,
   LayoutProps as BaseLayoutProps,
@@ -23,7 +24,7 @@ const logger = getLogger(LOGGER_NAME_UTILITY);
 export const Layout = ({ children }: Props) => {
   const { isOnline } = useConnectionTest();
 
-  const { extendedKeys: { xpub, fpub, xprv, fprv, ncwMaster } = {} } = useWorkspace();
+  const { extendedKeys: { ncwMaster } = {}, getExtendedKeysForAccountId } = useWorkspace();
 
   const [protocol, setProtocol] = useWrappedState<'UTILITY' | 'RELAY' | null>('protocol', null);
 
@@ -35,6 +36,7 @@ export const Layout = ({ children }: Props) => {
     [],
   );
 
+  const { xpub, fpub, xprv, fprv } = getExtendedKeysForAccountId(0) || {};
   const hasExtendedPrivateKeys = !!xprv || !!fprv;
   const hasExtendedPublicKeys = !!xpub || !!fpub;
   const hasOnlyExtendedPublicKeys = hasExtendedPublicKeys && !hasExtendedPrivateKeys;
@@ -94,6 +96,12 @@ export const Layout = ({ children }: Props) => {
       label: 'Extended Keys',
       path: '/keys',
       icon: KeyIcon,
+    },
+    {
+      label: 'Raw Signing',
+      path: '/raw-signing',
+      icon: DrawIcon,
+      disabled: !hasExtendedKeys,
     },
     {
       label: 'Settings',

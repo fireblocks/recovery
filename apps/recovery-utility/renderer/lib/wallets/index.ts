@@ -7,6 +7,7 @@ import { EOS } from './EOS';
 import { BitcoinCash } from './BCH';
 import { EVM } from './EVM';
 import { Solana } from './SOL';
+import { SPL } from './SPL';
 import { Tron } from './TRON';
 import { Luna } from './LUNA';
 import { Cardano } from './ADA';
@@ -24,6 +25,8 @@ import { Ton } from './TON';
 import { Jetton } from './Jetton';
 import { ERC20 } from './ERC20';
 import { TRC20 } from './TRC20';
+import { getAllSpls } from '@fireblocks/asset-config/assets';
+import { FLR } from './FLR';
 
 const fillEVMs = () => {
   const evms = Object.keys(assets).reduce(
@@ -58,6 +61,17 @@ const fillTRC20s = () => {
     trc20s[trc20] = TRC20;
   }
   return trc20s;
+};
+
+const fillSpls = () => {
+  const splsList = getAllSpls();
+  const spls: { [key: string]: any } = {};
+  for (const spl of splsList) {
+    if (spl !== 'SOL') {
+      spls[spl] = SPL;
+    }
+  }
+  return spls;
 };
 
 export { SigningWallet as BaseWallet } from './SigningWallet';
@@ -103,9 +117,13 @@ export const WalletClasses = {
   ...fillEVMs(),
   ...fillTRC20s(),
 
+  FLR: FLR,
+
   // EDDSA
   SOL: Solana,
   SOL_TEST: Solana,
+  ...fillSpls(),
+
   XLM: Stellar,
   XLM_TEST: Stellar,
   NEAR: Near,

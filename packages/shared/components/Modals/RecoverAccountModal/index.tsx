@@ -3,7 +3,21 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Accordion, AccordionDetails, AccordionSummary, InputAdornment, Tooltip, Typography } from '@mui/material';
+import {
+  Divider,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  Grid,
+  Radio,
+  RadioGroup,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  InputAdornment,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { RecoverAccountInput, recoverAccountInputByAccounts } from '../../../schemas';
@@ -14,13 +28,24 @@ import { TextField } from '../../TextField';
 type Props = {
   open: boolean;
   accountsKeys: number[];
+  currentKeysetIndex?: [number, number];
+  totalKeysetCount?: [number, number];
+  hasMultipleKeysets: boolean;
   onClose: VoidFunction;
-  addAccount: (name: string, id?: number) => number;
+  addAccount: (name: string, id?: number, mapToNextKeyset?: boolean, ecdsa?: boolean) => number;
 };
 
-const defaultValues: RecoverAccountInput = { name: '', id: null };
+const defaultValues: RecoverAccountInput = { name: '', id: null, incrementEcdsaKeyset: null, incrementEddsaKeyset: null };
 
-export const RecoverAccountModal = ({ open, onClose: _onClose, accountsKeys, addAccount }: Props) => {
+export const RecoverAccountModal = ({
+  open,
+  hasMultipleKeysets,
+  currentKeysetIndex,
+  totalKeysetCount,
+  onClose: _onClose,
+  accountsKeys,
+  addAccount,
+}: Props) => {
   const router = useRouter();
 
   const {
@@ -40,9 +65,15 @@ export const RecoverAccountModal = ({ open, onClose: _onClose, accountsKeys, add
   };
 
   const onSubmit = (formData: RecoverAccountInput) => {
+    const mapToNextKeyset =
+      hasMultipleKeysets &&
+      ((formData.incrementEcdsaKeyset == null ? false : formData.incrementEcdsaKeyset) ||
+        (formData.incrementEddsaKeyset === null ? false : formData.incrementEddsaKeyset));
     const accountId = addAccount(
       formData.name,
       formData.id !== null && formData.id < 0 ? undefined : formData.id !== null ? formData.id : undefined,
+      mapToNextKeyset,
+      formData.incrementEcdsaKeyset === null,
     );
 
     router.push({
@@ -101,6 +132,53 @@ export const RecoverAccountModal = ({ open, onClose: _onClose, accountsKeys, add
               </InputAdornment>
             }
           />
+          {hasMultipleKeysets && currentKeysetIndex && totalKeysetCount && (
+            <Grid container spacing={2} paddingTop={1}>
+              <Grid item xs={12}>
+                <Divider>
+                  <Typography textAlign='center' variant='h2'>
+                    Multiple Keysets with no Threshold Mapping
+                  </Typography>
+                </Divider>
+              </Grid>
+              {currentKeysetIndex[0] < totalKeysetCount[0] && (
+                <Grid item xs={12}>
+                  <FormControl>
+                    <FormLabel>
+                      <Typography variant='h3'>ECDSA</Typography> Total of {totalKeysetCount[0]} keysets, using keyset{' '}
+                      {currentKeysetIndex[0]}{' '}
+                    </FormLabel>
+                    <RadioGroup defaultValue='no' {...register('incrementEcdsaKeyset')}>
+                      <FormControlLabel value='no' control={<Radio />} label={`Continue using keyset ${currentKeysetIndex[0]}`} />
+                      <FormControlLabel
+                        value='yes'
+                        control={<Radio />}
+                        label={`Switch to keyset ${currentKeysetIndex[0] + 1} for this vault account and moving forward`}
+                      />
+                    </RadioGroup>
+                  </FormControl>
+                </Grid>
+              )}
+              {currentKeysetIndex[1] < totalKeysetCount[1] && (
+                <Grid item xs={12}>
+                  <FormControl>
+                    <FormLabel>
+                      <Typography variant='h3'>EDDSA</Typography> Total of {totalKeysetCount[1]} keysets, using keyset{' '}
+                      {currentKeysetIndex[1]}{' '}
+                    </FormLabel>
+                    <RadioGroup defaultValue='no' {...register('incrementEddsaKeyset')}>
+                      <FormControlLabel value='no' control={<Radio />} label={`Continue using keyset ${currentKeysetIndex[1]}`} />
+                      <FormControlLabel
+                        value='yes'
+                        control={<Radio />}
+                        label={`Switch to keyset ${currentKeysetIndex[1] + 1} for this vault account and moving forward`}
+                      />
+                    </RadioGroup>
+                  </FormControl>
+                </Grid>
+              )}
+            </Grid>
+          )}
         </AccordionDetails>
       </Accordion>
     </BaseModal>

@@ -10,6 +10,13 @@ export const recoverKeysInput = z.object({
   agpRsaKey: z.string().optional().describe('The auto generated passphrase Base64 encoded RSA file'),
   agpRsaPassphrase: z.string().optional().describe('The auto generated passphrase RSA passphrase'),
   recoverOnlyNCW: z.boolean().describe('Should recover only NCW').default(false),
+  passphraseJson: z
+    .object({
+      passphrase: z.string().optional(),
+      rsaKeyPassphrase: z.string().optional(),
+    })
+    .nullable()
+    .describe('JSON object containing passphrases'),
 });
 
 export type RecoverKeysInput = z.infer<typeof recoverKeysInput>;

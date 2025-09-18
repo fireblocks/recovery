@@ -13,13 +13,6 @@ export type Args = {
   dangerouslyRecoverPrivateKeys?: boolean;
 };
 
-export type ExtendedKeys = {
-  xpub: string;
-  fpub: string;
-  xprv?: string;
-  fprv?: string;
-};
-
 export const recoverExtendedKeys = async (args: Args) => {
   const logger = getLogger(LOGGER_NAME_UTILITY);
   let config;
