@@ -1,6 +1,9 @@
+// eslint-disable-next-line max-classes-per-file
+import { Algorithm } from './algorithms';
+
 export type CosignerType = 'cloud' | 'mobile';
 
-export type Algorithm = 'MPC_ECDSA_SECP256K1' | 'MPC_EDDSA_ED25519' | 'MPC_CMP_ECDSA_SECP256K1' | 'MPC_CMP_EDDSA_ED25519';
+// export type Algorithm = 'MPC_ECDSA_SECP256K1' | 'MPC_EDDSA_ED25519' | 'MPC_CMP_ECDSA_SECP256K1' | 'MPC_CMP_EDDSA_ED25519';
 
 export type CosignerMetadata = {
   id: string;
@@ -13,7 +16,8 @@ export type BaseMetadataKey = {
 };
 
 export type SigningKeyMetadata = BaseMetadataKey & {
-  chainCode?: Uint8Array | string;
+  chainCode?: Uint8Array;
+  keysetId: number;
 };
 
 export type NCWWalletMasterMetadata = {
@@ -21,11 +25,6 @@ export type NCWWalletMasterMetadata = {
   walletSeed: Uint8Array | string;
   assetSeed: Uint8Array | string;
   cosigners: CosignerMetadata[];
-};
-
-export type RecoveryPackageMetadata = {
-  signingKeys: { [key: string]: SigningKeyMetadata };
-  ncwWalletMasters: { [key: string]: NCWWalletMasterMetadata };
 };
 
 export type WalletMaster = {
@@ -126,7 +125,7 @@ export class InvalidMasterKey extends Error {
   }
 }
 
-export type PlayerData = { [key: string]: { [key: string]: bigint } };
+export type PlayerData = { [keyId: string]: { [playerId: string]: bigint } };
 
 export type MobileKeyShare = {
   encryptedKey: string;
@@ -136,21 +135,31 @@ export type MobileKeyShare = {
   encryptionAlgorithm: string;
 };
 
-export type RecoveredKeys = {
-  xpub: string;
-  fpub: string;
+export type RecoveredKey = {
+  xpub?: string;
+  fpub?: string;
   xprv?: string;
   fprv?: string;
   chainCodeEcdsa?: string;
   chainCodeEddsa?: string;
+  ecdsaExists: boolean;
+  eddsaExists: boolean;
+  ecdsaMinAccount: number;
+  eddsaMinAccount: number;
+};
+
+export type RecoveredKeys = {
+  [keyset: number]: RecoveredKey;
   ncwWalletMaster?: WalletMaster;
 };
 
-export type CalculatedPrivateKey = {
-  [key in Algorithm]?: {
-    prvKey: string;
-    pubKey: string;
-    chainCode: string;
+export type CalculatedPrivateKeysets = {
+  [keysetId: number]: {
+    [algo in Algorithm]?: {
+      prvKey: string;
+      pubKey: string;
+      chainCode: string;
+    };
   };
 };
 

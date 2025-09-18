@@ -31,7 +31,7 @@ export class AddressValidator {
 
   public isValidAddress(address: string, networkProtocol: string | undefined, assetId: string): boolean {
     try {
-      this.patchValidator();
+      // this.patchValidator();
       let isValid = false;
       let validationOptions: WAValidator.ValidateOpts = {};
       let asset = assetId;

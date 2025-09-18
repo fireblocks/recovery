@@ -35,7 +35,7 @@ let protocol = deployment.exp
   : DEFAULT_PROTOCOL;
 const relay = app.commandLine.hasSwitch('relay') || process.env.MODE_RELAY === '1';
 const util = app.commandLine.hasSwitch('util') || process.env.MODE_UTIL === '1';
-resetLogs();
+// resetLogs();
 console.log(`Command line specified: relay: ${relay}, util: ${util}.`);
 if (relay && util) {
   console.error('Both relay and util flags were used, ignoring.');
@@ -79,7 +79,7 @@ const handleRelayUrl = (url = relayUrl) => {
 };
 
 export async function createWindow() {
-  resetLogs();
+  // resetLogs();
   // Create the browser window.
   win = new BrowserWindow({
     width: 845,
@@ -285,5 +285,5 @@ app.on('will-quit', () => {
 });
 
 const preQuit = () => {
-  resetLogs();
+  // resetLogs();
 };

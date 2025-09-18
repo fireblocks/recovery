@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable no-continue */
+/* eslint-disable no-restricted-syntax */
 import forge from 'node-forge';
 import { IZipEntry } from 'adm-zip';
 import { _uuidToBuffer } from './players';
@@ -66,8 +69,8 @@ export const recoverNCWMaster = (
   }
 
   return {
-    assetSeed: (assetSeed as Buffer).toString('hex'),
-    walletSeed: (walletSeed as Buffer).toString('hex'),
+    assetSeed: (assetSeed as unknown as Buffer).toString('hex'),
+    walletSeed: (walletSeed as unknown as Buffer).toString('hex'),
     masterKeyForCosigner: cosignerKeys,
   };
 };

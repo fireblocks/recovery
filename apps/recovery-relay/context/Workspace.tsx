@@ -11,10 +11,10 @@ import {
   useOfflineQuery,
 } from '@fireblocks/recovery-shared';
 import { getAssetConfig } from '@fireblocks/asset-config';
-import packageJson from '../package.json';
-import { WalletClasses, Derivation } from '../lib/wallets';
 import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
 import { isTransferableToken } from '@fireblocks/asset-config/util';
+import packageJson from '../package.json';
+import { WalletClasses, Derivation } from '../lib/wallets';
 
 type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K> : never;
 
@@ -106,6 +106,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
     resetInboundRelayUrl,
     getOutboundRelayUrl: baseGetOutboundRelayUrl,
     importCsv,
+    getExtendedKeysForAccountId,
     setExtendedKeys,
     setTransaction,
     addAccount,
@@ -120,9 +121,8 @@ export const WorkspaceProvider = ({ children }: Props) => {
         if (input.assetId in WalletClasses) {
           logger.debug(`Dervied wallet for a token: ${input.assetId}`);
           return new WalletClasses[input.assetId as keyof typeof WalletClasses](input, 0);
-        } else {
-          throw new Error(`Unsupported token: ${input.assetId}`);
         }
+        throw new Error(`Unsupported token: ${input.assetId}`);
       }
 
       const nativeAssetId = (getAssetConfig(input.assetId)?.nativeAsset ?? input.assetId) as keyof typeof WalletClasses;
@@ -231,6 +231,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
     resetInboundRelayUrl,
     getOutboundRelayUrl,
     importCsv,
+    getExtendedKeysForAccountId,
     setExtendedKeys,
     setTransaction,
     addAccount,
