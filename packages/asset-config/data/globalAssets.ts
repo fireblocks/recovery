@@ -1964,6 +1964,38 @@ export const globalAssets = [
     protocol: 'ETH',
     testnet: false,
   },
+
+  {
+    id: 'IFNA',
+    symbol: 'IFNA',
+    name: 'Innofactory AG Shares',
+    decimals: 0,
+    address: '0x366012e00ffcFD782bE19a9ea5b47AD640998895',
+    nativeAsset: 'ETH',
+    protocol: 'ETH',
+    testnet: false,
+  },
+
+  {
+    id: 'REALU',
+    symbol: 'REALU',
+    name: 'RealUnit Shares',
+    decimals: 0,
+    address: '0x553C7f9C780316FC1D34b8e14ac2465Ab22a090B',
+    nativeAsset: 'ETH',
+    protocol: 'ETH',
+    testnet: false,
+  },
+  {
+    id: 'IFPS',
+    symbol: 'IFPS',
+    name: 'Innofactory AG Participation Certificates',
+    decimals: 0,
+    address: '0xA891de65bDd776168AD155943B6d731bdAaCb901',
+    nativeAsset: 'ETH',
+    protocol: 'ETH',
+    testnet: false,
+  },
   {
     id: 'BSV',
     symbol: 'BSV',

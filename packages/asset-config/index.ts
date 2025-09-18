@@ -1,10 +1,10 @@
 import { orderId, orderAssetById } from './config/sort';
 import { isNativeAssetId, isDerivableAssetId, isTestnetAsset } from './util';
-import { assets, getAllJettons, getAllERC20s, getAllTRC20s } from './assets';
+import { assets, getAllJettons, getAllERC20s, getAllTRC20s, getAllSpls } from './assets';
 
 export { getAssetConfig, getNativeAssetConfig, getDerivableAssetConfig, isExplorerUrl } from './util';
 
-export { assets, getAllJettons, getAllERC20s, getAllTRC20s };
+export { assets, getAllJettons, getAllERC20s, getAllTRC20s, getAllSpls };
 
 export type * from './types';
 

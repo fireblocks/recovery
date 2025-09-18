@@ -13,10 +13,11 @@ describe('Extended Key Recovery', () => {
     };
 
     const recovered = recoverKeys(recoveryConfig);
-    expect(recovered.xprv).toEqual(
+    // Only one keyset
+    expect(recovered[1].xprv).toEqual(
       'xprv9s21ZrQH143K24Mfq5zL5MhWK9hUhhGbd45hLXo2Pq2oqzMMo63oStZzF9aunJDs4SsrmoxycAo6xxBTHawSz5sYxEy8TpCkv66Sci373DJ',
     );
-    expect(recovered.xpub).toEqual(
+    expect(recovered[1].xpub).toEqual(
       'xpub661MyMwAqRbcEYS8w7XLSVeEsBXy79zSzH1J8vCdxAZningWLdN3zgtU6QJJZSgiCXT6sq7wa2jCk5t4Vv1r1E4q1venKghAAdyzieufGyX',
     );
   });
@@ -31,20 +32,21 @@ describe('Extended Key Recovery', () => {
     };
 
     const recovered = recoverKeys(recoveryConfig);
-    expect(recovered.xprv).toEqual(
+    // Only one keyset
+    expect(recovered[1].xprv).toEqual(
       'xprv9s21ZrQH143K2zPNSbKDKusTNW4XVwvTCCEFvcLkeNyauqJJd9UjZg3AtfZbmXa22TFph2NdACUPoWR4sCqMCKQM1j7jRvLuBCF3YoapsX6',
     );
-    expect(recovered.xpub).toEqual(
+    expect(recovered[1].xpub).toEqual(
       'xpub661MyMwAqRbcFUTqYcrDh3pBvXu1uQeJZR9rizkNCiWZnddTAgnz7UMejwX7u4xLmh2JMTtL7DdZmBWGUKa7v836UarassQ3DVFATMzRycV',
     );
-    expect(recovered.fprv).toEqual(
+    expect(recovered[1].fprv).toEqual(
       'fprv4LsXPWzhTTp9ax8NGVwbnRFuT3avVQ4ydHNWcu8hCGZd18TRKxgAzbrpY9bLJRe4Y2AyX9TfQdDPbmqEYoDCTju9QFZbUgdsxsmUgfvuEDK',
     );
-    expect(recovered.fpub).toEqual(
+    expect(recovered[1].fpub).toEqual(
       'fpub8sZZXw2wbqVpURAAA9cCBpv2256rejFtCayHuRAzcYN1qciBxMVmB6UgiDAQTUZh5EP9JZciPQPjKAHyqPYHELqEHWkvo1sxreEJgLyfCJj',
     );
-    expect(recovered.chainCodeEcdsa).toEqual('5d90bd21d2273a25d0aea082716bdc4529e007823260ad3479182f6672c25cc4');
-    expect(recovered.chainCodeEddsa).toEqual('5d90bd21d2273a25d0aea082716bdc4529e007823260ad3479182f6672c25cc4');
+    expect(recovered[1].chainCodeEcdsa).toEqual('5d90bd21d2273a25d0aea082716bdc4529e007823260ad3479182f6672c25cc4');
+    expect(recovered[1].chainCodeEddsa).toEqual('5d90bd21d2273a25d0aea082716bdc4529e007823260ad3479182f6672c25cc4');
   });
 
   it('Should recover old format package', async () => {
@@ -57,10 +59,10 @@ describe('Extended Key Recovery', () => {
     };
 
     const recovered = recoverKeys(recoveryConfig);
-    expect(recovered.xprv).toEqual(
+    expect(recovered[1].xprv).toEqual(
       'xprv9s21ZrQH143K24Mfq5zL5MhWK9hUhhGbd45hLXo2Pq2oqzMMo63oStZzF9aunJDs4SsrmoxycAo6xxBTHawSz5sYxEy8TpCkv66Sci373DJ',
     );
-    expect(recovered.xpub).toEqual(
+    expect(recovered[1].xpub).toEqual(
       'xpub661MyMwAqRbcEYS8w7XLSVeEsBXy79zSzH1J8vCdxAZningWLdN3zgtU6QJJZSgiCXT6sq7wa2jCk5t4Vv1r1E4q1venKghAAdyzieufGyX',
     );
   });
@@ -75,16 +77,16 @@ describe('Extended Key Recovery', () => {
     };
 
     const recovered = recoverKeys(recoveryConfig);
-    expect(recovered.xprv).toEqual(
+    expect(recovered[1].xprv).toEqual(
       'xprv9s21ZrQH143K3PhnQQqPZm38HtkJ3bjcVmwc1SfGG8ddw3jXtrhSBNFNcVVx7VUL8vPpmMg1dqxhecVq8WJ1VHn9yoeRM88qfYEnEEi6XaQ',
     );
-    expect(recovered.xpub).toEqual(
+    expect(recovered[1].xpub).toEqual(
       'xpub661MyMwAqRbcFsnFWSNPvtyrqvanT4TTrzsCoq4spUAcor4gSQ1gjAZrTkzR1o8XZ5uPq6WELaga3Zh1eJyfXLvfkWTfV7AjdFU5VuWMpPp',
     );
-    expect(recovered.fprv).toEqual(
+    expect(recovered[1].fprv).toEqual(
       'fprv4LsXPWzhTTp9bMSnEKTn2GRaNSGh33t8vs5rhjTCp2Dg2LtebftscJ52FxRRKeHGLfK6X5Lg3LcsGxQyHZ8ovvPsP2s9PLbZC2VFHc64vFH',
     );
-    expect(recovered.fpub).toEqual(
+    expect(recovered[1].fpub).toEqual(
       'fpub8sZZXw2wbqVpUpUa7y8NRg5gwTndCP53WAgdzFVWEJ24rq9RE4iTnngtS2FeusezUsAJb2sZiMvSDqYGeGVSs65wJqYcGzQRuZGM9NHHqog',
     );
   });
@@ -99,20 +101,20 @@ describe('Extended Key Recovery', () => {
     };
 
     const recovered = recoverKeys(recoveryConfig);
-    expect(recovered.xprv).toEqual(
+    expect(recovered[1].xprv).toEqual(
       'xprv9s21ZrQH143K3PwZ9jrXG7MZXgj92u6eeCz6M8w8a5RGYJoNmWQRA2eso47rJHr9qawKR9tQVTRki8XUPwVSuBPSnVxT6mQb99XUbruDGk7',
     );
-    expect(recovered.xpub).toEqual(
+    expect(recovered[1].xpub).toEqual(
       'xpub661MyMwAqRbcFt22FmPXdFJJ5iZdSMpW1Ruh9XLk8QxFR78XK3ifhpyMeL5NRqEUapho5bQ7SUavfocg14EDcz2CFMhJYiTjBSXbWQcdkrR',
     );
-    expect(recovered.fprv).toEqual(
+    expect(recovered[1].fprv).toEqual(
       'fprv4LsXPWzhTTp9ax8NGVwbnRFuT3avVQ4ydHNWcu8hCGZd18TRKxgAzbrpY9bLJRe4Y2AyX9TfQdDPbmqEYoDCTju9QFZbUgdsxsmUgfvuEDK',
     );
-    expect(recovered.fpub).toEqual(
+    expect(recovered[1].fpub).toEqual(
       'fpub8sZZXw2wbqVpURAAA9cCBpv2256rejFtCayHuRAzcYN1qciBxMVmB6UgiDAQTUZh5EP9JZciPQPjKAHyqPYHELqEHWkvo1sxreEJgLyfCJj',
     );
-    expect(recovered.chainCodeEcdsa).toEqual('865b4d6e745c64afc98a7fe32103d6ea775910d4d58e00fe17d2fdd4f8f8f1d0');
-    expect(recovered.chainCodeEddsa).toEqual('5d90bd21d2273a25d0aea082716bdc4529e007823260ad3479182f6672c25cc4');
+    expect(recovered[1].chainCodeEcdsa).toEqual('865b4d6e745c64afc98a7fe32103d6ea775910d4d58e00fe17d2fdd4f8f8f1d0');
+    expect(recovered[1].chainCodeEddsa).toEqual('5d90bd21d2273a25d0aea082716bdc4529e007823260ad3479182f6672c25cc4');
   });
   it('Should recover two custom chaincode package', () => {
     //@ts-ignore
@@ -124,20 +126,20 @@ describe('Extended Key Recovery', () => {
     };
 
     const recovered = recoverKeys(recoveryConfig);
-    expect(recovered.xprv).toEqual(
+    expect(recovered[1].xprv).toEqual(
       'xprv9s21ZrQH143K3PwZ9jrXG7MZXgj92u6eeCz6M8w8a5RGYJoNmWQRA2eso47rJHr9qawKR9tQVTRki8XUPwVSuBPSnVxT6mQb99XUbruDGk7',
     );
-    expect(recovered.xpub).toEqual(
+    expect(recovered[1].xpub).toEqual(
       'xpub661MyMwAqRbcFt22FmPXdFJJ5iZdSMpW1Ruh9XLk8QxFR78XK3ifhpyMeL5NRqEUapho5bQ7SUavfocg14EDcz2CFMhJYiTjBSXbWQcdkrR',
     );
-    expect(recovered.fprv).toEqual(
+    expect(recovered[1].fprv).toEqual(
       'fprv4LsXPWzhTTp9bPcFjmqM7U4drbDYRi1YzzFgrfnWAH3hsnLWeJioBzvyvwYJ5p5SuXjwhVd41wrB3tR1Ep41U2DpkJM3J9JGkuCKiBAyyGz',
     );
-    expect(recovered.fpub).toEqual(
+    expect(recovered[1].fpub).toEqual(
       'fpub8sZZXw2wbqVpUre3dRVwWsikRcjUb3CTaHrU9BpoaYr6iGbHGhYPNVYr717NEs15Sjx7Uun6zj2WmGskXQP6Ed9udZYNcUYMeff9hsYTcyr',
     );
-    expect(recovered.chainCodeEcdsa).toEqual('865b4d6e745c64afc98a7fe32103d6ea775910d4d58e00fe17d2fdd4f8f8f1d0');
-    expect(recovered.chainCodeEddsa).toEqual('89b11d04462618fa6d3981f891f2ae8968d8762f268fdec0a4c440ecafb072dd');
+    expect(recovered[1].chainCodeEcdsa).toEqual('865b4d6e745c64afc98a7fe32103d6ea775910d4d58e00fe17d2fdd4f8f8f1d0');
+    expect(recovered[1].chainCodeEddsa).toEqual('89b11d04462618fa6d3981f891f2ae8968d8762f268fdec0a4c440ecafb072dd');
   });
 
   it('Should recover from a json share package', () => {
@@ -150,20 +152,20 @@ describe('Extended Key Recovery', () => {
     };
 
     const recovered = recoverKeys(recoveryConfig);
-    expect(recovered.xprv).toEqual(
+    expect(recovered[1].xprv).toEqual(
       'xprv9s21ZrQH143K3t8KzyhL6Vme2HdTM5NitiiLLurTdwUUeKuquVi5QFxz4BwXHdp7Pj1efmkgzPSJp92nTPTMsE7sqABVrAnfgcU9yWYxaNL',
     );
-    expect(recovered.xpub).toEqual(
+    expect(recovered[1].xpub).toEqual(
       'xpub661MyMwAqRbcGNCo71ELTdiNaKTwkY6aFwdw9JG5CH1TX8EzT32Kx4HTuSnnZHg2d2GEsHt8ZHSEGC68mSxcfkA1xaqKzAgSPAHz11yytGK',
     );
-    expect(recovered.fprv).toEqual(
+    expect(recovered[1].fprv).toEqual(
       'fprv4LsXPWzhTTp9bqsKptKiZ1A66q9rLXXFKorb3CeQBq4Wjd4xcJuWqBndhfkSrMeRaojHBsEv7HoHuGGn5uqWQ43MZFTfuYB6gQgGTdGggTm',
     );
-    expect(recovered.fpub).toEqual(
+    expect(recovered[1].fpub).toEqual(
       'fpub8sZZXw2wbqVpVJu7iXzJxQpCfrfnVri9u7TNKighc6rua7KjEhj71gQVsivkxG6tV5xNmXLrU3EpaRP8cJZhk9otAfzsZwJsjEqGCjmWEg8',
     );
-    expect(recovered.chainCodeEcdsa).toEqual('b72ad958e75f981589e172fd40cad7536c4b04e5d2866f5a5ec53ce6ed12865a');
-    expect(recovered.chainCodeEddsa).toEqual('b72ad958e75f981589e172fd40cad7536c4b04e5d2866f5a5ec53ce6ed12865a');
+    expect(recovered[1].chainCodeEcdsa).toEqual('b72ad958e75f981589e172fd40cad7536c4b04e5d2866f5a5ec53ce6ed12865a');
+    expect(recovered[1].chainCodeEddsa).toEqual('b72ad958e75f981589e172fd40cad7536c4b04e5d2866f5a5ec53ce6ed12865a');
   });
 
   it('Should recover from a NCW package', () => {
@@ -173,25 +175,25 @@ describe('Extended Key Recovery', () => {
       mobilePass: '2#0Iw0Qov@&QP09p',
       rsaPass: 'SECRET',
       recoveryPrv: true,
+      recoverOnlyNCW: false,
     };
 
     const recovered = recoverKeys(recoveryConfig);
-    expect(recovered.xprv).toEqual(
+    expect(recovered[1].xprv).toEqual(
       'xprv9s21ZrQH143K2Hrbqf9FU48JZrgBSVyQiTiF4NVSeoRQ6gfNhKLC7qSewjGD67sDevao46VE3rdYEBuaN216a9SdgzC425MpMqoVLEB16TF',
     );
-    expect(recovered.xpub).toEqual(
+    expect(recovered[1].xpub).toEqual(
       'xpub661MyMwAqRbcEmw4wggFqC537tWfqxhG5gdqrku4D8xNyUzXEreSfdm8o1BR6F6fKPDysmcLjrR1Q99AANhVHyk8VDkQNngdE3SYHekMGgJ',
     );
-    expect(recovered.fprv).toEqual(
+    expect(recovered[1].fprv).toEqual(
       'fprv4LsXPWzhTTp9aFbbfZmdvZWkeQCaRx7w9YrVkfHPCh1SBypVQ8XdYmGJbCXK5SepZuo9UGTjegUmgaPFunv8vn1TaEggMnaFPXbAmDqSkjZ',
     );
-    expect(recovered.fpub).toEqual(
+    expect(recovered[1].fpub).toEqual(
       'fpub8sZZXw2wbqVpTidPZDSEKyAsDRiWbHJqirTH3BKgcxoq2U5G2XMDjFtAmH9GJekgiEW9o6hYVn8TJvmk64FRYcJiWaZFmpLirqhEThcHu2s',
     );
 
-    console.log(recovered.masterKey);
-    expect(recovered.masterKey).not.toBeUndefined();
-    expect(recovered.masterKey!.masterKeyForCosigner['21926ecc-4a8a-4614-bbac-7c591aa7efdd']).toEqual(
+    expect(recovered.ncwWalletMaster).not.toBeUndefined();
+    expect(recovered.ncwWalletMaster!.masterKeyForCosigner['21926ecc-4a8a-4614-bbac-7c591aa7efdd']).toEqual(
       '0de5a6cf9a4b2f6ba69a7f8348b9fb54df48d5af176c2564d9349425a7efe31c',
     );
   });

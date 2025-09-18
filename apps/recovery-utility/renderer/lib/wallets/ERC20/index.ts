@@ -1,10 +1,15 @@
 import { ethers, Wallet } from 'ethers';
-import { EVMWallet as EVMBase } from '@fireblocks/wallet-derivation';
+import { EVMWallet as EVMBase, Input } from '@fireblocks/wallet-derivation';
 import { TxPayload, GenerateTxInput } from '../types';
 import { SigningWallet } from '../SigningWallet';
 import { erc20Abi } from './erc20.abi';
 
 export class ERC20 extends EVMBase implements SigningWallet {
+  constructor(input: Input, chainId: number = 60) {
+    // If chainId is not provided or is 0, default to 60
+    super(input, chainId && chainId !== 0 ? chainId : 60);
+  }
+
   public async generateTx({ to, extraParams, nonce, chainId }: GenerateTxInput): Promise<TxPayload> {
     if (!this.privateKey) {
       throw new Error('No private key found');
@@ -14,8 +19,11 @@ export class ERC20 extends EVMBase implements SigningWallet {
 
     const tokenAddress = extraParams?.get('tokenAddress');
 
-    const maxPriorityFeePerGas = (BigInt(extraParams?.get('priorityFee')) * 115n) / 100n; //increase priority fee by 15% to increase chance of tx to be included in next block
     const maxFeePerGas = BigInt(extraParams?.get('maxFee'));
+    const maxPriorityFeePerGas =
+      (BigInt(extraParams?.get('priorityFee')) * 115n) / 100n >= maxFeePerGas
+        ? maxFeePerGas
+        : (BigInt(extraParams?.get('priorityFee')) * 115n) / 100n; //increase priority fee by 15% to increase chance of tx to be included in next block
     const gasLimit = BigInt(extraParams?.get('gasLimit'));
     const gasPrice = BigInt(extraParams?.get('gasPrice'));
 

@@ -16,6 +16,7 @@ export const defaultRPCs: Record<
     enabled: true,
     allowedEmptyValue: false,
   },
+  FLR: { url: 'https://flare-api.flare.network/ext/C/rpc', name: 'Flare', enabled: true, allowedEmptyValue: false },
   BTC: { url: 'https://api.blockchair.com/bitcoin', name: 'Bitcoin', enabled: true, allowedEmptyValue: false },
   BTC_TEST: {
     url: 'https://api.blockchair.com/bitcoin/testnet',

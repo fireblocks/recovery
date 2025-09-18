@@ -3,9 +3,10 @@ import { useWorkspace } from '../../../../context/Workspace';
 import { WithdrawModal } from '../../../../components/Modals/WithdrawModal';
 
 const VaultAccount = () => {
-  const { extendedKeys, account, addWallet } = useWorkspace();
+  const { account, addWallet, getExtendedKeysForAccountId } = useWorkspace();
 
-  const hasExtendedPrivateKeys = !!extendedKeys?.xprv && !!extendedKeys?.fprv;
+  const { xprv, fprv } = getExtendedKeysForAccountId(account?.id || 0) || {};
+  const hasExtendedPrivateKeys = !!xprv && !!fprv;
 
   return (
     <VaultAccountBasePage

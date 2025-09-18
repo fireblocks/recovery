@@ -103,6 +103,7 @@ export const nativeAssetPatches: NativeAssetPatches = {
   },
   AVAX: evm('cchain.explorer.avax.network', 'https://api.avax.network/ext/bc/C/rpc'),
   AVAXTEST: evm('subnets-test.avax.network/c-chain', 'https://api.avax-test.network/ext/bc/C/rpc'),
+  FLR: evm('https://flarescan.com', 'https://flare-api.flare.network/ext/C/rpc'),
   BCH: btc('blockexplorer.one/bitcoin-cash/mainnet', false),
   BCH_TEST: btc('blockexplorer.one/bitcoin-cash/testnet', false, true, false),
   BNB_BSC: evm('bscscan.com'),

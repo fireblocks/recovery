@@ -1,4 +1,4 @@
-import { sha256, encodeBase58, HDNodeWallet } from 'ethers';
+import { sha256, encodeBase58, HDNodeWallet, getBytes, SigningKey, concat } from 'ethers';
 import { Input, KeyDerivation } from '../types';
 import { BaseWallet } from './BaseWallet';
 
@@ -40,5 +40,21 @@ export abstract class ECDSAWallet extends BaseWallet {
       privateKey,
       wif,
     };
+  }
+
+  protected async sign(message: Uint8Array | string) {
+    if (!this.privateKey) {
+      throw new Error('Cannot sign without a derived private key');
+    }
+
+    const signingKey = new SigningKey(this.privateKey);
+
+    const signatureObj = signingKey.sign(message);
+
+    const r = getBytes(signatureObj.r);
+    const s = getBytes(signatureObj.s);
+    const v = new Uint8Array([signatureObj.v]);
+
+    return concat([r, s, v]);
   }
 }

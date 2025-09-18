@@ -6,14 +6,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { getAssetConfig } from '@fireblocks/asset-config';
 import { download } from '../lib/download';
 import { csvExport } from '../lib/csv';
-import { importCsvInput, ImportCsvInput, addressesCsv as addressesCsvSchema, AddressesCsv, ExtendedKeys } from '../schemas';
+import { importCsvInput, ImportCsvInput, addressesCsv as addressesCsvSchema, AddressesCsv, KeysetKeys } from '../schemas';
 import { VaultAccount } from '../types';
 import { Button, UploadWell } from '../components';
 import { useWrappedState } from '../lib/debugUtils';
 import { useOfflineMutation } from '../hooks/useOfflineMutation';
 
 type Props = {
-  extendedKeys?: ExtendedKeys;
+  extendedKeys?: KeysetKeys;
   accounts: Map<number, VaultAccount>;
   importCsv: (addressesCsv?: File, balancesCsv?: File) => Promise<void>;
 };

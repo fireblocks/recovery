@@ -2,8 +2,8 @@ import { Input } from '../../types';
 import { ECDSAWallet } from '../ECDSAWallet';
 
 export class EVMWallet extends ECDSAWallet {
-  constructor(input: Input) {
-    super(input, 60);
+  constructor(input: Input, chainId: number = 60) {
+    super(input, chainId);
   }
 
   protected getAddress(evmAddress?: string) {
