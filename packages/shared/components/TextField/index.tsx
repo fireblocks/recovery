@@ -132,8 +132,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
           aria-describedby={`${id}-helper-text`}
           color={error ? 'error' : 'primary'}
           type={revealed ? 'text' : type}
-          value={value}
-          defaultValue={defaultValue || value}
+          {...(value !== undefined ? { value } : { defaultValue })}
           error={!!error}
           readOnly={readOnly || enableCopy}
           inputRef={inputRef}

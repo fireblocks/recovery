@@ -30,7 +30,6 @@ export type { ButtonProps, LayoutProps, ScanResult, StatusBoxProps } from './com
 
 // Pages
 export { ImportExportBasePage } from './pages/csv';
-export { ExtendedKeysBasePage } from './pages/keys';
 export { RelayBasePage } from './pages/relay';
 export { VaultBasePage } from './pages/accounts/vault';
 export { VaultAccountBasePage } from './pages/accounts/vault/[accountId]';

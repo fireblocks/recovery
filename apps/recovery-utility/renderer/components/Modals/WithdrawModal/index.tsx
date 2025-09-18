@@ -55,8 +55,14 @@ const getHighestBalanceAssetId = (account?: VaultAccount) => {
 };
 
 export const WithdrawModal = ({ assetId, accountId, open, onClose: onCloseModal }: Props) => {
-  const { extendedKeys, accounts, inboundRelayParams, getOutboundRelayUrl, resetInboundRelayUrl, setInboundRelayUrl } =
-    useWorkspace();
+  const {
+    accounts,
+    inboundRelayParams,
+    getOutboundRelayUrl,
+    resetInboundRelayUrl,
+    setInboundRelayUrl,
+    getExtendedKeysForAccountId,
+  } = useWorkspace();
 
   const accountsArray = useMemo(() => Array.from(accounts.values()), [accounts]);
 
@@ -86,7 +92,7 @@ export const WithdrawModal = ({ assetId, accountId, open, onClose: onCloseModal 
   };
 
   const onInitiateTransaction = (data: TransactionInitInput) => {
-    const { xpub, fpub } = extendedKeys || {};
+    const { xpub, fpub } = getExtendedKeysForAccountId(data.accountId) || {};
 
     if (!xpub || !fpub || typeof data.accountId !== 'number' || typeof data.assetId !== 'string' || typeof data.to !== 'string') {
       logger.warn(

@@ -10,18 +10,19 @@ import {
 import { getAssetConfig } from '@fireblocks/asset-config';
 
 import { useRouter } from 'next/router';
+import { RecoveredKey } from '@fireblocks/extended-key-recovery/src/types';
+import { isTransferableToken } from '@fireblocks/asset-config/util';
+import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
 import { WalletClasses } from '../lib/wallets';
 import packageJson from '../../package.json';
 import { initIdleDetector } from '../lib/idleDetector';
 import { handleRelayUrl } from '../lib/ipc/handleRelayUrl';
 import { SigningWallet } from '../lib/wallets/SigningWallet';
 import { useSettings } from './Settings';
-import { LOGGER_NAME_UTILITY } from '@fireblocks/recovery-shared/constants';
-import { isTransferableToken } from '@fireblocks/asset-config/util';
 
 type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K> : never;
 
-type RelayRequestParamsInput = DistributiveOmit<RelayRequestParams, 'xpub' | 'fpub' | 'version' | 'platform'>;
+export type RelayRequestParamsInput = DistributiveOmit<RelayRequestParams, 'xpub' | 'fpub' | 'version' | 'platform'>;
 
 type WorkspaceContext = Omit<BaseWorkspaceContext<SigningWallet, 'utility'>, 'setWalletBalance' | 'getOutboundRelayUrl'> & {
   getOutboundRelayUrl: <Params extends RelayRequestParamsInput>(params: Params) => string;
@@ -57,6 +58,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
     resetInboundRelayUrl,
     getOutboundRelayUrl: baseGetOutboundRelayUrl,
     importCsv,
+    getExtendedKeysForAccountId,
     setExtendedKeys,
     setTransaction,
     addAccount,
@@ -98,8 +100,12 @@ export const WorkspaceProvider = ({ children }: Props) => {
   });
 
   const getOutboundRelayUrl = <Params extends RelayRequestParamsInput>(params: Params) => {
-    const { xpub, fpub } = extendedKeys || {};
+    const keys = (params.accountId !== undefined ? getExtendedKeysForAccountId(params.accountId) : {}) as {
+      xpub?: string;
+      fpub?: string;
+    };
 
+    const { xpub, fpub } = keys;
     if (!xpub || !fpub) {
       throw new Error('Missing extended keys');
     }
@@ -153,6 +159,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
     getOutboundRelayUrl,
     importCsv,
     setExtendedKeys,
+    getExtendedKeysForAccountId,
     setTransaction,
     addAccount,
     addWallet,

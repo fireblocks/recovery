@@ -6,8 +6,9 @@ import { TxPayload, GenerateTxInput } from '../types';
 import { SigningWallet } from '../SigningWallet';
 
 export class EVM extends EVMBase implements SigningWallet {
-  constructor(input: Input, chainId?: number) {
-    super(input);
+  constructor(input: Input, chainId: number = 60) {
+    // If chainId is not provided or is 0, default to 60
+    super(input, chainId && chainId !== 0 ? chainId : 60);
   }
 
   public async generateTx({

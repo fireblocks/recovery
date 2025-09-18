@@ -7,6 +7,7 @@ import { ExtendedPoint, CURVE as edCURVE, etc } from '@noble/ed25519';
 import { bytesToNumberLE, concatBytes, numberToBytesBE, numberToBytesLE, hexToNumber } from '@noble/curves/abstract/utils';
 import { Input, KeyDerivation } from '../types';
 import { BaseWallet } from './BaseWallet';
+import { hexToBytes } from '@noble/hashes/utils';
 
 /**
  * Get a SHA-512 digest of concatenated byte array messages.
@@ -14,7 +15,7 @@ import { BaseWallet } from './BaseWallet';
  * @param messages list of byte arrays
  * @returns byte array of SHA-512 digest
  */
-const sha512 = async (...messages: Uint8Array[]) => {
+export const sha512 = async (...messages: Uint8Array[]) => {
   const buffer = concatBytes(...messages);
 
   const digest = await crypto.subtle.digest('SHA-512', buffer);
@@ -45,7 +46,14 @@ const _0n = 0n;
  * @param number number
  * @returns 4-byte long byte array in big-endian order
  */
-const numberTo4BytesBE = (number: number) => Buffer.from([number >> 24, number >> 16, number >> 8, number]);
+const numberTo4BytesBE = (n: number): Uint8Array => {
+  const arr = new Uint8Array(4);
+  arr[0] = (n >> 24) & 0xff;
+  arr[1] = (n >> 16) & 0xff;
+  arr[2] = (n >> 8) & 0xff;
+  arr[3] = n & 0xff;
+  return arr;
+};
 
 const flatten = (p: ExtendedPoint): ExtendedPoint => ExtendedPoint.fromAffine(p.toAffine());
 
@@ -56,8 +64,8 @@ export abstract class EdDSAWallet extends BaseWallet {
 
   private static hashForDerive(pubKey: ExtendedPoint, chainCode: Uint8Array, idx: number) {
     const hmac = createHmac('sha512', chainCode);
-    hmac.update(Buffer.from(pubKey.toHex(), 'hex'));
-    hmac.update(Buffer.from([0x0]));
+    hmac.update(hexToBytes(pubKey.toHex()));
+    hmac.update(Uint8Array.of(0x00));
     hmac.update(numberTo4BytesBE(idx));
     return hmac.digest();
   }
@@ -69,7 +77,7 @@ export abstract class EdDSAWallet extends BaseWallet {
     idx: number,
   ): [ExtendedPoint, bigint, Uint8Array] {
     const hash = EdDSAWallet.hashForDerive(pubKey, chainCode, idx);
-    const derivedChainCode = hash.subarray(32);
+    const derivedChainCode = new Uint8Array(hash.subarray(32));
     const exp = toBigIntBE(hash.subarray(undefined, 32));
     const tmpPoint = flatten(ExtendedPoint.BASE.mul(exp % edCURVE.n));
     const derivedPubKey = flatten(pubKey.add(tmpPoint));
@@ -141,11 +149,11 @@ export abstract class EdDSAWallet extends BaseWallet {
 
     const privateKeyInt = hexToNumber(this.privateKey.slice(2));
     const privateKeyBytes = numberToBytesLE(privateKeyInt, 32);
-    const messagesBytes = typeof message === 'string' ? Buffer.from(message, 'hex') : message;
+    const messagesBytes = typeof message === 'string' ? new Uint8Array(Buffer.from(message, 'hex')) : message;
     const messageBytes = concatBytes(messagesBytes);
 
-    const seed = randomBytes();
-
+    const seedBuffer = randomBytes();
+    const seed = Buffer.isBuffer(seedBuffer) ? new Uint8Array(seedBuffer) : seedBuffer;
     const nonceDigest = await hasher(seed, privateKeyBytes, messageBytes);
     const nonce = etc.mod(bytesToNumberLE(nonceDigest), edCURVE.n);
 

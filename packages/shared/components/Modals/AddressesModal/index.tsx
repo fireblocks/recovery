@@ -51,7 +51,7 @@ function Addresses({ type, derivations, hasSegwit }: AddressProps) {
       </Typography>
       {data.map(({ address, label }, index, arr) => (
         <Typography
-          key={address}
+          key={`${type}-${address}-${index}`}
           variant='body1'
           paragraph={index + 1 < arr.length}
           sx={{

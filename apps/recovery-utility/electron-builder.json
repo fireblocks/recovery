@@ -29,7 +29,12 @@
   "afterSign": "electron-builder-notarize",
   "publish": null,
   "mac": {
-    "target": "zip",
+    "target": [
+      {
+        "target": "zip",
+        "arch": ["x64", "arm64"]
+      }
+    ],
     "category": "public.app-category.developer-tools",
     "gatekeeperAssess": false,
     "hardenedRuntime": true,
@@ -37,10 +42,20 @@
     "entitlementsInherit": "./entitlements.plist"
   },
   "win": {
-    "target": "nsis"
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64", "ia32"]
+      }
+    ]
   },
   "linux": {
-    "target": "AppImage",
+    "target": [
+      {
+        "target": "AppImage",
+        "arch": ["x64", "arm64"]
+      }
+    ],
     "category": "Office"
   }
 }

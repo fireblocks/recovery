@@ -1,10 +1,10 @@
 import { BaseWallet } from '@fireblocks/wallet-derivation';
 import type { LocalFile } from 'papaparse';
-import type { ExtendedKeys, RelayRequestParams, RelayResponseParams } from '../../schemas';
+import type { UtilityExtendedKeys, RelayRequestParams, RelayResponseParams, RelayExtendedKeys } from '../../schemas';
 import type { VaultAccount, Transaction, Wallet } from '../../types';
 
-export type BaseWorkspaceInput<Derivation extends BaseWallet = BaseWallet> = {
-  extendedKeys?: ExtendedKeys;
+export type BaseWorkspaceInput<App extends 'utility' | 'relay', Derivation extends BaseWallet = BaseWallet> = {
+  extendedKeys?: App extends 'utility' ? UtilityExtendedKeys : RelayExtendedKeys;
   accounts: Map<number, VaultAccount<Derivation>>;
   transactions: Map<string, Transaction>;
   derivationError?: string;
@@ -13,7 +13,7 @@ export type BaseWorkspaceInput<Derivation extends BaseWallet = BaseWallet> = {
 export type BaseWorkspace<
   Derivation extends BaseWallet = BaseWallet,
   App extends 'utility' | 'relay' = 'utility',
-> = BaseWorkspaceInput<Derivation> & {
+> = BaseWorkspaceInput<App, Derivation> & {
   account?: VaultAccount<Derivation>;
   inboundRelayParams?: App extends 'utility' ? RelayResponseParams : RelayRequestParams;
 };
@@ -27,7 +27,8 @@ export type BaseWorkspaceContext<
   getOutboundRelayUrl: <Params extends App extends 'utility' ? RelayRequestParams : RelayResponseParams>(
     params: Params,
   ) => string;
-  setExtendedKeys: (extendedKeys: ExtendedKeys) => void;
+  setExtendedKeys: (extendedKeys: App extends 'utility' ? UtilityExtendedKeys : RelayExtendedKeys) => void;
+  getExtendedKeysForAccountId: (accoutId: number) => { xpub: string; fpub: string; xprv?: string; fprv?: string } | undefined;
   importCsv: (addressesCsv?: LocalFile, balancesCsv?: LocalFile) => Promise<void>;
   setTransaction: (transaction: Transaction) => void;
   addAccount: (name: string, accountId?: number) => number;

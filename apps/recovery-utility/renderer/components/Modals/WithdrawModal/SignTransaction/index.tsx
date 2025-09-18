@@ -46,71 +46,75 @@ export const SignTransaction = ({ txId, account, asset, inboundRelayParams }: Pr
 
   const { unsignedTx } = inboundRelayParams;
 
-  const { extendedKeys, getOutboundRelayUrl } = useWorkspace();
+  const { getOutboundRelayUrl, getExtendedKeysForAccountId } = useWorkspace();
 
   const [outboundRelayUrl, setOutboundRelayUrl] = useWrappedState<string | undefined>('outboundRelayUrl', undefined);
 
   const onApproveTransaction = async () => {
-    logger.info(`Trying to approve transaction.`);
+    try {
+      logger.info(`Trying to approve transaction.`);
 
-    const { xprv, fprv } = extendedKeys || {};
+      const { xprv, fprv } = getExtendedKeysForAccountId(account.id)!;
 
-    if (!xprv || !fprv) {
-      return;
+      if (!xprv || !fprv) {
+        return;
+      }
+
+      const { to, amount, misc } = unsignedTx;
+
+      const derivation = account.wallets
+        .get(asset.id)
+        ?.derivations.get(getDerivationMapKey(inboundRelayParams?.unsignedTx.assetId, inboundRelayParams?.unsignedTx.from));
+
+      if (!derivation) {
+        throw new Error('Derivation not found');
+      }
+
+      const sanatizedDerivation = sanatize(derivation);
+      logger.debug(`About to sign tx to ${to}`, { sanatizedDerivation });
+
+      const utxos = misc
+        ? misc?.utxoType === BaseUTXOType
+          ? (misc?.utxos as StdUTXO[])
+          : misc?.utxoType === SegwitUTXOType
+          ? (misc?.utxos as BTCSegwitUTXO[])
+          : (misc?.utxos as BTCLegacyUTXO[])
+        : undefined;
+
+      const { tx } = await (derivation as SigningWallet).generateTx({
+        to,
+        amount,
+        utxos, // TODO: Fix type
+        feeRate: misc?.feeRate,
+        nonce: misc?.nonce,
+        gasPrice: misc?.gasPrice,
+        memo: misc?.memo,
+        // blockHash: misc?.blockHash,
+        extraParams: misc?.extraParams,
+        chainId: misc?.chainId,
+      } as GenerateTxInput);
+
+      logger.info({ tx });
+
+      setOutboundRelayUrl(
+        getOutboundRelayUrl({
+          action: 'tx/broadcast',
+          accountId: account.id,
+          signedTx: {
+            id: unsignedTx.id,
+            assetId: unsignedTx.assetId,
+            path: unsignedTx.path,
+            from: unsignedTx.from,
+            to: unsignedTx.to,
+            amount: unsignedTx.amount,
+            hex: tx,
+          },
+          endpoint: misc?.endpoint,
+        }),
+      );
+    } catch (error) {
+      logger.error('Failed to approve transaction', error);
     }
-
-    const { to, amount, misc } = unsignedTx;
-
-    const derivation = account.wallets
-      .get(asset.id)
-      ?.derivations.get(getDerivationMapKey(inboundRelayParams?.unsignedTx.assetId, inboundRelayParams?.unsignedTx.from));
-
-    if (!derivation) {
-      throw new Error('Derivation not found');
-    }
-
-    const sanatizedDerivation = sanatize(derivation);
-    logger.debug(`About to sign tx to ${to}`, { sanatizedDerivation });
-
-    const utxos = misc
-      ? misc?.utxoType === BaseUTXOType
-        ? (misc?.utxos as StdUTXO[])
-        : misc?.utxoType === SegwitUTXOType
-        ? (misc?.utxos as BTCSegwitUTXO[])
-        : (misc?.utxos as BTCLegacyUTXO[])
-      : undefined;
-
-    const { tx } = await (derivation as SigningWallet).generateTx({
-      to,
-      amount,
-      utxos, // TODO: Fix type
-      feeRate: misc?.feeRate,
-      nonce: misc?.nonce,
-      gasPrice: misc?.gasPrice,
-      memo: misc?.memo,
-      // blockHash: misc?.blockHash,
-      extraParams: misc?.extraParams,
-      chainId: misc?.chainId,
-    } as GenerateTxInput);
-
-    logger.info({ tx });
-
-    setOutboundRelayUrl(
-      getOutboundRelayUrl({
-        action: 'tx/broadcast',
-        accountId: account.id,
-        signedTx: {
-          id: unsignedTx.id,
-          assetId: unsignedTx.assetId,
-          path: unsignedTx.path,
-          from: unsignedTx.from,
-          to: unsignedTx.to,
-          amount: unsignedTx.amount,
-          hex: tx,
-        },
-        endpoint: misc?.endpoint,
-      }),
-    );
   };
 
   if (inboundRelayParams.accountId !== account.id || unsignedTx.path[2] !== account.id) {

@@ -41,6 +41,10 @@ import { Ton } from './TON';
 import { Jetton } from './Jetton';
 import { ERC20 } from './ERC20';
 import { TRC20 } from './TRC20';
+import { SPL } from './SPL';
+import { getAllSpls } from '@fireblocks/asset-config/assets';
+
+import { Flare } from './EVM/FLR';
 export { ConnectedWallet } from './ConnectedWallet';
 
 const fillJettons = () => {
@@ -82,11 +86,25 @@ const fillTRC20s = () => {
   return erc20Tokens;
 };
 
+const fillSpls = () => {
+  const splsList = getAllSpls();
+  const spls = splsList.reduce(
+    (prev, curr) => ({
+      ...prev,
+      [curr]: SPL,
+    }),
+    {},
+  ) as any;
+  Object.keys(spls).forEach((key) => (spls[key] === undefined ? delete spls[key] : {}));
+  return spls;
+};
+
 export const WalletClasses = {
   ALGO: Algorand,
   ALGO_TEST: Algorand,
   AVAX: Avalanche,
   AVAXTEST: Avalanche,
+  FLR: Flare,
   BTC: Bitcoin,
   BTC_TEST: Bitcoin,
   BCH: BitcoinCash,
@@ -116,6 +134,10 @@ export const WalletClasses = {
   CELO: Celo,
   AURORA_DEV: Aurora,
   SOL: Solana,
+
+  SOL_TEST: Solana,
+  ...fillSpls(),
+
   RON: Ronin,
   XDC: XinFin,
   XRP: Ripple,
@@ -127,7 +149,6 @@ export const WalletClasses = {
   MOVR: Moonriver,
   VLX_VLX: Velas,
   VLX_TEST: Velas,
-  SOL_TEST: Solana,
   TKX: TokenX,
   ADA: Cardano,
   ADA_TEST: Cardano,

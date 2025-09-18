@@ -2,9 +2,10 @@ import { useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { Input, BaseWallet } from '@fireblocks/wallet-derivation';
 import { LocalFile } from 'papaparse';
+import { RecoveredKey } from '@fireblocks/extended-key-recovery/src/types';
 import { AddressesCsv } from '../../schemas/addressesCsv';
 // import { BalancesCsv } from '../../schemas/balancesCsv';
-import type { ExtendedKeys } from '../../schemas';
+import { type UtilityExtendedKeys, type KeysetMap, RelayExtendedKeys } from '../../schemas';
 import { Wallet, VaultAccount, Transaction } from '../../types';
 import { BaseWorkspaceInput, BaseWorkspace, BaseWorkspaceContext } from './types';
 import { csvImport } from '../../lib/csv';
@@ -20,7 +21,7 @@ export type { BaseWorkspace, BaseWorkspaceContext };
 
 const logger = getLogger(LOGGER_NAME_SHARED);
 
-const defaultBaseWorkspaceInput: BaseWorkspaceInput<BaseWallet> = {
+const defaultBaseWorkspaceInput: BaseWorkspaceInput<'utility', BaseWallet> = {
   extendedKeys: undefined,
   accounts: new Map<number, VaultAccount<BaseWallet>>(),
   transactions: new Map<string, Transaction>(),
@@ -37,6 +38,7 @@ export const defaultBaseWorkspaceContext: BaseWorkspaceContext<BaseWallet> = {
   resetInboundRelayUrl: () => {},
   getOutboundRelayUrl: () => '',
   setExtendedKeys: () => undefined,
+  getExtendedKeysForAccountId: () => undefined,
   importCsv: () => Promise.resolve(),
   addAccount: () => 0,
   addWallet: () => undefined,
@@ -60,27 +62,94 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
 
   const { inboundRelayParams, setInboundRelayUrl, getOutboundRelayUrl, resetInboundRelayUrl } = useRelayUrl(app, relayBaseUrl);
 
-  const [workspace, setWorkspace] = useWrappedState<BaseWorkspaceInput<Derivation>>(
+  const [workspace, setWorkspace] = useWrappedState<BaseWorkspaceInput<App, Derivation>>(
     'workspace',
-    defaultBaseWorkspaceInput as BaseWorkspaceInput<Derivation>,
+    defaultBaseWorkspaceInput as BaseWorkspaceInput<App, Derivation>,
     true,
   );
 
   const account = typeof query.accountId === 'string' ? workspace.accounts.get(parseInt(query.accountId, 10)) : undefined;
 
-  const setExtendedKeys = ({ xpub, fpub, xprv, fprv, ncwMaster }: Partial<ExtendedKeys>) =>
-    setWorkspace((prev) => ({
-      ...prev,
-      extendedKeys: {
-        ...prev.extendedKeys,
-        ...(app === 'utility' ? { xprv, fprv, ncwMaster } : {}),
-        xpub,
-        fpub,
-      },
-    }));
+  const getExtendedKeysForAccountId = (
+    accountId: number,
+  ): { xpub: string; fpub: string; xprv?: string; fprv?: string } | undefined => {
+    if (app === 'relay') {
+      return undefined;
+    }
+
+    const keysets = Object.entries(workspace.extendedKeys || {}).filter(([keysetId]) => keysetId !== 'ncwMaster') as [
+      string,
+      RecoveredKey,
+    ][];
+    if (keysets.length === 0) {
+      return undefined;
+    }
+
+    // We want to find the xpub and fpub for the extended keys that match the required accountId.
+    let xpub: string | undefined;
+    let xprv: string | undefined;
+    let fpub: string | undefined;
+    let fprv: string | undefined;
+    const ecdsaKeyset = Object.values(keysets).findLast(([, key]) =>
+      key.ecdsaExists ? key.ecdsaMinAccount <= accountId : false,
+    );
+    if (ecdsaKeyset !== undefined) {
+      xpub = ecdsaKeyset[1].xpub;
+      xprv = ecdsaKeyset[1].xprv;
+    }
+    const eddsaKeyset = Object.values(keysets).findLast(([, key]) =>
+      key.eddsaExists ? key.eddsaMinAccount <= accountId : false,
+    );
+    if (eddsaKeyset !== undefined) {
+      fpub = eddsaKeyset[1].fpub;
+      fprv = eddsaKeyset[1].fprv;
+    }
+
+    if (!xpub || !fpub) {
+      return undefined;
+    }
+    return { xpub, fpub, xprv, fprv };
+  };
+
+  const setExtendedKeys = (extendedKeys: App extends 'utility' ? UtilityExtendedKeys : RelayExtendedKeys) =>
+    setWorkspace((prev) => {
+      if (app === 'utility') {
+        const keys = extendedKeys as UtilityExtendedKeys;
+        const newExtendedKeys: KeysetMap = { ...prev.extendedKeys };
+        const newWorkspace = {
+          ...prev,
+          ncwMaster: keys.ncwMaster,
+        };
+        Object.entries(keys).forEach(([keysetId, value]) => {
+          if (keysetId === 'ncwMaster') {
+            return;
+          }
+          const keysetEntry = value as RecoveredKey;
+          newExtendedKeys[Number(keysetId)] = {
+            ...keysetEntry,
+            ...(app === 'utility' ? { xprv: keysetEntry.xprv, fprv: keysetEntry.fprv } : {}),
+          };
+        });
+
+        newWorkspace.extendedKeys = { ...newExtendedKeys };
+
+        return newWorkspace;
+      }
+      const { xpub, fpub } = extendedKeys as RelayExtendedKeys;
+      return {
+        ...prev,
+        extendedKeys: {
+          ...prev.extendedKeys,
+          xpub,
+          fpub,
+        },
+      };
+    });
 
   const setDerivation = (
-    derivationInput: Omit<DerivationReducerInput<Derivation>, 'accounts' | 'deriveWallet'> & { extendedKeys?: ExtendedKeys },
+    derivationInput: Omit<DerivationReducerInput<Derivation, App>, 'accounts' | 'deriveWallet'> & {
+      extendedKeys?: UtilityExtendedKeys;
+    },
     setDerivationError?: (err: string) => void,
   ) => {
     setWorkspace((prev) => {
@@ -162,12 +231,37 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
   };
 
   const addAccount = useCallback(
-    (name: string, newAccountId?: number) => {
+    (name: string, newAccountId?: number, mapAccountToNextKeysetEntry?: boolean, ecdsa?: boolean) => {
       let resolvedAccountId = newAccountId;
       logger.info(`Adding new vault account: ${name} ${newAccountId ? ` - ${newAccountId}` : ''}`);
 
       setWorkspace((prev) => {
         const accounts = new Map(prev.accounts);
+        const { extendedKeys } = prev;
+
+        if (mapAccountToNextKeysetEntry === true) {
+          const entry = Object.entries(extendedKeys || {})
+            .filter(([keyset]) => keyset !== 'ncwMaster')
+            .find(([, value]) => {
+              const key = value as RecoveredKey;
+              if (ecdsa) return key.ecdsaExists && key.ecdsaMinAccount === -1;
+              if (!ecdsa) return key.eddsaExists && key.eddsaMinAccount === -1;
+              return false;
+            });
+
+          if (entry === undefined) {
+            throw new Error(`Could not find vacant key mapping for ${ecdsa ? 'ECDSA' : 'EDDSA'} algorithm.`);
+          }
+
+          if (ecdsa) {
+            (extendedKeys as Record<number, RecoveredKey>)[Number(entry[0])].ecdsaMinAccount =
+              !newAccountId || newAccountId < 0 ? accounts.size : newAccountId;
+          }
+          if (!ecdsa) {
+            (extendedKeys as Record<number, RecoveredKey>)[Number(entry[0])].eddsaMinAccount =
+              !newAccountId || newAccountId < 0 ? accounts.size : newAccountId;
+          }
+        }
 
         if (typeof resolvedAccountId === 'undefined') {
           if (accounts.size > 0) {
@@ -188,7 +282,7 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
 
         accounts.set(resolvedAccountId, newAccount);
 
-        return { ...prev, accounts };
+        return { ...prev, accounts, extendedKeys };
       });
 
       return resolvedAccountId ?? 0;
@@ -254,7 +348,7 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
     }));
 
   const reset = () => {
-    setWorkspace(defaultBaseWorkspaceInput as BaseWorkspaceInput<Derivation>);
+    setWorkspace(defaultBaseWorkspaceInput as BaseWorkspaceInput<App, Derivation>);
     push('/');
   };
 
@@ -267,6 +361,7 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
     setInboundRelayUrl,
     resetInboundRelayUrl,
     getOutboundRelayUrl,
+    getExtendedKeysForAccountId,
     setExtendedKeys,
     importCsv,
     setTransaction,

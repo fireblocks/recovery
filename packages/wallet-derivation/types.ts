@@ -1,3 +1,5 @@
+import { RelayExtendedKeys, UtilityExtendedKeys } from '@fireblocks/recovery-shared';
+
 export type Algorithm = 'ECDSA' | 'EDDSA';
 
 export type HDPath = Readonly<{
@@ -11,15 +13,8 @@ export type HDPathParts = [44, number, number, number, number];
 
 export type HDPathInput = Partial<HDPath>;
 
-export type ExtendedKeys = {
-  xprv?: string;
-  fprv?: string;
-  xpub?: string;
-  fpub?: string;
-};
-
 export type Input = Readonly<
-  ExtendedKeys & {
+  (UtilityExtendedKeys | RelayExtendedKeys) & {
     assetId: string;
     path: HDPathInput;
     isTestnet?: boolean;

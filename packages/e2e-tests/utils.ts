@@ -118,7 +118,7 @@ const testFailed = async (onApp: 'utility' | 'relay', assetId: string) => {
   try {
     fs.mkdirSync('./failed-tests/', { recursive: true });
   } catch {}
-  fs.writeFileSync(`./failed-tests/${assetId}-${Date.now()}.zip`, zipBuffer);
+  fs.writeFileSync(`./failed-tests/${assetId}-${Date.now()}.zip`, new Uint8Array(zipBuffer));
 
   throw new UtilityUnknownError(`Failed to transfer ${assetId} due to console error`);
 };

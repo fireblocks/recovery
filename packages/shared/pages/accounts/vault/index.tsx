@@ -4,7 +4,7 @@ import { Box, Grid, Typography, Breadcrumbs } from '@mui/material';
 import { GridToolbarQuickFilter, GridActionsCellItem, GridColDef, GridRowsProp } from '@mui/x-data-grid';
 import { Add } from '@mui/icons-material';
 import { VaultAccount } from '../../../types';
-import { ExtendedKeys } from '../../../schemas';
+import { KeysetKeys } from '../../../schemas';
 import { RecoverAccountModal } from '../../../components/Modals/RecoverAccountModal';
 import { Button } from '../../../components/Button';
 import { DataGrid } from '../../../components/DataGrid';
@@ -54,9 +54,12 @@ function GridToolbar({ onClickAddAccount }: GridToolbarProps) {
 }
 
 type Props = {
-  extendedKeys?: ExtendedKeys;
+  extendedKeys?: KeysetKeys;
   accounts: Map<number, VaultAccount>;
-  addAccount: (name: string, id?: number) => number;
+  addAccount: (name: string, id?: number, mapToNextKeyset?: boolean, ecdsa?: boolean) => number;
+  currentKeysetIndex?: [number, number];
+  totalKeysetCount?: [number, number];
+  hasMultipleKeysets?: boolean;
   withdrawModal?: ComponentType<{
     accountId: number;
     assetId?: string;
@@ -65,7 +68,15 @@ type Props = {
   }>;
 };
 
-export const VaultBasePage = ({ extendedKeys, accounts, addAccount, withdrawModal: WithdrawModal }: Props) => {
+export const VaultBasePage = ({
+  currentKeysetIndex,
+  totalKeysetCount,
+  hasMultipleKeysets,
+  extendedKeys,
+  accounts,
+  addAccount,
+  withdrawModal: WithdrawModal,
+}: Props) => {
   const router = useRouter();
 
   const [isRecoverAccountModalOpen, setIsRecoverAccountModalOpen] = useWrappedState<boolean>(
@@ -236,6 +247,9 @@ export const VaultBasePage = ({ extendedKeys, accounts, addAccount, withdrawModa
         accountsKeys={Array.from(accounts.keys())}
         onClose={handleCloseRecoverAccountModal}
         addAccount={addAccount}
+        totalKeysetCount={totalKeysetCount}
+        hasMultipleKeysets={hasMultipleKeysets || false}
+        currentKeysetIndex={currentKeysetIndex}
       />
       {!!WithdrawModal && (
         <WithdrawModal

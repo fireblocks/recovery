@@ -4,7 +4,7 @@
   "author": "Fireblocks (https://www.fireblocks.com)",
   "repository": "https://github.com/fireblocks/recovery/tree/main/apps/recovery-relay",
   "license": "GPL-3.0-or-later",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -30,6 +30,7 @@
     "@mui/x-data-grid": "^6.9.2",
     "@polkadot/api": "10.9.1",
     "@polkadot/types": "10.9.1",
+    "@solana/spl-token": "^0.4.13",
     "@solana/web3.js": "^1.78.0",
     "@tanstack/react-query": "^4.29.19",
     "@taquito/signer": "^16.2.0",
