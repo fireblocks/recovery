@@ -8,9 +8,9 @@
   Recover Fireblocks assets and keys in a disaster, verify a Recovery Kit, or generate keys to set up a new Recovery Kit.
   <br />
   <br />
-  <a href="https://github.com/fireblocks/recovery/releases">
-    ⬇️ Download for macOS / Linux
-  </a>
+  <p align="center">
+    ⬇️ Latest version 1.8.1 - Download for macOS / Linux via the Fireblocks Console
+  </p>
   <br />
   <br />
   <a href="#" target="_blank">
