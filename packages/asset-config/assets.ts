@@ -81,3 +81,13 @@ export function getAllTRC20s(): string[] {
   }
   return trc20s;
 }
+
+export function getAllXlms(): string[] {
+  const xlmTokens = [];
+  for (const asset of globalAssets) {
+    if (asset.protocol === 'XLM' && asset.address) {
+      xlmTokens.push(asset.id);
+    }
+  }
+  return xlmTokens;
+}

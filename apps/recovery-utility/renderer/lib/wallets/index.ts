@@ -25,7 +25,7 @@ import { Ton } from './TON';
 import { Jetton } from './Jetton';
 import { ERC20 } from './ERC20';
 import { TRC20 } from './TRC20';
-import { getAllSpls } from '@fireblocks/asset-config/assets';
+import { getAllSpls, getAllXlms } from '@fireblocks/asset-config/assets';
 import { FLR } from './FLR';
 
 const fillEVMs = () => {
@@ -72,6 +72,15 @@ const fillSpls = () => {
     }
   }
   return spls;
+};
+
+const fillXlms = () => {
+  const xlmList = getAllXlms();
+  const xlms: { [key: string]: any } = {};
+  for (const xlm of xlmList) {
+    xlms[xlm] = Stellar;
+  }
+  return xlms;
 };
 
 export { SigningWallet as BaseWallet } from './SigningWallet';
@@ -123,6 +132,7 @@ export const WalletClasses = {
   SOL: Solana,
   SOL_TEST: Solana,
   ...fillSpls(),
+  ...fillXlms(),
 
   XLM: Stellar,
   XLM_TEST: Stellar,

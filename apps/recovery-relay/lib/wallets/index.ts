@@ -42,7 +42,7 @@ import { Jetton } from './Jetton';
 import { ERC20 } from './ERC20';
 import { TRC20 } from './TRC20';
 import { SPL } from './SPL';
-import { getAllSpls } from '@fireblocks/asset-config/assets';
+import { getAllSpls, getAllXlms } from '@fireblocks/asset-config/assets';
 
 import { Flare } from './EVM/FLR';
 export { ConnectedWallet } from './ConnectedWallet';
@@ -97,6 +97,19 @@ const fillSpls = () => {
   ) as any;
   Object.keys(spls).forEach((key) => (spls[key] === undefined ? delete spls[key] : {}));
   return spls;
+};
+
+const fillXlms = () => {
+  const xlmsList = getAllXlms();
+  const xlms = xlmsList.reduce(
+    (prev, curr) => ({
+      ...prev,
+      [curr]: Stellar,
+    }),
+    {},
+  ) as any;
+  Object.keys(xlms).forEach((key) => (xlms[key] === undefined ? delete xlms[key] : {}));
+  return xlms;
 };
 
 export const WalletClasses = {
@@ -188,6 +201,7 @@ export const WalletClasses = {
   ...fillJettons(),
   ...fillERC20s(),
   ...fillTRC20s(),
+  ...fillXlms(),
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];
