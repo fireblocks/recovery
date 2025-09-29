@@ -91,3 +91,13 @@ export function getAllXlms(): string[] {
   }
   return xlmTokens;
 }
+
+export function getAllXRPs(): string[] {
+  const xrpTokens = [];
+  for (const asset of globalAssets) {
+    if (asset.protocol === 'XRP' && asset.address) {
+      xrpTokens.push(asset.id);
+    }
+  }
+  return xrpTokens;
+}

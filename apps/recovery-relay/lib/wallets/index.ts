@@ -42,7 +42,7 @@ import { Jetton } from './Jetton';
 import { ERC20 } from './ERC20';
 import { TRC20 } from './TRC20';
 import { SPL } from './SPL';
-import { getAllSpls, getAllXlms } from '@fireblocks/asset-config/assets';
+import { getAllSpls, getAllXlms, getAllXRPs } from '@fireblocks/asset-config/assets';
 
 import { Flare } from './EVM/FLR';
 export { ConnectedWallet } from './ConnectedWallet';
@@ -112,6 +112,19 @@ const fillXlms = () => {
   return xlms;
 };
 
+const fillXRPs = () => {
+  const xrpsList = getAllXRPs();
+  const xrps = xrpsList.reduce(
+    (prev, curr) => ({
+      ...prev,
+      [curr]: Ripple,
+    }),
+    {},
+  ) as any;
+  Object.keys(xrps).forEach((key) => (xrps[key] === undefined ? delete xrps[key] : {}));
+  return xrps;
+};
+
 export const WalletClasses = {
   ALGO: Algorand,
   ALGO_TEST: Algorand,
@@ -155,6 +168,8 @@ export const WalletClasses = {
   XDC: XinFin,
   XRP: Ripple,
   XRP_TEST: Ripple,
+  ...fillXRPs(),
+
   RBTC: RootstockBTC,
   RBTC_TEST: RootstockBTC,
   SGB: Songbird,
