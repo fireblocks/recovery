@@ -40,7 +40,7 @@
     "@ton/crypto": "^3.3.0",
     "@ton/ton": "^15.1.0",
     "algosdk": "2.5.0",
-    "axios": "^1.4.0",
+    "axios": "^1.12.0",
     "base58": "^2.0.1",
     "bigint-buffer": "^1.1.5",
     "bignumber.js": "^9.1.2",
