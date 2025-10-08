@@ -37,8 +37,14 @@ export const SettingsProvider = ({ children }: Props) => {
   }, []);
 
   const saveSettings = async (data: RelaySettingsInput) => {
-    logger.info('Storing new settings', data);
-    window.localStorage.setItem('settings', JSON.stringify(data));
+    try {
+      logger.info('Storing new settings', data);
+      window.localStorage.setItem('settings', JSON.stringify(data));
+      setSettings(data);
+    } catch (error) {
+      logger.error('Failed to save settings', error);
+      throw error;
+    }
   };
 
   // eslint-disable-next-line react/jsx-no-constructed-context-values
