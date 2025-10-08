@@ -14,7 +14,20 @@ export interface BTCRelayWalletUtils {
 }
 
 export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
-  constructor(private baseUrl: string, private overrides?: BTCRelayWalletUtils, private fetchOnMain = false) {}
+  constructor(
+    private baseUrl: string,
+    private overrides?: BTCRelayWalletUtils,
+    private fetchOnMain = false,
+    private apiKey: string | null = null,
+  ) {}
+
+  public setAPIKey(apiKey: string | null): void {
+    this.apiKey = apiKey;
+  }
+
+  public getApiKey(): string | null {
+    return this.apiKey;
+  }
 
   async request(path: string, init?: RequestInit) {
     let res: Response;
@@ -37,7 +50,9 @@ export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
     if (this.overrides && this.overrides.getAddressUTXOs) {
       return this.overrides.getAddressUTXOs(address);
     }
-    const addressSummary = await this.requestJson<StandardAddressSummary>(`/dashboards/address/${address}?limit=0,10000`);
+    const addressSummary = await this.requestJson<StandardAddressSummary>(
+      `/dashboards/address/${address}?limit=0,10000&key=${this.apiKey}`,
+    );
 
     return addressSummary.data[address].utxo;
   }
@@ -46,8 +61,9 @@ export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
     if (this.overrides && this.overrides.getAddressBalance) {
       return this.overrides.getAddressBalance(address);
     }
-    const { balance } = (await this.requestJson<StandardAddressSummary>(`/dashboards/address/${address}?limit=0,0`)).data[address]
-      .address;
+    const { balance } = (
+      await this.requestJson<StandardAddressSummary>(`/dashboards/address/${address}?limit=0,0&key=${this.apiKey}`)
+    ).data[address].address;
 
     return balance;
   }
@@ -56,7 +72,7 @@ export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
     if (this.overrides && this.overrides.getFeeRate) {
       return this.overrides.getFeeRate();
     }
-    const bcStats = await this.requestJson<StandardBlockchainStats>('/stats');
+    const bcStats = await this.requestJson<StandardBlockchainStats>(`/stats?key=${this.apiKey}`);
     const feeRate = bcStats.data.suggested_transaction_fee_per_byte_sat;
     return feeRate;
   }
@@ -68,7 +84,7 @@ export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
     // }
 
     const { transaction_hash: hash, index } = utxo;
-    const rawTxRes = await this.request(`/tx/${hash}/raw`);
+    const rawTxRes = await this.request(`/tx/${hash}/raw?key=${this.apiKey}`);
     const rawTx = await rawTxRes.arrayBuffer();
     const nonWitnessUtxo = Buffer.from(rawTx);
 
@@ -87,7 +103,7 @@ export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
     }
 
     const { transaction_hash: hash, index } = utxo;
-    const fullUtxo = await this.requestJson<StandardFullUTXO>(`/dashboards/transaction/${hash}`);
+    const fullUtxo = await this.requestJson<StandardFullUTXO>(`/dashboards/transaction/${hash}?key=${this.apiKey}`);
     if (fullUtxo.data[hash].transaction.block_id === -1) {
       return undefined;
     }
@@ -112,7 +128,7 @@ export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
         data?: { transaction_hash: string; [key: string]: any };
         context: { code: number; error: string; [key: string]: any };
       } = await (
-        await this.request('/push/transaction', {
+        await this.request(`/push/transaction?key=${this.apiKey}`, {
           method: 'POST',
           body: `data=${txHex}`,
           headers: [['Content-Type', 'application/x-www-form-urlencoded']],

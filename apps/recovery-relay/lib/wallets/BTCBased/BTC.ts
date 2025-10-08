@@ -11,100 +11,106 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
   private static readonly satsPerBtc = 100000000;
 
   public rpcURL: string | undefined;
+  public apiKey: string | null = null;
 
   private utils: BTCRelayWalletUtils | undefined;
 
   constructor(input: Input) {
     super(input);
-    // Legacy requires a custom site
     if (this.isLegacy) {
-      // When calling any custom function provided as part of the relay wallet utils
-      // we bind it to `this` from the BTCRelayWallet class, thus every internal reference to this
-      // within the custom functions must be considered as a call to the BTCRelayWalletUtils and not
-      // overarching wallet type (BSV in this case)
-
-      this.utils = new (class {
-        btcWalletUtils;
-
-        constructor(baseUrl: string) {
-          this.btcWalletUtils = new StandardBTCRelayWalletUtils(baseUrl);
-        }
-
-        async getAddressUTXOs(address: string): Promise<StandardUTXO[]> {
-          const utxoSummary = await this.btcWalletUtils.requestJson.bind(this)<UTXOSummary[]>(`/address/${address}/utxo`);
-          return utxoSummary.map((utxo) => ({
-            transaction_hash: utxo.txid,
-            value: utxo.value,
-            index: utxo.vout,
-            block_id: utxo.status.block_height ?? -1,
-          }));
-        }
-
-        async getAddressBalance(address: string): Promise<number> {
-          const { chain_stats: chainStats } = await this.btcWalletUtils.requestJson.bind(this)<AddressSummary>(
-            `/address/${address}`,
-          );
-          return chainStats.funded_txo_sum - chainStats.spent_txo_sum;
-        }
-
-        async getFeeRate(): Promise<number> {
-          const feeEstimate = await this.btcWalletUtils.requestJson.bind(this)<{ [key: string]: number }>('/fee-estimates');
-          const feeRate = feeEstimate['1'];
-          return feeRate;
-        }
-
-        async getLegacyFullUTXO(utxo: StandardUTXO): Promise<BTCLegacyUTXO> {
-          const { transaction_hash: hash, index } = utxo;
-          const rawTxRes = await this.btcWalletUtils.request(`/tx/${hash}/raw`);
-          const rawTx = await rawTxRes.arrayBuffer();
-          const nonWitnessUtxo = Buffer.from(rawTx);
-
-          return {
-            hash,
-            index,
-            nonWitnessUtxo,
-            confirmed: true,
-            value: BTCRelayWallet._satsToBtc(utxo.value),
-          };
-        }
-
-        async getSegwitUTXO(utxo: StandardUTXO): Promise<BTCSegwitUTXO> {
-          const { transaction_hash: hash, index } = utxo;
-          const fullUtxo = await this.btcWalletUtils.requestJson.bind(this)<FullUTXO>(`/tx/${hash}`);
-          const { scriptpubkey, value } = fullUtxo.vout[index];
-
-          return {
-            hash,
-            index,
-            witnessUtxo: { script: scriptpubkey, value },
-            confirmed: true,
-            value: BTCRelayWallet._satsToBtc(value),
-          };
-        }
-
-        async broadcastTx(txHex: string, logger: CustomElectronLogger): Promise<string> {
-          try {
-            const txBroadcastRes = await this.btcWalletUtils.request('/tx', {
-              method: 'POST',
-              body: txHex,
-            });
-
-            const txHash = await txBroadcastRes.text();
-            if (txHash.length !== 64) {
-              throw new Error(txHash);
-            }
-            return txHash;
-          } catch (e) {
-            logger.error(`BTC: Error broadcasting tx: ${JSON.stringify(e, null, 2)}`);
-            throw e;
-          }
-        }
-      })(this.isTestnet ? 'https://blockstream.info/testnet/api' : 'https://blockstream.info/api') as BTCRelayWalletUtils;
+      this.initializeUtils();
     }
+  }
+
+  private initializeUtils() {
+    const btcWalletUtils = new StandardBTCRelayWalletUtils(this.rpcURL!, undefined, false, this.apiKey);
+    btcWalletUtils.setAPIKey(this.apiKey);
+    this.utils = {
+      getAddressUTXOs: async (address: string): Promise<StandardUTXO[]> => {
+        const utxoSummary = await btcWalletUtils.requestJson<UTXOSummary[]>(
+          `/address/${address}/utxo${this.apiKey ? `?key=${this.apiKey}` : ''}`,
+        );
+        return utxoSummary.map((utxo) => ({
+          transaction_hash: utxo.txid,
+          value: utxo.value,
+          index: utxo.vout,
+          block_id: utxo.status.block_height ?? -1,
+        }));
+      },
+
+      getAddressBalance: async (address: string): Promise<number> => {
+        const { chain_stats: chainStats } = await btcWalletUtils.requestJson<AddressSummary>(
+          `/address/${address}${this.apiKey ? `?key=${this.apiKey}` : ''}`,
+        );
+        return chainStats.funded_txo_sum - chainStats.spent_txo_sum;
+      },
+
+      getFeeRate: async (): Promise<number> => {
+        const feeEstimate = await btcWalletUtils.requestJson<{ [key: string]: number }>(
+          `/fee-estimates${this.apiKey ? `?key=${this.apiKey}` : ''}`,
+        );
+        return feeEstimate['1'];
+      },
+
+      getLegacyFullUTXO: async (utxo: StandardUTXO): Promise<BTCLegacyUTXO> => {
+        const { transaction_hash: hash, index } = utxo;
+        const rawTxRes = await btcWalletUtils.request(`/tx/${hash}/raw${this.apiKey ? `?key=${this.apiKey}` : ''}`);
+        const rawTx = await rawTxRes.arrayBuffer();
+        const nonWitnessUtxo = Buffer.from(rawTx);
+
+        return {
+          hash,
+          index,
+          nonWitnessUtxo,
+          confirmed: true,
+          value: BTCRelayWallet._satsToBtc(utxo.value),
+        };
+      },
+
+      getSegwitUTXO: async (utxo: StandardUTXO): Promise<BTCSegwitUTXO> => {
+        const { transaction_hash: hash, index } = utxo;
+        const fullUtxo = await btcWalletUtils.requestJson<FullUTXO>(`/tx/${hash}${this.apiKey ? `?key=${this.apiKey}` : ''}`);
+        const { scriptpubkey, value } = fullUtxo.vout[index];
+
+        return {
+          hash,
+          index,
+          witnessUtxo: { script: scriptpubkey, value },
+          confirmed: true,
+          value: BTCRelayWallet._satsToBtc(value),
+        };
+      },
+
+      broadcastTx: async (txHex: string, logger: CustomElectronLogger): Promise<string> => {
+        try {
+          const txBroadcastRes = await btcWalletUtils.request(`/tx${this.apiKey ? `?key=${this.apiKey}` : ''}`, {
+            method: 'POST',
+            body: txHex,
+          });
+
+          const txHash = await txBroadcastRes.text();
+          if (txHash.length !== 64) {
+            throw new Error(txHash);
+          }
+          return txHash;
+        } catch (e) {
+          logger.error(`BTC: Error broadcasting tx: ${JSON.stringify(e, null, 2)}`);
+          throw e;
+        }
+      },
+    } as BTCRelayWalletUtils;
   }
 
   public setRPCUrl(url: string): void {
     this.rpcURL = url;
+  }
+
+  public setAPIKey(apiKey: string | null): void {
+    this.apiKey = apiKey;
+    // Reinitialize utils with new API key
+    if (this.isLegacy) {
+      this.initializeUtils();
+    }
   }
 
   public async getBalance(): Promise<number> {
