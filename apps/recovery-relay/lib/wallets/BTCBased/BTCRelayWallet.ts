@@ -1,3 +1,4 @@
+import { CustomElectronLogger } from '@fireblocks/recovery-shared/lib/getLogger';
 import { AccountData, LegacyUTXOType, SegwitUTXOType } from '../types';
 import { BTCRelayWalletUtils, StandardBTCRelayWalletUtils } from './BTCRelayWalletUtils';
 
@@ -9,9 +10,9 @@ export class BTCRelayWallet {
   }
 
   public async getBalance(): Promise<number> {
-    // @ts-ignore
-    const utils = (this.utils as BTCRelayWalletUtils) || new StandardBTCRelayWalletUtils(this.rpcURL);
-    // @ts-ignore
+    const utils =
+      // @ts-ignore
+      (this.utils as BTCRelayWalletUtils) || new StandardBTCRelayWalletUtils(this.rpcURL, undefined, false, this.apiKey); // @ts-ignore
     const balance = await utils.getAddressBalance(this.address);
     const btcBalance = BTCRelayWallet._satsToBtc(balance);
     return btcBalance;
@@ -19,10 +20,10 @@ export class BTCRelayWallet {
 
   public async prepare(): Promise<AccountData> {
     // @ts-ignore
-    const { isLegacy, relayLogger: logger, rpcURL, address } = this;
+    const { isLegacy, relayLogger: logger, rpcURL, address, apiKey } = this;
 
     // @ts-ignore
-    const utils = (this.utils as BTCRelayWalletUtils) || new StandardBTCRelayWalletUtils(rpcURL);
+    const utils = (this.utils as BTCRelayWalletUtils) || new StandardBTCRelayWalletUtils(rpcURL, undefined, false, apiKey);
     const balance = await BTCRelayWallet.prototype.getBalance.bind(this)();
 
     if (balance === 0) {
@@ -52,17 +53,17 @@ export class BTCRelayWallet {
     return preparedData as AccountData;
   }
 
-  public async broadcastTx(txHex: string): Promise<string> {
+  public async broadcastTx(txHex: string, logger?: CustomElectronLogger, assetId?: string | undefined): Promise<string> {
     // BTC Tx are automatically signed and resulting hex is signed, so no need to do anything special.
     // const tx = Psbt.fromHex(txHex, { network: this.network });
 
     // @ts-ignore
-    const { relayLogger: logger, rpcURL } = this;
+    const { relayLogger: relayLogger, rpcURL, apiKey } = this;
 
     // @ts-ignore
-    const utils = (this.utils as BTCRelayWalletUtils) || new StandardBTCRelayWalletUtils(rpcURL);
+    const utils = (this.utils as BTCRelayWalletUtils) || new StandardBTCRelayWalletUtils(rpcURL, undefined, false, apiKey);
 
     // @ts-ignore
-    return utils.broadcastTx(txHex, logger);
+    return utils.broadcastTx(txHex, relayLogger, assetId);
   }
 }

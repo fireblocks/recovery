@@ -60,7 +60,7 @@ const getRPCKey = (
   return baseAsset;
 };
 
-export const getAssetURL = (
+export const getAssetURLAndApiKey = (
   assetId: string,
   RPCs: Record<
     string,
@@ -69,16 +69,18 @@ export const getAssetURL = (
       allowedEmptyValue: boolean;
       name: string;
       url?: string | null | undefined;
+      requiresApiKey?: boolean;
+      apiKey?: string | null;
     }
   >,
-): string | null | undefined => {
+): { url: string; requiresApiKey?: boolean; apiKey?: string | null } | null | undefined => {
   const rpcKey = getRPCKey(assetId, RPCs);
   if (rpcKey === undefined) {
     return undefined;
   }
 
   const assetRPCData = RPCs[rpcKey];
-  const { url } = assetRPCData;
+  const { url, requiresApiKey, apiKey } = assetRPCData;
   logger.info(`RPC URL for ${rpcKey} is ${assetRPCData.enabled ? 'enabled' : 'disabled'} and is ${url}`);
 
   if (assetRPCData.allowedEmptyValue && (url === null || url === undefined)) {
@@ -88,7 +90,7 @@ export const getAssetURL = (
     // If not enabled we shouldn't be getting a request to the relay for it regardless.
     return undefined;
   }
-  return url;
+  return { url: url as string, requiresApiKey, apiKey };
 };
 
 const getWallet = (accounts: Map<number, VaultAccount<Derivation>>, accountId?: number, assetId?: string) => {
@@ -164,7 +166,12 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
     enabled: !!derivation,
     queryFn: async () => {
       logger.debug(`Querying prepare transaction ${toAddress}`);
-      const rpcUrl = getAssetURL(derivation?.assetId ?? '', RPCs);
+      const data = getAssetURLAndApiKey(derivation?.assetId ?? '', RPCs);
+      if (!data) {
+        throw new Error(`No RPC data for: ${derivation?.assetId}`);
+      }
+      const { url: rpcUrl, requiresApiKey, apiKey } = data;
+
       if (rpcUrl === undefined) {
         logger.error(`Unknown URL for ${derivation?.assetId ?? '<empty>'}`);
         throw new Error(`No RPC Url for: ${derivation?.assetId}`);
@@ -185,6 +192,13 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
         (derivation as ERC20).setToAddress(toAddress);
       }
       if (rpcUrl !== null) derivation!.setRPCUrl(rpcUrl); // this must remain the last method called on derivation for ERC20 support
+      if (requiresApiKey) {
+        if (!apiKey || apiKey === '') {
+          throw new Error(`RPC for ${derivation?.assetId} requires an API key. Please set one in the Settings page.`);
+        } else {
+          derivation!.setAPIKey(apiKey);
+        }
+      }
 
       return await derivation!.prepare?.(toAddress, values.memo);
     },
@@ -328,6 +342,12 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
             {prepareQuery.error || typeof prepareQuery.data?.balance === 'undefined'
               ? 'Could not get balance'
               : `${prepareQuery.data.balance} ${asset.id}`}
+            {prepareQuery.error && (
+              <>
+                <br />
+                {prepareQuery.error.message}
+              </>
+            )}
           </Typography>
         )}
       </Grid>

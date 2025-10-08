@@ -5,7 +5,7 @@ import { Button, settingsInput, getLogger, DataGrid, useWrappedState } from '@fi
 import { Alert, Box, Grid, Typography } from '@mui/material';
 import { LOGGER_NAME_RELAY } from '@fireblocks/recovery-shared/constants';
 import { shell, ipcRenderer } from 'electron';
-import { BaseModal, EditIcon, TextField } from '@fireblocks/recovery-shared/components';
+import { BaseModal, EditIcon, KeyIcon, TextField } from '@fireblocks/recovery-shared/components';
 import { GridActionsCellItem, GridCellParams, GridColDef, GridToolbar } from '@mui/x-data-grid';
 import React, { useMemo, useState } from 'react';
 import { useSettings } from '../context/Settings';
@@ -20,6 +20,8 @@ type RowData = {
   name: string;
   enabled: boolean;
   allowedEmptyValue: boolean;
+  requiresApiKey?: boolean;
+  apiKey?: string | null;
 };
 
 const logger = getLogger(LOGGER_NAME_RELAY);
@@ -27,6 +29,10 @@ const logger = getLogger(LOGGER_NAME_RELAY);
 const Settings = () => {
   const { saveSettings, RPCs: currentRPCs } = useSettings();
   const [editModalData, setEditModalData] = useWrappedState<RowData | undefined>('settingsRpc-editModalData', undefined);
+  const [addAPIKeyModalData, setAddAPIKeyModalData] = useWrappedState<RowData | undefined>(
+    'settingsRpc-addAPIKeyModalData',
+    undefined,
+  );
   const [rpcs, setRPCs] = useState<
     Record<
       string,
@@ -35,6 +41,8 @@ const Settings = () => {
         enabled: boolean;
         allowedEmptyValue: boolean;
         url?: string | null | undefined;
+        requiresApiKey?: boolean;
+        apiKey?: string | null;
       }
     >
   >(currentRPCs);
@@ -42,14 +50,27 @@ const Settings = () => {
     shell.openPath(await ipcRenderer.invoke('logs/get_path'));
   };
 
+  // Form for URL editing
   const {
-    register,
-    handleSubmit,
-    formState: { errors },
+    register: registerUrl,
+    handleSubmit: handleSubmitUrl,
+    formState: { errors: urlErrors },
   } = useForm<FormData>({
     resolver: zodResolver(settingsInput.RELAY),
     defaultValues: {
-      RPCs: defaultRPCs,
+      RPCs: currentRPCs,
+    },
+  });
+
+  // Form for API Key editing
+  const {
+    register: registerApiKey,
+    handleSubmit: handleSubmitApiKey,
+    formState: { errors: apiKeyErrors },
+  } = useForm<FormData>({
+    resolver: zodResolver(settingsInput.RELAY),
+    defaultValues: {
+      RPCs: currentRPCs,
     },
   });
 
@@ -57,7 +78,7 @@ const Settings = () => {
     () =>
       Object.keys(rpcs)
         .map((chain) => {
-          const { url, name, enabled, allowedEmptyValue } = rpcs[chain];
+          const { url, name, enabled, allowedEmptyValue, requiresApiKey, apiKey } = rpcs[chain];
           if (name === undefined) {
             throw new Error(`Blockchain without name`);
           }
@@ -68,6 +89,8 @@ const Settings = () => {
               url: enabled ? url : 'No support for this network',
               enabled,
               allowedEmptyValue,
+              requiresApiKey,
+              apiKey,
             },
           ];
         })
@@ -83,12 +106,23 @@ const Settings = () => {
     console.log(rowInfo);
     setEditModalData(rowInfo);
   };
+
+  const handleAddAPIKeyModal = (rowInfo: RowData | undefined) => {
+    console.log(rowInfo);
+    setAddAPIKeyModalData(rowInfo);
+  };
+
   const handleCloseEditModal = () => {
     setEditModalData(undefined);
   };
 
+  const handleCloseAddAPIKeyModal = () => {
+    setAddAPIKeyModalData(undefined);
+  };
+
   const onSubmitModal = async (formData: FormData) => {
     handleCloseEditModal();
+    handleCloseAddAPIKeyModal();
     setRPCs(formData.RPCs);
     await saveSettings(formData);
   };
@@ -99,9 +133,22 @@ const Settings = () => {
     return `RPCs.${blockchain}.url`;
   };
 
+  const getApiKeyReactHookDotNotationPropertyAccess = (): `RPCs` | `RPCs.${string}` => {
+    if (addAPIKeyModalData === undefined) return 'RPCs';
+    const blockchain = addAPIKeyModalData.id;
+    return `RPCs.${blockchain}.apiKey`;
+  };
+
+  const getApiKeyErrorMessage = (): string | undefined => {
+    if (addAPIKeyModalData === undefined) return undefined;
+    const blockchain = addAPIKeyModalData.id;
+    const apiKeyError = apiKeyErrors.RPCs?.[blockchain]?.apiKey;
+    return apiKeyError?.message;
+  };
+
   const getErrorMessage = (): string | undefined => {
     const dotNotationPropertyAccess = getReactHookDotNotationPropertyAccess().replace('.url', '.root');
-    let currentProperty: any = errors;
+    let currentProperty: any = urlErrors;
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const property of dotNotationPropertyAccess.split('.')) {
       currentProperty = currentProperty[property];
@@ -190,6 +237,23 @@ const Settings = () => {
                       />,
                     ],
                   },
+                  {
+                    field: 'api-key',
+                    headerName: '',
+                    type: 'actions',
+                    editable: false,
+                    sortable: false,
+                    getActions: (params) => [
+                      <GridActionsCellItem
+                        key={`update-api-key-${params.row.id}`}
+                        id={`update-api-key-${params.row.id}`}
+                        icon={<KeyIcon />}
+                        disabled={!params.row.enabled || !params.row.requiresApiKey}
+                        label='Edit Api Key'
+                        onClick={() => handleAddAPIKeyModal(params.row as RowData)}
+                      />,
+                    ],
+                  },
                 ] as GridColDef[]
               }
               initialState={{
@@ -215,7 +279,7 @@ const Settings = () => {
           </>
         }
         // eslint-disable-next-line react/no-unstable-nested-components
-        WrapperComponent={(props) => <form onSubmit={handleSubmit(onSubmitModal)} {...props} />}
+        WrapperComponent={(props) => <form onSubmit={handleSubmitUrl(onSubmitModal)} {...props} />}
       >
         <Grid container spacing={3}>
           <Grid item xs={12}>
@@ -230,9 +294,36 @@ const Settings = () => {
                 label={`${editModalData?.bc} RPC URL`}
                 defaultValue={editModalData?.url}
                 error={getErrorMessage()}
-                {...register(getReactHookDotNotationPropertyAccess())}
+                {...registerUrl(getReactHookDotNotationPropertyAccess())}
               />
             </Grid>
+          </Grid>
+        </Grid>
+      </BaseModal>
+
+      <BaseModal
+        open={addAPIKeyModalData !== undefined}
+        onClose={handleCloseAddAPIKeyModal}
+        title={`Add ${addAPIKeyModalData?.bc} API Key`}
+        actions={
+          <>
+            <Button variant='text' onClick={handleCloseAddAPIKeyModal}>
+              Cancel
+            </Button>
+            <Button type='submit'>Save</Button>
+          </>
+        }
+        WrapperComponent={(props) => <form onSubmit={handleSubmitApiKey(onSubmitModal)} {...props} />}
+      >
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <TextField
+              id={`edit-api-key-${addAPIKeyModalData?.id}`}
+              label={`${addAPIKeyModalData?.bc} API Key`}
+              defaultValue={addAPIKeyModalData?.apiKey || ''}
+              error={getApiKeyErrorMessage()}
+              {...registerApiKey(getApiKeyReactHookDotNotationPropertyAccess())}
+            />
           </Grid>
         </Grid>
       </BaseModal>

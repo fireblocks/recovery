@@ -7,9 +7,14 @@ export class LTC extends BaseLTC implements ConnectedWallet {
   private static readonly satsPerBtc = 100000000;
 
   public rpcURL: string | undefined;
+  public apiKey: string | null = null;
 
   public setRPCUrl(url: string): void {
     this.rpcURL = url;
+  }
+
+  public setAPIKey(apiKey: string | null): void {
+    this.apiKey = apiKey;
   }
 
   public async getBalance(): Promise<number> {
