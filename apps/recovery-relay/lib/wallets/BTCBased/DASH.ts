@@ -5,6 +5,7 @@ import { BTCRelayWallet } from './BTCRelayWallet';
 
 export class DASH extends BaseDASH implements ConnectedWallet {
   public rpcURL: string | undefined;
+  public apiKey: string | null = null;
 
   constructor(input: Input) {
     super(input);
@@ -16,6 +17,10 @@ export class DASH extends BaseDASH implements ConnectedWallet {
 
   public setRPCUrl(url: string): void {
     this.rpcURL = url;
+  }
+
+  public setAPIKey(apiKey: string | null): void {
+    this.apiKey = apiKey;
   }
 
   public async getBalance(): Promise<number> {

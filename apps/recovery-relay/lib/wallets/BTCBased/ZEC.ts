@@ -8,9 +8,14 @@ export class ZEC extends BaseZEC implements ConnectedWallet {
   private static readonly satsPerBtc = 100000000;
 
   public rpcURL: string | undefined;
+  public apiKey: string | null = null;
 
   public setRPCUrl(url: string): void {
     this.rpcURL = url;
+  }
+
+  public setAPIKey(apiKey: string | null): void {
+    this.apiKey = apiKey;
   }
 
   public async prepare(): Promise<AccountData> {
@@ -30,7 +35,7 @@ export class ZEC extends BaseZEC implements ConnectedWallet {
   }
 
   private async _getCurrentBlockHeight() {
-    const utils = new StandardBTCRelayWalletUtils(this.rpcURL!);
+    const utils = new StandardBTCRelayWalletUtils(this.rpcURL!, undefined, false, this.apiKey);
     const stats = await utils.requestJson<{
       data: {
         blocks: number;

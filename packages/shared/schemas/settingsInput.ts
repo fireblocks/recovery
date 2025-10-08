@@ -10,6 +10,8 @@ export const settingsInput = {
           url: z.string().nullish(),
           enabled: z.boolean().default(true),
           allowedEmptyValue: z.oboolean().default(false),
+          apiKey: z.string().nullish(),
+          requiresApiKey: z.boolean().default(false).optional(),
         })
         .refine(
           (values) =>
