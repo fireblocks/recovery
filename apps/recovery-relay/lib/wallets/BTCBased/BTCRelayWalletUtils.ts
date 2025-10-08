@@ -123,6 +123,25 @@ export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
       return this.overrides.broadcastTx(txHex, logger);
     }
 
+    // Use Blockstream for Bitcoin Testnet as Blockhiar returns 500
+    if (this.baseUrl.includes('bitcoin/test')) {
+      const blockstreamUrl = 'https://blockstream.info/testnet/api/tx';
+      logger.info('Broadcasting via Blockstream testnet...');
+      const res = await fetch(blockstreamUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: txHex,
+      });
+
+      const text = await res.text();
+      if (!res.ok) {
+        throw new Error(`Blockstream broadcast failed: ${res.status} ${text}`);
+      }
+
+      logger.info(`Broadcast successful via Blockstream: ${text}`);
+      return text.trim();
+    }
+
     try {
       const txBroadcastRes: {
         data?: { transaction_hash: string; [key: string]: any };
