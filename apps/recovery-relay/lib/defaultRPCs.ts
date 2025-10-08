@@ -5,6 +5,8 @@ export const defaultRPCs: Record<
     name: string;
     enabled: boolean;
     allowedEmptyValue: boolean;
+    requiresApiKey?: boolean;
+    apiKey?: string | null;
   }
 > = {
   ALGO: { url: null, allowedEmptyValue: true, enabled: true, name: 'Algorand' },
@@ -17,12 +19,21 @@ export const defaultRPCs: Record<
     allowedEmptyValue: false,
   },
   FLR: { url: 'https://flare-api.flare.network/ext/C/rpc', name: 'Flare', enabled: true, allowedEmptyValue: false },
-  BTC: { url: 'https://api.blockchair.com/bitcoin', name: 'Bitcoin', enabled: true, allowedEmptyValue: false },
+  BTC: {
+    url: 'https://api.blockchair.com/bitcoin',
+    name: 'Bitcoin',
+    enabled: true,
+    allowedEmptyValue: false,
+    requiresApiKey: true,
+    apiKey: null,
+  },
   BTC_TEST: {
     url: 'https://api.blockchair.com/bitcoin/testnet',
     name: 'Bitcoin Testnet',
     enabled: true,
     allowedEmptyValue: false,
+    requiresApiKey: true,
+    apiKey: null,
   },
   BCH: { url: 'https://rest.bch.actorforth.org/v2', name: 'Bitcoin Cash', enabled: true, allowedEmptyValue: false },
   BCH_TEST: { url: undefined, name: 'Bitcoin Cash Testnet', enabled: false, allowedEmptyValue: false },
@@ -33,16 +44,44 @@ export const defaultRPCs: Record<
     enabled: true,
     allowedEmptyValue: false,
   },
-  DOGE: { url: 'https://api.blockchair.com/dogecoin', name: 'Dogecoin', enabled: true, allowedEmptyValue: false },
+  DOGE: {
+    url: 'https://api.blockchair.com/dogecoin',
+    name: 'Dogecoin',
+    enabled: true,
+    allowedEmptyValue: false,
+    requiresApiKey: true,
+    apiKey: null,
+  },
   DOGE_TEST: { url: undefined, name: 'Dogecoin Testnet', enabled: false, allowedEmptyValue: false },
   DOT: { url: 'wss://rpc.polkadot.io', name: 'Polkadot', enabled: true, allowedEmptyValue: false },
   WND: { url: 'wss://westend-rpc.polkadot.io', name: 'Westend (Polkadot Testnet)', enabled: true, allowedEmptyValue: false },
   KSM: { url: 'wss://kusama-rpc.polkadot.io', name: 'Kusama', enabled: true, allowedEmptyValue: false },
-  LTC: { url: 'https://api.blockchair.com/litecoin', name: 'Litecoin', enabled: true, allowedEmptyValue: false },
+  LTC: {
+    url: 'https://api.blockchair.com/litecoin',
+    name: 'Litecoin',
+    enabled: true,
+    allowedEmptyValue: false,
+    requiresApiKey: true,
+    apiKey: null,
+  },
   LTC_TEST: { url: undefined, name: 'Litecoin Testnet', enabled: false, allowedEmptyValue: false },
-  ZEC: { url: 'https://api.blockchair.com/zcash', name: 'Litecoin', enabled: true, allowedEmptyValue: false },
+  ZEC: {
+    url: 'https://api.blockchair.com/zcash',
+    name: 'Litecoin',
+    enabled: true,
+    allowedEmptyValue: false,
+    requiresApiKey: true,
+    apiKey: null,
+  },
   ZEC_TEST: { url: undefined, name: 'ZCash Testnet', enabled: false, allowedEmptyValue: false },
-  DASH: { url: 'https://api.blockchair.com/Dash', name: 'Dash', enabled: true, allowedEmptyValue: false },
+  DASH: {
+    url: 'https://api.blockchair.com/Dash',
+    name: 'Dash',
+    enabled: true,
+    allowedEmptyValue: false,
+    requiresApiKey: true,
+    apiKey: null,
+  },
   FTM_FANTOM: { url: 'https://rpcapi.fantom.network', name: 'Fantom Testnet', enabled: true, allowedEmptyValue: false },
   ETC: { url: 'https://geth-de.etc-network.info', name: 'Ethereum Classic', enabled: true, allowedEmptyValue: false },
   ETC_TEST: {
