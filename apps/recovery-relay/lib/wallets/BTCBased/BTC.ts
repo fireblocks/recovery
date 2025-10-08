@@ -81,7 +81,7 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
         };
       },
 
-      broadcastTx: async (txHex: string, logger: CustomElectronLogger): Promise<string> => {
+      broadcastTx: async (txHex: string, logger: CustomElectronLogger, assetId?: string | undefined): Promise<string> => {
         try {
           const txBroadcastRes = await btcWalletUtils.request(`/tx${this.apiKey ? `?key=${this.apiKey}` : ''}`, {
             method: 'POST',
@@ -121,7 +121,7 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
     return BTCRelayWallet.prototype.prepare.bind(this)();
   }
 
-  public async broadcastTx(txHex: string): Promise<string> {
-    return BTCRelayWallet.prototype.broadcastTx.bind(this)(txHex);
+  public async broadcastTx(txHex: string, logger: CustomElectronLogger, assetId?: string | undefined): Promise<string> {
+    return BTCRelayWallet.prototype.broadcastTx.bind(this)(txHex, logger, assetId);
   }
 }

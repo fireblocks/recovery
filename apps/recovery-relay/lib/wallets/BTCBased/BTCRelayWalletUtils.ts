@@ -3,6 +3,7 @@ import { ipcRenderer } from 'electron';
 import { BTCLegacyUTXO, BTCSegwitUTXO } from '../types';
 import { BTCRelayWallet } from './BTCRelayWallet';
 import { StandardAddressSummary, StandardBlockchainStats, StandardFullUTXO, StandardUTXO } from './types';
+import { defaultRPCs } from '../../defaultRPCs';
 
 export interface BTCRelayWalletUtils {
   getAddressUTXOs: (address: string) => Promise<StandardUTXO[]>;
@@ -10,7 +11,7 @@ export interface BTCRelayWalletUtils {
   getFeeRate: () => Promise<number>;
   getLegacyFullUTXO?: (utxo: StandardUTXO) => Promise<BTCLegacyUTXO>;
   getSegwitUTXO: (utxo: StandardUTXO) => Promise<BTCSegwitUTXO | undefined>;
-  broadcastTx?: (txHex: string, logger: CustomElectronLogger) => Promise<string>;
+  broadcastTx?: (txHex: string, logger: CustomElectronLogger, assetId?: string | undefined) => Promise<string>;
 }
 
 export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
@@ -118,16 +119,21 @@ export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
     };
   }
 
-  async broadcastTx(txHex: string, logger: CustomElectronLogger): Promise<string> {
+  async broadcastTx(txHex: string, logger: CustomElectronLogger, assetId?: string | undefined): Promise<string> {
     if (this.overrides && this.overrides.broadcastTx) {
       return this.overrides.broadcastTx(txHex, logger);
     }
 
     // Use Blockstream for Bitcoin Testnet as Blockhiar returns 500
-    if (this.baseUrl.includes('bitcoin/test')) {
-      const blockstreamUrl = 'https://blockstream.info/testnet/api/tx';
+    if (assetId === 'BTC_TEST') {
+      const broadcastUrl = defaultRPCs.BTC_TEST.broadcastUrl;
+
+      if (!broadcastUrl) {
+        throw new Error('No broadcast URL for BTC Testnet');
+      }
+
       logger.info('Broadcasting via Blockstream testnet...');
-      const res = await fetch(blockstreamUrl, {
+      const res = await fetch(broadcastUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' },
         body: txHex,

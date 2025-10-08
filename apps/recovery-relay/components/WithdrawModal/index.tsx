@@ -115,7 +115,7 @@ export const WithdrawModal = () => {
     const cleanDerivation = derivation ? sanatize(derivation) : undefined;
     logger.info('Derivation and signed transaction hash:', { cleanDerivation, signedTxHex });
     try {
-      const newTxHash = await derivation?.broadcastTx(signedTxHex);
+      const newTxHash = await derivation?.broadcastTx(signedTxHex, logger, derivation?.assetId);
 
       setTxHash(newTxHash);
       logger.info({ newTxHash });

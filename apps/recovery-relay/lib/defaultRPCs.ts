@@ -2,6 +2,7 @@ export const defaultRPCs: Record<
   string,
   {
     url: string | undefined | null;
+    broadcastUrl?: string;
     name: string;
     enabled: boolean;
     allowedEmptyValue: boolean;
@@ -29,6 +30,7 @@ export const defaultRPCs: Record<
   },
   BTC_TEST: {
     url: 'https://api.blockchair.com/bitcoin/testnet',
+    broadcastUrl: 'https://blockstream.info/testnet/api/tx',
     name: 'Bitcoin Testnet',
     enabled: true,
     allowedEmptyValue: false,
