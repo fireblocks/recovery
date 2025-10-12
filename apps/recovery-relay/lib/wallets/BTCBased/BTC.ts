@@ -20,13 +20,11 @@ export class Bitcoin extends BaseBTC implements ConnectedWallet {
 
   public setRPCUrl(url: string): void {
     this.rpcURL = url;
-    // Use standard Blockchair utils for both legacy and SegWit
     this.utils = new StandardBTCRelayWalletUtils(this.rpcURL, undefined, false, this.apiKey);
   }
 
   public setAPIKey(apiKey: string | null): void {
     this.apiKey = apiKey;
-    // Reinitialize standard Blockchair utils with new API key for both legacy and SegWit
     this.utils = new StandardBTCRelayWalletUtils(this.rpcURL!, undefined, false, this.apiKey);
   }
 

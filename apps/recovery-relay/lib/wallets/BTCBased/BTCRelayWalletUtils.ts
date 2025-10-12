@@ -85,7 +85,6 @@ export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
     // }
 
     const { transaction_hash: hash, index } = utxo;
-    // Use Blockchair's raw transaction endpoint
     const txData = await this.requestJson<{ data: { [key: string]: { raw_transaction: string } } }>(
       `/raw/transaction/${hash}?key=${this.apiKey}`,
     );
@@ -93,7 +92,6 @@ export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
     const rawTxHex = txData.data[hash].raw_transaction;
     console.log('Raw tx hex:', { hash, rawTxHex, length: rawTxHex?.length });
 
-    // Convert hex string to Uint8Array instead of Buffer for better serialization compatibility
     const hexBytes = rawTxHex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || [];
     const nonWitnessUtxo = new Uint8Array(hexBytes);
 
