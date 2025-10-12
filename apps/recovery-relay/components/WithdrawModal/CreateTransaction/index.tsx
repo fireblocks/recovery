@@ -155,7 +155,11 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
 
   const fromAddress = values.fromAddress ?? defaultValues.fromAddress;
 
-  const derivation = wallet?.derivations?.get(getDerivationMapKey(asset?.id, fromAddress));
+  // Try with the standard key first, then fallback to just the address for legacy BTC entries
+  // This handles the case where legacy addresses are stored with just the address as the key
+  const derivation = fromAddress
+    ? wallet?.derivations?.get(getDerivationMapKey(asset?.id, fromAddress)) ?? wallet?.derivations?.get(fromAddress)
+    : undefined;
 
   // TODO: Show both original balance and adjusted balance in create tx UI
 

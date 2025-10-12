@@ -26,6 +26,7 @@
     "dev": "concurrently \"yarn workspace @fireblocks/recovery-relay dev\" \"yarn wait-on tcp:3000 && yarn workspace @fireblocks/recovery-utility dev\"",
     "clean": "[ -f scripts/clean.local.sh ] && ./scripts/clean.local.sh || ./scripts/clean.sh",
     "build": "[ -f scripts/build.local.sh ] && ./scripts/build.local.sh || ./scripts/build.sh",
+    "build:all": "./scripts/build-cross-platform.sh",
     "forcebuild": "yarn turbo run build --force",
     "test": "turbo run test",
     "lint": "turbo run lint",

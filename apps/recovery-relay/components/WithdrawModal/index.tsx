@@ -83,7 +83,11 @@ export const WithdrawModal = () => {
     const { assetId } = params.signedTx;
     const wallet = accounts.get(params.accountId)?.wallets.get(assetId);
 
-    const derivation = wallet?.derivations?.get(getDerivationMapKey(assetId, params.signedTx.from));
+    // Try with the standard key first, then fallback to just the address for legacy BTC entries
+    const fromAddress = params.signedTx.from;
+    const derivation = fromAddress
+      ? wallet?.derivations?.get(getDerivationMapKey(assetId, fromAddress)) ?? wallet?.derivations?.get(fromAddress)
+      : undefined;
     if (isTransferableToken(assetId) && derivation instanceof ERC20) {
       (derivation as ERC20).setNativeAsset(getAssetConfig(assetId)!.nativeAsset);
     }
@@ -129,6 +133,14 @@ export const WithdrawModal = () => {
   };
 
   logger.info('Outbound URL', { outboundRelayUrl });
+
+  // Log the full URL for easy copying (especially useful for large legacy BTC transactions)
+  if (outboundRelayUrl) {
+    console.log('='.repeat(80));
+    console.log('COPY THIS RELAY URL:');
+    console.log(outboundRelayUrl);
+    console.log('='.repeat(80));
+  }
 
   return (
     <BaseModal

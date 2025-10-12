@@ -186,7 +186,8 @@ export const reduceDerivations = <App extends 'utility' | 'relay', T extends Bas
         isLegacy: !isLegacy,
       });
 
-      wallet.derivations.set(altDerivation.address, altDerivation);
+      // Use the proper key format (assetId-address) for consistency with other derivations
+      wallet.derivations.set(getDerivationMapKey(altDerivation.assetId, altDerivation.address), altDerivation);
     }
   }
 
