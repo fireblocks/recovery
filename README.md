@@ -22,7 +22,7 @@
 
 ## 🆕 Coming from [fireblocks-key-recovery-tool](https://github.com/fireblocks/fireblocks-key-recovery-tool)?
 
-[Recovery Utility](apps/recovery-utility) offers a simple UI for your entire workspace backup and recovery lifecycle.
+[Recovery Utility](apps/recovery-utility) offers a UI for your entire workspace backup and recovery lifecycle.
 
 - Generate and verify keys for a new Recovery Kit.
 - Verify your recovery procedure (sanity test).
