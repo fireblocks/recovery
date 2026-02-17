@@ -12,9 +12,9 @@ export const defaultRPCs: Record<
 > = {
   ALGO: { url: null, allowedEmptyValue: true, enabled: true, name: 'Algorand' },
   ALGO_TEST: { url: null, allowedEmptyValue: true, enabled: true, name: 'Algorand Testnet' },
-  AVAX: { url: 'https://api.avax-test.network/ext/bc/C/rpc', name: 'Avalance C-Chain', enabled: true, allowedEmptyValue: false },
+  AVAX: { url: 'https://api.avax.network/ext/bc/C/rpc', name: 'Avalance C-Chain', enabled: true, allowedEmptyValue: false },
   AVAXTEST: {
-    url: 'https://api.avax.network/ext/bc/C/rpc',
+    url: 'https://api.avax-test.network/ext/bc/C/rpc',
     name: 'Avalance C-Chain Testnet',
     enabled: true,
     allowedEmptyValue: false,
@@ -105,7 +105,7 @@ export const defaultRPCs: Record<
     allowedEmptyValue: false,
   },
   ETH_TEST5: {
-    url: 'https://ethereum-sepolia-rpc.publicnode.com',
+    url: 'https://sepolia.drpc.org',
     name: 'Ethereum Sepolia Testnet',
     enabled: true,
     allowedEmptyValue: false,
