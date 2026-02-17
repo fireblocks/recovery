@@ -105,7 +105,7 @@ export const defaultRPCs: Record<
     allowedEmptyValue: false,
   },
   ETH_TEST5: {
-    url: 'https://ethereum-sepolia-rpc.publicnode.com',
+    url: 'https://sepolia.drpc.org',
     name: 'Ethereum Sepolia Testnet',
     enabled: true,
     allowedEmptyValue: false,

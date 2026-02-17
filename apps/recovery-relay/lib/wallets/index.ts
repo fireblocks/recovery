@@ -42,7 +42,7 @@ import { Jetton } from './Jetton';
 import { ERC20 } from './ERC20';
 import { TRC20 } from './TRC20';
 import { SPL } from './SPL';
-import { getAllSpls } from '@fireblocks/asset-config/assets';
+import { getAllSpls, getAllXlms, getAllXRPs } from '@fireblocks/asset-config/assets';
 
 import { Flare } from './EVM/FLR';
 export { ConnectedWallet } from './ConnectedWallet';
@@ -99,6 +99,32 @@ const fillSpls = () => {
   return spls;
 };
 
+const fillXlms = () => {
+  const xlmsList = getAllXlms();
+  const xlms = xlmsList.reduce(
+    (prev, curr) => ({
+      ...prev,
+      [curr]: Stellar,
+    }),
+    {},
+  ) as any;
+  Object.keys(xlms).forEach((key) => (xlms[key] === undefined ? delete xlms[key] : {}));
+  return xlms;
+};
+
+const fillXRPs = () => {
+  const xrpsList = getAllXRPs();
+  const xrps = xrpsList.reduce(
+    (prev, curr) => ({
+      ...prev,
+      [curr]: Ripple,
+    }),
+    {},
+  ) as any;
+  Object.keys(xrps).forEach((key) => (xrps[key] === undefined ? delete xrps[key] : {}));
+  return xrps;
+};
+
 export const WalletClasses = {
   ALGO: Algorand,
   ALGO_TEST: Algorand,
@@ -142,6 +168,8 @@ export const WalletClasses = {
   XDC: XinFin,
   XRP: Ripple,
   XRP_TEST: Ripple,
+  ...fillXRPs(),
+
   RBTC: RootstockBTC,
   RBTC_TEST: RootstockBTC,
   SGB: Songbird,
@@ -188,6 +216,7 @@ export const WalletClasses = {
   ...fillJettons(),
   ...fillERC20s(),
   ...fillTRC20s(),
+  ...fillXlms(),
 } as const;
 
 type WalletClass = (typeof WalletClasses)[keyof typeof WalletClasses];
