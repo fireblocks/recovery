@@ -358,7 +358,11 @@ export const CreateTransaction = ({ asset, inboundRelayParams, setSignTxResponse
             id={addressExplorerId}
             variant='outlined'
             component={NextLinkComposed}
-            to={asset.getExplorerUrl?.('address')(fromAddress ?? '')}
+            to={
+              asset.nativeAsset === 'XRP'
+                ? asset.getExplorerUrl?.('accounts')(fromAddress ?? '')
+                : asset.getExplorerUrl?.('address')(fromAddress ?? '')
+            }
             target='_blank'
             rel='noopener noreferrer'
           >
