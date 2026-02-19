@@ -1,5 +1,5 @@
 import { Stellar as BaseXLM } from '@fireblocks/wallet-derivation';
-import { AccountResponse, Networks, Server, Transaction, xdr } from 'stellar-sdk';
+import { AccountResponse, Networks, NotFoundError, Server, Transaction, xdr } from 'stellar-sdk';
 import { ConnectedWallet } from '../ConnectedWallet';
 import { AccountData } from '../types';
 
@@ -25,13 +25,27 @@ export class Stellar extends BaseXLM implements ConnectedWallet {
     return parseFloat(nativeBalances[0].balance);
   }
 
-  public async prepare(): Promise<AccountData> {
+  public async prepare(toAddress: string): Promise<AccountData> {
     const balance = await this.getBalance();
     const sequence = this.account!.sequenceNumber();
 
     const extraParams = new Map<string, any>();
     extraParams.set(this.KEY_SEQUENCE, sequence);
     extraParams.set(this.KEY_ACCOUNT_ID, this.account!.accountId());
+    extraParams.set('ACCOUNT_BALANCE', balance);
+
+    let destinationExists = true;
+    try {
+      await this.xlmServer!.loadAccount(toAddress);
+    } catch (err) {
+      if (err instanceof NotFoundError) {
+        destinationExists = false;
+      } else {
+        throw err;
+      }
+    }
+
+    extraParams.set('DESTINATION_EXISTS', destinationExists);
 
     const preparedData = {
       balance,

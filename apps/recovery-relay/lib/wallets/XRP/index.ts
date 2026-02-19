@@ -15,6 +15,56 @@ export class Ripple extends BaseRipple implements ConnectedWallet {
     this.xrpClient = new Client(url);
   }
 
+  /**
+   * Calculate the minimum XRP balance required (base reserve + owner reserve)
+   */
+  private async getMinimumReserve(): Promise<number> {
+    if (!this.xrpClient!.isConnected()) {
+      await this.xrpClient!.connect();
+    }
+
+    const accountInfo = await this.xrpClient!.request({
+      command: 'account_info',
+      account: this.address,
+      ledger_index: 'validated',
+    });
+
+    const ownerCount = accountInfo.result.account_data.OwnerCount || 0;
+
+    const serverInfo = await this.xrpClient!.request({
+      command: 'server_info',
+    });
+
+    const validatedLedger = serverInfo.result.info.validated_ledger;
+
+    if (!validatedLedger) {
+      // Fallback to current known mainnet values if server hasn't validated yet
+      const defaultReserveBase = 1;
+      const defaultReserveInc = 0.2;
+
+      this.relayLogger.warn(
+        `XRP server hasn't validated a ledger yet. Using default reserve values: base=${defaultReserveBase}, increment=${defaultReserveInc}`,
+      );
+
+      return defaultReserveBase + ownerCount * defaultReserveInc;
+    }
+
+    const reserveBase = validatedLedger.reserve_base_xrp;
+    const reserveInc = validatedLedger.reserve_inc_xrp;
+
+    if (reserveBase === undefined || reserveInc === undefined) {
+      throw new Error('Failed to retrieve reserve requirements from XRP Ledger server');
+    }
+
+    const totalReserve = reserveBase + ownerCount * reserveInc;
+
+    this.relayLogger.debug(
+      `XRP Reserve calculation: base=${reserveBase}, increment=${reserveInc}, ownerCount=${ownerCount}, total=${totalReserve}`,
+    );
+
+    return totalReserve;
+  }
+
   public async getBalance(): Promise<number> {
     if (!this.xrpClient!.isConnected()) {
       await this.xrpClient!.connect();
@@ -27,6 +77,9 @@ export class Ripple extends BaseRipple implements ConnectedWallet {
 
   public async prepare(): Promise<AccountData> {
     const balance = await this.getBalance();
+
+    const minReserve = await this.getMinimumReserve();
+
     // Fee calculation
     const netFeeXRP = await getFeeXrp(this.xrpClient!);
     const netFeeDrops = xrpToDrops(netFeeXRP);
@@ -49,11 +102,12 @@ export class Ripple extends BaseRipple implements ConnectedWallet {
         })
       ).result.account_data.Sequence,
     );
+    const availableBalance = balance - minReserve;
 
     const preparedData = {
-      balance: parseFloat((balance - this.MIN_XRP_BALANCE).toFixed(6)),
+      balance: parseFloat(availableBalance.toFixed(6)),
       extraParams,
-      insufficientBalance: balance - this.MIN_XRP_BALANCE < 0.0001,
+      insufficientBalance: availableBalance < 0.0001,
     };
 
     this.relayLogger.logPreparedData('Ripple', preparedData);

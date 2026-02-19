@@ -17,7 +17,7 @@ import { sanatize } from '@fireblocks/recovery-shared/lib/sanatize';
 import { getAssetConfig, isTransferableToken } from '@fireblocks/asset-config/util';
 import { SignOrBroadcastTransaction } from '@fireblocks/recovery-shared/components';
 import { useWorkspace } from '../../context/Workspace';
-import { CreateTransaction, getAssetURL } from './CreateTransaction';
+import { CreateTransaction, getAssetURLAndApiKey } from './CreateTransaction';
 import { LateInitConnectedWallet } from '../../lib/wallets/LateInitConnectedWallet';
 import { useSettings } from '../../context/Settings';
 import { ERC20 } from '../../lib/wallets/ERC20';
@@ -83,11 +83,18 @@ export const WithdrawModal = () => {
     const { assetId } = params.signedTx;
     const wallet = accounts.get(params.accountId)?.wallets.get(assetId);
 
-    const derivation = wallet?.derivations?.get(getDerivationMapKey(assetId, params.signedTx.from));
+    const fromAddress = params.signedTx.from;
+    const derivation = fromAddress
+      ? wallet?.derivations?.get(getDerivationMapKey(assetId, fromAddress)) ?? wallet?.derivations?.get(fromAddress)
+      : undefined;
     if (isTransferableToken(assetId) && derivation instanceof ERC20) {
       (derivation as ERC20).setNativeAsset(getAssetConfig(assetId)!.nativeAsset);
     }
-    const rpcUrl = getAssetURL(derivation?.assetId ?? '', RPCs);
+    const data = getAssetURLAndApiKey(derivation?.assetId ?? '', RPCs);
+    if (!data) {
+      throw new Error(`No RPC data for: ${derivation?.assetId}`);
+    }
+    const { url: rpcUrl, requiresApiKey, apiKey } = data;
     if (rpcUrl === undefined) {
       throw new Error(`No RPC URL for asset ${derivation?.assetId}`);
     } else if (rpcUrl === null) {
@@ -98,12 +105,20 @@ export const WithdrawModal = () => {
       derivation?.setRPCUrl(rpcUrl);
     }
 
+    if (requiresApiKey) {
+      if (!apiKey || apiKey === '') {
+        throw new Error(`RPC for ${derivation?.assetId} requires an API key`);
+      } else {
+        derivation!.setAPIKey(apiKey);
+      }
+    }
+
     const signedTxHex = params.signedTx.hex;
 
     const cleanDerivation = derivation ? sanatize(derivation) : undefined;
     logger.info('Derivation and signed transaction hash:', { cleanDerivation, signedTxHex });
     try {
-      const newTxHash = await derivation?.broadcastTx(signedTxHex);
+      const newTxHash = await derivation?.broadcastTx(signedTxHex, logger, derivation?.assetId);
 
       setTxHash(newTxHash);
       logger.info({ newTxHash });
@@ -117,6 +132,13 @@ export const WithdrawModal = () => {
   };
 
   logger.info('Outbound URL', { outboundRelayUrl });
+
+  if (outboundRelayUrl) {
+    console.log('='.repeat(80));
+    console.log('COPY THIS RELAY URL:');
+    console.log(outboundRelayUrl);
+    console.log('='.repeat(80));
+  }
 
   return (
     <BaseModal
