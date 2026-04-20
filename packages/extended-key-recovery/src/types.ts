@@ -127,12 +127,20 @@ export class InvalidMasterKey extends Error {
 
 export type PlayerData = { [keyId: string]: { [playerId: string]: bigint } };
 
+export type MobileKeyShareEncryptionMetaData = {
+  iv?: string;
+  kdfHash?: string;
+  kdfIterations?: number;
+  version?: number;
+};
+
 export type MobileKeyShare = {
   encryptedKey: string;
   keyId: string;
   deviceId: string;
   userId: string;
   encryptionAlgorithm: string;
+  encryptionMetaData?: MobileKeyShareEncryptionMetaData;
 };
 
 export type RecoveredKey = {

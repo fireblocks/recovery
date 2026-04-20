@@ -1,4 +1,5 @@
 import * as forge from 'node-forge';
+import { pbkdf2Sync, createDecipheriv } from 'crypto';
 
 const _unpad = (text: Buffer, k = 16): Buffer => {
   const nl = text.length;
@@ -11,6 +12,20 @@ const _unpad = (text: Buffer, k = 16): Buffer => {
   }
   const l_idx = nl - val;
   return text.subarray(0, l_idx);
+};
+
+export const decryptMobilePrivateKeyV2 = (
+  pass: string,
+  userId: string,
+  encryptedKey: Buffer,
+  iv: string,
+  kdfHash: string,
+  kdfIterations: number,
+): Buffer => {
+  const digest = kdfHash.toUpperCase() === 'SHA256' ? 'sha256' : 'sha1';
+  const wrappedKey = pbkdf2Sync(pass, userId, kdfIterations, 32, digest);
+  const decipher = createDecipheriv('aes-256-cbc', wrappedKey, Buffer.from(iv, 'hex'));
+  return Buffer.concat([decipher.update(encryptedKey), decipher.final()]);
 };
 
 export const decryptMobilePrivateKey = (pass: string, userId: string, encryptedKey: Buffer): Buffer => {
