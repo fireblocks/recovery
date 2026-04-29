@@ -5,7 +5,7 @@ type RawAsset = RawAssets[number];
 
 export type NativeAssetId = RawAsset['nativeAsset'];
 
-export type GetExplorerUrl = (type: 'tx' | 'address') => (value: string) => string;
+export type GetExplorerUrl = (type: 'tx' | 'address' | 'accounts') => (value: string) => string;
 
 export type NativeAssetPatch = {
   derive?: boolean;

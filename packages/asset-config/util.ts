@@ -34,7 +34,12 @@ export const isExplorerUrl = (url: string) => {
         assetId in endingsToRemove
           ? asset.getExplorerUrl('address')('').replace(endingsToRemove[assetId], '')
           : asset.getExplorerUrl('address')('');
-      return url.startsWith(addressUrl) || url.startsWith(txUrl);
+      const accountsUrl =
+        assetId in endingsToRemove
+          ? asset.getExplorerUrl('accounts')('').replace(endingsToRemove[assetId], '')
+          : asset.getExplorerUrl('accounts')('');
+
+      return url.startsWith(txUrl) || url.startsWith(addressUrl) || (accountsUrl ? url.startsWith(accountsUrl) : false);
     }
     return false;
   });

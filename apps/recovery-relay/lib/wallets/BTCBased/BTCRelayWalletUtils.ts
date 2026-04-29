@@ -3,6 +3,7 @@ import { ipcRenderer } from 'electron';
 import { BTCLegacyUTXO, BTCSegwitUTXO } from '../types';
 import { BTCRelayWallet } from './BTCRelayWallet';
 import { StandardAddressSummary, StandardBlockchainStats, StandardFullUTXO, StandardUTXO } from './types';
+import { defaultRPCs } from '../../defaultRPCs';
 
 export interface BTCRelayWalletUtils {
   getAddressUTXOs: (address: string) => Promise<StandardUTXO[]>;
@@ -10,11 +11,24 @@ export interface BTCRelayWalletUtils {
   getFeeRate: () => Promise<number>;
   getLegacyFullUTXO?: (utxo: StandardUTXO) => Promise<BTCLegacyUTXO>;
   getSegwitUTXO: (utxo: StandardUTXO) => Promise<BTCSegwitUTXO | undefined>;
-  broadcastTx?: (txHex: string, logger: CustomElectronLogger) => Promise<string>;
+  broadcastTx?: (txHex: string, logger: CustomElectronLogger, assetId?: string | undefined) => Promise<string>;
 }
 
 export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
-  constructor(private baseUrl: string, private overrides?: BTCRelayWalletUtils, private fetchOnMain = false) {}
+  constructor(
+    private baseUrl: string,
+    private overrides?: BTCRelayWalletUtils,
+    private fetchOnMain = false,
+    private apiKey: string | null = null,
+  ) {}
+
+  public setAPIKey(apiKey: string | null): void {
+    this.apiKey = apiKey;
+  }
+
+  public getApiKey(): string | null {
+    return this.apiKey;
+  }
 
   async request(path: string, init?: RequestInit) {
     let res: Response;
@@ -37,7 +51,9 @@ export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
     if (this.overrides && this.overrides.getAddressUTXOs) {
       return this.overrides.getAddressUTXOs(address);
     }
-    const addressSummary = await this.requestJson<StandardAddressSummary>(`/dashboards/address/${address}?limit=0,10000`);
+    const addressSummary = await this.requestJson<StandardAddressSummary>(
+      `/dashboards/address/${address}?limit=0,10000&key=${this.apiKey}`,
+    );
 
     return addressSummary.data[address].utxo;
   }
@@ -46,8 +62,9 @@ export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
     if (this.overrides && this.overrides.getAddressBalance) {
       return this.overrides.getAddressBalance(address);
     }
-    const { balance } = (await this.requestJson<StandardAddressSummary>(`/dashboards/address/${address}?limit=0,0`)).data[address]
-      .address;
+    const { balance } = (
+      await this.requestJson<StandardAddressSummary>(`/dashboards/address/${address}?limit=0,0&key=${this.apiKey}`)
+    ).data[address].address;
 
     return balance;
   }
@@ -56,7 +73,7 @@ export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
     if (this.overrides && this.overrides.getFeeRate) {
       return this.overrides.getFeeRate();
     }
-    const bcStats = await this.requestJson<StandardBlockchainStats>('/stats');
+    const bcStats = await this.requestJson<StandardBlockchainStats>(`/stats?key=${this.apiKey}`);
     const feeRate = bcStats.data.suggested_transaction_fee_per_byte_sat;
     return feeRate;
   }
@@ -68,9 +85,15 @@ export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
     // }
 
     const { transaction_hash: hash, index } = utxo;
-    const rawTxRes = await this.request(`/tx/${hash}/raw`);
-    const rawTx = await rawTxRes.arrayBuffer();
-    const nonWitnessUtxo = Buffer.from(rawTx);
+    const txData = await this.requestJson<{ data: { [key: string]: { raw_transaction: string } } }>(
+      `/raw/transaction/${hash}?key=${this.apiKey}`,
+    );
+    console.log('Blockchair raw tx response:', { hash, txData });
+    const rawTxHex = txData.data[hash].raw_transaction;
+    console.log('Raw tx hex:', { hash, rawTxHex, length: rawTxHex?.length });
+
+    const hexBytes = rawTxHex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || [];
+    const nonWitnessUtxo = new Uint8Array(hexBytes);
 
     return {
       hash,
@@ -87,7 +110,7 @@ export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
     }
 
     const { transaction_hash: hash, index } = utxo;
-    const fullUtxo = await this.requestJson<StandardFullUTXO>(`/dashboards/transaction/${hash}`);
+    const fullUtxo = await this.requestJson<StandardFullUTXO>(`/dashboards/transaction/${hash}?key=${this.apiKey}`);
     if (fullUtxo.data[hash].transaction.block_id === -1) {
       return undefined;
     }
@@ -102,9 +125,33 @@ export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
     };
   }
 
-  async broadcastTx(txHex: string, logger: CustomElectronLogger): Promise<string> {
+  async broadcastTx(txHex: string, logger: CustomElectronLogger, assetId?: string | undefined): Promise<string> {
     if (this.overrides && this.overrides.broadcastTx) {
       return this.overrides.broadcastTx(txHex, logger);
+    }
+
+    // Use Blockstream for Bitcoin Testnet as Blockhiar returns 500
+    if (assetId === 'BTC_TEST') {
+      const broadcastUrl = defaultRPCs.BTC_TEST.broadcastUrl;
+
+      if (!broadcastUrl) {
+        throw new Error('No broadcast URL for BTC Testnet');
+      }
+
+      logger.info('Broadcasting via Blockstream testnet...');
+      const res = await fetch(broadcastUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: txHex,
+      });
+
+      const text = await res.text();
+      if (!res.ok) {
+        throw new Error(`Blockstream broadcast failed: ${res.status} ${text}`);
+      }
+
+      logger.info(`Broadcast successful via Blockstream: ${text}`);
+      return text.trim();
     }
 
     try {
@@ -112,7 +159,7 @@ export class StandardBTCRelayWalletUtils implements BTCRelayWalletUtils {
         data?: { transaction_hash: string; [key: string]: any };
         context: { code: number; error: string; [key: string]: any };
       } = await (
-        await this.request('/push/transaction', {
+        await this.request(`/push/transaction?key=${this.apiKey}`, {
           method: 'POST',
           body: `data=${txHex}`,
           headers: [['Content-Type', 'application/x-www-form-urlencoded']],
