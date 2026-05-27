@@ -186,6 +186,12 @@ export type KeyRecoveryConfig = {
    * Should only recover NCW wallet
    */
   recoverOnlyNCW: boolean;
+
+  /**
+   * Optional logger callback. Used to surface non-sensitive flow info
+   * (e.g. v1 vs v2 mobile-key decryption dispatch) to the host app's logger.
+   */
+  onLog?: (message: string) => void;
 } & (
   | {
       /**

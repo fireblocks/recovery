@@ -37,7 +37,11 @@ export const recoverExtendedKeys = async (args: Args) => {
     } as KeyRecoveryConfig;
   }
 
-  config = { ...config, recoverOnlyNCW: args.recoverOnlyNCW };
+  config = {
+    ...config,
+    recoverOnlyNCW: args.recoverOnlyNCW,
+    onLog: (msg: string) => logger.info(msg),
+  };
 
   const response = recoverKeys(config);
   return response;
