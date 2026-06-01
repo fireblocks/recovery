@@ -1,16 +1,16 @@
 * @fireblocks-solutions-engineering
 
 # Recovery Utility
-packages/recovery-utility/ @fireblocks-solutions-engineering @Burry @gburry-fireblocks
+packages/recovery-utility/ @fireblocks-solutions-engineering @slava23 @nadav14 @costyb
 
 # Recovery Relay
-packages/recovery-relay/ @fireblocks-solutions-engineering @Burry @gburry-fireblocks
+packages/recovery-relay/ @fireblocks-solutions-engineering @slava23 @nadav14 @costyb
 
 # Shared frontend components and utilities
-packages/shared/ @fireblocks-solutions-engineering @Burry @gburry-fireblocks
+packages/shared/ @fireblocks-solutions-engineering @slava23 @nadav14 @costyb
 
 # Extended Key Recovery module
-packages/extended-key-recovery/ @fireblocks-solutions-engineering @agoltzman
+packages/extended-key-recovery/ @fireblocks-solutions-engineering @slava23 @nadav14 @costyb
 
 # Wallet Derivation helpers
-packages/wallet-derivation/ @fireblocks-solutions-engineering @Burry @gburry-fireblocks
+packages/wallet-derivation/ @fireblocks-solutions-engineering @slava23 @nadav14 @costyb
