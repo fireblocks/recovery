@@ -84,7 +84,7 @@ export const reduceDerivations = <App extends 'utility' | 'relay', T extends Bas
 
   // Mock derivation
   if (address) {
-    wallet.derivations.set(address, {
+    wallet.derivations.set(getDerivationMapKey(assetId, address), {
       assetId,
       path,
       pathParts: [44, path.coinType, path.account, path.changeIndex, path.addressIndex],
@@ -159,7 +159,8 @@ export const reduceDerivations = <App extends 'utility' | 'relay', T extends Bas
 
   const missingWalletKey = (hasXpub && !publicKey) || (hasXprv && !privateKey);
 
-  const shouldDerive = canDerive && (missingWalletKey || !address || !wallet.derivations.has(address));
+  const shouldDerive =
+    canDerive && (missingWalletKey || !address || !wallet.derivations.has(getDerivationMapKey(assetId, address)));
 
   // Derive wallet
   if (shouldDerive) {
@@ -169,7 +170,7 @@ export const reduceDerivations = <App extends 'utility' | 'relay', T extends Bas
     if (address && derivation.address !== address) {
       // TODO: Show notice in UI when this happens. For now just remove the erroneous imported address
       logger.warn(`Address mismatch, dropping import. Imported ${address}, derived ${derivation.address}`);
-      wallet.derivations.delete(address);
+      wallet.derivations.delete(getDerivationMapKey(assetId, address));
     }
 
     wallet.derivations.set(getDerivationMapKey(derivation.assetId, derivation.address), derivation);
