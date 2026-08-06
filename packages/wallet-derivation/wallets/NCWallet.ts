@@ -3,7 +3,20 @@ import { sha256 } from '@noble/hashes/sha256';
 import { hmac } from '@noble/hashes/hmac';
 import { sha512 } from '@noble/hashes/sha512';
 import { secp256k1 } from '@noble/curves/secp256k1';
+import { ed25519 } from '@noble/curves/ed25519';
 import { NCWalletShare } from '../types';
+
+type NCWAlgorithm = 'MPC_ECDSA_SECP256K1' | 'MPC_EDDSA_ED25519';
+
+const ALGORITHM_CURVE_ORDER: Record<NCWAlgorithm, bigint> = {
+  MPC_ECDSA_SECP256K1: secp256k1.CURVE.n,
+  MPC_EDDSA_ED25519: ed25519.CURVE.n,
+};
+
+const ALGORITHM_SHARE_KEY: Record<NCWAlgorithm, string> = {
+  MPC_ECDSA_SECP256K1: 'MPC_CMP_ECDSA_SECP256K1',
+  MPC_EDDSA_ED25519: 'MPC_CMP_EDDSA_ED25519',
+};
 
 export class NCWallet {
   private derivationChildNum: Buffer;
@@ -19,19 +32,14 @@ export class NCWallet {
     }
   }
 
-  algorithmToMod(algorithm: string): bigint {
-    if (algorithm !== 'MPC_ECDSA_SECP256K1') {
+  public derivePrivateKey(walletId: string, algorithm: NCWAlgorithm): NCWalletShare {
+    this.assertValidWalletId(walletId);
+    const targetOrder = ALGORITHM_CURVE_ORDER[algorithm];
+    if (!targetOrder) {
       throw new Error(`Unsupported algorithm: ${algorithm}`);
     }
 
-    return secp256k1.CURVE.n;
-  }
-
-  public derivePrivateKey(walletId: string, algorithm: string): NCWalletShare {
-    this.assertValidWalletId(walletId);
-    const mod = this.algorithmToMod(algorithm);
     const wallestSeedBuf: Buffer = Buffer.from(this.walletMaster.walletSeed, 'hex');
-
     const walletIdBuf = Buffer.from(walletId);
 
     const chainCode = sha256
@@ -53,19 +61,22 @@ export class NCWallet {
       );
       const base = BigInt(masterKey.startsWith('0x') ? masterKey : `0x${masterKey}`);
 
+      // BIP-32 hardened child derivation — always on secp256k1 regardless of target algorithm
       const derivedX = ((base + offset) % secp256k1.CURVE.n).toString(16);
       const derived = Buffer.from(`${'0'.repeat(64 - derivedX.length)}${derivedX}`, 'hex');
 
+      // SHA-512 expansion, reduced directly mod the target curve order
       const expansionBuf = sha512.create().update(derived).digest();
-      const expansion = BigInt(`0x${Buffer.from(expansionBuf).toString('hex')}`) % secp256k1.CURVE.n;
+      const walletShare = BigInt(`0x${Buffer.from(expansionBuf).toString('hex')}`) % targetOrder;
 
-      const walletShare = expansion % mod;
-
-      result[cosignerId] = walletShare.toString(16).replace('0x', '');
+      const hex = walletShare.toString(16);
+      result[cosignerId] = hex.padStart(64, '0');
     });
+
+    const shareKey = ALGORITHM_SHARE_KEY[algorithm];
     return {
       chainCode: this.deriveAssetChainCode(walletId),
-      shares: Object.entries(result).map(([cosigner, share]) => ({ cosigner, MPC_CMP_ECDSA_SECP256K1: share })),
+      shares: Object.entries(result).map(([cosigner, share]) => ({ cosigner, [shareKey]: share })),
     };
   }
 
