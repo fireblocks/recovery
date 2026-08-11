@@ -23,7 +23,10 @@ export class Tron extends ECDSAWallet {
       y = fieldP - y;
     }
 
-    this.decompressedPubKey = `04${this.publicKey.replace('0x', '').slice(2)}${y.toString(16).replace('0x', '')}`;
+    this.decompressedPubKey = `04${this.publicKey.replace('0x', '').slice(2)}${y
+      .toString(16)
+      .replace('0x', '')
+      .padStart(64, '0')}`;
 
     const hash = `41${keccak256(Buffer.from(this.decompressedPubKey?.slice(2), 'hex')).slice(-40)}`;
     return bs58check.encode(Buffer.from(hash, 'hex'));
