@@ -98,8 +98,11 @@ export const RecoveryForm = ({ verifyOnly }: Props) => {
       const maskedExtendedKeys: UtilityExtendedKeys = {};
 
       Object.entries(recoveredKeys).forEach(([keysetId, value]) => {
-        if (keysetId === 'ncwMaster' && !verifyOnly) {
-          maskedExtendedKeys.ncwMaster = value as WalletMaster | undefined;
+        // recoverKeys returns the NCW master under `ncwWalletMaster`, not as a keyset entry
+        if (keysetId === 'ncwWalletMaster') {
+          if (!verifyOnly) {
+            maskedExtendedKeys.ncwMaster = value as WalletMaster | undefined;
+          }
           return;
         }
 
