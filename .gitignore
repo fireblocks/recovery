@@ -5,15 +5,19 @@
 *.pem
 *.key
 
+# Claude
+.claude/
+CLAUDE.md
+
 # Dependencies
 dependencies
 node_modules
 .pnp
 .pnp.js
 .claude/
+yarn.lock
 # Generated dependency attributions
 ATTRIBUTION.md
-.gitlab-ci.yml
 
 # Testing
 coverage

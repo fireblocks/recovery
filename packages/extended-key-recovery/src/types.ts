@@ -127,12 +127,20 @@ export class InvalidMasterKey extends Error {
 
 export type PlayerData = { [keyId: string]: { [playerId: string]: bigint } };
 
+export type MobileKeyShareEncryptionMetaData = {
+  iv?: string;
+  kdfHash?: string;
+  kdfIterations?: number;
+  version?: number;
+};
+
 export type MobileKeyShare = {
   encryptedKey: string;
   keyId: string;
   deviceId: string;
   userId: string;
   encryptionAlgorithm: string;
+  encryptionMetaData?: MobileKeyShareEncryptionMetaData;
 };
 
 export type RecoveredKey = {
@@ -178,6 +186,12 @@ export type KeyRecoveryConfig = {
    * Should only recover NCW wallet
    */
   recoverOnlyNCW: boolean;
+
+  /**
+   * Optional logger callback. Used to surface non-sensitive flow info
+   * (e.g. v1 vs v2 mobile-key decryption dispatch) to the host app's logger.
+   */
+  onLog?: (message: string) => void;
 } & (
   | {
       /**

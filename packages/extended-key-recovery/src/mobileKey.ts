@@ -1,4 +1,4 @@
-import { decryptMobilePrivateKey } from './decrypt';
+import { decryptMobilePrivateKey, decryptMobilePrivateKeyV2 } from './decrypt';
 import { getPlayerId } from './players';
 import { DecryptMobileKeyError, KeyIdNotInMetadata, MobileKeyShare, SigningKeyMetadata, UnknownAlgorithmError } from './types';
 
@@ -13,6 +13,7 @@ export const recoverMobileKeyShare = (
   signingKeys: { [key: string]: SigningKeyMetadata },
   keyShareStr: string,
   mobilePass: string,
+  onLog?: (message: string) => void,
 ) => {
   const keyShare = JSON.parse(keyShareStr) as MobileKeyShare;
   const { keyId } = keyShare;
@@ -22,7 +23,21 @@ export const recoverMobileKeyShare = (
   }
 
   try {
-    decryptedKey = decryptMobilePrivateKey(mobilePass, keyShare.userId, Buffer.from(keyShare.encryptedKey, 'hex'));
+    const meta = keyShare.encryptionMetaData;
+    if (meta?.version === 2 && meta.iv && meta.kdfHash && meta.kdfIterations) {
+      onLog?.(`[mobileKey] Decrypting share with V2 (kdfHash=${meta.kdfHash}, kdfIterations=${meta.kdfIterations})`);
+      decryptedKey = decryptMobilePrivateKeyV2(
+        mobilePass,
+        keyShare.userId,
+        Buffer.from(keyShare.encryptedKey, 'hex'),
+        meta.iv,
+        meta.kdfHash,
+        meta.kdfIterations,
+      );
+    } else {
+      onLog?.(`[mobileKey] Decrypting share with V1 (metaVersion=${meta?.version ?? 'none'})`);
+      decryptedKey = decryptMobilePrivateKey(mobilePass, keyShare.userId, Buffer.from(keyShare.encryptedKey, 'hex'));
+    }
   } catch (e) {
     throw new DecryptMobileKeyError();
   }

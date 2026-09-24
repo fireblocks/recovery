@@ -116,10 +116,7 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
       if (app === 'utility') {
         const keys = extendedKeys as UtilityExtendedKeys;
         const newExtendedKeys: KeysetMap = { ...prev.extendedKeys };
-        const newWorkspace = {
-          ...prev,
-          ncwMaster: keys.ncwMaster,
-        };
+        const newWorkspace = { ...prev };
         Object.entries(keys).forEach(([keysetId, value]) => {
           if (keysetId === 'ncwMaster') {
             return;
@@ -131,7 +128,12 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
           };
         });
 
-        newWorkspace.extendedKeys = { ...newExtendedKeys };
+        // ncwMaster lives alongside the keyset entries on extendedKeys - every consumer
+        // (Layout, /ncw, wallet derivation) reads it from there.
+        newWorkspace.extendedKeys = {
+          ...newExtendedKeys,
+          ncwMaster: keys.ncwMaster ?? (newExtendedKeys as UtilityExtendedKeys).ncwMaster,
+        } as typeof newWorkspace.extendedKeys;
 
         return newWorkspace;
       }

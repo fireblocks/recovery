@@ -87,7 +87,18 @@ const NCW = () => {
 
         const walletId = data['Wallet Id'];
         try {
-          setDerivedWalletKeys((prev) => ({ ...prev, [walletId]: euWallet.derivePrivateKey(walletId, 'MPC_ECDSA_SECP256K1') }));
+          const ecdsa = euWallet.derivePrivateKey(walletId, 'MPC_ECDSA_SECP256K1');
+          const eddsa = euWallet.derivePrivateKey(walletId, 'MPC_EDDSA_ED25519');
+
+          const mergedShares = ecdsa.shares.map((ecdsaShare) => {
+            const eddsaShare = eddsa.shares.find((s) => s.cosigner === ecdsaShare.cosigner);
+            return { ...ecdsaShare, ...eddsaShare };
+          });
+
+          setDerivedWalletKeys((prev) => ({
+            ...prev,
+            [walletId]: { chainCode: ecdsa.chainCode, shares: mergedShares },
+          }));
         } catch (e) {
           logger.error('Failed to derive wallet for wallet id:', walletId, e);
           throw e;

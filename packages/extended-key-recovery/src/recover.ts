@@ -37,11 +37,12 @@ const recoverKeysShares = (
   mobilePass: string,
   rsaFileData: string,
   rsaPass: string,
+  onLog?: (message: string) => void,
 ): PlayerData => {
   const players: PlayerData = {};
   for (const file of zipFiles) {
     if (file.entryName.startsWith('MOBILE')) {
-      const { keyId, playerId, value } = recoverMobileKeyShare(signingKeys, file.getData().toString(), mobilePass);
+      const { keyId, playerId, value } = recoverMobileKeyShare(signingKeys, file.getData().toString(), mobilePass, onLog);
       if (players[keyId] === undefined) {
         players[keyId] = {};
       }
@@ -174,7 +175,7 @@ export const recoverKeys = (params: KeyRecoveryConfig): RecoveredKeys => {
     return { ncwWalletMaster: walletMaster };
   }
 
-  const players: PlayerData = recoverKeysShares(zipFiles, signingKeys, mobilePass, rsaFileData, params.rsaPass);
+  const players: PlayerData = recoverKeysShares(zipFiles, signingKeys, mobilePass, rsaFileData, params.rsaPass, params.onLog);
 
   for (const keyId in signingKeys) {
     if (!Object.keys(players).includes(keyId)) {
