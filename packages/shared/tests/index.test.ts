@@ -210,6 +210,24 @@ Test,1523,BTC,Bitcoin,abcd,Deposit,1111111111,,`;
     });
   });
 
+  it('Should import CSV with quoted fields (console export format)', async () => {
+    const quotedCsv = `"Account Name","Account ID","Asset","Asset Name","Address","Address Type","Address Description","Tag","HD Path"
+"Default","0","BASECHAIN_ETH","Ethereum (Base)","abcd","Permanent","","","m / 44 / 60 / 0 / 0 / 0"`;
+    const rows: string[] = [];
+    await csvImport(Readable.from(quotedCsv), 'addresses', (row) => {
+      rows.push(row.address);
+    });
+    expect(rows).toEqual(['abcd']);
+  });
+
+  it('Should fail importing quoted CSV with macros', async () => {
+    const quotedMacroCsv = `"Account Name","Account ID","Asset","Asset Name","Address","Address Type","Address Description","Tag","HD Path"
+"Default","0","ETH","Ethereum","=6+2","Permanent","","","m / 44 / 60 / 0 / 0 / 0"`;
+    await expect(csvImport(Readable.from(quotedMacroCsv), 'addresses', (_) => {})).rejects.toThrow(
+      'Row contains prohibited characters - please reset workspace and check your importing CSV',
+    );
+  });
+
   it('Should fail importing CSV with too many fields error', async () => {
     expect(async () => {
       await csvImport(Readable.from(invalidCsvTooManyFields), 'addresses', (_) => {});
