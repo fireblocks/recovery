@@ -1,7 +1,7 @@
 import { createCipheriv, pbkdf2Sync, randomBytes } from 'crypto';
 import { decryptMobilePrivateKey } from '../src/decrypt';
 import { recoverMobileKeyShare } from '../src/mobileKey';
-import { DecryptMobileKeyError } from '../src/types';
+import { DecryptMobileKeyError, UnknownAlgorithmError } from '../src/types';
 
 const KEY_ID = '00000000-0000-4000-8000-000000000001';
 const USER_ID = '00000000-0000-4000-8000-000000000002';
@@ -60,6 +60,11 @@ describe('V1 mobile share decryption', () => {
     const share = buildShare(make(), PASS);
     const accepted = wrongPassphrases(300).filter((p) => tryRecover(share, p) === 'ok');
     expect(accepted).toEqual([]);
+  });
+
+  it('reports an unknown algorithm, not a passphrase error, when the passphrase is correct', () => {
+    const unknownAlgo = Buffer.concat([Buffer.from([2, 0, 0, 0]), randomBytes(32)]);
+    expect(() => recoverMobileKeyShare(signingKeys, buildShare(unknownAlgo, PASS), PASS)).toThrow(UnknownAlgorithmError);
   });
 
   it('rejects data whose padding bytes are inconsistent', () => {
