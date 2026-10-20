@@ -177,7 +177,6 @@ export const csvImport = async <T extends 'addresses' | 'balances'>(
       header: true,
       dynamicTyping: true,
       skipEmptyLines: 'greedy',
-      fastMode: true,
       step: ({ data, errors }) => {
         const sanatizedData = sanatize(data as unknown);
         logger.debug('csvImport', { sanatizedData, errors });

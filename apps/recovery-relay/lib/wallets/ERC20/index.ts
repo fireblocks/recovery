@@ -1,4 +1,4 @@
-import { Contract, ethers, JsonRpcProvider, parseUnits } from 'ethers';
+import { Contract, ethers, formatUnits, JsonRpcProvider } from 'ethers';
 import { AccountData } from '../types';
 import { ConnectedWallet } from '../ConnectedWallet';
 import { Input, EVMWallet as EVMBase } from '@fireblocks/wallet-derivation';
@@ -14,7 +14,6 @@ export class ERC20 extends EVMBase implements ConnectedWallet {
   public tokenAddress: string | undefined;
   public decimals: number | undefined;
   public toAddress: string | undefined;
-  private normalizingFactor: string | bigint | undefined;
 
   constructor(private input: Input) {
     super(input);
@@ -54,38 +53,36 @@ export class ERC20 extends EVMBase implements ConnectedWallet {
       this.relayLogger.error(`ERC20 Token decimals are unavailable: ${this.assetId}`);
       throw new Error(`ERC20 Token decimals are unavailable: ${this.assetId}`);
     }
-
-    this.normalizingFactor = (10 ** decimals).toString();
   }
 
   public setToAddress(toAddress: string) {
     this.toAddress = toAddress;
   }
 
+  private async getTokenBalanceInBaseUnits(): Promise<bigint> {
+    return BigInt(await this.contract!.balanceOf(this.address));
+  }
+
   public async getBalance(): Promise<number> {
-    const weiBalance: bigint = await this.contract?.balanceOf(this.address);
-    return Number(weiBalance / BigInt(this.normalizingFactor!));
+    return Number(formatUnits(await this.getTokenBalanceInBaseUnits(), this.decimals!));
   }
 
   public async prepare(): Promise<AccountData> {
     this.init();
     const nonce = await this.provider?.getTransactionCount(this.address, 'latest');
 
-    const displayBalance = await this.getBalance();
-    const ethBalance = await this.backendWallet?.getBalance();
-    if (!ethBalance) {
+    const tokenBalanceInBaseUnits = await this.getTokenBalanceInBaseUnits();
+    const displayBalance = Number(formatUnits(tokenBalanceInBaseUnits, this.decimals!));
+    const ethBalanceInWei = await this.provider!.getBalance(this.address);
+    if (!ethBalanceInWei) {
       this.relayLogger.error(`Fee asset balance not available`);
       throw new Error(`Fee asset balance not available`);
     }
-    const ethBalanceInWei = parseUnits(ethBalance.toString(), 'ether');
 
     const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = await this.provider!.getFeeData();
 
     const abiInterface = new ethers.Interface(erc20Abi);
-    const data = abiInterface.encodeFunctionData('transfer', [
-      this.toAddress,
-      BigInt(displayBalance) * BigInt(this.normalizingFactor!),
-    ]);
+    const data = abiInterface.encodeFunctionData('transfer', [this.toAddress, tokenBalanceInBaseUnits]);
 
     const tx = {
       to: this.tokenAddress,
@@ -100,7 +97,7 @@ export class ERC20 extends EVMBase implements ConnectedWallet {
     extraParams.set('gasPrice', gasPrice?.toString());
     extraParams.set('maxFee', maxFeePerGas?.toString());
     extraParams.set('priorityFee', maxPriorityFeePerGas?.toString());
-    extraParams.set('weiBalance', (BigInt(displayBalance) * BigInt(this.normalizingFactor!)).toString());
+    extraParams.set('weiBalance', tokenBalanceInBaseUnits.toString());
 
     const preparedData: AccountData = {
       balance: displayBalance,
@@ -108,8 +105,8 @@ export class ERC20 extends EVMBase implements ConnectedWallet {
       nonce,
       //@ts-ignore
       chainId: this.backendWallet?.chainId,
-      insufficientBalance: displayBalance <= 0,
-      insufficientBalanceForTokenTransfer: Number(ethBalanceInWei!) <= Number(gasPrice! * gasLimit!),
+      insufficientBalance: tokenBalanceInBaseUnits <= 0n,
+      insufficientBalanceForTokenTransfer: ethBalanceInWei <= gasPrice! * gasLimit!,
     };
     return preparedData;
   }
