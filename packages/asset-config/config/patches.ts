@@ -354,7 +354,7 @@ export const nativeAssetPatches: NativeAssetPatches = {
     segwit: false,
     minBalance: false,
     memo: false,
-    getExplorerUrl: getStandardExplorer('explorer.zcha.in'),
+    getExplorerUrl: getStandardExplorer('zecblock.com'),
   },
   ZEC_TEST: {
     derive: true,
