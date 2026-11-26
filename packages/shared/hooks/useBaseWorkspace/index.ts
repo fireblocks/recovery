@@ -72,7 +72,7 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
 
   const getExtendedKeysForAccountId = (
     accountId: number,
-  ): { xpub: string; fpub: string; xprv?: string; fprv?: string } | undefined => {
+  ): { xpub?: string; fpub?: string; xprv?: string; fprv?: string } | undefined => {
     if (app === 'relay') {
       return undefined;
     }
@@ -105,7 +105,8 @@ export const useBaseWorkspace = <App extends 'utility' | 'relay', Derivation ext
       fprv = eddsaKeyset[1].fprv;
     }
 
-    if (!xpub || !fpub) {
+    // A kit may hold only one curve (e.g. BAM-only or FROST-only).
+    if (!xpub && !fpub) {
       return undefined;
     }
     return { xpub, fpub, xprv, fprv };

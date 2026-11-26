@@ -28,7 +28,7 @@ export type BaseWorkspaceContext<
     params: Params,
   ) => string;
   setExtendedKeys: (extendedKeys: App extends 'utility' ? UtilityExtendedKeys : RelayExtendedKeys) => void;
-  getExtendedKeysForAccountId: (accoutId: number) => { xpub: string; fpub: string; xprv?: string; fprv?: string } | undefined;
+  getExtendedKeysForAccountId: (accoutId: number) => { xpub?: string; fpub?: string; xprv?: string; fprv?: string } | undefined;
   importCsv: (addressesCsv?: LocalFile, balancesCsv?: LocalFile) => Promise<void>;
   setTransaction: (transaction: Transaction) => void;
   addAccount: (name: string, accountId?: number) => number;

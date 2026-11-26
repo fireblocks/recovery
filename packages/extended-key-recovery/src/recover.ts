@@ -29,7 +29,7 @@ import { recoverMobileKeyShare } from './mobileKey';
 import { getPlayerId } from './players';
 import { reconstructKeys } from './reconstructKeys';
 import { recoverNCWMaster } from './ncw';
-import { Algorithm, ECDSA, ECDSA_CMP, EDDSA, EDDSA_CMP } from './algorithms';
+import { Algorithm, ECDSA, ECDSA_ALGORITHMS, EDDSA, EDDSA_ALGORITHMS } from './algorithms';
 
 const recoverKeysShares = (
   zipFiles: IZipEntry[],
@@ -98,7 +98,7 @@ const recoverKeysShares = (
   return players;
 };
 
-const tryGetRecoveredKeyForKeyset = (
+export const tryGetRecoveredKeyForKeyset = (
   keysets: CalculatedPrivateKeysets,
   keysetId: number,
   isEcdsa: boolean,
@@ -107,7 +107,11 @@ const tryGetRecoveredKeyForKeyset = (
   if (privateKeyForKeyset === undefined) {
     return [false, undefined, undefined, undefined];
   }
-  const valuesToCheck: Algorithm[] = isEcdsa ? [ECDSA, ECDSA_CMP] : [EDDSA, EDDSA_CMP];
+  // Returns the first algorithm present in the keyset, in ECDSA_ALGORITHMS / EDDSA_ALGORITHMS order
+  // (GG, CMP, then BAM/FROST). A keyset that holds both a 2-party key and a GG/CMP key lists the same
+  // public key for both in metadata.json, so they are the same key and selecting GG/CMP returns it.
+  // BAM/FROST are therefore only selected when the keyset has no GG/CMP key for that curve.
+  const valuesToCheck: Algorithm[] = isEcdsa ? ECDSA_ALGORITHMS : EDDSA_ALGORITHMS;
 
   for (const algo of valuesToCheck) {
     if (privateKeyForKeyset[algo] !== undefined) {

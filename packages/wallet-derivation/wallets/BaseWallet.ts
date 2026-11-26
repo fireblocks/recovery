@@ -88,10 +88,10 @@ export abstract class BaseWallet implements Derivation {
           }
 
           return false;
-        }) as [string, RecoveredKey | undefined];
-      if (keysetWithRecoveredKey[1] === undefined) {
-        // This should technically never happen
-        throw new Error('No keysets defined for minimal account');
+        }) as [string, RecoveredKey | undefined] | undefined;
+      if (keysetWithRecoveredKey?.[1] === undefined) {
+        // Reachable when the kit holds only the other curve (e.g. a FROST-only kit asked for ETH).
+        throw new Error(`This recovery kit has no ${algorithm} key, so ${input.assetId} cannot be derived`);
       }
       const { xprv, fprv, xpub, fpub } = keysetWithRecoveredKey[1];
       key = { xprv, fprv, xpub, fpub };
