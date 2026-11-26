@@ -1,12 +1,15 @@
 import { decryptMobilePrivateKey, decryptMobilePrivateKeyV2 } from './decrypt';
 import { getPlayerId } from './players';
 import { DecryptMobileKeyError, KeyIdNotInMetadata, MobileKeyShare, SigningKeyMetadata, UnknownAlgorithmError } from './types';
+import { ECDSA, ECDSA_BAM, ECDSA_CMP, EDDSA, EDDSA_CMP, EDDSA_FROST } from './algorithms';
 
 const algorithmMapping: { [key: string]: number } = {
-  MPC_ECDSA_SECP256K1: 0,
-  MPC_CMP_ECDSA_SECP256K1: 0,
-  MPC_EDDSA_ED25519: 1,
-  MPC_CMP_EDDSA_ED25519: 1,
+  [ECDSA]: 0,
+  [ECDSA_CMP]: 0,
+  [ECDSA_BAM]: 0,
+  [EDDSA]: 1,
+  [EDDSA_CMP]: 1,
+  [EDDSA_FROST]: 1,
 };
 
 // The apps encode the passphrase as UTF-8; earlier utility versions used raw char codes (Latin-1), so keep that as a fallback.
@@ -78,7 +81,11 @@ export const recoverMobileKeyShare = (
 
   if (decryptedKey.length === 36) {
     const algoId = decryptedKey.subarray(0, 4).readInt32LE();
-    if (algorithmMapping[signingKeys[keyId].algo.toString() as string] !== algoId) {
+    const expectedAlgoId = algorithmMapping[signingKeys[keyId].algo.toString() as string];
+    if (expectedAlgoId !== algoId) {
+      onLog?.(
+        `[mobileKey] Algo tag mismatch for ${signingKeys[keyId].algo}: share reports ${algoId}, expected ${expectedAlgoId}`,
+      );
       throw new UnknownAlgorithmError();
     }
     decryptedKey = decryptedKey.subarray(4);

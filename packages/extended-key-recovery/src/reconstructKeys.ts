@@ -9,7 +9,7 @@ import { modPow } from 'bigint-mod-arith';
 import { encode as encode_b58check, decode as decode_b58check } from 'bs58check';
 
 import { CalculatedPrivateKeysets, PlayerData, UnknownAlgorithmError } from './types';
-import { Algorithm } from './algorithms';
+import { Algorithm, ECDSA, ECDSA_ALGORITHMS, ECDSA_BAM, ECDSA_CMP, EDDSA, EDDSA_CMP, EDDSA_FROST } from './algorithms';
 import { SigningKeysMap } from './metadata';
 
 const _lagrangeCoefficient = (myId: string, allIds: string[], field: bigint): bigint => {
@@ -35,7 +35,7 @@ const _encodeKey = (key: string, algorithm: Algorithm, chainCode: Buffer, isPub:
   const keyBuffer = isPub
     ? Buffer.from(key.length === 66 ? key : '0'.repeat(66 - key.length) + key, 'hex')
     : Buffer.from(key.length === 64 ? key : '0'.repeat(64 - key.length) + key, 'hex');
-  const isECDSA = algorithm === 'MPC_CMP_ECDSA_SECP256K1' || algorithm === 'MPC_ECDSA_SECP256K1';
+  const isECDSA = ECDSA_ALGORITHMS.includes(algorithm);
   if (isPub) {
     buffers.push(Buffer.from(isECDSA ? '0488B21E' : '03273e4b', 'hex'));
   } else {
@@ -73,7 +73,7 @@ const _decodeKey = (prv: string): [string, Buffer] => {
 const calculateKeys = (keyId: string, playerData: { [key: string]: bigint }, algo: Algorithm): [string, string] => {
   let prvKey = BigInt(0);
   let pubKey: bigint | string = BigInt(-1);
-  if (algo === 'MPC_ECDSA_SECP256K1') {
+  if (algo === ECDSA) {
     for (const playerId of Object.keys(playerData)) {
       prvKey =
         (prvKey + playerData[playerId] * _lagrangeCoefficient(playerId, Object.keys(playerData), secp256k1.CURVE.n)) %
@@ -81,7 +81,7 @@ const calculateKeys = (keyId: string, playerData: { [key: string]: bigint }, alg
     }
     // @ts-ignore
     pubKey = secp256k1.ProjectivePoint.BASE.multiply(prvKey).toHex();
-  } else if (algo === 'MPC_EDDSA_ED25519') {
+  } else if (algo === EDDSA) {
     for (const playerId of Object.keys(playerData)) {
       prvKey =
         (prvKey + playerData[playerId] * _lagrangeCoefficient(playerId, Object.keys(playerData), ed25519.CURVE.n)) %
@@ -89,13 +89,14 @@ const calculateKeys = (keyId: string, playerData: { [key: string]: bigint }, alg
     }
     // @ts-ignore
     pubKey = ed25519.ExtendedPoint.BASE.multiply(prvKey).toHex();
-  } else if (algo === 'MPC_CMP_ECDSA_SECP256K1') {
+  } else if (algo === ECDSA_CMP || algo === ECDSA_BAM) {
+    // BAM is additive n-of-n like CMP, not a threshold scheme — its two shares sum to the key.
     for (const playerId of Object.keys(playerData)) {
       prvKey = (prvKey + playerData[playerId]) % secp256k1.CURVE.n;
     }
     // @ts-ignore
     pubKey = secp256k1.ProjectivePoint.BASE.multiply(prvKey).toHex();
-  } else if (algo === 'MPC_CMP_EDDSA_ED25519') {
+  } else if (algo === EDDSA_CMP || algo === EDDSA_FROST) {
     for (const playerId of Object.keys(playerData)) {
       prvKey = (prvKey + playerData[playerId]) % ed25519.CURVE.n;
     }
@@ -146,12 +147,12 @@ export const getPubsFromPrvs = (xprv?: string, fprv?: string): [string, string] 
   if (xprv) {
     const [xDecodedPrv, xChaincode] = _decodeKey(xprv);
     const xPubKey = secp256k1.ProjectivePoint.BASE.multiply(BigInt(`0x${xDecodedPrv}`)).toHex();
-    result[0] = _encodeKey(xPubKey, 'MPC_ECDSA_SECP256K1', xChaincode, true);
+    result[0] = _encodeKey(xPubKey, ECDSA, xChaincode, true);
   }
   if (fprv) {
     const [fDecodedPrv, fChaincode] = _decodeKey(fprv);
     const fPubKey = ed25519.ExtendedPoint.BASE.multiply(BigInt(`0x${fDecodedPrv}`)).toHex();
-    result[1] = _encodeKey(fPubKey, 'MPC_EDDSA_ED25519', fChaincode, true);
+    result[1] = _encodeKey(fPubKey, EDDSA, fChaincode, true);
   }
   return result;
 };

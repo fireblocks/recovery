@@ -139,10 +139,13 @@ export const reduceDerivations = <App extends 'utility' | 'relay', T extends Bas
     );
     if (eddsaKeyset !== undefined) {
       fpub = eddsaKeyset[1].fpub;
-      fprv = eddsaKeyset[1].xprv;
+      fprv = eddsaKeyset[1].fprv;
     }
 
-    if (!xpub || !fpub) {
+    // Either curve alone is enough — a kit can legitimately hold only an ECDSA key
+    // (e.g. BAM-only) or only an EdDSA key (e.g. FROST-only). BaseWallet checks the
+    // curve it actually needs per-asset, so it's not this gate's job to require both.
+    if (!xpub && !fpub) {
       keys = undefined;
     } else {
       keys = { xpub, fpub, xprv, fprv };
@@ -165,15 +168,24 @@ export const reduceDerivations = <App extends 'utility' | 'relay', T extends Bas
   // Derive wallet
   if (shouldDerive) {
     logger.info('Will derive wallet for input: ', sanatize(derivationInput));
-    const derivation = deriveWallet(derivationInput);
 
-    if (address && derivation.address !== address) {
-      // TODO: Show notice in UI when this happens. For now just remove the erroneous imported address
-      logger.warn(`Address mismatch, dropping import. Imported ${address}, derived ${derivation.address}`);
-      wallet.derivations.delete(getDerivationMapKey(assetId, address));
+    try {
+      const derivation = deriveWallet(derivationInput);
+
+      if (address && derivation.address !== address) {
+        // TODO: Show notice in UI when this happens. For now just remove the erroneous imported address
+        logger.warn(`Address mismatch, dropping import. Imported ${address}, derived ${derivation.address}`);
+        wallet.derivations.delete(getDerivationMapKey(assetId, address));
+      }
+
+      wallet.derivations.set(getDerivationMapKey(derivation.assetId, derivation.address), derivation);
+    } catch (e) {
+      // Without an imported address there is nothing to keep, so the caller reports the error.
+      if (!address) {
+        throw e;
+      }
+      logger.warn(`Failed to derive ${assetId}, keeping imported address ${address} unverified: ${e}`);
     }
-
-    wallet.derivations.set(getDerivationMapKey(derivation.assetId, derivation.address), derivation);
   }
 
   // Handle legacy + Segwit derivations
@@ -182,13 +194,19 @@ export const reduceDerivations = <App extends 'utility' | 'relay', T extends Bas
       Array.from(wallet.derivations.values()).filter((d) => d.path.addressIndex === path.addressIndex).length < 2;
 
     if (hasOneAddressForPath) {
-      const altDerivation = deriveWallet({
-        ...derivationInput,
-        isLegacy: !isLegacy,
-      });
+      try {
+        const altDerivation = deriveWallet({
+          ...derivationInput,
+          isLegacy: !isLegacy,
+        });
 
-      // Use the proper key format (assetId-address) for consistency with other derivations
-      wallet.derivations.set(getDerivationMapKey(altDerivation.assetId, altDerivation.address), altDerivation);
+        // Use the proper key format (assetId-address) for consistency with other derivations
+        wallet.derivations.set(getDerivationMapKey(altDerivation.assetId, altDerivation.address), altDerivation);
+      } catch (e) {
+        // The other address format is a bonus; if it can't be derived (e.g. the kit has no
+        // ECDSA key) it must not abort the account or drop what was already imported.
+        logger.warn(`Failed to derive alternative ${assetId} address format: ${e}`);
+      }
     }
   }
 
